@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:kpn_pos_application/custom_colors.dart';
+import 'package:kpn_pos_application/navigation/page_routes.dart';
 import 'package:kpn_pos_application/utils/dash_line.dart';
 import 'package:kpn_pos_application/utils/keypad_screen.dart';
 
@@ -11,9 +12,19 @@ class OrdersSection extends StatefulWidget {
   State<OrdersSection> createState() => _OrdersSectionState();
 }
 
-class _OrdersSectionState extends State<OrdersSection> {
+class _OrdersSectionState extends State<OrdersSection>
+    with WidgetsBindingObserver {
   String _selectedWidget = 'OPEN_REGISTER';
   String input = '';
+  final FocusNode _focusNode = FocusNode();
+  final TextEditingController _controller = TextEditingController();
+
+  @override
+  void initState() {
+    WidgetsBinding.instance.addObserver(this);
+    _focusNode.requestFocus();
+    super.initState();
+  }
 
   void _onKeyPressed(String value) {
     setState(() {
@@ -41,6 +52,21 @@ class _OrdersSectionState extends State<OrdersSection> {
   }
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _focusNode.requestFocus();
+    }
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _focusNode.dispose();
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Center(
       child: Row(
@@ -51,6 +77,12 @@ class _OrdersSectionState extends State<OrdersSection> {
                 color: Colors.white,
                 child: Column(
                   children: [
+                    SizedBox.shrink(
+                      child: TextField(
+                        focusNode: _focusNode,
+                        controller: _controller,
+                      ),
+                    ),
                     _buildOrderdetail(_selectedWidget, context),
                     Expanded(
                       // flex: 1,
@@ -912,7 +944,7 @@ class _OrdersSectionState extends State<OrdersSection> {
                           left: 4, right: 4, top: 10, bottom: 4),
                       child: ElevatedButton(
                         onPressed: () {
-                          // Respond to button press
+                          Get.offAndToNamed(PageRoutes.paymentSummary);
                         },
                         child: Column(
                           children: [
