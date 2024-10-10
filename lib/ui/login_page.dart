@@ -5,7 +5,6 @@ import 'package:get/route_manager.dart';
 import 'package:kpn_pos_application/blocs/login_bloc.dart';
 import 'package:kpn_pos_application/custom_colors.dart';
 import 'package:kpn_pos_application/navigation/page_routes.dart';
-import 'package:kpn_pos_application/ui/Common_button.dart';
 
 import 'common_text_field.dart';
 
