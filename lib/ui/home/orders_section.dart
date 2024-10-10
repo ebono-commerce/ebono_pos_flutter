@@ -944,7 +944,7 @@ class _OrdersSectionState extends State<OrdersSection>
                           left: 4, right: 4, top: 10, bottom: 4),
                       child: ElevatedButton(
                         onPressed: () {
-                          Get.offAndToNamed(PageRoutes.paymentSummary);
+                          Get.toNamed(PageRoutes.paymentSummary);
                        },
                         child: Column(
                           children: [
