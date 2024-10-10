@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:get/get.dart';
 import 'package:kpn_pos_application/utils/digital_weighing_scale_implementation.dart';
 import 'package:libserialport/libserialport.dart';
 
@@ -12,6 +13,7 @@ class DigitalWeighingScale implements DigitalWeighingScaleImplementation {
   static late SerialPortReader serialPortReader;
   static int factor = 1;
   static String initString = '';
+  final RxDouble weightController;
 
   /// initialize the serial port and call methods
   DigitalWeighingScale({
@@ -19,6 +21,7 @@ class DigitalWeighingScale implements DigitalWeighingScaleImplementation {
     required this.digitalScaleModel,
     required this.digitalScaleRate,
     required this.digitalScaleTimeout,
+    required this.weightController,
   }) {
     serialPort = SerialPort(digitalScalePort);
 
@@ -138,5 +141,22 @@ class DigitalWeighingScale implements DigitalWeighingScaleImplementation {
       serialPort.close();
       rethrow; // Propagate the error
     }
+  }
+
+  void listenToPort() {
+    String decodedWeight = '';
+    double weight = 0.00;
+
+    serialPortReader.stream.listen((data) {
+      decodedWeight += utf8.decode(data);
+      if (decodedWeight.length >= 9) {
+        weight = double.parse(decodedWeight);
+        weightController.value = weight;  // Directly update the weight
+        print('decoded weight: $weight');
+        decodedWeight = '';
+      }
+    }, onError: (error) {
+      print('Error reading port: $error');
+    });
   }
 }
