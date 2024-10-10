@@ -42,8 +42,6 @@ flutter:
   assets:
     - assets/images/
     - assets/
-    - assets/images/invoice.pdf/
-    - assets/invoice.pdf/
     # - assets/images/vegetables.png
     
   #   - images/a_dot_ham.jpeg

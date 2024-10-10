@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:kpn_pos_application/custom_colors.dart';
+import 'package:kpn_pos_application/navigation/page_routes.dart';
 import 'package:kpn_pos_application/utils/dash_line.dart';
 import 'package:kpn_pos_application/utils/keypad_screen.dart';
 
@@ -912,8 +913,8 @@ class _OrdersSectionState extends State<OrdersSection> {
                           left: 4, right: 4, top: 10, bottom: 4),
                       child: ElevatedButton(
                         onPressed: () {
-                          // Respond to button press
-                        },
+                          Get.offAndToNamed(PageRoutes.paymentSummary  );
+                       },
                         child: Column(
                           children: [
                             Text(
