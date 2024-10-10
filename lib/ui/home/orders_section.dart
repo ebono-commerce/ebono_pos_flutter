@@ -28,8 +28,14 @@ class _OrdersSectionState extends State<OrdersSection>
 
   @override
   void initState() {
-    WidgetsBinding.instance.addObserver(this);
-    _focusNode.requestFocus();
+    _controller.addListener(() {
+      setState(() {
+        input = _controller.text;
+      });
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _focusNode.requestFocus();
+    });
     super.initState();
   }
 
@@ -58,13 +64,13 @@ class _OrdersSectionState extends State<OrdersSection>
     });
   }
 
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      _focusNode.requestFocus();
-    }
-  }
-
+  // @override
+  // void didChangeAppLifecycleState(AppLifecycleState state) {
+  //   if (state == AppLifecycleState.resumed) {
+  //     _focusNode.requestFocus();
+  //   }
+  // }
+  //
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
@@ -86,12 +92,6 @@ class _OrdersSectionState extends State<OrdersSection>
                 color: Colors.white,
                 child: Column(
                   children: [
-                    SizedBox.shrink(
-                      child: TextField(
-                        focusNode: _focusNode,
-                        controller: _controller,
-                      ),
-                    ),
                     _buildOrderdetail(_selectedWidget, context),
                     Expanded(
                       // flex: 1,
@@ -429,12 +429,14 @@ class _OrdersSectionState extends State<OrdersSection>
               ),
             ],
           ),
-          Table(
-            border: TableBorder.symmetric(
-                outside: BorderSide(width: 1, color: Color(0xFFF7F7F7))),
-            // Optional: to add borders to the table
 
-            columnWidths: {
+          input != ""
+              ? Table(
+                  border: TableBorder.symmetric(
+                      outside: BorderSide(width: 1, color: Color(0xFFF7F7F7))),
+                  // Optional: to add borders to the table
+
+                  columnWidths: {
               0: FlexColumnWidth(2),
               1: FlexColumnWidth(3),
               2: FlexColumnWidth(2),
@@ -445,8 +447,9 @@ class _OrdersSectionState extends State<OrdersSection>
             children: [
               TableRow(
                 decoration: BoxDecoration(
-                    // color: Colors.grey.shade300,
-                    border: Border.all(color: Colors.grey.shade300, width: 1)),
+                  // color: Colors.grey.shade300,
+                    border: Border.all(
+                        color: Colors.grey.shade300, width: 1)),
                 // decoration: BoxDecoration(
                 //   color: Colors.white,
                 // ),
@@ -461,12 +464,13 @@ class _OrdersSectionState extends State<OrdersSection>
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           softWrap: true,
-                          style: Theme.of(context)
+                          style: Theme
+                              .of(context)
                               .textTheme
                               .labelLarge
                               ?.copyWith(
-                                  fontWeight: FontWeight.w500,
-                                  color: CustomColors.black),
+                              fontWeight: FontWeight.w500,
+                              color: CustomColors.black),
                         )),
                   ),
                   Container(
@@ -479,12 +483,13 @@ class _OrdersSectionState extends State<OrdersSection>
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                           softWrap: true,
-                          style: Theme.of(context)
+                          style: Theme
+                              .of(context)
                               .textTheme
                               .labelLarge
                               ?.copyWith(
-                                  fontWeight: FontWeight.w500,
-                                  color: CustomColors.black),
+                              fontWeight: FontWeight.w500,
+                              color: CustomColors.black),
                         )),
                   ),
                   Container(
@@ -493,7 +498,11 @@ class _OrdersSectionState extends State<OrdersSection>
                     child: Padding(
                       padding: const EdgeInsets.all(2.0),
                       child: TextField(
-                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                        style: Theme
+                            .of(context)
+                            .textTheme
+                            .labelLarge
+                            ?.copyWith(
                             fontWeight: FontWeight.w500,
                             color: CustomColors.black),
                         decoration: InputDecoration(
@@ -502,16 +511,16 @@ class _OrdersSectionState extends State<OrdersSection>
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
                               borderSide: BorderSide(
-                                color:
-                                    Colors.grey.shade300, // Normal border color
+                                color: Colors
+                                    .grey.shade300, // Normal border color
                                 width: 1,
                               ),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
                               borderSide: BorderSide(
-                                color: Colors
-                                    .grey.shade300, // Focused border color
+                                color: Colors.grey
+                                    .shade300, // Focused border color
                                 width: 1,
                               ),
                             ),
@@ -525,7 +534,8 @@ class _OrdersSectionState extends State<OrdersSection>
                             focusedErrorBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
                               borderSide: BorderSide(
-                                color: Colors.red, // Focused error border color
+                                color: Colors
+                                    .red, // Focused error border color
                                 width: 1,
                               ),
                             ),
@@ -551,12 +561,13 @@ class _OrdersSectionState extends State<OrdersSection>
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           softWrap: true,
-                          style: Theme.of(context)
+                          style: Theme
+                              .of(context)
                               .textTheme
                               .labelLarge
                               ?.copyWith(
-                                  fontWeight: FontWeight.w500,
-                                  color: CustomColors.black),
+                              fontWeight: FontWeight.w500,
+                              color: CustomColors.black),
                         )),
                   ),
                   Container(
@@ -569,12 +580,13 @@ class _OrdersSectionState extends State<OrdersSection>
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             softWrap: true,
-                            style: Theme.of(context)
+                            style: Theme
+                                .of(context)
                                 .textTheme
                                 .labelLarge
                                 ?.copyWith(
-                                    fontWeight: FontWeight.w500,
-                                    color: CustomColors.black),
+                                fontWeight: FontWeight.w500,
+                                color: CustomColors.black),
                           ))),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
@@ -602,22 +614,23 @@ class _OrdersSectionState extends State<OrdersSection>
                               ),
                               // Custom padding
 
-                              // contentPadding: EdgeInsets.all(0),
-                              title: '',
-                              // Empty title to remove space
-                              middleText: '',
-                              titlePadding: EdgeInsets.all(0),
-                              barrierDismissible: false,
-                              backgroundColor: Colors.white,
-                              content: _buildRemoveDialog());
-                        },
-                      ),
+                                    // contentPadding: EdgeInsets.all(0),
+                                    title: '',
+                                    // Empty title to remove space
+                                    middleText: '',
+                                    titlePadding: EdgeInsets.all(0),
+                                    barrierDismissible: false,
+                                    backgroundColor: Colors.white,
+                                    content: _buildRemoveDialog());
+                              },
+                            ),
+                          ),
+                        )
+                      ],
                     ),
-                  )
-                ],
-              ),
-            ],
-          ),
+                  ],
+                )
+              : Container()
         ],
       ),
     );
@@ -628,6 +641,8 @@ class _OrdersSectionState extends State<OrdersSection>
   }
 
   Widget _buildNumberPadSection() {
+    print(" Barcode : ${input}");
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5),
       child: Column(
@@ -756,7 +771,8 @@ class _OrdersSectionState extends State<OrdersSection>
                           Padding(
                             padding: const EdgeInsets.all(10.0),
                             child: TextField(
-                              controller: TextEditingController(text: input),
+                              focusNode: _focusNode,
+                              controller: _controller,
                               decoration: InputDecoration(
                                 fillColor: Colors.white,
                                 focusColor: Colors.white,
@@ -812,14 +828,17 @@ class _OrdersSectionState extends State<OrdersSection>
                                   ),
                                 ),
                               ),
+                              onEditingComplete: () {
+                                setState(() {
+                                  input = _controller.text;
+                                });
+                              },
+                              onChanged: (data) {
+                                setState(() {
+                                  input = data;
+                                });
+                              },
                             ),
-                            // TextField(
-                            //   decoration: InputDecoration(
-                            //     labelText: 'Enter Code, Quantity',
-                            //   ),
-                            //   readOnly: true,
-                            //   controller: TextEditingController(text: input),
-                            // ),
                           ),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -2166,3 +2185,10 @@ class _OrdersSectionState extends State<OrdersSection>
                             ),
                          
 */
+class StringController extends GetxController {
+  var barCodeInput = ''.obs;
+
+  void updateInput(String value) {
+    barCodeInput.value = value;
+  }
+}
