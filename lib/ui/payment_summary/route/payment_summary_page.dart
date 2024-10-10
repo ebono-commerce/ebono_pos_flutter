@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:kpn_pos_application/custom_colors.dart';
 import 'package:kpn_pos_application/navigation/page_routes.dart';
 import 'package:kpn_pos_application/theme/theme_data.dart';
+import 'package:kpn_pos_application/ui/payment_summary/route/print_receipt.dart';
 
 import '../../Common_button.dart';
 import '../../common_text_field.dart';
@@ -572,13 +573,13 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                     SizedBox(
                       width: 300,
                       height: 100,
-                      child:ElevatedButton(
+                      child: ElevatedButton(
                         style: elevatedButtonStyle(
                             theme: theme,
                             textStyle: theme.textTheme.bodyMedium,
                             padding: EdgeInsets.all(12)),
                         onPressed: () {
-                          Get.offAndToNamed(PageRoutes.printReceipt);
+                          printReceipt();
                         },
                         child: Text(
                           "Mark Complete",
