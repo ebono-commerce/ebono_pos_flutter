@@ -14,7 +14,6 @@ dependencies:
   flutter_bloc: ^8.1.6
   get: ^4.6.6
   http: ^1.2.2
-  printing: any
   cupertino_icons: ^1.0.8
   google_fonts: ^6.2.1
   dropdown_search: ^6.0.1
