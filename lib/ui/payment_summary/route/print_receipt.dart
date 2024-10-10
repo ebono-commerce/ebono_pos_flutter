@@ -42,7 +42,7 @@ Future<Uint8List> generatePdf() async {
             crossAxisAlignment: pw.CrossAxisAlignment.center,
             children: [
               pw.Text(
-                'Ebono POS',
+                'EBONO POS',
                 textAlign: pw.TextAlign.center,
                 style: pw.TextStyle(
                   fontSize: 30 * fontSizeFactor,

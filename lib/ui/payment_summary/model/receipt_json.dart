@@ -4,7 +4,7 @@ const jsonData = '''
     "order_type": "B2C",
     "payment_mode": "CASH",
     "order_number": "100006709",
-    "seller_address": "EBO Mart Pvt Ltd\\nMarathahalli - Sarjapur Rd -\\nST002, Yamare Village,\\nSarjapur, Bengaluru,\\nKarnataka, Near Prestige City,\\nIndia, 562125\\n Phone Number : 9980687569\\nGSTIN : 29AAGCE1517R1Z5\\nState Code : 29\\n",
+    "seller_address": "EBONO Pvt Ltd\\nMarathahalli - Sarjapur Rd -\\nST002, Yamare Village,\\nSarjapur, Bengaluru,\\nKarnataka, Near Prestige City,\\nIndia, 562125\\n Phone Number : 9980687569\\nGSTIN : 29AAGCE1517R1Z5\\nState Code : 29\\n",
     "billing_address": "Jagath Ratchagan\\nSy No 54 and 55/1, Yamare\\nVillage, Dommasandara,\\nSarjapura Hobli, Anekal Taluk,\\nBangalore Urban Dist, KA,\\nIndia, 562125\\n Phone Number : 9916727837\\nGSTIN : UNREGISTERED\\nState Code : 29\\n",
     "customer_name": "Jagath Ratchagan",
     "ship_address": "Jagath Ratchagan\\nSy No 54 and 55/1, Yamare\\nVillage, Dommasandara,\\nSarjapura Hobli, Anekal Taluk,\\nBangalore Urban Dist, KA,\\nIndia, 562125\\n Phone Number : 9916727837\\nGSTIN : UNREGISTERED\\nState Code : 29\\n",
@@ -37,7 +37,7 @@ const jsonData = '''
     },
     "invoice_lines_details": [
         {
-            "description": "Ceramic Wall Tile | Product Code: 1000520028  |  HSN: 62071920",
+            "description": "Dawat basmati rice 1kg Dawat basmati rice 1kg | Product Code: 1000520028  |  HSN: 62071920",
             "offer_id": "1000520028",
             "hsn_code": "62071920",
             "qty": "15",
@@ -51,7 +51,7 @@ const jsonData = '''
             "unit_line_total": "15,000.00"
         },
         {
-            "description": "Somany Wall Tile | Product Code: 1000520028  |  HSN: 62071920",
+            "description": "Dawat basmati rice 1kg Dawat basmati rice 1kg | Product Code: 1000520028  |  HSN: 62071920",
             "offer_id": "1000520028",
             "hsn_code": "62071920",
             "qty": "15",

@@ -18,6 +18,5 @@ abstract class DigitalWeighingScaleImplementation {
   /// create the listener, get the weight and return in double format.
   Future<void> getWeight();
 
-  Stream<double> getWeightAsStream();
 
 }

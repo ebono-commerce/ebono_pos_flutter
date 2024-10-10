@@ -579,8 +579,8 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                             textStyle: theme.textTheme.bodyMedium,
                             padding: EdgeInsets.all(12)),
                         onPressed: () {
-                          printReceipt();
-                          Get.offAndToNamed(PageRoutes.weightDisplay);
+                         printReceipt();
+                         /// Get.offAndToNamed(PageRoutes.weightDisplay);
 
                         },
                         child: Text(

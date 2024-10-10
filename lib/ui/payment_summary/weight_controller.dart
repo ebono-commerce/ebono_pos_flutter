@@ -13,6 +13,8 @@ class WeightController extends GetxController {
       digitalScaleTimeout: timeout,
       weightController: weight,
     );
+    digitalWeighingScale.getWeight();
+
 
   }
 

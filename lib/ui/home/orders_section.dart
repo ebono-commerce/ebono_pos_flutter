@@ -5,6 +5,8 @@ import 'package:kpn_pos_application/navigation/page_routes.dart';
 import 'package:kpn_pos_application/utils/dash_line.dart';
 import 'package:kpn_pos_application/utils/keypad_screen.dart';
 
+import '../payment_summary/weight_controller.dart';
+
 class OrdersSection extends StatefulWidget {
   const OrdersSection({super.key});
 
@@ -18,6 +20,11 @@ class _OrdersSectionState extends State<OrdersSection>
   String input = '';
   final FocusNode _focusNode = FocusNode();
   final TextEditingController _controller = TextEditingController();
+  final String port = 'COM3';  // Replace with actual port
+  final String model = 'alfa';
+  final int rate = 9600;
+  final int timeout = 1000;
+ late WeightController weightController ;
 
   @override
   void initState() {
@@ -68,6 +75,8 @@ class _OrdersSectionState extends State<OrdersSection>
 
   @override
   Widget build(BuildContext context) {
+      weightController = Get.put(WeightController(port, model, rate, timeout));
+
     return Center(
       child: Row(
         children: [
@@ -287,53 +296,60 @@ class _OrdersSectionState extends State<OrdersSection>
                     padding: const EdgeInsets.all(2.0),
                     child: Padding(
                       padding: const EdgeInsets.all(2.0),
-                      child: TextField(
-                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                            fontWeight: FontWeight.w500,
-                            color: CustomColors.black),
-                        decoration: InputDecoration(
-                            fillColor: Colors.white,
-                            focusColor: Colors.white,
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: BorderSide(
-                                color:
-                                    Colors.grey.shade300, // Normal border color
-                                width: 1,
+                      child: Obx(() {
+                        return TextField(
+                          controller: TextEditingController(text: ' ${weightController.weight.value}'),
+                          style: Theme.of(context)
+                              .textTheme
+                              .labelLarge
+                              ?.copyWith(
+                                  fontWeight: FontWeight.w500,
+                                  color: CustomColors.black),
+                          decoration: InputDecoration(
+                              fillColor: Colors.white,
+                              focusColor: Colors.white,
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                borderSide: BorderSide(
+                                  color: Colors
+                                      .grey.shade300, // Normal border color
+                                  width: 1,
+                                ),
                               ),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: BorderSide(
-                                color: Colors
-                                    .grey.shade300, // Focused border color
-                                width: 1,
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                borderSide: BorderSide(
+                                  color: Colors
+                                      .grey.shade300, // Focused border color
+                                  width: 1,
+                                ),
                               ),
-                            ),
-                            errorBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: BorderSide(
-                                color: Colors.red, // Error border color
-                                width: 1,
+                              errorBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                borderSide: BorderSide(
+                                  color: Colors.red, // Error border color
+                                  width: 1,
+                                ),
                               ),
-                            ),
-                            focusedErrorBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: BorderSide(
-                                color: Colors.red, // Focused error border color
-                                width: 1,
+                              focusedErrorBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                borderSide: BorderSide(
+                                  color: Colors.red,
+                                  // Focused error border color
+                                  width: 1,
+                                ),
                               ),
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: BorderSide(
-                                color: Colors.grey.shade300,
-                                width: 1,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                borderSide: BorderSide(
+                                  color: Colors.grey.shade300,
+                                  width: 1,
+                                ),
                               ),
-                            ),
-                            hintText: "000.099",
-                            suffixText: "KG"),
-                      ),
+                              hintText: "000.099",
+                              suffixText: "KG"),
+                        );
+                      }),
                     ),
                   ),
                   Container(
@@ -945,7 +961,7 @@ class _OrdersSectionState extends State<OrdersSection>
                       child: ElevatedButton(
                         onPressed: () {
                           Get.toNamed(PageRoutes.paymentSummary);
-                       },
+                        },
                         child: Column(
                           children: [
                             Text(

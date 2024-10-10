@@ -106,6 +106,7 @@ class DigitalWeighingScale implements DigitalWeighingScaleImplementation {
         decodedWeight += utf8.decode(data);
         if(decodedWeight.length >= 9){
           weight = double.parse(decodedWeight);
+          weightController.value = weight;
           print('decoded weight $weight');
           decodedWeight = '';
         }
@@ -117,46 +118,5 @@ class DigitalWeighingScale implements DigitalWeighingScaleImplementation {
     }
   }
 
-  @override
-  Stream<double> getWeightAsStream() async* {
-    String decodedWeight = '';
-    StreamSubscription? subscription;
-    double weight = 0.00;
 
-    try {
-      while (true) {
-        while (true) {
-          final data = await serialPortReader.port.read(1024);
-          decodedWeight += utf8.decode(data);
-          if (decodedWeight.length >= 9) {
-            final weight = double.parse(decodedWeight);
-            print('decoded weight $weight');
-            decodedWeight = '';
-            yield weight;
-          }
-        }
-        }
-    } catch (e) {
-      print('digital scale error: $e');
-      serialPort.close();
-      rethrow; // Propagate the error
-    }
-  }
-
-  void listenToPort() {
-    String decodedWeight = '';
-    double weight = 0.00;
-
-    serialPortReader.stream.listen((data) {
-      decodedWeight += utf8.decode(data);
-      if (decodedWeight.length >= 9) {
-        weight = double.parse(decodedWeight);
-        weightController.value = weight;  // Directly update the weight
-        print('decoded weight: $weight');
-        decodedWeight = '';
-      }
-    }, onError: (error) {
-      print('Error reading port: $error');
-    });
-  }
 }
