@@ -229,7 +229,7 @@ class _LoginPageState extends State<LoginPage> {
                   elevation: 6,
                 ),
                 onPressed: () {
-                  Get.offAndToNamed(PageRoutes.home);
+                  Get.toNamed(PageRoutes.home);
                 },
                 child: Text(
                   'Sign In',
