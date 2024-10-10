@@ -267,6 +267,13 @@ void printReceipt() async {
 
   // Print without showing preview
   await Printing.layoutPdf(
-    onLayout: (PdfPageFormat format) async => pdfBytes,
+    onLayout: (PdfPageFormat format) async {
+
+      // Add the ESC/POS command for cutting the paper
+      final Uint8List cutPaperCommand = Uint8List.fromList([27, 105]);
+
+      // Combine the PDF data with the cut command
+      return Uint8List.fromList([...pdfBytes, ...cutPaperCommand]);
+    },
   );
 }
