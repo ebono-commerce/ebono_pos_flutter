@@ -216,14 +216,21 @@ class _LoginPageState extends State<LoginPage> {
               width: double.infinity,
               height: 60,
               child: ElevatedButton(
-                style: elevatedButtonStyle(
-                    theme: theme,
-                    elevation: 6,
-                    textStyle: theme.textTheme.titleLarge,
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 20, vertical: 12)),
+
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).colorScheme.secondary,
+                  textStyle: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.w500,
+                      ),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  elevation: 6,
+                ),
                 onPressed: () {
-                  Get.toNamed(PageRoutes.paymentSummary);
+                  Get.offAndToNamed('/home');
                 },
                 child: Text(
                   'Sign In',

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kpn_pos_application/custom_colors.dart';
 import 'package:kpn_pos_application/ui/home/order_on_hold.dart';
 import 'package:kpn_pos_application/ui/home/orders_section.dart';
 import 'package:kpn_pos_application/ui/home/register_section.dart';
@@ -15,6 +16,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _selectedButton = 2;
+  bool isOnline = false;
 
   @override
   void initState() {
@@ -54,7 +56,9 @@ class _HomePageState extends State<HomePage> {
                     children: [
                       Text(
                         'Register',
-                        style: TextStyle(color: Colors.black),
+                        style:
+                            Theme.of(context).textTheme.titleSmall?.copyWith(),
+                        //   style: TextStyle(color: Colors.black),
                       ),
                       _selectedButton == 1
                           ? Container(
@@ -93,7 +97,9 @@ class _HomePageState extends State<HomePage> {
                     children: [
                       Text(
                         'Order',
-                        style: TextStyle(color: Colors.black),
+                        style:
+                            Theme.of(context).textTheme.titleSmall?.copyWith(),
+                        // style: TextStyle(color: Colors.black),
                       ),
                       _selectedButton == 2
                           ? Container(
@@ -132,7 +138,9 @@ class _HomePageState extends State<HomePage> {
                     children: [
                       Text(
                         'Orders on hold',
-                        style: TextStyle(color: Colors.black),
+                        style:
+                            Theme.of(context).textTheme.titleSmall?.copyWith(),
+                        //  style: TextStyle(color: Colors.black),
                       ),
                       _selectedButton == 3
                           ? Container(
@@ -162,28 +170,54 @@ class _HomePageState extends State<HomePage> {
                 children: [
                   Text(
                     'Employee Name | Andheri East',
-                    style: TextStyle(color: Colors.black, fontSize: 13),
+                    style: Theme.of(context)
+                        .textTheme
+                        .labelMedium
+                        ?.copyWith(color: CustomColors.black),
+                    // style: TextStyle(color: Colors.black, fontSize: 13),
                   ),
                   SizedBox(height: 5),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Icon(
-                        Icons.wifi,
-                        color: Colors.green,
-                        size: 10,
-                      ),
-                      SizedBox(width: 5),
-                      Text(
-                        'ONLINE',
-                        style: TextStyle(color: Colors.green, fontSize: 11),
-                      ),
-                      SizedBox(width: 5),
-                      Text(
-                        'Counter 12',
-                        style: TextStyle(color: Colors.black, fontSize: 12),
-                      ),
-                    ],
+                  InkWell(
+                    onTap: () {
+                      setState(() {
+                        isOnline = !isOnline;
+                      });
+                    },
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        ImageIcon(
+                          size: 20,
+                          color: isOnline == true
+                              ? CustomColors.green
+                              : CustomColors.red,
+                          isOnline == true
+                              ? AssetImage('assets/images/ic_online.png')
+                              : AssetImage('assets/images/ic_offline.png'),
+                        ),
+                        SizedBox(width: 5),
+                        Text(
+                          isOnline == true ? 'ONLINE' : "OFFLINE",
+                          style: Theme.of(context)
+                              .textTheme
+                              .labelMedium
+                              ?.copyWith(
+                                  color: isOnline == true
+                                      ? CustomColors.green
+                                      : CustomColors.red),
+                          //  style: TextStyle(color: Colors.green, fontSize: 11),
+                        ),
+                        SizedBox(width: 5),
+                        Text(
+                          'Counter 12',
+                          style: Theme.of(context)
+                              .textTheme
+                              .labelMedium
+                              ?.copyWith(color: CustomColors.black),
+                          //  style: TextStyle(color: Colors.black, fontSize: 12),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
