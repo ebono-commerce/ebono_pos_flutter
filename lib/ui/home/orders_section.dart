@@ -8,7 +8,8 @@ import 'package:kpn_pos_application/utils/keypad_screen.dart';
 import '../payment_summary/weight_controller.dart';
 
 class OrdersSection extends StatefulWidget {
-  const OrdersSection({super.key});
+  final WeightController weightController;
+  const OrdersSection(this.weightController, {super.key});
 
   @override
   State<OrdersSection> createState() => _OrdersSectionState();
@@ -20,13 +21,10 @@ class _OrdersSectionState extends State<OrdersSection>
   String input = '';
   final FocusNode _focusNode = FocusNode();
   final TextEditingController _controller = TextEditingController();
-  final String port = 'COM3';  // Replace with actual port
-  final String model = 'alfa';
-  final int rate = 9600;
-  final int timeout = 1000;
- late WeightController weightController ;
+  late WeightController weightController ;
 
   @override
+
   void initState() {
     _controller.addListener(() {
       setState(() {
@@ -36,6 +34,9 @@ class _OrdersSectionState extends State<OrdersSection>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _focusNode.requestFocus();
     });
+    if(mounted == true){
+      weightController = widget.weightController;
+    }
     super.initState();
   }
 
@@ -79,10 +80,9 @@ class _OrdersSectionState extends State<OrdersSection>
     super.dispose();
   }
 
+
   @override
   Widget build(BuildContext context) {
-      weightController = Get.put(WeightController(port, model, rate, timeout));
-
     return Center(
       child: Row(
         children: [
@@ -298,7 +298,7 @@ class _OrdersSectionState extends State<OrdersSection>
                       padding: const EdgeInsets.all(2.0),
                       child: Obx(() {
                         return TextField(
-                          controller: TextEditingController(text: ' ${weightController.weight.value}'),
+                          controller: TextEditingController(text: ' ${widget.weightController.weight.value}'),
                           style: Theme.of(context)
                               .textTheme
                               .labelLarge
@@ -1752,7 +1752,7 @@ class _OrdersSectionState extends State<OrdersSection>
         },
         child: Center(
           child: Text("$label",
-              style: Theme.of(context).textTheme.labelMedium?.copyWith(
+              style: Theme.of(context).textTheme.labelLarge?.copyWith(
                   fontWeight: FontWeight.w600, color: CustomColors.primaryColor)
               // style: TextStyle(
               //     color: Color(0xFF066A69),

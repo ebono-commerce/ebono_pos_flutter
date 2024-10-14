@@ -27,7 +27,7 @@ Future<Uint8List> generatePdf() async {
   final pdf = pw.Document();
   final font = await PdfGoogleFonts.nunitoExtraLight();
   final fontSizeFactor =
-      PdfPageFormat.roll80.availableWidth / PdfPageFormat.a6.availableWidth;
+      PdfPageFormat.roll80.availableWidth / PdfPageFormat.a4.availableWidth;
 
   final data = InvoiceData.fromJson(json.decode(jsonData));
 
@@ -45,7 +45,7 @@ Future<Uint8List> generatePdf() async {
                 'EBONO POS',
                 textAlign: pw.TextAlign.center,
                 style: pw.TextStyle(
-                  fontSize: 30 * fontSizeFactor,
+                  fontSize: 40 * fontSizeFactor,
                   fontWeight: pw.FontWeight.bold,
                   font: font,
                 ),
