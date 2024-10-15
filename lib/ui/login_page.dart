@@ -1,6 +1,7 @@
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:get/route_manager.dart';
 import 'package:kpn_pos_application/blocs/login_bloc.dart';
 import 'package:kpn_pos_application/custom_colors.dart';
@@ -97,9 +98,11 @@ class _LoginPageState extends State<LoginPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Placeholder for logo
-            FlutterLogo(
-              size: 175,
+            SvgPicture.asset(
+              'assets/images/pos_logo.svg',
+              semanticsLabel: 'cash icon,',
+              width: 175,
+              height: 175,
             ),
             SizedBox(height: 40),
             Text(

@@ -42,9 +42,7 @@ flutter:
   assets:
     - assets/images/
     - assets/
-    # - assets/images/vegetables.png
-    
-  #   - images/a_dot_ham.jpeg
+
 
 
 
