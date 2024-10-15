@@ -29,8 +29,12 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    if(mounted == true){
-      weightController = Get.put(WeightController(port, model, rate, timeout));
+    try {
+      if(mounted == true){
+        weightController = Get.put(WeightController(port, model, rate, timeout));
+      }
+    } on Exception catch (e) {
+      print(e);
     }
   }
 
