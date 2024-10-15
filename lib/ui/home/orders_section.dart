@@ -25,7 +25,7 @@ class _OrdersSectionState extends State<OrdersSection>
   final TextEditingController _controller = TextEditingController();
   late WeightController weightController ;
 
-  late HomeController homeController;
+  //late HomeController homeController;
 
   @override
 
@@ -40,7 +40,7 @@ class _OrdersSectionState extends State<OrdersSection>
     });
     if(mounted == true){
       weightController = widget.weightController;
-      homeController = widget.homeController;
+      // homeController = widget.homeController;
     }
     super.initState();
   }
@@ -88,6 +88,8 @@ class _OrdersSectionState extends State<OrdersSection>
 
   @override
   Widget build(BuildContext context) {
+    final HomeController homeController = Get.put(HomeController());
+
     return Center(
       child: Row(
         children: [
