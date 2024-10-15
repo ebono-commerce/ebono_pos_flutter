@@ -25,7 +25,7 @@ class PrintReceiptPage extends StatelessWidget {
 
 Future<Uint8List> generatePdf() async {
   final pdf = pw.Document();
-  final font = await PdfGoogleFonts.nunitoExtraLight();
+  final font = await PdfGoogleFonts.interRegular();
   final fontSizeFactor =
       PdfPageFormat.roll80.availableWidth / PdfPageFormat.a4.availableWidth;
 
