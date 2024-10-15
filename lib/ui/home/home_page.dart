@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 import 'package:kpn_pos_application/custom_colors.dart';
 import 'package:kpn_pos_application/ui/home/order_on_hold.dart';
 import 'package:kpn_pos_application/ui/home/orders_section.dart';
@@ -26,11 +25,14 @@ class _HomePageState extends State<HomePage> {
   final int timeout = 1000;
   late WeightController weightController ;
 
+  late HomeController homeController;
+
   @override
   void initState() {
     super.initState();
     if(mounted == true){
       weightController = Get.put(WeightController(port, model, rate, timeout));
+      homeController = Get.put(HomeController());
     }
   }
 
@@ -241,7 +243,7 @@ class _HomePageState extends State<HomePage> {
         child: _selectedButton == 1
             ? RegisterSection()
             : _selectedButton == 2
-                ? OrdersSection(weightController)
+                ? OrdersSection(weightController, homeController)
                 : _selectedButton == 3
                     ? OrderOnHold()
                     : Container(),

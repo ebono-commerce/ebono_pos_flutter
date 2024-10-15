@@ -9,7 +9,9 @@ import '../payment_summary/weight_controller.dart';
 
 class OrdersSection extends StatefulWidget {
   final WeightController weightController;
-  const OrdersSection(this.weightController, {super.key});
+  final HomeController homeController;
+
+  const OrdersSection(this.weightController, this.homeController, {super.key});
 
   @override
   State<OrdersSection> createState() => _OrdersSectionState();
@@ -22,6 +24,8 @@ class _OrdersSectionState extends State<OrdersSection>
   final FocusNode _focusNode = FocusNode();
   final TextEditingController _controller = TextEditingController();
   late WeightController weightController ;
+
+  late HomeController homeController;
 
   @override
 
@@ -36,6 +40,7 @@ class _OrdersSectionState extends State<OrdersSection>
     });
     if(mounted == true){
       weightController = widget.weightController;
+      homeController = widget.homeController;
     }
     super.initState();
   }
@@ -123,7 +128,7 @@ class _OrdersSectionState extends State<OrdersSection>
             flex: 2, // 0.2 ratio
             child: Container(
               margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
-              child: Center(child: _buildNumberPadSection()),
+              child: Center(child: _buildNumberPadSection(homeController)),
             ),
           ),
           Expanded(
@@ -640,274 +645,19 @@ class _OrdersSectionState extends State<OrdersSection>
     return KeypadScreen();
   }
 
-  Widget _buildNumberPadSection() {
+  Widget _buildNumberPadSection(HomeController homeController) {
     print(" Barcode : ${input}");
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 5),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                border: Border.all(color: Colors.grey),
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(10),
-                  topRight: Radius.circular(10),
-                  bottomLeft: Radius.circular(10),
-                  bottomRight: Radius.circular(10),
-                ),
-                // borderRadius: BorderRadius.circular(
-                //     10),
-                shape: BoxShape.rectangle,
-              ),
-              child: Column(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(10.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              child: Text('Alphonso Mango',
-                                  maxLines: 2,
-                                  softWrap: true,
-                                  style: TextStyle(
-                                      overflow: TextOverflow.ellipsis,
-                                      color: Colors.black,
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold)),
-                            ),
-                            SizedBox(height: 5),
-                            RichText(
-                              text: TextSpan(
-                                children: <TextSpan>[
-                                  TextSpan(
-                                    text: 'Qty:  ',
-                                    style: TextStyle(
-                                        color: Colors.black87,
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w400),
-                                  ),
-                                  TextSpan(
-                                    text: '1',
-                                    style: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            SizedBox(height: 5),
-                            RichText(
-                              text: TextSpan(
-                                children: <TextSpan>[
-                                  TextSpan(
-                                    text: 'Price:  ',
-                                    style: TextStyle(
-                                        color: Colors.black87,
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w400),
-                                  ),
-                                  TextSpan(
-                                    text: '₹1200',
-                                    style: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                        Container(
-                          padding: EdgeInsets.all(4),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            border: Border.all(color: Colors.grey.shade300),
-                            borderRadius: BorderRadius.circular(10),
-                            shape: BoxShape.rectangle,
-                          ),
-                          child: Image.asset(
-                            'assets/images/sweet_corn.webp',
-                            // height: 80,
-                            // width: 80,
-                            cacheHeight: 50,
-                            cacheWidth: 50,
-                          ),
-                        )
-                      ],
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 10, horizontal: 10),
-                    child: DashedLine(
-                      height: 0.4,
-                      dashWidth: 4,
-                      color: Colors.grey,
-                    ),
-                  ),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.all(10.0),
-                            child: TextField(
-                              focusNode: _focusNode,
-                              controller: _controller,
-                              decoration: InputDecoration(
-                                fillColor: Colors.white,
-                                focusColor: Colors.white,
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: BorderSide(
-                                    color: Colors
-                                        .grey.shade300, // Normal border color
-                                    width: 1,
-                                  ),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: BorderSide(
-                                    color: Colors
-                                        .grey.shade300, // Focused border color
-                                    width: 1,
-                                  ),
-                                ),
-                                errorBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: BorderSide(
-                                    color: Colors.red, // Error border color
-                                    width: 1,
-                                  ),
-                                ),
-                                focusedErrorBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: BorderSide(
-                                    color: Colors
-                                        .red, // Focused error border color
-                                    width: 1,
-                                  ),
-                                ),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: BorderSide(
-                                    color: Colors.grey.shade300,
-                                    width: 1,
-                                  ),
-                                ),
-                                label: RichText(
-                                  text: TextSpan(
-                                    children: [
-                                      TextSpan(
-                                        text: ' Enter Code, Quantity ',
-                                        style: TextStyle(
-                                          color: Colors.black,
-                                          fontWeight: FontWeight.normal,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              onEditingComplete: () {
-                                setState(() {
-                                  input = _controller.text;
-                                });
-                              },
-                              onChanged: (data) {
-                                setState(() {
-                                  input = data;
-                                });
-                              },
-                            ),
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              _buildKeyIcon('assets/images/number_7.png', "7"),
-                              _buildKeyIcon('assets/images/number_8.png', "8"),
-                              _buildKeyIcon('assets/images/number_9.png', "9"),
-                              _buildKeyClear(
-                                  'assets/images/number_back.png', "C")
-                            ],
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              _buildKeyIcon('assets/images/number_4.png', "4"),
-                              _buildKeyIcon('assets/images/number_5.png', "5"),
-                              _buildKeyIcon('assets/images/number_6.png', "6"),
-                              _buildKeyClearAll(
-                                  'assets/images/number_clear.png', "CA")
-                            ],
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Column(children: [
-                                Row(
-                                  children: [
-                                    _buildKeyIcon(
-                                        'assets/images/number_1.png', "1"),
-                                    _buildKeyIcon(
-                                        'assets/images/number_2.png', "2"),
-                                    _buildKeyIcon(
-                                        'assets/images/number_3.png', "3"),
-                                  ],
-                                ),
-                                Row(
-                                  children: [
-                                    _buildKeyDot(
-                                        'assets/images/number_dot.png', "."),
-                                    _buildKeyIcon(
-                                        'assets/images/number_0.png', "0"),
-                                    _buildKeyIcon(
-                                        'assets/images/number_00.png', "00"),
-                                  ],
-                                ),
-                              ]),
-                              _buildKeyEnterIcon(
-                                  'assets/images/number_enter.png', "")
-                            ],
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  SizedBox(
-                    height: 10,
-                  )
-                ],
-              ),
-            ),
-          ),
-          Spacer(),
-          Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: Container(
-                width: double.infinity,
+    return Obx(() {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 5),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Container(
                 decoration: BoxDecoration(
                   color: Colors.white,
                   border: Border.all(color: Colors.grey),
@@ -924,8 +674,7 @@ class _OrdersSectionState extends State<OrdersSection>
                 child: Column(
                   children: [
                     Container(
-                      padding: EdgeInsets.only(
-                          left: 10, right: 10, top: 5, bottom: 10),
+                      padding: const EdgeInsets.all(10.0),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         crossAxisAlignment: CrossAxisAlignment.center,
@@ -934,88 +683,370 @@ class _OrdersSectionState extends State<OrdersSection>
                             mainAxisAlignment: MainAxisAlignment.start,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                'Total Items',
-                                style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500),
+                              Container(
+                                child: Text(
+                                    '${homeController.items.value.ebonoTitle}',
+                                    maxLines: 2,
+                                    softWrap: true,
+                                    style: TextStyle(
+                                        overflow: TextOverflow.ellipsis,
+                                        color: Colors.black,
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold)),
                               ),
-                              Text(
-                                '10',
-                                style: TextStyle(
-                                    color: Colors.black87,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600),
+                              SizedBox(height: 5),
+                              RichText(
+                                text: TextSpan(
+                                  children: <TextSpan>[
+                                    TextSpan(
+                                      text: 'Qty:  ',
+                                      style: TextStyle(
+                                          color: Colors.black87,
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w400),
+                                    ),
+                                    TextSpan(
+                                      text: ' ',
+                                      style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              SizedBox(height: 5),
+                              RichText(
+                                text: TextSpan(
+                                  children: <TextSpan>[
+                                    TextSpan(
+                                      text: 'Price:  ',
+                                      style: TextStyle(
+                                          color: Colors.black87,
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w400),
+                                    ),
+                                    TextSpan(
+                                      text: formatPrice(homeController
+                                          .items
+                                          .value
+                                          .priceList
+                                          ?.first
+                                          .mrp as Map<String, dynamic>),
+                                      style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ],
                           ),
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Total Savings',
-                                style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500),
-                              ),
-                              Text(
-                                '₹88888.88',
-                                style: TextStyle(
-                                    color: Colors.black87,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600),
-                              ),
-                            ],
-                          ),
+                          Container(
+                            padding: EdgeInsets.all(4),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              border: Border.all(color: Colors.grey.shade300),
+                              borderRadius: BorderRadius.circular(10),
+                              shape: BoxShape.rectangle,
+                            ),
+                            child: homeController.items.value.mediaUrl != ""
+                                ? Image.network(
+                                    homeController.items.value.mediaUrl
+                                        .toString(),
+                                    // height: 80,
+                                    // width: 80,
+                                    cacheHeight: 50,
+                                    cacheWidth: 50,
+                                  )
+                                : Image.asset(
+                                    'assets/images/sweet_corn.webp',
+                                    // height: 80,
+                                    // width: 80,
+                                    cacheHeight: 50,
+                                    cacheWidth: 50,
+                                  ),
+                          )
                         ],
                       ),
                     ),
-                    Container(
-                      width: double.infinity,
-                      padding: EdgeInsets.only(
-                          left: 4, right: 4, top: 10, bottom: 4),
-                      child: ElevatedButton(
-                        onPressed: () {
-                          Get.toNamed(PageRoutes.paymentSummary);
-                        },
-                        child: Column(
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 10, horizontal: 10),
+                      child: DashedLine(
+                        height: 0.4,
+                        dashWidth: 4,
+                        color: Colors.grey,
+                      ),
+                    ),
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            Text(
-                              "Proceed To Pay",
-                              style: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold),
+                            Padding(
+                              padding: const EdgeInsets.all(10.0),
+                              child: TextField(
+                                focusNode: _focusNode,
+                                controller: _controller,
+                                decoration: InputDecoration(
+                                  fillColor: Colors.white,
+                                  focusColor: Colors.white,
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                    borderSide: BorderSide(
+                                      color: Colors.grey.shade300,
+                                      // Normal border color
+                                      width: 1,
+                                    ),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                    borderSide: BorderSide(
+                                      color: Colors.grey.shade300,
+                                      // Focused border color
+                                      width: 1,
+                                    ),
+                                  ),
+                                  errorBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                    borderSide: BorderSide(
+                                      color: Colors.red, // Error border color
+                                      width: 1,
+                                    ),
+                                  ),
+                                  focusedErrorBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                    borderSide: BorderSide(
+                                      color: Colors
+                                          .red, // Focused error border color
+                                      width: 1,
+                                    ),
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                    borderSide: BorderSide(
+                                      color: Colors.grey.shade300,
+                                      width: 1,
+                                    ),
+                                  ),
+                                  label: RichText(
+                                    text: TextSpan(
+                                      children: [
+                                        TextSpan(
+                                          text: ' Enter Code, Quantity ',
+                                          style: TextStyle(
+                                            color: Colors.black,
+                                            fontWeight: FontWeight.normal,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                // onSubmitted: (query) {
+                                //   homeController.fetchData("10004858");
+                                // },
+                                onEditingComplete: () {
+                                  setState(() {
+                                    input = _controller.text;
+                                    homeController.fetchData("10004858");
+                                  });
+                                },
+                                onChanged: (data) {
+                                  setState(() {
+                                    input = data;
+                                  });
+                                },
+                              ),
                             ),
-                            Text(
-                              "₹88888.88",
-                              style: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w400),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                _buildKeyIcon(
+                                    'assets/images/number_7.png', "7"),
+                                _buildKeyIcon(
+                                    'assets/images/number_8.png', "8"),
+                                _buildKeyIcon(
+                                    'assets/images/number_9.png', "9"),
+                                _buildKeyClear(
+                                    'assets/images/number_back.png', "C")
+                              ],
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                _buildKeyIcon(
+                                    'assets/images/number_4.png', "4"),
+                                _buildKeyIcon(
+                                    'assets/images/number_5.png', "5"),
+                                _buildKeyIcon(
+                                    'assets/images/number_6.png', "6"),
+                                _buildKeyClearAll(
+                                    'assets/images/number_clear.png', "CA")
+                              ],
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Column(children: [
+                                  Row(
+                                    children: [
+                                      _buildKeyIcon(
+                                          'assets/images/number_1.png', "1"),
+                                      _buildKeyIcon(
+                                          'assets/images/number_2.png', "2"),
+                                      _buildKeyIcon(
+                                          'assets/images/number_3.png', "3"),
+                                    ],
+                                  ),
+                                  Row(
+                                    children: [
+                                      _buildKeyDot(
+                                          'assets/images/number_dot.png', "."),
+                                      _buildKeyIcon(
+                                          'assets/images/number_0.png', "0"),
+                                      _buildKeyIcon(
+                                          'assets/images/number_00.png', "00"),
+                                    ],
+                                  ),
+                                ]),
+                                _buildKeyEnterIcon(
+                                    'assets/images/number_enter.png', "")
+                              ],
                             ),
                           ],
                         ),
-                        style: ElevatedButton.styleFrom(
-                            elevation: 1,
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 1, vertical: 20),
-                            shape: RoundedRectangleBorder(
-                              side: BorderSide.none,
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            backgroundColor: CustomColors.primaryCTA),
-                      ),
+                      ],
+                    ),
+                    SizedBox(
+                      height: 10,
                     )
                   ],
-                )),
-          ),
-        ],
-      ),
-    );
+                ),
+              ),
+            ),
+            Spacer(),
+            Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Container(
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    border: Border.all(color: Colors.grey),
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(10),
+                      topRight: Radius.circular(10),
+                      bottomLeft: Radius.circular(10),
+                      bottomRight: Radius.circular(10),
+                    ),
+                    // borderRadius: BorderRadius.circular(
+                    //     10),
+                    shape: BoxShape.rectangle,
+                  ),
+                  child: Column(
+                    children: [
+                      Container(
+                        padding: EdgeInsets.only(
+                            left: 10, right: 10, top: 5, bottom: 10),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Total Items',
+                                  style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500),
+                                ),
+                                Text(
+                                  '10',
+                                  style: TextStyle(
+                                      color: Colors.black87,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600),
+                                ),
+                              ],
+                            ),
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Total Savings',
+                                  style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500),
+                                ),
+                                Text(
+                                  '₹88888.88',
+                                  style: TextStyle(
+                                      color: Colors.black87,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        width: double.infinity,
+                        padding: EdgeInsets.only(
+                            left: 4, right: 4, top: 10, bottom: 4),
+                        child: ElevatedButton(
+                          onPressed: () {
+                            Get.toNamed(PageRoutes.paymentSummary);
+                          },
+                          child: Column(
+                            children: [
+                              Text(
+                                "Proceed To Pay",
+                                style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                              Text(
+                                "₹88888.88",
+                                style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w400),
+                              ),
+                            ],
+                          ),
+                          style: ElevatedButton.styleFrom(
+                              elevation: 1,
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 1, vertical: 20),
+                              shape: RoundedRectangleBorder(
+                                side: BorderSide.none,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              backgroundColor: CustomColors.primaryCTA),
+                        ),
+                      )
+                    ],
+                  )),
+            ),
+          ],
+        ),
+      );
+    });
   }
 
   Widget _buildRightActionButtons(BuildContext context) {
@@ -2185,6 +2216,18 @@ class _OrdersSectionState extends State<OrdersSection>
                             ),
                          
 */
+String formatPrice(Map<String, dynamic> priceObject) {
+  int centAmount = priceObject['cent_amount'];
+  String currency = priceObject['currency'];
+  int fraction = priceObject['fraction'];
+
+  // Convert centAmount to actual amount based on fraction
+  double amount = centAmount / fraction;
+
+  // Return the formatted string with ₹ symbol and amount
+  return '₹${amount.toStringAsFixed(2)}';
+}
+
 class StringController extends GetxController {
   var barCodeInput = ''.obs;
 
