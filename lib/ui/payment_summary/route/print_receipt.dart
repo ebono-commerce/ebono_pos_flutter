@@ -33,7 +33,7 @@ Future<Uint8List> generatePdf() async {
 
   pdf.addPage(
     pw.Page(
-      pageFormat: PdfPageFormat.roll80,
+      pageFormat: PdfPageFormat.roll57,
       margin: const pw.EdgeInsets.all(2),
       build: (pw.Context context) {
         return pw.Container(
@@ -194,19 +194,19 @@ Future<Uint8List> generatePdf() async {
                             style: pw.TextStyle(fontSize: 14 * fontSizeFactor),
                           ),
                           pw.Text(
-                            '₹${item.unitRate}',
+                            '\$${item.unitRate}',
                             style: pw.TextStyle(fontSize: 14 * fontSizeFactor),
                           ),
                           pw.Text(
-                            '₹${item.unitTotalDiscount}',
+                            '\$${item.unitTotalDiscount}',
                             style: pw.TextStyle(fontSize: 14 * fontSizeFactor),
                           ),
                           pw.Text(
-                            '₹${item.unitTotalTax}',
+                            '\$${item.unitTotalTax}',
                             style: pw.TextStyle(fontSize: 14 * fontSizeFactor),
                           ),
                           pw.Text(
-                            '₹${item.unitLineTotal}',
+                            '\$${item.unitLineTotal}',
                             style: pw.TextStyle(fontSize: 14 * fontSizeFactor),
                           ),
                         ],
@@ -220,7 +220,7 @@ Future<Uint8List> generatePdf() async {
 
               pw.SizedBox(height: 10),
               pw.Text(
-                'Total: ₹${data.priceInfo.totalInvoiceAmount}',
+                'Total: ${data.priceInfo.totalInvoiceAmount}',
                 style: pw.TextStyle(
                   fontSize: 18 * fontSizeFactor,
                   fontWeight: pw.FontWeight.bold,
