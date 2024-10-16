@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:kpn_pos_application/custom_colors.dart';
 import 'package:kpn_pos_application/navigation/page_routes.dart';
+import 'package:kpn_pos_application/ui/home/home_controller.dart';
 import 'package:kpn_pos_application/utils/dash_line.dart';
 import 'package:kpn_pos_application/utils/keypad_screen.dart';
 
@@ -23,9 +24,12 @@ class _OrdersSectionState extends State<OrdersSection>
   String input = '';
   final FocusNode _focusNode = FocusNode();
   final TextEditingController _controller = TextEditingController();
-  late WeightController weightController;
 
-  //late HomeController homeController;
+  final TextEditingController _controllerPhoneNumber = TextEditingController();
+  final TextEditingController _controllerCustomerName = TextEditingController();
+
+  late WeightController weightController;
+  late HomeController homeController;
 
   @override
   void initState() {
@@ -39,7 +43,8 @@ class _OrdersSectionState extends State<OrdersSection>
     });
     if (mounted == true) {
       weightController = widget.weightController;
-      // homeController = widget.homeController;
+      homeController = widget.homeController;
+      homeController.intializationResponse();
     }
     super.initState();
   }
@@ -48,6 +53,11 @@ class _OrdersSectionState extends State<OrdersSection>
     setState(() {
       input += value;
     });
+  }
+
+  void _onKeyPressedEnter(String value) {
+    homeController.scanApiCall("10004858");
+    print('Entered number: $input');
   }
 
   void _onClear() {
@@ -59,6 +69,7 @@ class _OrdersSectionState extends State<OrdersSection>
   void _onClearAll() {
     setState(() {
       input = '';
+      homeController.clearScanData();
     });
   }
 
@@ -66,6 +77,15 @@ class _OrdersSectionState extends State<OrdersSection>
     setState(() {
       _selectedWidget = value;
       print(" Widget Name: $_selectedWidget");
+    });
+  }
+
+  void _StaleButtonPressed(String value) {
+    setState(() {
+      _selectedWidget = value;
+      print(" Widget Name: $_selectedWidget");
+      //add fetch call data
+      homeController.fetchCustomer();
     });
   }
 
@@ -86,7 +106,7 @@ class _OrdersSectionState extends State<OrdersSection>
 
   @override
   Widget build(BuildContext context) {
-    final HomeController homeController = Get.put(HomeController());
+    // final HomeController homeController = Get.put(HomeController());
 
     return Center(
       child: Row(
@@ -110,19 +130,14 @@ class _OrdersSectionState extends State<OrdersSection>
                                       context,
                                       "START_SALE",
                                       onPressed: () =>
-                                          _onWidgetNameUpdatePressed(
-                                              "START_SALE"),
+                                          _StaleButtonPressed("START_SALE"),
                                     )
                                   : _selectedWidget == 'START_SALE'
-                                      ? _buildTableView1()
+                                      ? _buildTableView2()
                                       : Container()),
                     )
                   ],
-                )
-
-                //  Center(child: Column(children: [_buildOrderdetail(), _buildTableView()],),),
-                // child: Center(child: _buildAddCustomer("START_SALE", onPressed :() => _onKeyPressed("START_SALE"),)),
-                ),
+                )),
           ),
           Expanded(
             flex: 2, // 0.2 ratio
@@ -135,6 +150,361 @@ class _OrdersSectionState extends State<OrdersSection>
             flex: 1, // 0.1 ratio
             child: _buildRightActionButtons(context),
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTableView2() {
+    return Container(
+      padding: EdgeInsets.only(bottom: 2),
+      margin: EdgeInsets.all(10),
+      decoration: BoxDecoration(
+          border: Border.all(
+            color: Colors.grey.shade300,
+          ),
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(10),
+            topRight: Radius.circular(10),
+            bottomLeft: Radius.circular(10),
+            bottomRight: Radius.circular(10),
+          )),
+      child: Column(
+        children: [
+          //Table header
+          Table(
+            columnWidths: {
+              0: FlexColumnWidth(2),
+              1: FlexColumnWidth(3),
+              2: FlexColumnWidth(2),
+              3: FlexColumnWidth(1),
+              4: FlexColumnWidth(2),
+              5: FlexColumnWidth(2),
+              6: FlexColumnWidth(1),
+            },
+            children: [
+              TableRow(
+                decoration: BoxDecoration(
+                    color: Colors.grey.shade300,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(10),
+                      topRight: Radius.circular(10),
+                      bottomLeft: Radius.circular(0),
+                      bottomRight: Radius.circular(0),
+                    )), // Header background color
+                children: [
+                  Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: Text(
+                        "Item Code",
+                        style: Theme.of(context)
+                            .textTheme
+                            .labelMedium
+                            ?.copyWith(
+                                fontWeight: FontWeight.w100,
+                                color: CustomColors.greyFont),
+                      )),
+                  Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: Text(
+                        "Name",
+                        style: Theme.of(context)
+                            .textTheme
+                            .labelMedium
+                            ?.copyWith(
+                                fontWeight: FontWeight.w100,
+                                color: CustomColors.greyFont),
+                      )),
+                  Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: Text(
+                        "Quantity",
+                        style: Theme.of(context)
+                            .textTheme
+                            .labelMedium
+                            ?.copyWith(
+                                fontWeight: FontWeight.w100,
+                                color: CustomColors.greyFont),
+                      )),
+                  Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: Text(
+                        " ",
+                        style: Theme.of(context)
+                            .textTheme
+                            .labelMedium
+                            ?.copyWith(
+                                fontWeight: FontWeight.w100,
+                                color: CustomColors.greyFont),
+                      )),
+                  Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: Text(
+                        "MRP ₹",
+                        style: Theme.of(context)
+                            .textTheme
+                            .labelMedium
+                            ?.copyWith(
+                                fontWeight: FontWeight.w100,
+                                color: CustomColors.greyFont),
+                      )),
+                  Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: Text(
+                        "Price ₹",
+                        style: Theme.of(context)
+                            .textTheme
+                            .labelMedium
+                            ?.copyWith(
+                                fontWeight: FontWeight.w100,
+                                color: CustomColors.greyFont),
+                      )),
+                  Padding(padding: const EdgeInsets.all(10.0), child: Text("")),
+                ],
+              ),
+            ],
+          ),
+
+          //ROW
+          homeController.cartResponse.value.cartLines != null
+              ? Expanded(
+                  child: ListView.builder(
+                    // shrinkWrap: true,
+                    itemCount:
+                        homeController.cartResponse.value.cartLines?.length,
+                    itemBuilder: (context, index) {
+                      var itemData =
+                          homeController.cartResponse.value.cartLines?[index];
+                      return Table(
+                        border: TableBorder.symmetric(
+                            outside:
+                                BorderSide(width: 1, color: Color(0xFFF7F7F7))),
+                        // Optional: to add borders to the table
+
+                        columnWidths: {
+                          0: FlexColumnWidth(2),
+                          1: FlexColumnWidth(3),
+                          2: FlexColumnWidth(2),
+                          3: FlexColumnWidth(1),
+                          4: FlexColumnWidth(2),
+                          5: FlexColumnWidth(2),
+                          6: FlexColumnWidth(1),
+                        },
+                        children: [
+                          TableRow(
+                            decoration: BoxDecoration(
+                                // color: Colors.grey.shade300,
+                                border: Border.all(
+                                    color: Colors.grey.shade300, width: 1)),
+                            // decoration: BoxDecoration(
+                            //   color: Colors.white,
+                            // ),
+                            children: [
+                              Container(
+                                color: Colors.white,
+                                padding: const EdgeInsets.all(8.0),
+                                child: Padding(
+                                    padding: const EdgeInsets.all(10.0),
+                                    child: Text(
+                                      '${itemData?.item?.esin}',
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      softWrap: true,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .labelLarge
+                                          ?.copyWith(
+                                              fontWeight: FontWeight.w500,
+                                              color: CustomColors.black),
+                                    )),
+                              ),
+                              Container(
+                                color: Colors.white,
+                                padding: const EdgeInsets.all(4.0),
+                                child: Padding(
+                                    padding: const EdgeInsets.all(2.0),
+                                    child: Text(
+                                      '${itemData?.item?.ebonoTitle}',
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                      softWrap: true,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .labelLarge
+                                          ?.copyWith(
+                                              fontWeight: FontWeight.w500,
+                                              color: CustomColors.black),
+                                    )),
+                              ),
+                              Container(
+                                color: Colors.white,
+                                padding: const EdgeInsets.all(2.0),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(2.0),
+                                  child: Obx(() {
+                                    return TextField(
+                                      controller: TextEditingController(
+                                          text:
+                                              ' ${widget.weightController.weight.value}'),
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .labelLarge
+                                          ?.copyWith(
+                                              fontWeight: FontWeight.w500,
+                                              color: CustomColors.black),
+                                      decoration: InputDecoration(
+                                          fillColor: Colors.white,
+                                          focusColor: Colors.white,
+                                          enabledBorder: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                            borderSide: BorderSide(
+                                              color: Colors.grey
+                                                  .shade300, // Normal border color
+                                              width: 1,
+                                            ),
+                                          ),
+                                          focusedBorder: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                            borderSide: BorderSide(
+                                              color: Colors.grey
+                                                  .shade300, // Focused border color
+                                              width: 1,
+                                            ),
+                                          ),
+                                          errorBorder: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                            borderSide: BorderSide(
+                                              color: Colors
+                                                  .red, // Error border color
+                                              width: 1,
+                                            ),
+                                          ),
+                                          focusedErrorBorder:
+                                              OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                            borderSide: BorderSide(
+                                              color: Colors.red,
+                                              // Focused error border color
+                                              width: 1,
+                                            ),
+                                          ),
+                                          border: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                            borderSide: BorderSide(
+                                              color: Colors.grey.shade300,
+                                              width: 1,
+                                            ),
+                                          ),
+                                          hintText: "000.099",
+                                          suffixText: "KG"),
+                                    );
+                                  }),
+                                ),
+                              ),
+                              Container(
+                                color: Colors.white,
+                                padding: const EdgeInsets.all(8.0),
+                                child: Padding(
+                                    padding: const EdgeInsets.all(10.0),
+                                    child: Text(
+                                      '',
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      softWrap: true,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .labelLarge
+                                          ?.copyWith(
+                                              fontWeight: FontWeight.w500,
+                                              color: CustomColors.black),
+                                    )),
+                              ),
+                              Container(
+                                color: Colors.white,
+                                padding: const EdgeInsets.all(8.0),
+                                child: Padding(
+                                    padding: const EdgeInsets.all(10.0),
+                                    child: Text(
+                                      convertedPrice(
+                                          itemData?.unitPrice?.centAmount,
+                                          itemData?.unitPrice?.fraction),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      softWrap: true,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .labelLarge
+                                          ?.copyWith(
+                                              fontWeight: FontWeight.w500,
+                                              color: CustomColors.black),
+                                    )),
+                              ),
+                              Container(
+                                  color: Colors.white,
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Padding(
+                                      padding: const EdgeInsets.all(10.0),
+                                      child: Text(
+                                        convertedPrice(
+                                            itemData?.unitPrice?.centAmount,
+                                            itemData?.unitPrice?.fraction),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        softWrap: true,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .labelLarge
+                                            ?.copyWith(
+                                                fontWeight: FontWeight.w500,
+                                                color: CustomColors.black),
+                                      ))),
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Container(
+                                  padding: const EdgeInsets.all(0.0),
+                                  width: 50,
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                      color: Color(0xFFE56363),
+                                      width: 1,
+                                    ),
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: IconButton(
+                                    icon: ImageIcon(
+                                      size: 20,
+                                      color: Color(0xFFE56363),
+                                      AssetImage('assets/images/ic_remove.png'),
+                                    ),
+                                    onPressed: () {
+                                      Get.defaultDialog(
+                                          contentPadding: EdgeInsets.only(
+                                            left: 10,
+                                            right: 10,
+                                          ),
+                                          title: '',
+                                          middleText: '',
+                                          titlePadding: EdgeInsets.all(0),
+                                          barrierDismissible: false,
+                                          backgroundColor: Colors.white,
+                                          content: _buildRemoveDialog());
+                                    },
+                                  ),
+                                ),
+                              )
+                            ],
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+                )
+              : Container()
         ],
       ),
     );
@@ -643,6 +1013,7 @@ class _OrdersSectionState extends State<OrdersSection>
 
   Widget _buildNumberPadSection(HomeController homeController) {
     print(" Barcode : ${input}");
+
     return Obx(() {
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 5),
@@ -684,8 +1055,11 @@ class _OrdersSectionState extends State<OrdersSection>
                                 Container(
                                   padding: EdgeInsets.only(right: 2),
                                   child: Text(
-                                      //"asd",
-                                      '${homeController.scanProductsResponse.value.ebonoTitle}',
+                                      homeController.scanProductsResponse.value
+                                                  .ebonoTitle?.isNotEmpty ==
+                                              true
+                                          ? '${homeController.scanProductsResponse.value.ebonoTitle}'
+                                          : "-",
                                       maxLines: 2,
                                       softWrap: true,
                                       overflow: TextOverflow.ellipsis,
@@ -707,7 +1081,7 @@ class _OrdersSectionState extends State<OrdersSection>
                                             fontWeight: FontWeight.w400),
                                       ),
                                       TextSpan(
-                                        text: ' ',
+                                        text: ' 1 ',
                                         style: TextStyle(
                                             color: Colors.black,
                                             fontSize: 14,
@@ -728,13 +1102,21 @@ class _OrdersSectionState extends State<OrdersSection>
                                             fontWeight: FontWeight.w400),
                                       ),
                                       TextSpan(
-                                        text: "",
-                                        // text: formatPrice(homeController
-                                        //     .items
-                                        //     .value
-                                        //     .priceList
-                                        //     ?.first
-                                        //     .mrp as Map<String, dynamic>),
+                                        // text: "",
+                                        text: convertedPrice(
+                                          homeController
+                                              .scanProductsResponse
+                                              .value
+                                              .priceList?[0]
+                                              .mrp!
+                                              .centAmount,
+                                          homeController
+                                              .scanProductsResponse
+                                              .value
+                                              .priceList?[0]
+                                              .mrp!
+                                              .fraction,
+                                        ),
                                         style: TextStyle(
                                             color: Colors.black,
                                             fontSize: 14,
@@ -792,8 +1174,9 @@ class _OrdersSectionState extends State<OrdersSection>
                             Padding(
                               padding: const EdgeInsets.all(10.0),
                               child: TextField(
-                                focusNode: _focusNode,
-                                controller: _controller,
+                                // focusNode: _focusNode,
+                                controller: TextEditingController(text: input),
+                                //controller: _controller,
                                 decoration: InputDecoration(
                                   fillColor: Colors.white,
                                   focusColor: Colors.white,
@@ -912,7 +1295,7 @@ class _OrdersSectionState extends State<OrdersSection>
                                   ),
                                 ]),
                                 _buildKeyEnterIcon(
-                                    'assets/images/number_enter.png', "")
+                                    'assets/images/number_enter.png', "Enter")
                               ],
                             ),
                           ],
@@ -965,7 +1348,7 @@ class _OrdersSectionState extends State<OrdersSection>
                                       fontWeight: FontWeight.w500),
                                 ),
                                 Text(
-                                  '10',
+                                  '${homeController.cartResponse.value.cartLines?.length}',
                                   style: TextStyle(
                                       color: Colors.black87,
                                       fontSize: 16,
@@ -985,7 +1368,19 @@ class _OrdersSectionState extends State<OrdersSection>
                                       fontWeight: FontWeight.w500),
                                 ),
                                 Text(
-                                  '₹88888.88',
+                                  convertedPrice(
+                                      homeController
+                                          .cartResponse.value.cartTotals
+                                          ?.firstWhere((item) =>
+                                              item.type == 'DISCOUNT_TOTAL')
+                                          .amount
+                                          ?.centAmount,
+                                      homeController
+                                          .cartResponse.value.cartTotals
+                                          ?.firstWhere((item) =>
+                                              item.type == 'DISCOUNT_TOTAL')
+                                          .amount
+                                          ?.fraction),
                                   style: TextStyle(
                                       color: Colors.black87,
                                       fontSize: 16,
@@ -1014,7 +1409,17 @@ class _OrdersSectionState extends State<OrdersSection>
                                     fontWeight: FontWeight.bold),
                               ),
                               Text(
-                                "₹88888.88",
+                                convertedPrice(
+                                    homeController.cartResponse.value.cartTotals
+                                        ?.firstWhere((item) =>
+                                            item.type == 'GRAND_TOTAL')
+                                        .amount
+                                        ?.centAmount,
+                                    homeController.cartResponse.value.cartTotals
+                                        ?.firstWhere((item) =>
+                                            item.type == 'GRAND_TOTAL')
+                                        .amount
+                                        ?.fraction),
                                 style: TextStyle(
                                     color: Colors.black,
                                     fontSize: 18,
@@ -1109,7 +1514,6 @@ class _OrdersSectionState extends State<OrdersSection>
             padding: EdgeInsets.symmetric(horizontal: 5.0, vertical: 10),
             child: ElevatedButton(
               onPressed: onPressed,
-
               child: Center(
                 child: Text(
                   "Open register",
@@ -1182,7 +1586,10 @@ class _OrdersSectionState extends State<OrdersSection>
               padding:
                   const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10),
               child: TextField(
-                // controller: TextEditingController(text: input),
+                controller: _controllerPhoneNumber,
+                onChanged: (value) {
+                  homeController.phoneNumber.value = value;
+                },
                 decoration: InputDecoration(
                   fillColor: Colors.white,
                   focusColor: Colors.white,
@@ -1240,7 +1647,10 @@ class _OrdersSectionState extends State<OrdersSection>
               padding:
                   const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10),
               child: TextField(
-                // controller: TextEditingController(text: input),
+                controller: _controllerCustomerName,
+                onChanged: (value) {
+                  homeController.customerName.value = value;
+                },
                 decoration: InputDecoration(
                   fillColor: Colors.white,
                   focusColor: Colors.white,
@@ -1852,14 +2262,18 @@ class _OrdersSectionState extends State<OrdersSection>
                           text: TextSpan(
                             children: <TextSpan>[
                               TextSpan(
-                                text: 'Customer: - ',
+                                text: 'Customer: ',
                                 style: TextStyle(
                                     color: Colors.grey,
                                     fontSize: 12,
                                     fontWeight: FontWeight.normal),
                               ),
                               TextSpan(
-                                text: 'Shankar Lonare',
+                                text: homeController.customerResponse.value
+                                            .customerName !=
+                                        null
+                                    ? '${homeController.customerResponse.value.customerName.toString()}'
+                                    : " - ",
                                 style: TextStyle(
                                     color: Colors.black,
                                     fontSize: 14,
@@ -1882,7 +2296,12 @@ class _OrdersSectionState extends State<OrdersSection>
                                     fontWeight: FontWeight.normal),
                               ),
                               TextSpan(
-                                text: '₹12000',
+                                text: convertedPrice(
+                                  homeController.customerResponse.value
+                                      .walletBalance?.centAmount,
+                                  homeController.customerResponse.value
+                                      .walletBalance?.fraction,
+                                ),
                                 style: TextStyle(
                                     color: Colors.black,
                                     fontSize: 14,
@@ -1904,14 +2323,18 @@ class _OrdersSectionState extends State<OrdersSection>
                           text: TextSpan(
                             children: <TextSpan>[
                               TextSpan(
-                                text: 'Contact No.: - ',
+                                text: 'Contact No.: ',
                                 style: TextStyle(
                                     color: Colors.grey,
                                     fontSize: 12,
                                     fontWeight: FontWeight.normal),
                               ),
                               TextSpan(
-                                text: '+918871722186',
+                                text: homeController.customerResponse.value
+                                            .customerName !=
+                                        null
+                                    ? '${homeController.customerResponse.value.phoneNumber?.number}'
+                                    : " - ",
                                 style: TextStyle(
                                     color: Colors.black,
                                     fontSize: 14,
@@ -1934,7 +2357,12 @@ class _OrdersSectionState extends State<OrdersSection>
                                     fontWeight: FontWeight.normal),
                               ),
                               TextSpan(
-                                text: '2000',
+                                text: convertedPrice(
+                                  homeController.customerResponse.value
+                                      .loyaltyPoints?.centAmount,
+                                  homeController.customerResponse.value
+                                      .loyaltyPoints?.fraction,
+                                ),
                                 style: TextStyle(
                                     color: Colors.black,
                                     fontSize: 14,
@@ -2051,7 +2479,7 @@ class _OrdersSectionState extends State<OrdersSection>
   Widget _buildKeyEnterIcon(String img, String label,
       {VoidCallback? onPressed}) {
     return GestureDetector(
-      onTap: onPressed ?? () => _onKeyPressed(label),
+      onTap: onPressed ?? () => _onKeyPressedEnter(label),
       child: Container(
         padding: EdgeInsets.symmetric(vertical: 50.0, horizontal: 1),
         margin: EdgeInsets.all(5.0),
@@ -2209,15 +2637,13 @@ class _OrdersSectionState extends State<OrdersSection>
                             ),
                          
 */
-String formatPrice(Map<String, dynamic> priceObject) {
-  int centAmount = priceObject['cent_amount'];
-  String currency = priceObject['currency'];
-  int fraction = priceObject['fraction'];
+String convertedPrice(int? centAmount, int? fraction) {
+  if (centAmount == null) {
+    return '₹0.00'; // Handle null values gracefully
+  }
 
-  // Convert centAmount to actual amount based on fraction
-  double amount = centAmount / fraction;
+  double amount = (centAmount / fraction!);
 
-  // Return the formatted string with ₹ symbol and amount
   return '₹${amount.toStringAsFixed(2)}';
 }
 

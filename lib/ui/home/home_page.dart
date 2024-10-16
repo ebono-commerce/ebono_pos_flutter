@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:kpn_pos_application/custom_colors.dart';
+import 'package:kpn_pos_application/ui/home/home_controller.dart';
 import 'package:kpn_pos_application/ui/home/order_on_hold.dart';
 import 'package:kpn_pos_application/ui/home/orders_section.dart';
 import 'package:kpn_pos_application/ui/home/register_section.dart';
@@ -19,18 +20,18 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int _selectedButton = 2;
   bool isOnline = false;
-  final String port = '/dev/ttyUSB0';  // Replace with actual port
+  final String port = '/dev/ttyUSB0'; // Replace with actual port
   final String model = 'alfa';
   final int rate = 9600;
   final int timeout = 1000;
-  late WeightController weightController ;
+  late WeightController weightController;
 
   late HomeController homeController;
 
   @override
   void initState() {
     super.initState();
-    if(mounted == true){
+    if (mounted == true) {
       weightController = Get.put(WeightController(port, model, rate, timeout));
       homeController = Get.put(HomeController());
     }
@@ -40,6 +41,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         backgroundColor: Colors.grey.shade100,
         title: Row(
           children: [
