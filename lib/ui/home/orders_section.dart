@@ -23,12 +23,11 @@ class _OrdersSectionState extends State<OrdersSection>
   String input = '';
   final FocusNode _focusNode = FocusNode();
   final TextEditingController _controller = TextEditingController();
-  late WeightController weightController ;
+  late WeightController weightController;
 
   //late HomeController homeController;
 
   @override
-
   void initState() {
     _controller.addListener(() {
       setState(() {
@@ -38,7 +37,7 @@ class _OrdersSectionState extends State<OrdersSection>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _focusNode.requestFocus();
     });
-    if(mounted == true){
+    if (mounted == true) {
       weightController = widget.weightController;
       // homeController = widget.homeController;
     }
@@ -84,7 +83,6 @@ class _OrdersSectionState extends State<OrdersSection>
     _controller.dispose();
     super.dispose();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -305,7 +303,8 @@ class _OrdersSectionState extends State<OrdersSection>
                       padding: const EdgeInsets.all(2.0),
                       child: Obx(() {
                         return TextField(
-                          controller: TextEditingController(text: ' ${widget.weightController.weight.value}'),
+                          controller: TextEditingController(
+                              text: ' ${widget.weightController.weight.value}'),
                           style: Theme.of(context)
                               .textTheme
                               .labelLarge
@@ -444,182 +443,177 @@ class _OrdersSectionState extends State<OrdersSection>
                   // Optional: to add borders to the table
 
                   columnWidths: {
-              0: FlexColumnWidth(2),
-              1: FlexColumnWidth(3),
-              2: FlexColumnWidth(2),
-              3: FlexColumnWidth(2),
-              4: FlexColumnWidth(2),
-              5: FlexColumnWidth(1),
-            },
-            children: [
-              TableRow(
-                decoration: BoxDecoration(
-                  // color: Colors.grey.shade300,
-                    border: Border.all(
-                        color: Colors.grey.shade300, width: 1)),
-                // decoration: BoxDecoration(
-                //   color: Colors.white,
-                // ),
-                children: [
-                  Container(
-                    color: Colors.white,
-                    padding: const EdgeInsets.all(8.0),
-                    child: Padding(
-                        padding: const EdgeInsets.all(10.0),
-                        child: Text(
-                          "999999999",
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          softWrap: true,
-                          style: Theme
-                              .of(context)
-                              .textTheme
-                              .labelLarge
-                              ?.copyWith(
-                              fontWeight: FontWeight.w500,
-                              color: CustomColors.black),
-                        )),
-                  ),
-                  Container(
-                    color: Colors.white,
-                    padding: const EdgeInsets.all(4.0),
-                    child: Padding(
-                        padding: const EdgeInsets.all(2.0),
-                        child: Text(
-                          "Dawat basmati rice 1kg Dawat basmati rice 1kg",
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          softWrap: true,
-                          style: Theme
-                              .of(context)
-                              .textTheme
-                              .labelLarge
-                              ?.copyWith(
-                              fontWeight: FontWeight.w500,
-                              color: CustomColors.black),
-                        )),
-                  ),
-                  Container(
-                    color: Colors.white,
-                    padding: const EdgeInsets.all(2.0),
-                    child: Padding(
-                      padding: const EdgeInsets.all(2.0),
-                      child: TextField(
-                        style: Theme
-                            .of(context)
-                            .textTheme
-                            .labelLarge
-                            ?.copyWith(
-                            fontWeight: FontWeight.w500,
-                            color: CustomColors.black),
-                        decoration: InputDecoration(
-                            fillColor: Colors.white,
-                            focusColor: Colors.white,
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: BorderSide(
-                                color: Colors
-                                    .grey.shade300, // Normal border color
-                                width: 1,
-                              ),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: BorderSide(
-                                color: Colors.grey
-                                    .shade300, // Focused border color
-                                width: 1,
-                              ),
-                            ),
-                            errorBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: BorderSide(
-                                color: Colors.red, // Error border color
-                                width: 1,
-                              ),
-                            ),
-                            focusedErrorBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: BorderSide(
-                                color: Colors
-                                    .red, // Focused error border color
-                                width: 1,
-                              ),
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: BorderSide(
-                                color: Colors.grey.shade300,
-                                width: 1,
-                              ),
-                            ),
-                            hintText: "000.099",
-                            suffixText: "KG"),
-                      ),
-                    ),
-                  ),
-                  Container(
-                    color: Colors.white,
-                    padding: const EdgeInsets.all(8.0),
-                    child: Padding(
-                        padding: const EdgeInsets.all(10.0),
-                        child: Text(
-                          "99999",
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          softWrap: true,
-                          style: Theme
-                              .of(context)
-                              .textTheme
-                              .labelLarge
-                              ?.copyWith(
-                              fontWeight: FontWeight.w500,
-                              color: CustomColors.black),
-                        )),
-                  ),
-                  Container(
-                      color: Colors.white,
-                      padding: const EdgeInsets.all(8.0),
-                      child: Padding(
-                          padding: const EdgeInsets.all(10.0),
-                          child: Text(
-                            "99999.99",
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            softWrap: true,
-                            style: Theme
-                                .of(context)
-                                .textTheme
-                                .labelLarge
-                                ?.copyWith(
-                                fontWeight: FontWeight.w500,
-                                color: CustomColors.black),
-                          ))),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Container(
-                      padding: const EdgeInsets.all(0.0),
-                      width: 50,
+                    0: FlexColumnWidth(2),
+                    1: FlexColumnWidth(3),
+                    2: FlexColumnWidth(2),
+                    3: FlexColumnWidth(2),
+                    4: FlexColumnWidth(2),
+                    5: FlexColumnWidth(1),
+                  },
+                  children: [
+                    TableRow(
                       decoration: BoxDecoration(
-                        border: Border.all(
-                          color: Color(0xFFE56363),
-                          width: 1,
+                          // color: Colors.grey.shade300,
+                          border: Border.all(
+                              color: Colors.grey.shade300, width: 1)),
+                      // decoration: BoxDecoration(
+                      //   color: Colors.white,
+                      // ),
+                      children: [
+                        Container(
+                          color: Colors.white,
+                          padding: const EdgeInsets.all(8.0),
+                          child: Padding(
+                              padding: const EdgeInsets.all(10.0),
+                              child: Text(
+                                "999999999",
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                softWrap: true,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .labelLarge
+                                    ?.copyWith(
+                                        fontWeight: FontWeight.w500,
+                                        color: CustomColors.black),
+                              )),
                         ),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: IconButton(
-                        icon: ImageIcon(
-                          size: 20,
-                          color: Color(0xFFE56363),
-                          AssetImage('assets/images/ic_remove.png'),
+                        Container(
+                          color: Colors.white,
+                          padding: const EdgeInsets.all(4.0),
+                          child: Padding(
+                              padding: const EdgeInsets.all(2.0),
+                              child: Text(
+                                "Dawat basmati rice 1kg Dawat basmati rice 1kg",
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                softWrap: true,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .labelLarge
+                                    ?.copyWith(
+                                        fontWeight: FontWeight.w500,
+                                        color: CustomColors.black),
+                              )),
                         ),
-                        onPressed: () {
-                          Get.defaultDialog(
-                              contentPadding: EdgeInsets.only(
-                                left: 10,
-                                right: 10,
+                        Container(
+                          color: Colors.white,
+                          padding: const EdgeInsets.all(2.0),
+                          child: Padding(
+                            padding: const EdgeInsets.all(2.0),
+                            child: TextField(
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .labelLarge
+                                  ?.copyWith(
+                                      fontWeight: FontWeight.w500,
+                                      color: CustomColors.black),
+                              decoration: InputDecoration(
+                                  fillColor: Colors.white,
+                                  focusColor: Colors.white,
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                    borderSide: BorderSide(
+                                      color: Colors
+                                          .grey.shade300, // Normal border color
+                                      width: 1,
+                                    ),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                    borderSide: BorderSide(
+                                      color: Colors.grey
+                                          .shade300, // Focused border color
+                                      width: 1,
+                                    ),
+                                  ),
+                                  errorBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                    borderSide: BorderSide(
+                                      color: Colors.red, // Error border color
+                                      width: 1,
+                                    ),
+                                  ),
+                                  focusedErrorBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                    borderSide: BorderSide(
+                                      color: Colors
+                                          .red, // Focused error border color
+                                      width: 1,
+                                    ),
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                    borderSide: BorderSide(
+                                      color: Colors.grey.shade300,
+                                      width: 1,
+                                    ),
+                                  ),
+                                  hintText: "000.099",
+                                  suffixText: "KG"),
+                            ),
+                          ),
+                        ),
+                        Container(
+                          color: Colors.white,
+                          padding: const EdgeInsets.all(8.0),
+                          child: Padding(
+                              padding: const EdgeInsets.all(10.0),
+                              child: Text(
+                                "99999",
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                softWrap: true,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .labelLarge
+                                    ?.copyWith(
+                                        fontWeight: FontWeight.w500,
+                                        color: CustomColors.black),
+                              )),
+                        ),
+                        Container(
+                            color: Colors.white,
+                            padding: const EdgeInsets.all(8.0),
+                            child: Padding(
+                                padding: const EdgeInsets.all(10.0),
+                                child: Text(
+                                  "99999.99",
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  softWrap: true,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .labelLarge
+                                      ?.copyWith(
+                                          fontWeight: FontWeight.w500,
+                                          color: CustomColors.black),
+                                ))),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Container(
+                            padding: const EdgeInsets.all(0.0),
+                            width: 50,
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                color: Color(0xFFE56363),
+                                width: 1,
                               ),
-                              // Custom padding
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: IconButton(
+                              icon: ImageIcon(
+                                size: 20,
+                                color: Color(0xFFE56363),
+                                AssetImage('assets/images/ic_remove.png'),
+                              ),
+                              onPressed: () {
+                                Get.defaultDialog(
+                                    contentPadding: EdgeInsets.only(
+                                      left: 10,
+                                      right: 10,
+                                    ),
+                                    // Custom padding
 
                                     // contentPadding: EdgeInsets.all(0),
                                     title: '',
@@ -681,95 +675,100 @@ class _OrdersSectionState extends State<OrdersSection>
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Container(
-                                child: Text(
-                                    '${homeController.items.value.ebonoTitle}',
-                                    maxLines: 2,
-                                    softWrap: true,
-                                    style: TextStyle(
-                                        overflow: TextOverflow.ellipsis,
-                                        color: Colors.black,
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.bold)),
-                              ),
-                              SizedBox(height: 5),
-                              RichText(
-                                text: TextSpan(
-                                  children: <TextSpan>[
-                                    TextSpan(
-                                      text: 'Qty:  ',
+                          Expanded(
+                            flex: 2,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Container(
+                                  padding: EdgeInsets.only(right: 2),
+                                  child: Text(
+                                      //"asd",
+                                      '${homeController.scanProductsResponse.value.ebonoTitle}',
+                                      maxLines: 2,
+                                      softWrap: true,
+                                      overflow: TextOverflow.ellipsis,
                                       style: TextStyle(
-                                          color: Colors.black87,
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w400),
-                                    ),
-                                    TextSpan(
-                                      text: ' ',
-                                      style: TextStyle(
+                                          overflow: TextOverflow.ellipsis,
                                           color: Colors.black,
                                           fontSize: 14,
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                  ],
+                                          fontWeight: FontWeight.bold)),
                                 ),
-                              ),
-                              SizedBox(height: 5),
-                              RichText(
-                                text: TextSpan(
-                                  children: <TextSpan>[
-                                    TextSpan(
-                                      text: 'Price:  ',
-                                      style: TextStyle(
-                                          color: Colors.black87,
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w400),
-                                    ),
-                                    TextSpan(
-                                      text: formatPrice(homeController
-                                          .items
-                                          .value
-                                          .priceList
-                                          ?.first
-                                          .mrp as Map<String, dynamic>),
-                                      style: TextStyle(
-                                          color: Colors.black,
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                  ],
+                                SizedBox(height: 5),
+                                RichText(
+                                  text: TextSpan(
+                                    children: <TextSpan>[
+                                      TextSpan(
+                                        text: 'Qty:  ',
+                                        style: TextStyle(
+                                            color: Colors.black87,
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w400),
+                                      ),
+                                      TextSpan(
+                                        text: ' ',
+                                        style: TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              ),
-                            ],
+                                SizedBox(height: 5),
+                                RichText(
+                                  text: TextSpan(
+                                    children: <TextSpan>[
+                                      TextSpan(
+                                        text: 'Price:  ',
+                                        style: TextStyle(
+                                            color: Colors.black87,
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w400),
+                                      ),
+                                      TextSpan(
+                                        text: "",
+                                        // text: formatPrice(homeController
+                                        //     .items
+                                        //     .value
+                                        //     .priceList
+                                        //     ?.first
+                                        //     .mrp as Map<String, dynamic>),
+                                        style: TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                           Container(
-                            padding: EdgeInsets.all(4),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              border: Border.all(color: Colors.grey.shade300),
-                              borderRadius: BorderRadius.circular(10),
-                              shape: BoxShape.rectangle,
-                            ),
-                            child: homeController.items.value.mediaUrl != ""
-                                ? Image.network(
-                                    homeController.items.value.mediaUrl
-                                        .toString(),
-                                    // height: 80,
-                                    // width: 80,
-                                    cacheHeight: 50,
-                                    cacheWidth: 50,
-                                  )
-                                : Image.asset(
-                                    'assets/images/sweet_corn.webp',
-                                    // height: 80,
-                                    // width: 80,
-                                    cacheHeight: 50,
-                                    cacheWidth: 50,
-                                  ),
-                          )
+                              padding: EdgeInsets.all(4),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                border: Border.all(color: Colors.grey.shade300),
+                                borderRadius: BorderRadius.circular(10),
+                                shape: BoxShape.rectangle,
+                              ),
+                              child: Image.network(
+                                '${homeController.scanProductsResponse.value.mediaUrl}',
+                                cacheHeight: 50,
+                                cacheWidth: 50,
+                                errorBuilder: (BuildContext context,
+                                    Object error, StackTrace? stackTrace) {
+                                  return Center(
+                                    child: Container(
+                                      height: 50,
+                                      width: 50,
+                                      color: CustomColors.cardBackground,
+                                    ),
+                                  );
+                                },
+                              ))
                         ],
                       ),
                     ),
@@ -850,18 +849,10 @@ class _OrdersSectionState extends State<OrdersSection>
                                     ),
                                   ),
                                 ),
-                                // onSubmitted: (query) {
-                                //   homeController.fetchData("10004858");
-                                // },
                                 onEditingComplete: () {
                                   setState(() {
                                     input = _controller.text;
-                                    homeController.fetchData("10004858");
-                                  });
-                                },
-                                onChanged: (data) {
-                                  setState(() {
-                                    input = data;
+                                    // homeController.fetchData("10004858");
                                   });
                                 },
                               ),
