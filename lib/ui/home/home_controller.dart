@@ -5,7 +5,6 @@ import 'package:get/get.dart';
 import 'package:kpn_pos_application/blocs/models/cart_response.dart';
 import 'package:kpn_pos_application/blocs/models/customer_response.dart';
 import 'package:kpn_pos_application/blocs/models/scan_products_response.dart';
-import 'package:kpn_pos_application/constants/app_constants.dart';
 
 class HomeController extends GetxController {
   var isLoading = false.obs;
@@ -41,6 +40,7 @@ class HomeController extends GetxController {
     );
 
     cartResponse.value = CartResponse(cartId: '', cartType: '');
+    phoneNumber.value = '';
   }
 
   Future<void> clearScanData() async {
@@ -193,7 +193,9 @@ class HomeController extends GetxController {
       print("Success : $response");
       //temp api call of fetch cart need to call addto cart  api
       // fetchCartCall("36c9e954-26af-4a96-9326-10207922d0b8");
-      addToCartApiCall("10004858", "1", "iMwk8mWM", "gm");
+      if (scanProductsResponse.value.isWeighedItem == false) {
+        addToCartApiCall("10004858", "1", "iMwk8mWM", "gm");
+      }
     } catch (e) {
       // Handle error
       print("Error $e");

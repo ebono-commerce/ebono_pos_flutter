@@ -629,7 +629,7 @@ Widget _buidButton(String label, BuildContext context) {
         backgroundColor: Color(0xFFF0F4F4),
       ),
       child: Center(
-        child: Text("$label",
+        child: Text(label,
             style: Theme.of(context).textTheme.labelMedium?.copyWith(
                 fontWeight: FontWeight.w600, color: CustomColors.primaryColor)
             // style: TextStyle(

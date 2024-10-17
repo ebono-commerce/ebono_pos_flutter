@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_styled_toast/flutter_styled_toast.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:kpn_pos_application/custom_colors.dart';
 import 'package:kpn_pos_application/navigation/page_routes.dart';
 import 'package:kpn_pos_application/ui/home/home_controller.dart';
@@ -56,7 +58,7 @@ class _OrdersSectionState extends State<OrdersSection>
   }
 
   void _onKeyPressedEnter(String value) {
-    homeController.scanApiCall("10004858");
+    homeController.scanApiCall(input);
     print('Entered number: $input');
   }
 
@@ -81,12 +83,20 @@ class _OrdersSectionState extends State<OrdersSection>
   }
 
   void _StaleButtonPressed(String value) {
-    setState(() {
-      _selectedWidget = value;
-      print(" Widget Name: $_selectedWidget");
-      //add fetch call data
-      homeController.fetchCustomer();
-    });
+    if (homeController.phoneNumber.value != '') {
+      setState(() {
+        _selectedWidget = value;
+        print(" Widget Name: $_selectedWidget");
+        //add fetch call data
+        homeController.fetchCustomer();
+      });
+    } else {
+      showToast('Please enter phone number',
+          context: context,
+          axis: Axis.horizontal,
+          alignment: Alignment.center,
+          position: StyledToastPosition.center);
+    }
   }
 
   // @override
@@ -1059,7 +1069,7 @@ class _OrdersSectionState extends State<OrdersSection>
                                                   .ebonoTitle?.isNotEmpty ==
                                               true
                                           ? '${homeController.scanProductsResponse.value.ebonoTitle}'
-                                          : "-",
+                                          : " - ",
                                       maxLines: 2,
                                       softWrap: true,
                                       overflow: TextOverflow.ellipsis,
@@ -1081,7 +1091,14 @@ class _OrdersSectionState extends State<OrdersSection>
                                             fontWeight: FontWeight.w400),
                                       ),
                                       TextSpan(
-                                        text: ' 1 ',
+                                        text: homeController
+                                                    .scanProductsResponse
+                                                    .value
+                                                    .ebonoTitle
+                                                    ?.isNotEmpty ==
+                                                true
+                                            ? ' 1 '
+                                            : ' - ',
                                         style: TextStyle(
                                             color: Colors.black,
                                             fontSize: 14,
@@ -1103,20 +1120,27 @@ class _OrdersSectionState extends State<OrdersSection>
                                       ),
                                       TextSpan(
                                         // text: "",
-                                        text: convertedPrice(
-                                          homeController
-                                              .scanProductsResponse
-                                              .value
-                                              .priceList?[0]
-                                              .mrp!
-                                              .centAmount,
-                                          homeController
-                                              .scanProductsResponse
-                                              .value
-                                              .priceList?[0]
-                                              .mrp!
-                                              .fraction,
-                                        ),
+                                        text: homeController
+                                                    .scanProductsResponse
+                                                    .value
+                                                    .priceList?[0]
+                                                    .mrp !=
+                                                null
+                                            ? convertedPrice(
+                                                homeController
+                                                    .scanProductsResponse
+                                                    .value
+                                                    .priceList?[0]
+                                                    .mrp!
+                                                    .centAmount,
+                                                homeController
+                                                    .scanProductsResponse
+                                                    .value
+                                                    .priceList?[0]
+                                                    .mrp!
+                                                    .fraction,
+                                              )
+                                            : ' - ',
                                         style: TextStyle(
                                             color: Colors.black,
                                             fontSize: 14,
@@ -1235,7 +1259,7 @@ class _OrdersSectionState extends State<OrdersSection>
                                 onEditingComplete: () {
                                   setState(() {
                                     input = _controller.text;
-                                    homeController.scanApiCall("10004858");
+                                    homeController.scanApiCall(input);
                                   });
                                 },
                               ),
@@ -1341,14 +1365,22 @@ class _OrdersSectionState extends State<OrdersSection>
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Total Items',
+                                  homeController.cartResponse.value.cartLines
+                                              ?.length !=
+                                          null
+                                      ? 'Total Items'
+                                      : '-',
                                   style: TextStyle(
                                       color: Colors.black,
                                       fontSize: 16,
                                       fontWeight: FontWeight.w500),
                                 ),
                                 Text(
-                                  '${homeController.cartResponse.value.cartLines?.length}',
+                                  homeController.cartResponse.value.cartLines
+                                              ?.length !=
+                                          null
+                                      ? '${homeController.cartResponse.value.cartLines?.length}'
+                                      : '-',
                                   style: TextStyle(
                                       color: Colors.black87,
                                       fontSize: 16,
@@ -1361,26 +1393,38 @@ class _OrdersSectionState extends State<OrdersSection>
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Total Savings',
+                                  homeController.cartResponse.value.cartTotals
+                                              ?.firstWhere((item) =>
+                                                  item.type == 'GRAND_TOTAL')
+                                              .amount !=
+                                          null
+                                      ? 'Total Savings'
+                                      : '-',
                                   style: TextStyle(
                                       color: Colors.black,
                                       fontSize: 16,
                                       fontWeight: FontWeight.w500),
                                 ),
                                 Text(
-                                  convertedPrice(
-                                      homeController
-                                          .cartResponse.value.cartTotals
-                                          ?.firstWhere((item) =>
-                                              item.type == 'DISCOUNT_TOTAL')
-                                          .amount
-                                          ?.centAmount,
-                                      homeController
-                                          .cartResponse.value.cartTotals
-                                          ?.firstWhere((item) =>
-                                              item.type == 'DISCOUNT_TOTAL')
-                                          .amount
-                                          ?.fraction),
+                                  homeController.cartResponse.value.cartTotals
+                                              ?.firstWhere((item) =>
+                                                  item.type == 'GRAND_TOTAL')
+                                              .amount !=
+                                          null
+                                      ? convertedPrice(
+                                          homeController
+                                              .cartResponse.value.cartTotals
+                                              ?.firstWhere((item) =>
+                                                  item.type == 'GRAND_TOTAL')
+                                              .amount
+                                              ?.centAmount,
+                                          homeController
+                                              .cartResponse.value.cartTotals
+                                              ?.firstWhere((item) =>
+                                                  item.type == 'GRAND_TOTAL')
+                                              .amount
+                                              ?.fraction)
+                                      : '-',
                                   style: TextStyle(
                                       color: Colors.black87,
                                       fontSize: 16,
@@ -1407,34 +1451,56 @@ class _OrdersSectionState extends State<OrdersSection>
                                 side: BorderSide.none,
                                 borderRadius: BorderRadius.circular(10),
                               ),
-                              backgroundColor: CustomColors.primaryCTA),
-                          child: Column(
-                            children: [
-                              Text(
-                                "Proceed To Pay",
-                                style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold),
-                              ),
-                              Text(
-                                convertedPrice(
-                                    homeController.cartResponse.value.cartTotals
-                                        ?.firstWhere((item) =>
-                                            item.type == 'GRAND_TOTAL')
-                                        .amount
-                                        ?.centAmount,
-                                    homeController.cartResponse.value.cartTotals
-                                        ?.firstWhere((item) =>
-                                            item.type == 'GRAND_TOTAL')
-                                        .amount
-                                        ?.fraction),
-                                style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w400),
-                              ),
-                            ],
+                              backgroundColor: homeController
+                                          .cartResponse.value.cartTotals
+                                          ?.firstWhere((item) =>
+                                              item.type == 'GRAND_TOTAL')
+                                          .amount !=
+                                      null
+                                  ? CustomColors.primaryCTA
+                                  : CustomColors.cardBackground),
+                          child: SizedBox(
+                            height: 56,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Text(
+                                  "Proceed To Pay",
+                                  style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                homeController.cartResponse.value.cartTotals
+                                            ?.firstWhere((item) =>
+                                                item.type == 'GRAND_TOTAL')
+                                            .amount !=
+                                        null
+                                    ? Text(
+                                        convertedPrice(
+                                            homeController
+                                                .cartResponse.value.cartTotals
+                                                ?.firstWhere((item) =>
+                                                    item.type == 'GRAND_TOTAL')
+                                                .amount
+                                                ?.centAmount,
+                                            homeController
+                                                .cartResponse.value.cartTotals
+                                                ?.firstWhere((item) =>
+                                                    item.type == 'GRAND_TOTAL')
+                                                .amount
+                                                ?.fraction),
+                                        style: TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.w400),
+                                      )
+                                    : Container(
+                                        //height: 40,
+                                        ),
+                              ],
+                            ),
                           ),
                         ),
                       )
@@ -2194,7 +2260,7 @@ class _OrdersSectionState extends State<OrdersSection>
           backgroundColor: Color(0xFFF0F4F4),
         ),
         child: Center(
-          child: Text("$label",
+          child: Text(label,
               style: Theme.of(context).textTheme.labelLarge?.copyWith(
                   fontWeight: FontWeight.w600, color: CustomColors.primaryColor)
               // style: TextStyle(
@@ -2208,6 +2274,10 @@ class _OrdersSectionState extends State<OrdersSection>
   }
 
   Widget _buildOrderdetail(String label, BuildContext context) {
+    DateTime now = DateTime.now();
+    // Format the date using intl package
+    String formattedDate = DateFormat('EEEE, d MMMM yyyy').format(now);
+
     return Padding(
       padding: const EdgeInsets.only(left: 10, right: 10, top: 15, bottom: 10),
       child: Container(
@@ -2231,7 +2301,7 @@ class _OrdersSectionState extends State<OrdersSection>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Order -',
+                    'Today,',
                     maxLines: 1,
                     textAlign: TextAlign.center,
                     style: TextStyle(
@@ -2240,7 +2310,8 @@ class _OrdersSectionState extends State<OrdersSection>
                         fontWeight: FontWeight.bold),
                   ),
                   Text(
-                    'Wednesday, 18 September 2024',
+                    // 'Wednesday, 18 September 2024',
+                    '${formattedDate}',
                     maxLines: 1,
                     textAlign: TextAlign.center,
                     style: TextStyle(

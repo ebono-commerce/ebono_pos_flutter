@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:get/get_instance/get_instance.dart';
 import 'package:kpn_pos_application/custom_colors.dart';
 import 'package:kpn_pos_application/ui/Common_button.dart';
 import 'package:kpn_pos_application/ui/common_text_field.dart';
+import 'package:kpn_pos_application/ui/home/home_controller.dart';
+import 'package:kpn_pos_application/ui/home/orders_section.dart';
 import 'package:kpn_pos_application/ui/payment_summary/route/print_receipt.dart';
 
 class PaymentSummaryScreen extends StatefulWidget {
@@ -15,6 +19,7 @@ class PaymentSummaryScreen extends StatefulWidget {
 class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
   late ThemeData theme;
   String input = '';
+  late HomeController homeController;
 
   void _onKeyPressed(String value) {
     setState(() {
@@ -32,6 +37,14 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
     setState(() {
       input = '';
     });
+  }
+
+  @override
+  void initState() {
+    if (mounted == true) {
+      homeController = Get.put(HomeController());
+    }
+    super.initState();
   }
 
   @override
@@ -301,12 +314,27 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  billDetailRow(label: 'Invoice no.', value: '#123456789'),
-                  billDetailRow(label: 'Total items', value: '10'),
-                  billDetailRow(label: 'Price', value: '₹5,000'),
-                  billDetailRow(label: 'GST', value: '₹256.59'),
+                  // billDetailRow(label: 'Invoice no.', value: '#123456789'),
                   billDetailRow(
-                      label: 'Discount', value: '-₹256.59', isNegative: true),
+                      label: 'Total items',
+                      value: homeController
+                                  .cartResponse.value.cartTotals?.length !=
+                              null
+                          ? '${homeController.cartResponse.value.cartTotals?.length}'
+                          : "-"),
+                  billDetailRow(
+                      label: 'Price',
+                      value:
+                          '${convertedPrice(homeController.cartResponse.value.cartTotals?.firstWhere((item) => item.type == 'ITEM_TOTAL').amount?.centAmount, homeController.cartResponse.value.cartTotals?.firstWhere((item) => item.type == 'ITEM_TOTAL').amount?.fraction)}'),
+                  billDetailRow(
+                      label: 'GST',
+                      value:
+                          '${convertedPrice(homeController.cartResponse.value.cartTotals?.firstWhere((item) => item.type == 'TAX_TOTAL').amount?.centAmount, homeController.cartResponse.value.cartTotals?.firstWhere((item) => item.type == 'TAX_TOTAL').amount?.fraction)}'),
+                  billDetailRow(
+                      label: 'Discount',
+                      value:
+                          '${convertedPrice(homeController.cartResponse.value.cartTotals?.firstWhere((item) => item.type == 'DISCOUNT_TOTAL').amount?.centAmount, homeController.cartResponse.value.cartTotals?.firstWhere((item) => item.type == 'DISCOUNT_TOTAL').amount?.fraction)}',
+                      isNegative: true),
                   billDetailRow(
                       label: 'Loyalty points', value: '-100', isNegative: true),
                 ],
@@ -316,7 +344,10 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
               color: CustomColors.keyBoardBgColor,
               padding: EdgeInsets.all(16),
               child: billDetailRow(
-                  label: 'Total payable', value: '₹4,900', isBold: true),
+                  label: 'Total payable',
+                  value:
+                      '${convertedPrice(homeController.cartResponse.value.cartTotals?.firstWhere((item) => item.type == 'GRAND_TOTAL').amount?.centAmount, homeController.cartResponse.value.cartTotals?.firstWhere((item) => item.type == 'GRAND_TOTAL').amount?.fraction)}',
+                  isBold: true),
             ),
             SizedBox(height: 16),
             Padding(

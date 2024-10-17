@@ -21,7 +21,8 @@ dependencies:
   libserialport: ^0.3.0+1
   digital_scale: ^1.0.1+6
   pdf: ^3.11.1
-  intl: ^0.17.0
+  intl: ^0.19.0
+  flutter_styled_toast: ^2.2.1
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
