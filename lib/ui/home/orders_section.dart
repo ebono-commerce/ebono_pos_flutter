@@ -1012,7 +1012,7 @@ class _OrdersSectionState extends State<OrdersSection>
   }
 
   Widget _buildNumberPadSection(HomeController homeController) {
-    print(" Barcode : ${input}");
+    print(" Barcode : $input");
 
     return Obx(() {
       return Padding(
@@ -1399,6 +1399,15 @@ class _OrdersSectionState extends State<OrdersSection>
                           onPressed: () {
                             Get.toNamed(PageRoutes.paymentSummary);
                           },
+                          style: ElevatedButton.styleFrom(
+                              elevation: 1,
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 1, vertical: 20),
+                              shape: RoundedRectangleBorder(
+                                side: BorderSide.none,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              backgroundColor: CustomColors.primaryCTA),
                           child: Column(
                             children: [
                               Text(
@@ -1427,15 +1436,6 @@ class _OrdersSectionState extends State<OrdersSection>
                               ),
                             ],
                           ),
-                          style: ElevatedButton.styleFrom(
-                              elevation: 1,
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 1, vertical: 20),
-                              shape: RoundedRectangleBorder(
-                                side: BorderSide.none,
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              backgroundColor: CustomColors.primaryCTA),
                         ),
                       )
                     ],
@@ -1514,6 +1514,15 @@ class _OrdersSectionState extends State<OrdersSection>
             padding: EdgeInsets.symmetric(horizontal: 5.0, vertical: 10),
             child: ElevatedButton(
               onPressed: onPressed,
+              style: ElevatedButton.styleFrom(
+                elevation: 1,
+                padding: EdgeInsets.symmetric(horizontal: 1, vertical: 20),
+                shape: RoundedRectangleBorder(
+                  side: BorderSide(color: CustomColors.primaryCTA),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                backgroundColor: CustomColors.primaryCTA,
+              ),
               child: Center(
                 child: Text(
                   "Open register",
@@ -1524,15 +1533,6 @@ class _OrdersSectionState extends State<OrdersSection>
                   //     fontSize: 14,
                   //     fontWeight: FontWeight.bold),
                 ),
-              ),
-              style: ElevatedButton.styleFrom(
-                elevation: 1,
-                padding: EdgeInsets.symmetric(horizontal: 1, vertical: 20),
-                shape: RoundedRectangleBorder(
-                  side: BorderSide(color: CustomColors.primaryCTA),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                backgroundColor: CustomColors.primaryCTA,
               ),
               //  onPressed: () { pdfController.printPdf();  },
             ),
@@ -1547,7 +1547,7 @@ class _OrdersSectionState extends State<OrdersSection>
 
   Widget _buildAddCustomer(BuildContext context, String widgetName,
       {VoidCallback? onPressed}) {
-    return Container(
+    return SizedBox(
       width: 400,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -1713,6 +1713,16 @@ class _OrdersSectionState extends State<OrdersSection>
             padding: EdgeInsets.symmetric(horizontal: 5.0, vertical: 10),
             child: ElevatedButton(
               onPressed: onPressed,
+              style: ElevatedButton.styleFrom(
+                elevation: 1,
+                padding: EdgeInsets.symmetric(horizontal: 1, vertical: 20),
+                shape: RoundedRectangleBorder(
+                  side: BorderSide(color: CustomColors.primaryCTA),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                disabledBackgroundColor: Colors.grey,
+                backgroundColor: CustomColors.primaryCTA,
+              ),
               child: Center(
                 child: Text(
                   "Start Sale",
@@ -1724,16 +1734,6 @@ class _OrdersSectionState extends State<OrdersSection>
                   //     fontWeight: FontWeight.bold),
                 ),
               ),
-              style: ElevatedButton.styleFrom(
-                elevation: 1,
-                padding: EdgeInsets.symmetric(horizontal: 1, vertical: 20),
-                shape: RoundedRectangleBorder(
-                  side: BorderSide(color: CustomColors.primaryCTA),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                disabledBackgroundColor: Colors.grey,
-                backgroundColor: CustomColors.primaryCTA,
-              ),
             ),
           ),
           Container(
@@ -1742,15 +1742,6 @@ class _OrdersSectionState extends State<OrdersSection>
             padding: EdgeInsets.symmetric(horizontal: 5.0, vertical: 5),
             child: ElevatedButton(
               onPressed: onPressed,
-              child: Center(
-                child: Text(
-                  "Continue Without Customer Number",
-                  style: TextStyle(
-                      color: Color(0xFF066A69),
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold),
-                ),
-              ),
               style: ElevatedButton.styleFrom(
                 elevation: 1,
                 padding: EdgeInsets.symmetric(horizontal: 1, vertical: 20),
@@ -1759,6 +1750,15 @@ class _OrdersSectionState extends State<OrdersSection>
                   borderRadius: BorderRadius.circular(10),
                 ),
                 backgroundColor: Color(0xFFF0F4F4),
+              ),
+              child: Center(
+                child: Text(
+                  "Continue Without Customer Number",
+                  style: TextStyle(
+                      color: Color(0xFF066A69),
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold),
+                ),
               ),
             ),
           ),
@@ -1805,7 +1805,7 @@ class _OrdersSectionState extends State<OrdersSection>
                 ),
               ),
               columnSpacing: isTabletOrDesktop ? 72 : 40,
-              headingRowColor: MaterialStateProperty.all(Colors.grey.shade300),
+              headingRowColor: WidgetStateProperty.all(Colors.grey.shade300),
               columns: [
                 DataColumn(
                     headingRowAlignment: MainAxisAlignment.start,
@@ -2120,13 +2120,6 @@ class _OrdersSectionState extends State<OrdersSection>
                       onPressed: () {
                         Get.back();
                       },
-                      child: Text(
-                        "    Yes, Remove    ",
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold),
-                      ),
                       style: ElevatedButton.styleFrom(
                           elevation: 1,
                           padding:
@@ -2136,6 +2129,13 @@ class _OrdersSectionState extends State<OrdersSection>
                             borderRadius: BorderRadius.circular(10),
                           ),
                           backgroundColor: Colors.green),
+                      child: Text(
+                        "    Yes, Remove    ",
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold),
+                      ),
                     ),
                   ),
                 ),
@@ -2148,13 +2148,6 @@ class _OrdersSectionState extends State<OrdersSection>
                       onPressed: () {
                         Get.back();
                       },
-                      child: Text(
-                        "    No, Cancel    ",
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold),
-                      ),
                       style: ElevatedButton.styleFrom(
                           elevation: 1,
                           padding:
@@ -2164,6 +2157,13 @@ class _OrdersSectionState extends State<OrdersSection>
                             borderRadius: BorderRadius.circular(10),
                           ),
                           backgroundColor: Colors.red),
+                      child: Text(
+                        "    No, Cancel    ",
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold),
+                      ),
                     ),
                   ),
                 ),
@@ -2184,6 +2184,15 @@ class _OrdersSectionState extends State<OrdersSection>
         onPressed: () {
           // Respond to button press
         },
+        style: ElevatedButton.styleFrom(
+          elevation: 1,
+          padding: EdgeInsets.symmetric(horizontal: 1, vertical: 20),
+          shape: RoundedRectangleBorder(
+            side: BorderSide(color: CustomColors.primaryColor, width: 1.5),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          backgroundColor: Color(0xFFF0F4F4),
+        ),
         child: Center(
           child: Text("$label",
               style: Theme.of(context).textTheme.labelLarge?.copyWith(
@@ -2193,15 +2202,6 @@ class _OrdersSectionState extends State<OrdersSection>
               //     fontSize: 14,
               //     fontWeight: FontWeight.normal),
               ),
-        ),
-        style: ElevatedButton.styleFrom(
-          elevation: 1,
-          padding: EdgeInsets.symmetric(horizontal: 1, vertical: 20),
-          shape: RoundedRectangleBorder(
-            side: BorderSide(color: CustomColors.primaryColor, width: 1.5),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          backgroundColor: Color(0xFFF0F4F4),
         ),
       ),
     );
@@ -2272,7 +2272,9 @@ class _OrdersSectionState extends State<OrdersSection>
                                 text: homeController.customerResponse.value
                                             .customerName !=
                                         null
-                                    ? '${homeController.customerResponse.value.customerName.toString()}'
+                                    ? homeController
+                                        .customerResponse.value.customerName
+                                        .toString()
                                     : " - ",
                                 style: TextStyle(
                                     color: Colors.black,

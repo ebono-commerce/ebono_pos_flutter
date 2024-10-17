@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:kpn_pos_application/blocs/models/cart_response.dart';
 import 'package:kpn_pos_application/blocs/models/customer_response.dart';
 import 'package:kpn_pos_application/blocs/models/scan_products_response.dart';
+import 'package:kpn_pos_application/constants/app_constants.dart';
 
 class HomeController extends GetxController {
   var isLoading = false.obs;
@@ -57,7 +58,7 @@ class HomeController extends GetxController {
     isLoading(true);
     try {
       final response = await http.get(Uri.parse(
-          'https://558c-2401-4900-1cb1-f936-2921-48bb-51cb-375e.ngrok-free.app/catalog/v1/products/scan?code=$code'));
+          '${AppConstants.baseUrl}/catalog/v1/products/scan?code=$code'));
       if (response.statusCode == 200) {
         scanProductsResponse.value =
             ScanProductsResponse.fromJson(json.decode(response.body));
@@ -83,7 +84,7 @@ class HomeController extends GetxController {
       };
       final response = await http.post(
           Uri.parse(
-              'https://558c-2401-4900-1cb1-f936-2921-48bb-51cb-375e.ngrok-free.app/account/v1/customer/fetch'),
+              '${AppConstants.baseUrl}/account/v1/customer/fetch'),
           body: reqBody);
       if (response.statusCode == 200) {
         customerResponse.value =
@@ -109,7 +110,7 @@ class HomeController extends GetxController {
 };
       final response = await http.post(
           Uri.parse(
-              'https://558c-2401-4900-1cb1-f936-2921-48bb-51cb-375e.ngrok-free.app/checkout/v1/cart/fetch?schema=DETAIL'),
+              '${AppConstants.baseUrl}/checkout/v1/cart/fetch?schema=DETAIL'),
           body: reqBody);
       if (response.statusCode == 200) {
         cartResponse.value =
@@ -144,7 +145,7 @@ class HomeController extends GetxController {
 };
       final response = await http.post(
           Uri.parse(
-              'https://558c-2401-4900-1cb1-f936-2921-48bb-51cb-375e.ngrok-free.app/checkout/v1/cart/${cartId}/items'),
+              '${AppConstants.baseUrl}/checkout/v1/cart/${cartId}/items'),
           body: reqBody);
       if (response.statusCode == 200) {
         cartResponse.value =
@@ -170,7 +171,7 @@ class HomeController extends GetxController {
           await rootBundle.loadString('assets/data/fetch_customer.json');
       final data = json.decode(response);
       customerResponse.value = CustomerResponse.fromJson(data);
-      print("Success : ${response}");
+      print("Success : $response");
       // fetch cart api
       fetchCartCall("36c9e954-26af-4a96-9326-10207922d0b8");
     } catch (e) {
@@ -189,7 +190,7 @@ class HomeController extends GetxController {
       final data = json.decode(response);
       //scanProductsResponse = ScanProductsResponse.fromJson(data);
       scanProductsResponse.value = ScanProductsResponse.fromJson(data);
-      print("Success : ${response}");
+      print("Success : $response");
       //temp api call of fetch cart need to call addto cart  api
       // fetchCartCall("36c9e954-26af-4a96-9326-10207922d0b8");
       addToCartApiCall("10004858", "1", "iMwk8mWM", "gm");
@@ -209,7 +210,7 @@ class HomeController extends GetxController {
           await rootBundle.loadString('assets/data/fetch_cart.json');
       final data = json.decode(response);
       cartResponse.value = CartResponse.fromJson(data);
-      print("Success : ${response}");
+      print("Success : $response");
     } catch (e) {
       // Handle error
       print("Error $e");
@@ -227,7 +228,7 @@ class HomeController extends GetxController {
           await rootBundle.loadString('assets/data/fetch_cart.json');
       final data = json.decode(response);
       cartResponse.value = CartResponse.fromJson(data);
-      print("Success : ${response}");
+      print("Success : $response");
       fetchCartCall("36c9e954-26af-4a96-9326-10207922d0b8");
     } catch (e) {
       // Handle error

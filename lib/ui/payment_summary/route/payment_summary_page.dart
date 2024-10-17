@@ -1,13 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:get/get.dart';
 import 'package:kpn_pos_application/custom_colors.dart';
-import 'package:kpn_pos_application/navigation/page_routes.dart';
-import 'package:kpn_pos_application/theme/theme_data.dart';
-import 'package:kpn_pos_application/ui/payment_summary/route/print_receipt.dart';
 import 'package:kpn_pos_application/ui/Common_button.dart';
 import 'package:kpn_pos_application/ui/common_text_field.dart';
-
+import 'package:kpn_pos_application/ui/payment_summary/route/print_receipt.dart';
 
 class PaymentSummaryScreen extends StatefulWidget {
   const PaymentSummaryScreen({super.key});
@@ -579,9 +575,9 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                             textStyle: theme.textTheme.bodyMedium,
                             padding: EdgeInsets.all(12)),
                         onPressed: () {
-                         printReceipt();
-                         /// Get.offAndToNamed(PageRoutes.weightDisplay);
+                          printReceipt();
 
+                          /// Get.offAndToNamed(PageRoutes.weightDisplay);
                         },
                         child: Text(
                           "Mark Complete",

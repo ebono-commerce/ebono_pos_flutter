@@ -1,15 +1,15 @@
 import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:kpn_pos_application/ui/payment_summary/model/receipt_data.dart';
 import 'package:kpn_pos_application/ui/payment_summary/model/receipt_json.dart';
-import 'package:printing/printing.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
+import 'package:printing/printing.dart';
 
 class PrintReceiptPage extends StatelessWidget {
-
-  PrintReceiptPage({super.key});
+  const PrintReceiptPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +21,6 @@ class PrintReceiptPage extends StatelessWidget {
     );
   }
 }
-
 
 Future<Uint8List> generatePdf() async {
   final pdf = pw.Document();
@@ -166,55 +165,63 @@ Future<Uint8List> generatePdf() async {
                   pw.Divider(),
                   // Item rows
                   ...data.invoiceLinesDetails.map((item) => pw.Column(
-                    crossAxisAlignment: pw.CrossAxisAlignment.start,
-                    children: [
-                      // Product name lines
-                      pw.Text(
-                        item.description,
-                        style: pw.TextStyle(fontSize: 14 * fontSizeFactor),
-                      ),
-                      pw.Text(
-                        '', // Add additional details if needed
-                        style: pw.TextStyle(fontSize: 14 * fontSizeFactor),
-                      ),
-                      // Details row
-                      pw.Row(
-                        mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: pw.CrossAxisAlignment.start,
                         children: [
+                          // Product name lines
                           pw.Text(
-                            "  ",
+                            item.description,
                             style: pw.TextStyle(fontSize: 14 * fontSizeFactor),
                           ),
                           pw.Text(
-                            "  ",
+                            '', // Add additional details if needed
                             style: pw.TextStyle(fontSize: 14 * fontSizeFactor),
                           ),
-                          pw.Text(
-                            item.qty.toString(),
-                            style: pw.TextStyle(fontSize: 14 * fontSizeFactor),
+                          // Details row
+                          pw.Row(
+                            mainAxisAlignment:
+                                pw.MainAxisAlignment.spaceBetween,
+                            children: [
+                              pw.Text(
+                                "  ",
+                                style:
+                                    pw.TextStyle(fontSize: 14 * fontSizeFactor),
+                              ),
+                              pw.Text(
+                                "  ",
+                                style:
+                                    pw.TextStyle(fontSize: 14 * fontSizeFactor),
+                              ),
+                              pw.Text(
+                                item.qty.toString(),
+                                style:
+                                    pw.TextStyle(fontSize: 14 * fontSizeFactor),
+                              ),
+                              pw.Text(
+                                '\$${item.unitRate}',
+                                style:
+                                    pw.TextStyle(fontSize: 14 * fontSizeFactor),
+                              ),
+                              pw.Text(
+                                '\$${item.unitTotalDiscount}',
+                                style:
+                                    pw.TextStyle(fontSize: 14 * fontSizeFactor),
+                              ),
+                              pw.Text(
+                                '\$${item.unitTotalTax}',
+                                style:
+                                    pw.TextStyle(fontSize: 14 * fontSizeFactor),
+                              ),
+                              pw.Text(
+                                '\$${item.unitLineTotal}',
+                                style:
+                                    pw.TextStyle(fontSize: 14 * fontSizeFactor),
+                              ),
+                            ],
                           ),
-                          pw.Text(
-                            '\$${item.unitRate}',
-                            style: pw.TextStyle(fontSize: 14 * fontSizeFactor),
-                          ),
-                          pw.Text(
-                            '\$${item.unitTotalDiscount}',
-                            style: pw.TextStyle(fontSize: 14 * fontSizeFactor),
-                          ),
-                          pw.Text(
-                            '\$${item.unitTotalTax}',
-                            style: pw.TextStyle(fontSize: 14 * fontSizeFactor),
-                          ),
-                          pw.Text(
-                            '\$${item.unitLineTotal}',
-                            style: pw.TextStyle(fontSize: 14 * fontSizeFactor),
-                          ),
+                          pw.SizedBox(height: 10), // Space between rows
+                          pw.Divider(), // Divider between product rows
                         ],
-                      ),
-                      pw.SizedBox(height: 10), // Space between rows
-                      pw.Divider(), // Divider between product rows
-                    ],
-                  )),
+                      )),
                 ],
               ),
 
@@ -239,11 +246,11 @@ Future<Uint8List> generatePdf() async {
                 ),
               ),
               ...data.termsAndConditions.tc.map((term) => pw.Container(
-                child: pw.Text(
-                  '- $term',
-                  style: pw.TextStyle(fontSize: 14 * fontSizeFactor),
-                ),
-              )),
+                    child: pw.Text(
+                      '- $term',
+                      style: pw.TextStyle(fontSize: 14 * fontSizeFactor),
+                    ),
+                  )),
               pw.SizedBox(height: 20),
               pw.Text(
                 'Thank you for shopping with us',
@@ -268,7 +275,6 @@ void printReceipt() async {
   // Print without showing preview
   await Printing.layoutPdf(
     onLayout: (PdfPageFormat format) async {
-
       // Add the ESC/POS command for cutting the paper
       final Uint8List cutPaperCommand = Uint8List.fromList([27, 105]);
 
