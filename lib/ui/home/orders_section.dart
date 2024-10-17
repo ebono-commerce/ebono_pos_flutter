@@ -1235,7 +1235,7 @@ class _OrdersSectionState extends State<OrdersSection>
                                 onEditingComplete: () {
                                   setState(() {
                                     input = _controller.text;
-                                    // homeController.fetchData("10004858");
+                                    homeController.scanApiCall("10004858");
                                   });
                                 },
                               ),
