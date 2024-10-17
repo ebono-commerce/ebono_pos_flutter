@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class KeypadScreen extends StatefulWidget {
+  const KeypadScreen({super.key});
+
   @override
   _KeypadScreenState createState() => _KeypadScreenState();
 }

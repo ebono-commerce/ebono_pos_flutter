@@ -34,7 +34,6 @@ class _OrderOnHoldState extends State<OrderOnHold> {
         ),
       ],
     );
-    ;
   }
 }
 
@@ -280,7 +279,7 @@ Widget _buildTableView1(BuildContext context) {
                 Container(
                   color: Colors.white,
                   padding: const EdgeInsets.all(6.0),
-                  child: Container(
+                  child: SizedBox(
                     width: 80,
                     height: 36,
                     child: ElevatedButton(
@@ -303,13 +302,6 @@ Widget _buildTableView1(BuildContext context) {
                               content: _buildRemoveDialog());
                         }
                       },
-                      child: Text(
-                        "    Resume    ",
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold),
-                      ),
                       style: ElevatedButton.styleFrom(
                           elevation: 1,
                           padding:
@@ -319,13 +311,20 @@ Widget _buildTableView1(BuildContext context) {
                             borderRadius: BorderRadius.circular(5),
                           ),
                           backgroundColor: Colors.green),
+                      child: Text(
+                        "    Resume    ",
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold),
+                      ),
                     ),
                   ),
                 ),
                 Container(
                   color: Colors.white,
                   padding: const EdgeInsets.all(6.0),
-                  child: Container(
+                  child: SizedBox(
                     width: 80,
                     height: 36,
                     child: ElevatedButton(
@@ -348,13 +347,6 @@ Widget _buildTableView1(BuildContext context) {
                               content: _buildRemoveDialog());
                         }
                       },
-                      child: Text(
-                        "    Delete    ",
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold),
-                      ),
                       style: ElevatedButton.styleFrom(
                           elevation: 1,
                           padding:
@@ -364,6 +356,13 @@ Widget _buildTableView1(BuildContext context) {
                             borderRadius: BorderRadius.circular(5),
                           ),
                           backgroundColor: Colors.red),
+                      child: Text(
+                        "    Delete    ",
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold),
+                      ),
                     ),
                   ),
                 ),
@@ -490,7 +489,7 @@ Widget _buildTableView1(BuildContext context) {
                 Container(
                   color: Colors.white,
                   padding: const EdgeInsets.all(6.0),
-                  child: Container(
+                  child: SizedBox(
                     width: 80,
                     height: 36,
                     child: ElevatedButton(
@@ -513,13 +512,6 @@ Widget _buildTableView1(BuildContext context) {
                               content: _buildRemoveDialog());
                         }
                       },
-                      child: Text(
-                        "    Resume    ",
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold),
-                      ),
                       style: ElevatedButton.styleFrom(
                           elevation: 1,
                           padding:
@@ -529,13 +521,20 @@ Widget _buildTableView1(BuildContext context) {
                             borderRadius: BorderRadius.circular(5),
                           ),
                           backgroundColor: Colors.green),
+                      child: Text(
+                        "    Resume    ",
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold),
+                      ),
                     ),
                   ),
                 ),
                 Container(
                   color: Colors.white,
                   padding: const EdgeInsets.all(6.0),
-                  child: Container(
+                  child: SizedBox(
                     width: 80,
                     height: 36,
                     child: ElevatedButton(
@@ -558,13 +557,6 @@ Widget _buildTableView1(BuildContext context) {
                               content: _buildRemoveDialog());
                         }
                       },
-                      child: Text(
-                        "    Delete    ",
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold),
-                      ),
                       style: ElevatedButton.styleFrom(
                           elevation: 1,
                           padding:
@@ -574,6 +566,13 @@ Widget _buildTableView1(BuildContext context) {
                             borderRadius: BorderRadius.circular(5),
                           ),
                           backgroundColor: Colors.red),
+                      child: Text(
+                        "    Delete    ",
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold),
+                      ),
                     ),
                   ),
                 ),
@@ -620,16 +619,6 @@ Widget _buidButton(String label, BuildContext context) {
       onPressed: () {
         // Respond to button press
       },
-      child: Center(
-        child: Text("$label",
-            style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                fontWeight: FontWeight.w600, color: CustomColors.primaryColor)
-            // style: TextStyle(
-            //     color: Color(0xFF066A69),
-            //     fontSize: 14,
-            //     fontWeight: FontWeight.normal),
-            ),
-      ),
       style: ElevatedButton.styleFrom(
         elevation: 1,
         padding: EdgeInsets.symmetric(horizontal: 1, vertical: 20),
@@ -638,6 +627,16 @@ Widget _buidButton(String label, BuildContext context) {
           borderRadius: BorderRadius.circular(10),
         ),
         backgroundColor: Color(0xFFF0F4F4),
+      ),
+      child: Center(
+        child: Text(label,
+            style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                fontWeight: FontWeight.w600, color: CustomColors.primaryColor)
+            // style: TextStyle(
+            //     color: Color(0xFF066A69),
+            //     fontSize: 14,
+            //     fontWeight: FontWeight.normal),
+            ),
       ),
     ),
   );
@@ -765,13 +764,6 @@ Widget _buildRemoveDialog() {
                     onPressed: () {
                       Get.back();
                     },
-                    child: Text(
-                      "    Yes, Delete    ",
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold),
-                    ),
                     style: ElevatedButton.styleFrom(
                         elevation: 1,
                         padding:
@@ -781,6 +773,13 @@ Widget _buildRemoveDialog() {
                           borderRadius: BorderRadius.circular(10),
                         ),
                         backgroundColor: Colors.green),
+                    child: Text(
+                      "    Yes, Delete    ",
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold),
+                    ),
                   ),
                 ),
               ),
@@ -793,13 +792,6 @@ Widget _buildRemoveDialog() {
                     onPressed: () {
                       Get.back();
                     },
-                    child: Text(
-                      "    No, Cancel    ",
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold),
-                    ),
                     style: ElevatedButton.styleFrom(
                         elevation: 1,
                         padding:
@@ -809,6 +801,13 @@ Widget _buildRemoveDialog() {
                           borderRadius: BorderRadius.circular(10),
                         ),
                         backgroundColor: Colors.red),
+                    child: Text(
+                      "    No, Cancel    ",
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold),
+                    ),
                   ),
                 ),
               ),

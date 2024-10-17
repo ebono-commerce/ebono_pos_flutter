@@ -2,7 +2,7 @@ import 'package:get/get.dart';
 import 'package:kpn_pos_application/utils/digital_weighing_scale.dart';
 
 class WeightController extends GetxController {
-  RxDouble weight = 0.0.obs;  // Observable weight value
+  RxDouble weight = 0.0.obs; // Observable weight value
   late DigitalWeighingScale digitalWeighingScale;
 
   WeightController(String port, String model, int rate, int timeout) {
@@ -14,9 +14,5 @@ class WeightController extends GetxController {
       weightController: weight,
     );
     digitalWeighingScale.getWeight();
-
-
   }
-
-
 }

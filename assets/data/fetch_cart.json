@@ -1,0 +1,197 @@
+{
+  "cart_id": "36c9e954-26af-4a96-9326-10207922d0b8",
+  "cart_type": "POS",
+  "cart_lines": [
+    {
+      "cart_line_id": "40a5786a-b8e5-52f0-a040-2d85d2d96b6d",
+      "item": {
+        "esin": "10004095",
+        "ebono_title": "Saffola Masala & Coriander Oats ",
+        "product_type": "SIMPLE_PRODUCT"
+      },
+      "quantity": {
+        "quantity_number": 1
+      },
+      "unit_price": {
+        "currency": "INR",
+        "cent_amount": 470000,
+        "fraction": 10000
+      },
+      "mrp": {
+        "currency": "INR",
+        "cent_amount": 490000,
+        "fraction": 10000
+      },
+      "cart_line_totals": [
+        {
+          "type": "ITEM_TOTAL",
+          "amount": {
+            "currency": "INR",
+            "cent_amount": 470000,
+            "fraction": 10000
+          },
+          "multiplier": 1
+        },
+        {
+          "type": "MRP_TOTAL",
+          "amount": {
+            "currency": "INR",
+            "cent_amount": 490000,
+            "fraction": 10000
+          },
+          "multiplier": 1
+        },
+        {
+          "type": "DISCOUNT_TOTAL",
+          "amount": {
+            "currency": "INR",
+            "cent_amount": 0,
+            "fraction": 10000
+          },
+          "multiplier": -1
+        },
+        {
+          "type": "PROMOTION_TOTAL",
+          "amount": {
+            "currency": "INR",
+            "cent_amount": 0,
+            "fraction": 10000
+          },
+          "multiplier": -1
+        },
+        {
+          "type": "COUPON_TOTAL",
+          "amount": {
+            "currency": "INR",
+            "cent_amount": 0,
+            "fraction": 10000
+          },
+          "multiplier": -1
+        },
+        {
+          "type": "TAX_TOTAL",
+          "amount": {
+            "currency": "INR",
+            "cent_amount": 0,
+            "fraction": 10000
+          },
+          "multiplier": 1
+        },
+        {
+          "type": "LINE_TOTAL",
+          "amount": {
+            "currency": "INR",
+            "cent_amount": 470000,
+            "fraction": 10000
+          },
+          "multiplier": 1
+        }
+      ]
+    }
+  ],
+  "cart_totals": [
+    {
+      "type": "MRP_TOTAL",
+      "amount": {
+        "currency": "INR",
+        "cent_amount": 490000,
+        "fraction": 10000
+      },
+      "multiplier": 1
+    },
+    {
+      "type": "DISCOUNT_ON_MRP_TOTAL",
+      "amount": {
+        "currency": "INR",
+        "cent_amount": 20000,
+        "fraction": 10000
+      },
+      "multiplier": -1
+    },
+    {
+      "type": "TAX_TOTAL",
+      "amount": {
+        "currency": "INR",
+        "cent_amount": 0,
+        "fraction": 10000
+      },
+      "multiplier": 1
+    },
+    {
+      "type": "ITEM_TOTAL",
+      "amount": {
+        "currency": "INR",
+        "cent_amount": 470000,
+        "fraction": 10000
+      },
+      "multiplier": 1
+    },
+    {
+      "type": "ITEM_DISCOUNT",
+      "amount": {
+        "currency": "INR",
+        "cent_amount": 0,
+        "fraction": 10000
+      },
+      "multiplier": 1
+    },
+    {
+      "type": "COUPON_DISCOUNT",
+      "amount": {
+        "currency": "INR",
+        "cent_amount": 0,
+        "fraction": 10000
+      },
+      "multiplier": 1
+    },
+    {
+      "type": "PACKING_TOTAL",
+      "amount": {
+        "currency": "INR",
+        "cent_amount": 0,
+        "fraction": 10000
+      },
+      "multiplier": 1
+    },
+    {
+      "type": "PACKING_DISCOUNT",
+      "amount": {
+        "currency": "INR",
+        "cent_amount": 0,
+        "fraction": 10000
+      },
+      "multiplier": -1
+    },
+    {
+      "type": "GRAND_TOTAL",
+      "amount": {
+        "currency": "INR",
+        "cent_amount": 470000,
+        "fraction": 10000
+      },
+      "multiplier": 1
+    },
+    {
+      "type": "DISCOUNT_TOTAL",
+      "amount": {
+        "currency": "INR",
+        "cent_amount": 0,
+        "fraction": 10000
+      },
+      "multiplier": -1
+    },
+    {
+      "type": "ROUND_OFF_TOTAL",
+      "amount": {
+        "currency": "INR",
+        "cent_amount": 0,
+        "fraction": 10000
+      },
+      "multiplier": -1
+    }
+  ],
+  "audit": {
+    "created_at": "2024-10-16T08:46:56.593Z",
+    "last_modified_at": "2024-10-16T08:46:56.590Z"
+  }
+}
