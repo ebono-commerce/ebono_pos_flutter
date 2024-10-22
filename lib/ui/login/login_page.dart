@@ -2,12 +2,14 @@ import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:get/get.dart';
 import 'package:get/route_manager.dart';
-import 'package:kpn_pos_application/blocs/login_bloc.dart';
-import 'package:kpn_pos_application/custom_colors.dart';
+import 'package:kpn_pos_application/constants/custom_colors.dart';
 import 'package:kpn_pos_application/navigation/page_routes.dart';
-
-import 'common_text_field.dart';
+import 'package:kpn_pos_application/ui/common_text_field.dart';
+import 'package:kpn_pos_application/ui/login/bloc/login_bloc.dart';
+import 'package:kpn_pos_application/ui/login/bloc/login_event.dart';
+import 'package:kpn_pos_application/ui/login/bloc/login_state.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -21,6 +23,10 @@ class _LoginPageState extends State<LoginPage> {
   FocusNode terminalIdFocusNode = FocusNode();
   FocusNode loginIdFocusNode = FocusNode();
   FocusNode passwordFocusNode = FocusNode();
+  TextEditingController storeIdController = TextEditingController();
+  TextEditingController terminalIdController = TextEditingController();
+  TextEditingController loginIdController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
 
   List<String> selectedStoreModes = [];
   final List<String> _items = [
@@ -32,6 +38,8 @@ class _LoginPageState extends State<LoginPage> {
     'ST006',
     'ST007'
   ];
+
+  final loginBloc = Get.find<LoginBloc>();
 
   final GlobalKey<DropdownSearchState> dropDownKey =
       GlobalKey<DropdownSearchState>();
@@ -60,15 +68,14 @@ class _LoginPageState extends State<LoginPage> {
 
     return Scaffold(
       body: BlocProvider(
-        create: (_) => LoginBloc(), // Ensure that LoginBloc is created here
+        create: (_) => loginBloc,
         child: BlocListener<LoginBloc, LoginState>(
           listener: (context, state) {
             if (state is LoginSuccess) {
               // Navigate to home page on success
-              Get.offAndToNamed('/home');
+              //Get.offAndToNamed('/home');
             } else if (state is LoginFailure) {
-              ScaffoldMessenger.of(context)
-                  .showSnackBar(SnackBar(content: Text(state.error)));
+              Get.snackbar("Login Error", state.error);
             }
           },
           child: BlocBuilder<LoginBloc, LoginState>(
@@ -79,7 +86,13 @@ class _LoginPageState extends State<LoginPage> {
               return Container(
                 color: CustomColors.backgroundColor,
                 child: Row(
-                  children: [welcomeWidget(context), loginWidget(context)],
+                  children: [
+                    Flexible(flex: 3, child: welcomeWidget(context)),
+                    state is LoginSuccess
+                        ? Flexible(flex: 2, child: storeDetailsWidget(context))
+                        : Flexible(flex: 2, child: loginWidget(context)),
+                    Flexible(flex: 1, child: SizedBox())
+                  ],
                 ),
               );
             },
@@ -91,7 +104,6 @@ class _LoginPageState extends State<LoginPage> {
 
   Widget welcomeWidget(BuildContext context) {
     return Container(
-      width: 650,
       padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
       child: Center(
         child: Column(
@@ -131,7 +143,94 @@ class _LoginPageState extends State<LoginPage> {
       color: Colors.white,
       elevation: 10,
       child: Container(
-        width: 600,
+        padding: EdgeInsets.all(40),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // Login Id input
+            commonTextField(
+                label: 'Login Id',
+                focusNode: loginIdFocusNode,
+                controller: loginIdController),
+            SizedBox(height: 20),
+
+            // Password input
+            commonTextField(
+                label: 'Enter Password',
+                focusNode: passwordFocusNode,
+                controller: passwordController,
+                obscureText: true),
+
+            SizedBox(height: 30),
+
+            // Sign in button
+            SizedBox(
+              width: double.infinity,
+              height: 60,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).colorScheme.secondary,
+                  textStyle: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.w500,
+                      ),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  elevation: 6,
+                ),
+                onPressed: () {
+                  loginBloc.add(
+                    LoginButtonPressed(
+                      loginIdController.text,
+                      passwordController.text,
+                    ),
+                  );
+                },
+                child: Text(
+                  'Sign In',
+                ),
+              ),
+            ),
+            SizedBox(height: 10),
+
+            // Unable to log in text
+            Center(
+              child: Wrap(
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  Text(
+                    'Unable to log in?',
+                    style: theme.textTheme.bodyLarge
+                        ?.copyWith(color: Colors.black45),
+                  ),
+                  TextButton(
+                    onPressed: () {},
+                    child: Text(
+                      'Contact operations',
+                      style: theme.textTheme.bodyLarge
+                          ?.copyWith(color: theme.colorScheme.primary),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget storeDetailsWidget(BuildContext context) {
+    return Card(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(15.0),
+      ),
+      color: Colors.white,
+      elevation: 10,
+      child: Container(
         padding: EdgeInsets.all(40),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -154,6 +253,7 @@ class _LoginPageState extends State<LoginPage> {
                 fit: FlexFit.loose,
                 showSelectedItems: true,
                 searchFieldProps: TextFieldProps(
+                  controller: storeIdController,
                   focusNode: storeIdFocusNode,
                   decoration: textFieldDecoration(
                       isFocused: storeIdFocusNode.hasFocus,
@@ -167,8 +267,8 @@ class _LoginPageState extends State<LoginPage> {
             SizedBox(height: 20),
 
             // Store Mode Selection
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
+            Wrap(
+              alignment: WrapAlignment.start,
               children: [
                 storeModeWidget(
                     imagePath: 'assets/images/vegetables.png',
@@ -198,27 +298,16 @@ class _LoginPageState extends State<LoginPage> {
             SizedBox(height: 20),
             // Terminal Id input
             commonTextField(
-                label: 'Enter Terminal Id', focusNode: terminalIdFocusNode),
+                label: 'Enter Terminal Id',
+                focusNode: terminalIdFocusNode,
+                controller: terminalIdController),
             SizedBox(height: 20),
-
-            // Login Id input
-            commonTextField(label: 'Login Id', focusNode: loginIdFocusNode),
-            SizedBox(height: 20),
-
-            // Password input
-            commonTextField(
-                label: 'Enter Password',
-                focusNode: passwordFocusNode,
-                obscureText: true),
-
-            SizedBox(height: 30),
 
             // Sign in button
             SizedBox(
               width: double.infinity,
               height: 60,
               child: ElevatedButton(
-
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Theme.of(context).colorScheme.secondary,
                   textStyle: Theme.of(context).textTheme.titleLarge?.copyWith(
@@ -235,34 +324,11 @@ class _LoginPageState extends State<LoginPage> {
                   Get.toNamed(PageRoutes.home);
                 },
                 child: Text(
-                  'Sign In',
+                  'Continue',
                 ),
               ),
             ),
             SizedBox(height: 10),
-
-            // Unable to log in text
-            Center(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                mainAxisSize: MainAxisSize.max,
-                children: [
-                  Text(
-                    'Unable to log in?',
-                    style: theme.textTheme.bodyLarge
-                        ?.copyWith(color: Colors.black45),
-                  ),
-                  TextButton(
-                    onPressed: () {},
-                    child: Text(
-                      'Contact operations',
-                      style: theme.textTheme.bodyLarge
-                          ?.copyWith(color: theme.colorScheme.primary),
-                    ),
-                  ),
-                ],
-              ),
-            ),
           ],
         ),
       ),
@@ -290,34 +356,45 @@ class _LoginPageState extends State<LoginPage> {
           borderRadius: BorderRadius.circular(15.0),
         ),
         elevation: 5,
-        child: Container(
-          width: 110,
-          height: 160,
-          decoration: BoxDecoration(
-            color: isSelected ? CustomColors.accentColor : Colors.white,
-            borderRadius: BorderRadius.circular(15.0),
-            border: Border.all(
-                color: isSelected ? Colors.black : Colors.black45,
-                width: isSelected ? 2 : 1),
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: 110,
+            minWidth: 110,
+            maxHeight: 160,
+            minHeight: 160
           ),
-          padding: EdgeInsets.all(10),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // Image/Icon
-              Image.asset(
-                imagePath,
-                height: 60, // Adjust image size as needed
-              ),
-              SizedBox(height: 10),
-              // Label
-              Text(
-                label,
-                textAlign: TextAlign.center,
-                style: theme.textTheme.labelLarge?.copyWith(
-                    color: isSelected ? Colors.black : Colors.black45),
-              ),
-            ],
+          child: Container(
+            decoration: BoxDecoration(
+              color: isSelected ? CustomColors.accentColor : Colors.white,
+              borderRadius: BorderRadius.circular(15.0),
+              border: Border.all(
+                  color: isSelected ? Colors.black : Colors.black45,
+                  width: isSelected ? 2 : 1),
+            ),
+            padding: EdgeInsets.all(10),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxHeight: 60,
+                  ),
+                  child: Image.asset(
+                    imagePath,
+                    fit: BoxFit.contain,
+                  ),
+                ),
+                SizedBox(height: 10),
+                // Label
+                Text(
+                  label,
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.labelLarge?.copyWith(
+                      color: isSelected ? Colors.black : Colors.black45),
+                ),
+              ],
+            ),
           ),
         ),
       ),

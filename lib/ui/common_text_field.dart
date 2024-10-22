@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:kpn_pos_application/custom_colors.dart';
+import 'package:kpn_pos_application/constants/custom_colors.dart';
 
 Widget commonTextField(
     {required String label,
     required FocusNode focusNode,
-    bool obscureText = false}) {
+    bool obscureText = false,
+    required TextEditingController controller}) {
   return TextField(
     focusNode: focusNode,
     obscureText: obscureText,
+    controller: controller,
     decoration:
         textFieldDecoration(isFocused: focusNode.hasFocus, label: label),
   );

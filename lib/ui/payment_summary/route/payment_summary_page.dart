@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_instance/get_instance.dart';
-import 'package:kpn_pos_application/custom_colors.dart';
+import 'package:kpn_pos_application/constants/custom_colors.dart';
 import 'package:kpn_pos_application/ui/Common_button.dart';
 import 'package:kpn_pos_application/ui/common_text_field.dart';
 import 'package:kpn_pos_application/ui/home/home_controller.dart';
@@ -452,7 +452,7 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
           children: [
             SizedBox(
               width: 140,
-              child: commonTextField(label: inputHint, focusNode: FocusNode()),
+              child: commonTextField(label: inputHint, focusNode: FocusNode(), controller: TextEditingController()),
             ),
             SizedBox(width: 14),
             SizedBox(
