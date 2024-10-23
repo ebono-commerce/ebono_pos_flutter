@@ -2,9 +2,10 @@ import 'dart:convert';
 
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:kpn_pos_application/blocs/models/cart_response.dart';
-import 'package:kpn_pos_application/blocs/models/customer_response.dart';
-import 'package:kpn_pos_application/blocs/models/scan_products_response.dart';
+import 'package:kpn_pos_application/models/cart_response.dart';
+import 'package:kpn_pos_application/models/customer_response.dart';
+import 'package:kpn_pos_application/models/scan_products_response.dart';
+
 
 class HomeController extends GetxController {
   var isLoading = false.obs;

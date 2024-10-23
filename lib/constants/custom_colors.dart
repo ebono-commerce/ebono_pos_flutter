@@ -12,7 +12,6 @@ class CustomColors {
   static final grey = const Color(0xFFCACACA);
   static final black = const Color(0xFF000000);
   static final greyFont = const Color(0xFF666666);
-  static final primaryCTA = const Color(0xFFFFCB44);
   static final activatedBorderColor = Colors.black;
   static final enabledLabelColor = Colors.black45;
   static final keyBoardBgColor = const Color(0xFFF0F4F4);

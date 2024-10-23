@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_styled_toast/flutter_styled_toast.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:kpn_pos_application/custom_colors.dart';
+import 'package:kpn_pos_application/constants/custom_colors.dart';
 import 'package:kpn_pos_application/navigation/page_routes.dart';
 import 'package:kpn_pos_application/ui/home/home_controller.dart';
 import 'package:kpn_pos_application/utils/dash_line.dart';
@@ -1457,7 +1457,7 @@ class _OrdersSectionState extends State<OrdersSection>
                                               item.type == 'GRAND_TOTAL')
                                           .amount !=
                                       null
-                                  ? CustomColors.primaryCTA
+                                  ? CustomColors.secondaryColor
                                   : CustomColors.cardBackground),
                           child: SizedBox(
                             height: 56,
@@ -1584,10 +1584,10 @@ class _OrdersSectionState extends State<OrdersSection>
                 elevation: 1,
                 padding: EdgeInsets.symmetric(horizontal: 1, vertical: 20),
                 shape: RoundedRectangleBorder(
-                  side: BorderSide(color: CustomColors.primaryCTA),
+                  side: BorderSide(color: CustomColors.secondaryColor),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                backgroundColor: CustomColors.primaryCTA,
+                backgroundColor: CustomColors.secondaryColor,
               ),
               child: Center(
                 child: Text(
@@ -1783,11 +1783,11 @@ class _OrdersSectionState extends State<OrdersSection>
                 elevation: 1,
                 padding: EdgeInsets.symmetric(horizontal: 1, vertical: 20),
                 shape: RoundedRectangleBorder(
-                  side: BorderSide(color: CustomColors.primaryCTA),
+                  side: BorderSide(color: CustomColors.secondaryColor),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 disabledBackgroundColor: Colors.grey,
-                backgroundColor: CustomColors.primaryCTA,
+                backgroundColor: CustomColors.secondaryColor,
               ),
               child: Center(
                 child: Text(
