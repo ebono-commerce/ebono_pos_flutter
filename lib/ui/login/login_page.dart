@@ -3,12 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
-import 'package:get/route_manager.dart';
 import 'package:kpn_pos_application/constants/custom_colors.dart';
 import 'package:kpn_pos_application/navigation/page_routes.dart';
 import 'package:kpn_pos_application/ui/common_text_field.dart';
 import 'package:kpn_pos_application/ui/login/bloc/login_bloc.dart';
-import 'package:kpn_pos_application/ui/login/bloc/login_event.dart';
 import 'package:kpn_pos_application/ui/login/bloc/login_state.dart';
 
 class LoginPage extends StatefulWidget {
@@ -182,12 +180,13 @@ class _LoginPageState extends State<LoginPage> {
                   elevation: 6,
                 ),
                 onPressed: () {
-                  loginBloc.add(
-                    LoginButtonPressed(
-                      loginIdController.text,
-                      passwordController.text,
-                    ),
-                  );
+                  Get.offAndToNamed('/home');
+                  // loginBloc.add(
+                  //   LoginButtonPressed(
+                  //     loginIdController.text,
+                  //     passwordController.text,
+                  //   ),
+                  // );
                 },
                 child: Text(
                   'Sign In',
@@ -358,11 +357,7 @@ class _LoginPageState extends State<LoginPage> {
         elevation: 5,
         child: ConstrainedBox(
           constraints: BoxConstraints(
-            maxWidth: 110,
-            minWidth: 110,
-            maxHeight: 160,
-            minHeight: 160
-          ),
+              maxWidth: 110, minWidth: 110, maxHeight: 160, minHeight: 160),
           child: Container(
             decoration: BoxDecoration(
               color: isSelected ? CustomColors.accentColor : Colors.white,

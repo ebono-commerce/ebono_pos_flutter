@@ -106,6 +106,7 @@ class _OrdersSectionState extends State<OrdersSection>
   //   }
   // }
   //
+
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
@@ -1657,67 +1658,103 @@ class _OrdersSectionState extends State<OrdersSection>
                   homeController.phoneNumber.value = value;
                 },
                 decoration: InputDecoration(
-                  fillColor: Colors.white,
-                  focusColor: Colors.white,
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide(
-                      color: Colors.grey.shade300, // Normal border color
-                      width: 1,
+                    fillColor: Colors.white,
+                    focusColor: Colors.white,
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide(
+                        color: Colors.grey.shade300, // Normal border color
+                        width: 1,
+                      ),
                     ),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide(
-                      color: Colors.grey.shade300, // Focused border color
-                      width: 1,
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide(
+                        color: Colors.grey.shade300, // Focused border color
+                        width: 1,
+                      ),
                     ),
-                  ),
-                  errorBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide(
-                      color: Colors.red, // Error border color
-                      width: 1,
+                    errorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide(
+                        color: Colors.red, // Error border color
+                        width: 1,
+                      ),
                     ),
-                  ),
-                  focusedErrorBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide(
-                      color: Colors.red, // Focused error border color
-                      width: 1,
+                    focusedErrorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide(
+                        color: Colors.red, // Focused error border color
+                        width: 1,
+                      ),
                     ),
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide(
-                      color: Colors.grey.shade300,
-                      width: 1,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide(
+                        color: Colors.grey.shade300,
+                        width: 1,
+                      ),
                     ),
-                  ),
-                  label: RichText(
-                    text: TextSpan(
-                      children: [
-                        TextSpan(
-                          text: ' Enter Customer Mobile Number ',
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.normal,
+                    label: RichText(
+                      text: TextSpan(
+                        children: [
+                          TextSpan(
+                            text: ' Enter Customer Mobile Number ',
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.normal,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    suffixIcon: Container(
+                      padding: EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                      width: 100,
+                      child: ElevatedButton(
+                        onPressed: homeController.phoneNumber.value != ""
+                            ? onPressed
+                            : null,
+                        style: ElevatedButton.styleFrom(
+                          elevation: 1,
+                          padding:
+                              EdgeInsets.symmetric(horizontal: 1, vertical: 1),
+                          shape: RoundedRectangleBorder(
+                            side: BorderSide(
+                                color: homeController.phoneNumber.value != ""
+                                    ? CustomColors.secondaryColor
+                                    : CustomColors.cardBackground),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          disabledBackgroundColor: CustomColors.cardBackground,
+                          backgroundColor: CustomColors.secondaryColor,
+                        ),
+                        child: Center(
+                          child: Text(
+                            "Search",
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleSmall
+                                ?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color: CustomColors.black),
+                            // style: TextStyle(
+                            //     color: Colors.black,
+                            //     fontSize: 14,
+                            //     fontWeight: FontWeight.bold),
                           ),
                         ),
-                      ],
-                    ),
-                  ),
-                ),
+                      ),
+                    )),
               )),
           Container(
-              padding:
-                  const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10),
-              child: TextField(
-                controller: _controllerCustomerName,
-                onChanged: (value) {
-                  homeController.customerName.value = value;
-                },
-                decoration: InputDecoration(
+            padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10),
+            child: TextField(
+              controller: _controllerCustomerName,
+              onChanged: (value) {
+                homeController.customerName.value = value;
+              },
+              decoration: InputDecoration(
                   fillColor: Colors.white,
                   focusColor: Colors.white,
                   enabledBorder: OutlineInputBorder(
@@ -1768,40 +1805,80 @@ class _OrdersSectionState extends State<OrdersSection>
                       ],
                     ),
                   ),
-                ),
-              )),
+                  suffixIcon: Container(
+                    padding: EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                    width: 100,
+                    child: ElevatedButton(
+                      onPressed: homeController.phoneNumber.value != ""
+                          ? onPressed
+                          : null,
+                      style: ElevatedButton.styleFrom(
+                        elevation: 1,
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 1, vertical: 1),
+                        shape: RoundedRectangleBorder(
+                          side: BorderSide(
+                              color: homeController.phoneNumber.value != ""
+                                  ? CustomColors.secondaryColor
+                                  : CustomColors.cardBackground),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        disabledBackgroundColor: CustomColors.cardBackground,
+                        backgroundColor: CustomColors.secondaryColor,
+                      ),
+                      child: Center(
+                        child: Text(
+                          "Select",
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleSmall
+                              ?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: CustomColors.black),
+                          // style: TextStyle(
+                          //     color: Colors.black,
+                          //     fontSize: 14,
+                          //     fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ),
+                  )),
+            ),
+          ),
           SizedBox(
             height: 10,
           ),
-          Container(
-            width: double.infinity,
-            height: 60,
-            padding: EdgeInsets.symmetric(horizontal: 5.0, vertical: 10),
-            child: ElevatedButton(
-              onPressed: onPressed,
-              style: ElevatedButton.styleFrom(
-                elevation: 1,
-                padding: EdgeInsets.symmetric(horizontal: 1, vertical: 20),
-                shape: RoundedRectangleBorder(
-                  side: BorderSide(color: CustomColors.secondaryColor),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                disabledBackgroundColor: Colors.grey,
-                backgroundColor: CustomColors.secondaryColor,
-              ),
-              child: Center(
-                child: Text(
-                  "Start Sale",
-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.bold, color: CustomColors.black),
-                  // style: TextStyle(
-                  //     color: Colors.black,
-                  //     fontSize: 14,
-                  //     fontWeight: FontWeight.bold),
-                ),
-              ),
-            ),
-          ),
+
+          // Container(
+          //   width: double.infinity,
+          //   height: 60,
+          //   padding: EdgeInsets.symmetric(horizontal: 5.0, vertical: 10),
+          //   child: ElevatedButton(
+          //     onPressed: onPressed,
+          //     style: ElevatedButton.styleFrom(
+          //       elevation: 1,
+          //       padding: EdgeInsets.symmetric(horizontal: 1, vertical: 20),
+          //       shape: RoundedRectangleBorder(
+          //         side: BorderSide(color: CustomColors.secondaryColor),
+          //         borderRadius: BorderRadius.circular(10),
+          //       ),
+          //       disabledBackgroundColor: Colors.grey,
+          //       backgroundColor: CustomColors.secondaryColor,
+          //     ),
+          //     child: Center(
+          //       child: Text(
+          //         "Start Sale",
+          //         style: Theme.of(context).textTheme.titleSmall?.copyWith(
+          //             fontWeight: FontWeight.bold, color: CustomColors.black),
+          //         // style: TextStyle(
+          //         //     color: Colors.black,
+          //         //     fontSize: 14,
+          //         //     fontWeight: FontWeight.bold),
+          //       ),
+          //     ),
+          //   ),
+          // ),
+
           Container(
             // width: 200,
             height: 60,
