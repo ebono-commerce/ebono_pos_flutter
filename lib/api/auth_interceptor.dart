@@ -11,7 +11,7 @@ class AuthInterceptor extends Interceptor {
   @override
   Future<void> onRequest(RequestOptions options, RequestInterceptorHandler handler) async {
     // Retrieve the token using SharedPreferenceHelper
-    String? token = await _sharedPreferenceHelper.getToken();
+    String? token = await _sharedPreferenceHelper.getAuthToken();
 
     if (token != null) {
       // Add the token to the Authorization header if it exists
@@ -30,7 +30,7 @@ class AuthInterceptor extends Interceptor {
       print('Token expired or unauthorized');
 
       // Clear the token on error (optional)
-      _sharedPreferenceHelper.clearToken();
+      _sharedPreferenceHelper.clearAuthToken();
 
       // You can also redirect the user to the login page here if necessary
        Get.offAllNamed(PageRoutes.login);

@@ -18,6 +18,6 @@ class InitialBinding extends Bindings {
     Get.put<LoginRepository>(LoginRepository(Get.find<ApiHelper>()));
 
     // Register LoginBloc as a singleton
-    Get.put<LoginBloc>(LoginBloc(Get.find<LoginRepository>()));
+    Get.put<LoginBloc>(LoginBloc(Get.find<LoginRepository>(), Get.find<SharedPreferenceHelper>()));
   }
 }

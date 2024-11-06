@@ -14,8 +14,8 @@ class ApiHelper {
   ApiHelper._internal(this._baseUrl, this._sharedPreferenceHelper) {
     _dio = dio.Dio(dio.BaseOptions(
       baseUrl: _baseUrl,
-      connectTimeout: const Duration(seconds: 15),
-      receiveTimeout: const Duration(seconds: 15),
+      connectTimeout: const Duration(seconds: 30),
+      receiveTimeout: const Duration(seconds: 30),
       headers: {
         'Content-Type': 'application/json',
       },
@@ -86,10 +86,22 @@ class ApiHelper {
     if (response.statusCode != null &&
         response.statusCode! >= 200 &&
         response.statusCode! < 300) {
-      return parser != null ? parser(response.data) : response.data as T;
+      if (parser != null) {
+        return parser(response.data);
+      } else {
+        // Return data as T if T matches the data type, otherwise throw an error
+        if (response.data is T) {
+          return response.data;
+        } else {
+          throw Exception(
+            'No parser provided, and response data type does not match expected type $T.',
+          );
+        }
+      }
     } else {
       throw Exception(
-          'Failed request: ${response.statusCode} - ${response.statusMessage}');
+        'Failed request: ${response.statusCode} - ${response.statusMessage}',
+      );
     }
   }
 
@@ -105,11 +117,18 @@ class ApiHelper {
         case dio.DioExceptionType.sendTimeout:
           return Exception("Send timeout in connection with server.");
         case dio.DioExceptionType.badResponse:
+          final statusCode = error.response?.statusCode;
+          final errorData = error.response?.data;
+          final errorMessage = errorData is Map<String, dynamic>
+              ? errorData['message'] ?? 'Unknown error'
+              : 'Unknown error';
           return Exception(
-              "Received invalid status code: ${error.response?.statusCode}");
+            "Received invalid status code: $statusCode. Error: $errorMessage",
+          );
         case dio.DioExceptionType.connectionError:
           return Exception(
-              "Connection to server failed due to internet connection.");
+            "Connection to server failed due to internet connection.",
+          );
         default:
           return Exception("Unknown Exception.");
       }
