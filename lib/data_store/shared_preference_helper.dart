@@ -1,7 +1,6 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SharedPreferenceHelper {
-
   static SharedPreferenceHelper? _instance;
 
   // Private constructor for singleton pattern
@@ -29,5 +28,17 @@ class SharedPreferenceHelper {
   Future<void> clearAuthToken() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('authToken');
+  }
+
+  // Store the cartId
+  Future<void> storeCartId(String cartId) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('cartId', cartId);
+  }
+
+  // Retrieve the cartId
+  Future<String?> getCartId() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('cartId');
   }
 }

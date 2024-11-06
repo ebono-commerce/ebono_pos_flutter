@@ -8,7 +8,6 @@ import 'package:kpn_pos_application/navigation/page_routes.dart';
 import 'package:kpn_pos_application/ui/common_text_field.dart';
 import 'package:kpn_pos_application/ui/login/bloc/login_bloc.dart';
 import 'package:kpn_pos_application/ui/login/bloc/login_state.dart';
-import 'package:kpn_pos_application/ui/login/model/login_response.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -87,7 +86,8 @@ class _LoginPageState extends State<LoginPage> {
                       Flexible(flex: 3, child: welcomeWidget(context)),
                       state is LoginSuccess
                           ? Flexible(
-                              flex: 2, child: storeDetailsWidget(context, loginBloc))
+                              flex: 2,
+                              child: storeDetailsWidget(context, loginBloc))
                           : Flexible(flex: 2, child: loginWidget(context)),
                       Flexible(flex: 1, child: SizedBox())
                     ],
@@ -185,34 +185,35 @@ class _LoginPageState extends State<LoginPage> {
               ),
 
               SizedBox(height: 30),
-            // Sign in button
-            SizedBox(
-              width: double.infinity,
-              height: 60,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Theme.of(context).colorScheme.secondary,
-                  textStyle: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.w500,
-                      ),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
+              // Sign in button
+              SizedBox(
+                width: double.infinity,
+                height: 60,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).colorScheme.secondary,
+                    textStyle: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.w500,
+                        ),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    elevation: 6,
                   ),
-                  elevation: 6,
-                ),
-                onPressed: () {
-                  Get.offAndToNamed('/home');
-                  // loginBloc.add(
-                  //   LoginButtonPressed(
-                  //     loginIdController.text,
-                  //     passwordController.text,
-                  //   ),
-                  // );
-                },
-                child: Text(
-                  'Sign In',
+                  onPressed: () {
+                    Get.offAndToNamed('/home');
+                    // loginBloc.add(
+                    //   LoginButtonPressed(
+                    //     loginIdController.text,
+                    //     passwordController.text,
+                    //   ),
+                    // );
+                  },
+                  child: Text(
+                    'Sign In',
+                  ),
                 ),
               ),
               SizedBox(height: 10),

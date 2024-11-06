@@ -4,7 +4,7 @@
 
 import 'dart:convert';
 
-ScanProductsResponse scanProductsResponseFromJson(String str) =>
+ScanProductsResponse scanProductsResponseFromJson(dynamic str) =>
     ScanProductsResponse.fromJson(json.decode(str));
 
 String scanProductsResponseToJson(ScanProductsResponse data) =>
