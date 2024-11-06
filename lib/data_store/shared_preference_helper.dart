@@ -14,19 +14,19 @@ class SharedPreferenceHelper {
   }
 
   // Store the token
-  Future<void> storeToken(String token) async {
+  Future<void> storeAuthToken(String token) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('authToken', token);
   }
 
   // Retrieve the token
-  Future<String?> getToken() async {
+  Future<String?> getAuthToken() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString('authToken');
   }
 
   // Clear the token
-  Future<void> clearToken() async {
+  Future<void> clearAuthToken() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('authToken');
   }

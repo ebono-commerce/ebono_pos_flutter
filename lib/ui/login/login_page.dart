@@ -8,6 +8,7 @@ import 'package:kpn_pos_application/navigation/page_routes.dart';
 import 'package:kpn_pos_application/ui/common_text_field.dart';
 import 'package:kpn_pos_application/ui/login/bloc/login_bloc.dart';
 import 'package:kpn_pos_application/ui/login/bloc/login_state.dart';
+import 'package:kpn_pos_application/ui/login/model/login_response.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -25,7 +26,7 @@ class _LoginPageState extends State<LoginPage> {
   TextEditingController terminalIdController = TextEditingController();
   TextEditingController loginIdController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
-
+  final _formKey = GlobalKey<FormState>();
   List<String> selectedStoreModes = [];
   final List<String> _items = [
     'ST001',
@@ -73,26 +74,29 @@ class _LoginPageState extends State<LoginPage> {
               // Navigate to home page on success
               //Get.offAndToNamed('/home');
             } else if (state is LoginFailure) {
-              Get.snackbar("Login Error", state.error);
+              Get.snackbar("Login Error ui", state.error);
             }
           },
           child: BlocBuilder<LoginBloc, LoginState>(
             builder: (context, state) {
-              if (state is LoginLoading) {
-                return Center(child: CircularProgressIndicator());
-              }
-              return Container(
-                color: CustomColors.backgroundColor,
-                child: Row(
-                  children: [
-                    Flexible(flex: 3, child: welcomeWidget(context)),
-                    state is LoginSuccess
-                        ? Flexible(flex: 2, child: storeDetailsWidget(context))
-                        : Flexible(flex: 2, child: loginWidget(context)),
-                    Flexible(flex: 1, child: SizedBox())
-                  ],
+              return Stack(children: [
+                Container(
+                  color: CustomColors.backgroundColor,
+                  child: Row(
+                    children: [
+                      Flexible(flex: 3, child: welcomeWidget(context)),
+                      state is LoginSuccess
+                          ? Flexible(
+                              flex: 2, child: storeDetailsWidget(context, loginBloc))
+                          : Flexible(flex: 2, child: loginWidget(context)),
+                      Flexible(flex: 1, child: SizedBox())
+                    ],
+                  ),
                 ),
-              );
+                state is LoginLoading
+                    ? Center(child: CircularProgressIndicator())
+                    : SizedBox(),
+              ]);
             },
           ),
         ),
@@ -142,26 +146,45 @@ class _LoginPageState extends State<LoginPage> {
       elevation: 10,
       child: Container(
         padding: EdgeInsets.all(40),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Login Id input
-            commonTextField(
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Login Id input
+              commonTextField(
                 label: 'Login Id',
                 focusNode: loginIdFocusNode,
-                controller: loginIdController),
-            SizedBox(height: 20),
+                controller: loginIdController,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter login id';
+                  } else if (value.length < 4) {
+                    return 'login id must be at least 4 characters';
+                  }
+                  return null;
+                },
+              ),
+              SizedBox(height: 20),
 
-            // Password input
-            commonTextField(
+              // Password input
+              commonTextField(
                 label: 'Enter Password',
                 focusNode: passwordFocusNode,
                 controller: passwordController,
-                obscureText: true),
+                obscureText: true,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter a password';
+                  } else if (value.length < 6) {
+                    return 'Password must be at least 6 characters';
+                  }
+                  return null;
+                },
+              ),
 
-            SizedBox(height: 30),
-
+              SizedBox(height: 30),
             // Sign in button
             SizedBox(
               width: double.infinity,
@@ -192,37 +215,38 @@ class _LoginPageState extends State<LoginPage> {
                   'Sign In',
                 ),
               ),
-            ),
-            SizedBox(height: 10),
+              SizedBox(height: 10),
 
-            // Unable to log in text
-            Center(
-              child: Wrap(
-                crossAxisAlignment: WrapCrossAlignment.center,
-                children: [
-                  Text(
-                    'Unable to log in?',
-                    style: theme.textTheme.bodyLarge
-                        ?.copyWith(color: Colors.black45),
-                  ),
-                  TextButton(
-                    onPressed: () {},
-                    child: Text(
-                      'Contact operations',
+              // Unable to log in text
+              Center(
+                child: Wrap(
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    Text(
+                      'Unable to log in?',
                       style: theme.textTheme.bodyLarge
-                          ?.copyWith(color: theme.colorScheme.primary),
+                          ?.copyWith(color: Colors.black45),
                     ),
-                  ),
-                ],
+                    TextButton(
+                      onPressed: () {},
+                      child: Text(
+                        'Contact operations',
+                        style: theme.textTheme.bodyLarge
+                            ?.copyWith(color: theme.colorScheme.primary),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget storeDetailsWidget(BuildContext context) {
+  Widget storeDetailsWidget(BuildContext context, LoginBloc loginBloc) {
+    var outletDetails = loginBloc.outletList;
     return Card(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(15.0),
@@ -237,7 +261,7 @@ class _LoginPageState extends State<LoginPage> {
           children: [
             DropdownSearch<String>(
               key: dropDownKey,
-              items: (filter, infiniteScrollProps) => _items,
+              items: (filter, infiniteScrollProps) => outletDetails,
               decoratorProps: DropDownDecoratorProps(
                   decoration: textFieldDecoration(
                       isFocused: dropDownKey.currentState?.isFocused == true,
@@ -246,7 +270,12 @@ class _LoginPageState extends State<LoginPage> {
                 // Handle value
                 // change
               },
-              selectedItem: _items.first,
+              suffixProps: DropdownSuffixProps(
+                  dropdownButtonProps: DropdownButtonProps(
+                iconOpened: Icon(Icons.keyboard_arrow_up),
+                iconClosed: Icon(Icons.keyboard_arrow_down),
+              )),
+              selectedItem: outletDetails.first,
               popupProps: PopupProps.bottomSheet(
                 showSearchBox: true,
                 fit: FlexFit.loose,
@@ -261,6 +290,7 @@ class _LoginPageState extends State<LoginPage> {
                       prefixIcon: Icon(Icons.search)),
                 ),
               ),
+              //dropdownBuilder: (ctx, selectedItem) => Text(selectedItem!.name),
             ),
 
             SizedBox(height: 20),

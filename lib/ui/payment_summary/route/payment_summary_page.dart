@@ -65,12 +65,6 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                 Text(
                   'Payment summary',
                 ),
-                /*IconButton(
-                    onPressed: () {
-                      Get.back();
-                    },
-                    icon: ImageIcon(
-                        size: 20, AssetImage('assets/images/ic_cancel.png')))*/
               ],
             ),
             SizedBox(height: 10),

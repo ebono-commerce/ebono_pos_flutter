@@ -9,21 +9,21 @@ LoginRequest loginRequestFromJson(String str) => LoginRequest.fromJson(json.deco
 String loginRequestToJson(LoginRequest data) => json.encode(data.toJson());
 
 class LoginRequest {
-  String loginId;
+  String userName;
   String password;
 
   LoginRequest({
-    required this.loginId,
+    required this.userName,
     required this.password,
   });
 
   factory LoginRequest.fromJson(Map<String, dynamic> json) => LoginRequest(
-    loginId: json["loginId"],
+    userName: json["username"],
     password: json["password"],
   );
 
   Map<String, dynamic> toJson() => {
-    "loginId": loginId,
+    "username": userName,
     "password": password,
   };
 }
