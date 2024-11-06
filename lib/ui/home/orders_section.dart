@@ -1256,9 +1256,16 @@ class _OrdersSectionState extends State<OrdersSection>
                                     ),
                                   ),
                                 ),
-                                onEditingComplete: () {
+                                // onEditingComplete: () {
+                                //   setState(() {
+                                //     input = _controller.text;
+                                //     homeController.scanApiCall(input);
+                                //   });
+                                // },
+                                onChanged: (data){
                                   setState(() {
-                                    input = _controller.text;
+                                    print('enter:: $data');
+                                    input = _controller.text;;
                                     homeController.scanApiCall(input);
                                   });
                                 },

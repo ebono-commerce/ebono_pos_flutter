@@ -1,10 +1,13 @@
 import 'dart:convert';
 
 import 'package:flutter/services.dart';
+import 'package:http/http.dart' as http;
+
 import 'package:get/get.dart';
 import 'package:kpn_pos_application/blocs/models/cart_response.dart';
 import 'package:kpn_pos_application/blocs/models/customer_response.dart';
 import 'package:kpn_pos_application/blocs/models/scan_products_response.dart';
+import 'package:kpn_pos_application/constants/app_constants.dart';
 
 class HomeController extends GetxController {
   var isLoading = false.obs;
@@ -23,6 +26,7 @@ class HomeController extends GetxController {
   void onInit() {
     super.onInit();
     intializationResponse();
+   // fetchCustomer();
     print("HomeController initialized");
   }
 
@@ -53,7 +57,7 @@ class HomeController extends GetxController {
     );
   }
 
-/*
+
   Future<void> scanApiCall(String code) async {
     isLoading(true);
     try {
@@ -62,6 +66,10 @@ class HomeController extends GetxController {
       if (response.statusCode == 200) {
         scanProductsResponse.value =
             ScanProductsResponse.fromJson(json.decode(response.body));
+        if(scanProductsResponse.value.isWeighedItem==true){
+          fetchCustomer();
+         // addToCartApiCall(scanProductsResponse.value.esin.toString(), "1", "", "KG", customerResponse!.value.cartId.toString());
+        }
         print("Success : ${response.body}");
       } else {
         print("Error");
@@ -72,8 +80,6 @@ class HomeController extends GetxController {
       isLoading(false);
     }
   }
-*/
-/*
   Future<void> fetchCustomer() async {
     isLoading(true);
     try {
@@ -99,9 +105,9 @@ class HomeController extends GetxController {
       isLoading(false);
     }
   }
-*/
 
-/*
+
+
   Future<void> fetchCartCall() async {
     isLoading(true);
     try {
@@ -125,9 +131,6 @@ class HomeController extends GetxController {
       isLoading(false);
     }
   }
-
-*/
-/*
   Future<void> addToCartApiCall(String esin,String qty, String mrpId,String qtyUom,String cartId,) async {
     isLoading(true);
     try {
@@ -160,10 +163,10 @@ class HomeController extends GetxController {
       isLoading(false);
     }
   }
-*/
+
 
   /// for local data from json
-
+/*
   Future<void> fetchCustomer() async {
     isLoading(true);
     try {
@@ -239,4 +242,6 @@ class HomeController extends GetxController {
       isLoading(false);
     }
   }
+
+ */
 }
