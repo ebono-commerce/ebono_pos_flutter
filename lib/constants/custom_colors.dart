@@ -16,4 +16,5 @@ class CustomColors {
   static final enabledLabelColor = Colors.black45;
   static final keyBoardBgColor = const Color(0xFFF0F4F4);
   static final cardBackground = const Color(0xFFF5F5F5);
+  static final disabledColor = const Color(0xFFF7F7F7);
 }

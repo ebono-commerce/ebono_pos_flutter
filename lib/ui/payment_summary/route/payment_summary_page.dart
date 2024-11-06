@@ -324,16 +324,39 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                           : "-"),
                   billDetailRow(
                       label: 'Price',
-                      value:
-                          '${convertedPrice(homeController.cartResponse.value.cartTotals?.firstWhere((item) => item.type == 'ITEM_TOTAL').amount?.centAmount, homeController.cartResponse.value.cartTotals?.firstWhere((item) => item.type == 'ITEM_TOTAL').amount?.fraction)}'),
+                      value: convertedPrice(
+                          homeController.cartResponse.value.cartTotals
+                              ?.firstWhere((item) => item.type == 'ITEM_TOTAL')
+                              .amount
+                              ?.centAmount,
+                          homeController.cartResponse.value.cartTotals
+                              ?.firstWhere((item) => item.type == 'ITEM_TOTAL')
+                              .amount
+                              ?.fraction)),
                   billDetailRow(
                       label: 'GST',
-                      value:
-                          '${convertedPrice(homeController.cartResponse.value.cartTotals?.firstWhere((item) => item.type == 'TAX_TOTAL').amount?.centAmount, homeController.cartResponse.value.cartTotals?.firstWhere((item) => item.type == 'TAX_TOTAL').amount?.fraction)}'),
+                      value: convertedPrice(
+                          homeController.cartResponse.value.cartTotals
+                              ?.firstWhere((item) => item.type == 'TAX_TOTAL')
+                              .amount
+                              ?.centAmount,
+                          homeController.cartResponse.value.cartTotals
+                              ?.firstWhere((item) => item.type == 'TAX_TOTAL')
+                              .amount
+                              ?.fraction)),
                   billDetailRow(
                       label: 'Discount',
-                      value:
-                          '${convertedPrice(homeController.cartResponse.value.cartTotals?.firstWhere((item) => item.type == 'DISCOUNT_TOTAL').amount?.centAmount, homeController.cartResponse.value.cartTotals?.firstWhere((item) => item.type == 'DISCOUNT_TOTAL').amount?.fraction)}',
+                      value: convertedPrice(
+                          homeController.cartResponse.value.cartTotals
+                              ?.firstWhere(
+                                  (item) => item.type == 'DISCOUNT_TOTAL')
+                              .amount
+                              ?.centAmount,
+                          homeController.cartResponse.value.cartTotals
+                              ?.firstWhere(
+                                  (item) => item.type == 'DISCOUNT_TOTAL')
+                              .amount
+                              ?.fraction),
                       isNegative: true),
                   billDetailRow(
                       label: 'Loyalty points', value: '-100', isNegative: true),
@@ -345,8 +368,15 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
               padding: EdgeInsets.all(16),
               child: billDetailRow(
                   label: 'Total payable',
-                  value:
-                      '${convertedPrice(homeController.cartResponse.value.cartTotals?.firstWhere((item) => item.type == 'GRAND_TOTAL').amount?.centAmount, homeController.cartResponse.value.cartTotals?.firstWhere((item) => item.type == 'GRAND_TOTAL').amount?.fraction)}',
+                  value: convertedPrice(
+                      homeController.cartResponse.value.cartTotals
+                          ?.firstWhere((item) => item.type == 'GRAND_TOTAL')
+                          .amount
+                          ?.centAmount,
+                      homeController.cartResponse.value.cartTotals
+                          ?.firstWhere((item) => item.type == 'GRAND_TOTAL')
+                          .amount
+                          ?.fraction),
                   isBold: true),
             ),
             SizedBox(height: 16),
@@ -452,7 +482,10 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
           children: [
             SizedBox(
               width: 140,
-              child: commonTextField(label: inputHint, focusNode: FocusNode(), controller: TextEditingController()),
+              child: commonTextField(
+                  label: inputHint,
+                  focusNode: FocusNode(),
+                  controller: TextEditingController()),
             ),
             SizedBox(width: 14),
             SizedBox(

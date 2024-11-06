@@ -243,7 +243,7 @@ class _HomePageState extends State<HomePage> {
       ),
       body: Center(
         child: _selectedButton == 1
-            ? RegisterSection()
+            ? RegisterSection(weightController, homeController)
             : _selectedButton == 2
                 ? OrdersSection(weightController, homeController)
                 : _selectedButton == 3

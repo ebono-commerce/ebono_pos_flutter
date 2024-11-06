@@ -2388,7 +2388,7 @@ class _OrdersSectionState extends State<OrdersSection>
                   ),
                   Text(
                     // 'Wednesday, 18 September 2024',
-                    '${formattedDate}',
+                    formattedDate,
                     maxLines: 1,
                     textAlign: TextAlign.center,
                     style: TextStyle(
