@@ -363,21 +363,21 @@ class _OrdersSectionState extends State<OrdersSection>
                                                 ' ${widget.weightController.weight.value}'),
                                         onEditingComplete: () {},
                                         onSubmitted: (value) {
-                                          // try {
-                                          //   // Convert the string to a double
-                                          //   double doubleValue =
-                                          //       double.parse(value);
-                                          //   homeController
-                                          //       .updateCartItemApiCall(
-                                          //     itemData.cartLineId,
-                                          //     itemData.quantity?.quantityUom,
-                                          //     doubleValue,
-                                          //   );
-                                          // } catch (e) {
-                                          //   // Handle the error if the conversion fails
-                                          //   print(
-                                          //       'Error: Invalid input for quantity. Please enter a valid number.');
-                                          // }
+                                          try {
+                                            // Convert the string to a double
+                                            double doubleValue =
+                                                double.parse(value);
+                                            homeController
+                                                .updateCartItemApiCall(
+                                              itemData.cartLineId,
+                                              itemData.quantity?.quantityUom,
+                                              doubleValue,
+                                            );
+                                          } catch (e) {
+                                            // Handle the error if the conversion fails
+                                            print(
+                                                'Error: Invalid input for quantity. Please enter a valid number.');
+                                          }
                                         },
                                         onChanged: (value) {},
                                         style: Theme.of(context)
