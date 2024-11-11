@@ -4,7 +4,7 @@
 
 import 'dart:convert';
 
-CartResponse cartResponseFromJson(String str) =>
+CartResponse cartResponseFromJson(dynamic str) =>
     CartResponse.fromJson(json.decode(str));
 
 String cartResponseToJson(CartResponse data) => json.encode(data.toJson());
