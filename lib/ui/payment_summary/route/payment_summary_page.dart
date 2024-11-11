@@ -6,7 +6,6 @@ import 'package:kpn_pos_application/constants/custom_colors.dart';
 import 'package:kpn_pos_application/ui/Common_button.dart';
 import 'package:kpn_pos_application/ui/common_text_field.dart';
 import 'package:kpn_pos_application/ui/home/home_controller.dart';
-import 'package:kpn_pos_application/ui/home/orders_section.dart';
 import 'package:kpn_pos_application/ui/payment_summary/route/print_receipt.dart';
 
 class PaymentSummaryScreen extends StatefulWidget {
@@ -309,25 +308,44 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // billDetailRow(label: 'Invoice no.', value: '#123456789'),
-                  billDetailRow(
-                      label: 'Total items',
-                      value: homeController
-                                  .cartResponse.value.cartTotals?.length !=
-                              null
-                          ? '${homeController.cartResponse.value.cartTotals?.length}'
-                          : "-"),
-                  billDetailRow(
-                      label: 'Price',
-                      value:
-                          '${convertedPrice(homeController.cartResponse.value.cartTotals?.firstWhere((item) => item.type == 'ITEM_TOTAL').amount?.centAmount, homeController.cartResponse.value.cartTotals?.firstWhere((item) => item.type == 'ITEM_TOTAL').amount?.fraction)}'),
-                  billDetailRow(
-                      label: 'GST',
-                      value:
-                          '${convertedPrice(homeController.cartResponse.value.cartTotals?.firstWhere((item) => item.type == 'TAX_TOTAL').amount?.centAmount, homeController.cartResponse.value.cartTotals?.firstWhere((item) => item.type == 'TAX_TOTAL').amount?.fraction)}'),
+                  billDetailRow(label: 'Total items', value: "-"),
+                  billDetailRow(label: 'Price', value: ""
+                      // convertedPrice(
+                      //     homeController.cartResponse.value.cartTotals
+                      //         ?.firstWhere((item) => item.type == 'ITEM_TOTAL')
+                      //         .amount
+                      //         ?.centAmount,
+                      //     homeController.cartResponse.value.cartTotals
+                      //         ?.firstWhere((item) => item.type == 'ITEM_TOTAL')
+                      //         .amount
+                      //         ?.fraction)
+                      ),
+                  billDetailRow(label: 'GST', value: "-"
+                      // convertedPrice(
+                      //     homeController.cartResponse.value.cartTotals
+                      //         ?.firstWhere((item) => item.type == 'TAX_TOTAL')
+                      //         .amount
+                      //         ?.centAmount,
+                      //     homeController.cartResponse.value.cartTotals
+                      //         ?.firstWhere((item) => item.type == 'TAX_TOTAL')
+                      //         .amount
+                      //         ?.fraction)
+                      ),
                   billDetailRow(
                       label: 'Discount',
-                      value:
-                          '${convertedPrice(homeController.cartResponse.value.cartTotals?.firstWhere((item) => item.type == 'DISCOUNT_TOTAL').amount?.centAmount, homeController.cartResponse.value.cartTotals?.firstWhere((item) => item.type == 'DISCOUNT_TOTAL').amount?.fraction)}',
+                      value: "-"
+                      // convertedPrice(
+                      //     homeController.cartResponse.value.cartTotals
+                      //         ?.firstWhere(
+                      //             (item) => item.type == 'DISCOUNT_TOTAL')
+                      //         .amount
+                      //         ?.centAmount,
+                      //     homeController.cartResponse.value.cartTotals
+                      //         ?.firstWhere(
+                      //             (item) => item.type == 'DISCOUNT_TOTAL')
+                      //         .amount
+                      //         ?.fraction)
+                      ,
                       isNegative: true),
                   billDetailRow(
                       label: 'Loyalty points', value: '-100', isNegative: true),
@@ -339,8 +357,16 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
               padding: EdgeInsets.all(16),
               child: billDetailRow(
                   label: 'Total payable',
-                  value:
-                      '${convertedPrice(homeController.cartResponse.value.cartTotals?.firstWhere((item) => item.type == 'GRAND_TOTAL').amount?.centAmount, homeController.cartResponse.value.cartTotals?.firstWhere((item) => item.type == 'GRAND_TOTAL').amount?.fraction)}',
+                  value: "-",
+                  // convertedPrice(
+                  //     homeController.cartResponse.value.cartTotals
+                  //         ?.firstWhere((item) => item.type == 'GRAND_TOTAL')
+                  //         .amount
+                  //         ?.centAmount,
+                  //     homeController.cartResponse.value.cartTotals
+                  //         ?.firstWhere((item) => item.type == 'GRAND_TOTAL')
+                  //         .amount
+                  //         ?.fraction),
                   isBold: true),
             ),
             SizedBox(height: 16),
