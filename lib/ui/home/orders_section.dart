@@ -3,6 +3,7 @@ import 'package:flutter_styled_toast/flutter_styled_toast.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:kpn_pos_application/constants/custom_colors.dart';
+import 'package:kpn_pos_application/models/cart_response.dart';
 import 'package:kpn_pos_application/navigation/page_routes.dart';
 import 'package:kpn_pos_application/ui/home/home_controller.dart';
 import 'package:kpn_pos_application/utils/dash_line.dart';
@@ -127,7 +128,9 @@ class _OrdersSectionState extends State<OrdersSection>
                 color: Colors.white,
                 child: Column(
                   children: [
-                    _buildOrderdetail(_selectedWidget, context),
+                    Obx(() {
+                      return _buildOrderdetail(_selectedWidget, context);
+                    }),
                     Expanded(
                       // flex: 1,
                       child: Center(
@@ -143,7 +146,9 @@ class _OrdersSectionState extends State<OrdersSection>
                                           _StaleButtonPressed("START_SALE"),
                                     )
                                   : _selectedWidget == 'START_SALE'
-                                      ? _buildTableView2()
+                                      ? Obx(() {
+                                          return _buildTableView2();
+                                        })
                                       : Container()),
                     )
                   ],
@@ -166,6 +171,8 @@ class _OrdersSectionState extends State<OrdersSection>
   }
 
   Widget _buildTableView2() {
+    print(
+        "_buildTableView2: ${homeController.cartResponse.value.cartLines?.length}");
     return Container(
       padding: EdgeInsets.only(bottom: 2),
       margin: EdgeInsets.all(10),
@@ -276,21 +283,18 @@ class _OrdersSectionState extends State<OrdersSection>
           ),
 
           //ROW
-          homeController.cartResponse.value.cartLines != null
+          homeController.cartLines.isNotEmpty
               ? Expanded(
                   child: ListView.builder(
-                    // shrinkWrap: true,
-                    itemCount:
-                        homeController.cartResponse.value.cartLines?.length,
+                    shrinkWrap: true,
+                    itemCount: homeController.cartLines.length,
                     itemBuilder: (context, index) {
-                      var itemData =
-                          homeController.cartResponse.value.cartLines?[index];
+                      var cartLines =
+                          homeController.cartResponse.value.cartLines;
                       return Table(
                         border: TableBorder.symmetric(
                             outside:
                                 BorderSide(width: 1, color: Color(0xFFF7F7F7))),
-                        // Optional: to add borders to the table
-
                         columnWidths: {
                           0: FlexColumnWidth(2),
                           1: FlexColumnWidth(3),
@@ -301,168 +305,23 @@ class _OrdersSectionState extends State<OrdersSection>
                           6: FlexColumnWidth(1),
                         },
                         children: [
-                          TableRow(
-                            decoration: BoxDecoration(
-                                // color: Colors.grey.shade300,
-                                border: Border.all(
-                                    color: Colors.grey.shade300, width: 1)),
-                            // decoration: BoxDecoration(
-                            //   color: Colors.white,
-                            // ),
-                            children: [
-                              Container(
-                                color: Colors.white,
-                                padding: const EdgeInsets.all(8.0),
-                                child: Padding(
-                                    padding: const EdgeInsets.all(10.0),
-                                    child: Text(
-                                      '${itemData?.item?.esin}',
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      softWrap: true,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .labelLarge
-                                          ?.copyWith(
-                                              fontWeight: FontWeight.w500,
-                                              color: CustomColors.black),
-                                    )),
-                              ),
-                              Container(
-                                color: Colors.white,
-                                padding: const EdgeInsets.all(4.0),
-                                child: Padding(
-                                    padding: const EdgeInsets.all(2.0),
-                                    child: Text(
-                                      '${itemData?.item?.ebonoTitle}',
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                      softWrap: true,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .labelLarge
-                                          ?.copyWith(
-                                              fontWeight: FontWeight.w500,
-                                              color: CustomColors.black),
-                                    )),
-                              ),
-                              Container(
-                                color: Colors.white,
-                                padding: const EdgeInsets.all(2.0),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(2.0),
-                                  child: Obx(() {
-                                    return TextField(
-                                      controller: TextEditingController(
-                                          text:
-                                              ' ${widget.weightController.weight.value}'),
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .labelLarge
-                                          ?.copyWith(
-                                              fontWeight: FontWeight.w500,
-                                              color: CustomColors.black),
-                                      decoration: InputDecoration(
-                                          fillColor: Colors.white,
-                                          focusColor: Colors.white,
-                                          enabledBorder: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                            borderSide: BorderSide(
-                                              color: Colors.grey
-                                                  .shade300, // Normal border color
-                                              width: 1,
-                                            ),
-                                          ),
-                                          focusedBorder: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                            borderSide: BorderSide(
-                                              color: Colors.grey
-                                                  .shade300, // Focused border color
-                                              width: 1,
-                                            ),
-                                          ),
-                                          errorBorder: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                            borderSide: BorderSide(
-                                              color: Colors
-                                                  .red, // Error border color
-                                              width: 1,
-                                            ),
-                                          ),
-                                          focusedErrorBorder:
-                                              OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                            borderSide: BorderSide(
-                                              color: Colors.red,
-                                              // Focused error border color
-                                              width: 1,
-                                            ),
-                                          ),
-                                          border: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                            borderSide: BorderSide(
-                                              color: Colors.grey.shade300,
-                                              width: 1,
-                                            ),
-                                          ),
-                                          hintText: "000.099",
-                                          suffixText: "KG"),
-                                    );
-                                  }),
-                                ),
-                              ),
-                              Container(
-                                color: Colors.white,
-                                padding: const EdgeInsets.all(8.0),
-                                child: Padding(
-                                    padding: const EdgeInsets.all(10.0),
-                                    child: Text(
-                                      '',
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      softWrap: true,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .labelLarge
-                                          ?.copyWith(
-                                              fontWeight: FontWeight.w500,
-                                              color: CustomColors.black),
-                                    )),
-                              ),
-                              Container(
-                                color: Colors.white,
-                                padding: const EdgeInsets.all(8.0),
-                                child: Padding(
-                                    padding: const EdgeInsets.all(10.0),
-                                    child: Text(
-                                      convertedPrice(
-                                          itemData?.unitPrice?.centAmount,
-                                          itemData?.unitPrice?.fraction),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      softWrap: true,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .labelLarge
-                                          ?.copyWith(
-                                              fontWeight: FontWeight.w500,
-                                              color: CustomColors.black),
-                                    )),
-                              ),
-                              Container(
+                          ...cartLines!.map((itemData) {
+                            return TableRow(
+                              decoration: BoxDecoration(
+                                  // color: Colors.grey.shade300,
+                                  border: Border.all(
+                                      color: Colors.grey.shade300, width: 1)),
+                              // decoration: BoxDecoration(
+                              //   color: Colors.white,
+                              // ),
+                              children: [
+                                Container(
                                   color: Colors.white,
                                   padding: const EdgeInsets.all(8.0),
                                   child: Padding(
                                       padding: const EdgeInsets.all(10.0),
                                       child: Text(
-                                        convertedPrice(
-                                            itemData?.unitPrice?.centAmount,
-                                            itemData?.unitPrice?.fraction),
+                                        '${itemData.item?.esin}',
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
                                         softWrap: true,
@@ -472,43 +331,217 @@ class _OrdersSectionState extends State<OrdersSection>
                                             ?.copyWith(
                                                 fontWeight: FontWeight.w500,
                                                 color: CustomColors.black),
-                                      ))),
-                              Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Container(
-                                  padding: const EdgeInsets.all(0.0),
-                                  width: 50,
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
-                                      color: Color(0xFFE56363),
-                                      width: 1,
-                                    ),
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  child: IconButton(
-                                    icon: ImageIcon(
-                                      size: 20,
-                                      color: Color(0xFFE56363),
-                                      AssetImage('assets/images/ic_remove.png'),
-                                    ),
-                                    onPressed: () {
-                                      Get.defaultDialog(
-                                          contentPadding: EdgeInsets.only(
-                                            left: 10,
-                                            right: 10,
-                                          ),
-                                          title: '',
-                                          middleText: '',
-                                          titlePadding: EdgeInsets.all(0),
-                                          barrierDismissible: false,
-                                          backgroundColor: Colors.white,
-                                          content: _buildRemoveDialog());
-                                    },
+                                      )),
+                                ),
+                                Container(
+                                  color: Colors.white,
+                                  padding: const EdgeInsets.all(4.0),
+                                  child: Padding(
+                                      padding: const EdgeInsets.all(2.0),
+                                      child: Text(
+                                        '${itemData.item?.ebonoTitle}',
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                        softWrap: true,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .labelLarge
+                                            ?.copyWith(
+                                                fontWeight: FontWeight.w500,
+                                                color: CustomColors.black),
+                                      )),
+                                ),
+                                Container(
+                                  color: Colors.white,
+                                  padding: const EdgeInsets.all(2.0),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(2.0),
+                                    child: Obx(() {
+                                      return TextField(
+                                        controller: TextEditingController(
+                                            text:
+                                                ' ${widget.weightController.weight.value}'),
+                                        onEditingComplete: () {},
+                                        onSubmitted: (value) {
+                                          try {
+                                            // Convert the string to a double
+                                            double doubleValue =
+                                                double.parse(value);
+                                            homeController
+                                                .updateCartItemApiCall(
+                                              itemData.cartLineId,
+                                              itemData.quantity?.quantityUom,
+                                              doubleValue,
+                                            );
+                                          } catch (e) {
+                                            // Handle the error if the conversion fails
+                                            print(
+                                                'Error: Invalid input for quantity. Please enter a valid number.');
+                                          }
+                                        },
+                                        onChanged: (value) {},
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .labelLarge
+                                            ?.copyWith(
+                                                fontWeight: FontWeight.w500,
+                                                color: CustomColors.black),
+                                        decoration: InputDecoration(
+                                            fillColor: Colors.white,
+                                            focusColor: Colors.white,
+                                            enabledBorder: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              borderSide: BorderSide(
+                                                color: Colors.grey.shade300,
+                                                // Normal border color
+                                                width: 1,
+                                              ),
+                                            ),
+                                            focusedBorder: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              borderSide: BorderSide(
+                                                color: Colors.grey.shade300,
+                                                // Focused border color
+                                                width: 1,
+                                              ),
+                                            ),
+                                            errorBorder: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              borderSide: BorderSide(
+                                                color: Colors
+                                                    .red, // Error border color
+                                                width: 1,
+                                              ),
+                                            ),
+                                            focusedErrorBorder:
+                                                OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              borderSide: BorderSide(
+                                                color: Colors.red,
+                                                // Focused error border color
+                                                width: 1,
+                                              ),
+                                            ),
+                                            border: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              borderSide: BorderSide(
+                                                color: Colors.grey.shade300,
+                                                width: 1,
+                                              ),
+                                            ),
+                                            hintText:
+                                                "${itemData.quantity?.quantityNumber}",
+                                            suffixText:
+                                                "${itemData.quantity?.quantityUom}"),
+                                      );
+                                    }),
                                   ),
                                 ),
-                              )
-                            ],
-                          ),
+                                Container(
+                                  color: Colors.white,
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Padding(
+                                      padding: const EdgeInsets.all(10.0),
+                                      child: Text(
+                                        '',
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        softWrap: true,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .labelLarge
+                                            ?.copyWith(
+                                                fontWeight: FontWeight.w500,
+                                                color: CustomColors.black),
+                                      )),
+                                ),
+                                Container(
+                                  color: Colors.white,
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Padding(
+                                      padding: const EdgeInsets.all(10.0),
+                                      child: Text(
+                                        convertedPrice(itemData.mrp?.centAmount,
+                                            itemData.mrp?.fraction),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        softWrap: true,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .labelLarge
+                                            ?.copyWith(
+                                                fontWeight: FontWeight.w500,
+                                                color: CustomColors.black),
+                                      )),
+                                ),
+                                Container(
+                                    color: Colors.white,
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Padding(
+                                        padding: const EdgeInsets.all(10.0),
+                                        child: Text(
+                                          convertedPrice(
+                                              itemData.unitPrice?.centAmount,
+                                              itemData.unitPrice?.fraction),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          softWrap: true,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .labelLarge
+                                              ?.copyWith(
+                                                  fontWeight: FontWeight.w500,
+                                                  color: CustomColors.black),
+                                        ))),
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Container(
+                                    padding: const EdgeInsets.all(0.0),
+                                    width: 50,
+                                    decoration: BoxDecoration(
+                                      border: Border.all(
+                                        color: Color(0xFFE56363),
+                                        width: 1,
+                                      ),
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: IconButton(
+                                      icon: ImageIcon(
+                                        size: 20,
+                                        color: Color(0xFFE56363),
+                                        AssetImage(
+                                            'assets/images/ic_remove.png'),
+                                      ),
+                                      onPressed: () {
+                                        Get.defaultDialog(
+                                            contentPadding: EdgeInsets.only(
+                                              left: 10,
+                                              right: 10,
+                                            ),
+                                            title: '',
+                                            middleText: '',
+                                            titlePadding: EdgeInsets.all(0),
+                                            barrierDismissible: false,
+                                            backgroundColor: Colors.white,
+                                            content: _buildRemoveDialog2(
+                                                itemData, onPressed: () {
+                                              homeController
+                                                  .deleteCartItemApiCall(
+                                                      itemData.cartLineId);
+                                              Get.back();
+                                            }));
+                                      },
+                                    ),
+                                  ),
+                                )
+                              ],
+                            );
+                          })
                         ],
                       );
                     },
@@ -1022,8 +1055,6 @@ class _OrdersSectionState extends State<OrdersSection>
   }
 
   Widget _buildNumberPadSection(HomeController homeController) {
-    print(" Barcode : $input");
-
     return Obx(() {
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 5),
@@ -1260,7 +1291,12 @@ class _OrdersSectionState extends State<OrdersSection>
                                   setState(() {
                                     input = _controller.text;
                                     homeController.scanApiCall(input);
+                                    print(" onEditingComplete: $input");
                                   });
+                                },
+                                onChanged: (value) {
+                                  input = value;
+                                  print(" onChanged: $input");
                                 },
                               ),
                             ),
@@ -1379,7 +1415,7 @@ class _OrdersSectionState extends State<OrdersSection>
                                   homeController.cartResponse.value.cartLines
                                               ?.length !=
                                           null
-                                      ? '${homeController.cartResponse.value.cartLines?.length}'
+                                      ? '${homeController.cartResponse.value.totalItems}'
                                       : '-',
                                   style: TextStyle(
                                       color: Colors.black87,
@@ -1393,38 +1429,34 @@ class _OrdersSectionState extends State<OrdersSection>
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  homeController.cartResponse.value.cartTotals
-                                              ?.firstWhere((item) =>
-                                                  item.type == 'GRAND_TOTAL')
-                                              .amount !=
-                                          null
-                                      ? 'Total Savings'
-                                      : '-',
+                                  'Total Savings',
                                   style: TextStyle(
                                       color: Colors.black,
                                       fontSize: 16,
                                       fontWeight: FontWeight.w500),
                                 ),
                                 Text(
-                                  homeController.cartResponse.value.cartTotals
-                                              ?.firstWhere((item) =>
-                                                  item.type == 'GRAND_TOTAL')
-                                              .amount !=
+                                  homeController.cartResponse.value.mrpSavings !=
                                           null
                                       ? convertedPrice(
-                                          homeController
-                                              .cartResponse.value.cartTotals
-                                              ?.firstWhere((item) =>
-                                                  item.type == 'GRAND_TOTAL')
-                                              .amount
-                                              ?.centAmount,
-                                          homeController
-                                              .cartResponse.value.cartTotals
-                                              ?.firstWhere((item) =>
-                                                  item.type == 'GRAND_TOTAL')
-                                              .amount
-                                              ?.fraction)
-                                      : '-',
+                                                  homeController
+                                                      .cartResponse
+                                                      .value
+                                                      .mrpSavings!
+                                                      .centAmount,
+                                                  homeController
+                                                      .cartResponse
+                                                      .value
+                                                      .mrpSavings!
+                                                      .fraction) !=
+                                              "₹0.00"
+                                          ? convertedPrice(
+                                              homeController.cartResponse.value
+                                                  .mrpSavings!.centAmount,
+                                              homeController.cartResponse.value
+                                                  .mrpSavings!.fraction)
+                                          : "--"
+                                      : "--",
                                   style: TextStyle(
                                       color: Colors.black87,
                                       fontSize: 16,
@@ -1452,12 +1484,16 @@ class _OrdersSectionState extends State<OrdersSection>
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               backgroundColor: homeController
-                                          .cartResponse.value.cartTotals
-                                          ?.firstWhere((item) =>
-                                              item.type == 'GRAND_TOTAL')
-                                          .amount !=
+                                          .cartResponse.value.amountPayable !=
                                       null
-                                  ? CustomColors.secondaryColor
+                                  ? convertedPrice(
+                                              homeController.cartResponse.value
+                                                  .amountPayable!.centAmount,
+                                              homeController.cartResponse.value
+                                                  .amountPayable!.fraction) !=
+                                          "₹0.00"
+                                      ? CustomColors.secondaryColor
+                                      : CustomColors.cardBackground
                                   : CustomColors.cardBackground),
                           child: SizedBox(
                             height: 56,
@@ -1472,33 +1508,30 @@ class _OrdersSectionState extends State<OrdersSection>
                                       fontSize: 20,
                                       fontWeight: FontWeight.bold),
                                 ),
-                                homeController.cartResponse.value.cartTotals
-                                            ?.firstWhere((item) =>
-                                                item.type == 'GRAND_TOTAL')
-                                            .amount !=
-                                        null
-                                    ? Text(
-                                        convertedPrice(
-                                            homeController
-                                                .cartResponse.value.cartTotals
-                                                ?.firstWhere((item) =>
-                                                    item.type == 'GRAND_TOTAL')
-                                                .amount
-                                                ?.centAmount,
-                                            homeController
-                                                .cartResponse.value.cartTotals
-                                                ?.firstWhere((item) =>
-                                                    item.type == 'GRAND_TOTAL')
-                                                .amount
-                                                ?.fraction),
-                                        style: TextStyle(
-                                            color: Colors.black,
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.w400),
-                                      )
-                                    : Container(
-                                        //height: 40,
-                                        ),
+                                // homeController.cartResponse.value.cartTotals
+                                //             ?.firstWhere((item) =>
+                                //                 item.type == 'GRAND_TOTAL')
+                                //             .amount !=
+                                //         null
+                                //     ?
+                                Text(
+                                  homeController.cartResponse.value
+                                              .amountPayable !=
+                                          null
+                                      ? convertedPrice(
+                                          homeController.cartResponse.value
+                                              .amountPayable!.centAmount,
+                                          homeController.cartResponse.value
+                                              .amountPayable!.fraction)
+                                      : "--",
+                                  style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w400),
+                                ),
+                                // : Container(
+                                //     //height: 40,
+                                //     ),
                               ],
                             ),
                           ),
@@ -1613,166 +1646,247 @@ class _OrdersSectionState extends State<OrdersSection>
 
   Widget _buildAddCustomer(BuildContext context, String widgetName,
       {VoidCallback? onPressed}) {
-    return SizedBox(
-      width: 400,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisSize: MainAxisSize.max,
-        children: [
-          Center(
-            child: Text(
-              "Add customer details",
-              style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.bold, color: CustomColors.black),
-              // style: TextStyle(
-              //     color: Color(0xFF000000),
-              //     fontSize: 16,
-              //     fontWeight: FontWeight.bold),
+    return Obx(() {
+      return SizedBox(
+        width: 400,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            Center(
+              child: Text(
+                "Add customer details",
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.bold, color: CustomColors.black),
+                // style: TextStyle(
+                //     color: Color(0xFF000000),
+                //     fontSize: 16,
+                //     fontWeight: FontWeight.bold),
+              ),
             ),
-          ),
-          SizedBox(
-            height: 10,
-          ),
-          Center(
-            child: Text(
-              "Add customer details before starting the sale",
-              style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.normal, color: CustomColors.black),
-              // style: TextStyle(
-              //     color: Color(0xFF000000),
-              //     fontSize: 14,
-              //     fontWeight: FontWeight.normal),
+            SizedBox(
+              height: 10,
             ),
-          ),
-          SizedBox(
-            height: 30,
-          ),
-          Container(
-              padding:
-                  const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10),
-              child: TextField(
-                controller: _controllerPhoneNumber,
-                onChanged: (value) {
-                  homeController.phoneNumber.value = value;
-                },
-                decoration: InputDecoration(
-                  fillColor: Colors.white,
-                  focusColor: Colors.white,
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide(
-                      color: Colors.grey.shade300, // Normal border color
-                      width: 1,
-                    ),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide(
-                      color: Colors.grey.shade300, // Focused border color
-                      width: 1,
-                    ),
-                  ),
-                  errorBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide(
-                      color: Colors.red, // Error border color
-                      width: 1,
-                    ),
-                  ),
-                  focusedErrorBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide(
-                      color: Colors.red, // Focused error border color
-                      width: 1,
-                    ),
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide(
-                      color: Colors.grey.shade300,
-                      width: 1,
-                    ),
-                  ),
-                  label: RichText(
-                    text: TextSpan(
-                      children: [
-                        TextSpan(
-                          text: ' Enter Customer Mobile Number ',
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.normal,
+            Center(
+              child: Text(
+                "Add customer details before starting the sale",
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.normal, color: CustomColors.black),
+                // style: TextStyle(
+                //     color: Color(0xFF000000),
+                //     fontSize: 14,
+                //     fontWeight: FontWeight.normal),
+              ),
+            ),
+            SizedBox(
+              height: 30,
+            ),
+            Container(
+                padding:
+                    const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10),
+                child: TextField(
+                  controller: _controllerPhoneNumber,
+                  onChanged: (value) {
+                    homeController.phoneNumber.value = value;
+                  },
+                  decoration: InputDecoration(
+                      fillColor: Colors.white,
+                      focusColor: Colors.white,
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide(
+                          color: Colors.grey.shade300, // Normal border color
+                          width: 1,
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide(
+                          color: Colors.grey.shade300, // Focused border color
+                          width: 1,
+                        ),
+                      ),
+                      errorBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide(
+                          color: Colors.red, // Error border color
+                          width: 1,
+                        ),
+                      ),
+                      focusedErrorBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide(
+                          color: Colors.red, // Focused error border color
+                          width: 1,
+                        ),
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide(
+                          color: Colors.grey.shade300,
+                          width: 1,
+                        ),
+                      ),
+                      label: RichText(
+                        text: TextSpan(
+                          children: [
+                            TextSpan(
+                              text: ' Enter Customer Mobile Number ',
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.normal,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      suffixIcon: Container(
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                        width: 100,
+                        child: ElevatedButton(
+                          onPressed: homeController.phoneNumber.isNotEmpty
+                              ? onPressed
+                              : null,
+                          style: ElevatedButton.styleFrom(
+                            elevation: 1,
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 1, vertical: 1),
+                            shape: RoundedRectangleBorder(
+                              side: BorderSide(
+                                  color: homeController.phoneNumber.isNotEmpty
+                                      ? CustomColors.secondaryColor
+                                      : CustomColors.cardBackground),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            disabledBackgroundColor:
+                                CustomColors.cardBackground,
+                            backgroundColor: CustomColors.secondaryColor,
+                          ),
+                          child: Center(
+                            child: Text(
+                              "Search",
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleSmall
+                                  ?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                      color: CustomColors.black),
+                              // style: TextStyle(
+                              //     color: Colors.black,
+                              //     fontSize: 14,
+                              //     fontWeight: FontWeight.bold),
+                            ),
                           ),
                         ),
-                      ],
-                    ),
-                  ),
-                ),
-              )),
-          Container(
-              padding:
-                  const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10),
-              child: TextField(
-                controller: _controllerCustomerName,
-                onChanged: (value) {
-                  homeController.customerName.value = value;
-                },
-                decoration: InputDecoration(
-                  fillColor: Colors.white,
-                  focusColor: Colors.white,
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide(
-                      color: Colors.grey.shade300, // Normal border color
-                      width: 1,
-                    ),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide(
-                      color: Colors.grey.shade300, // Focused border color
-                      width: 1,
-                    ),
-                  ),
-                  errorBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide(
-                      color: Colors.red, // Error border color
-                      width: 1,
-                    ),
-                  ),
-                  focusedErrorBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide(
-                      color: Colors.red, // Focused error border color
-                      width: 1,
-                    ),
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide(
-                      color: Colors.grey.shade300,
-                      width: 1,
-                    ),
-                  ),
-                  label: RichText(
-                    text: TextSpan(
-                      children: [
-                        TextSpan(
-                          text: ' Customer Name ',
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.normal,
+                      )),
+                )),
+            Container(
+                padding:
+                    const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10),
+                child: TextField(
+                  controller: _controllerCustomerName,
+                  onChanged: (value) {
+                    homeController.customerName.value = value;
+                  },
+                  decoration: InputDecoration(
+                      fillColor: Colors.white,
+                      focusColor: Colors.white,
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide(
+                          color: Colors.grey.shade300, // Normal border color
+                          width: 1,
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide(
+                          color: Colors.grey.shade300, // Focused border color
+                          width: 1,
+                        ),
+                      ),
+                      errorBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide(
+                          color: Colors.red, // Error border color
+                          width: 1,
+                        ),
+                      ),
+                      focusedErrorBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide(
+                          color: Colors.red, // Focused error border color
+                          width: 1,
+                        ),
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide(
+                          color: Colors.grey.shade300,
+                          width: 1,
+                        ),
+                      ),
+                      label: RichText(
+                        text: TextSpan(
+                          children: [
+                            TextSpan(
+                              text: ' Customer Name ',
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.normal,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      suffixIcon: Container(
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                        width: 100,
+                        child: ElevatedButton(
+                          onPressed: homeController.phoneNumber.isNotEmpty
+                              ? onPressed
+                              : null,
+                          style: ElevatedButton.styleFrom(
+                            elevation: 1,
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 1, vertical: 1),
+                            shape: RoundedRectangleBorder(
+                              side: BorderSide(
+                                  color: homeController.phoneNumber.isNotEmpty
+                                      ? CustomColors.secondaryColor
+                                      : CustomColors.cardBackground),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            disabledBackgroundColor:
+                                CustomColors.cardBackground,
+                            backgroundColor: CustomColors.secondaryColor,
+                          ),
+                          child: Center(
+                            child: Text(
+                              "Select",
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleSmall
+                                  ?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                      color: CustomColors.black),
+                              // style: TextStyle(
+                              //     color: Colors.black,
+                              //     fontSize: 14,
+                              //     fontWeight: FontWeight.bold),
+                            ),
                           ),
                         ),
-                      ],
-                    ),
-                  ),
-                ),
-              )),
-          SizedBox(
-            height: 10,
-          ),
+                      )),
+                )),
+            SizedBox(
+              height: 20,
+            ),
+
+            /*
           Container(
             width: double.infinity,
             height: 60,
@@ -1802,50 +1916,53 @@ class _OrdersSectionState extends State<OrdersSection>
               ),
             ),
           ),
-          Container(
-            // width: 200,
-            height: 60,
-            padding: EdgeInsets.symmetric(horizontal: 5.0, vertical: 5),
-            child: ElevatedButton(
-              onPressed: onPressed,
-              style: ElevatedButton.styleFrom(
-                elevation: 1,
-                padding: EdgeInsets.symmetric(horizontal: 1, vertical: 20),
-                shape: RoundedRectangleBorder(
-                  side: BorderSide(color: Color(0xFF066A69)),
-                  borderRadius: BorderRadius.circular(10),
+        
+         */
+            Container(
+              // width: 200,
+              height: 60,
+              padding: EdgeInsets.symmetric(horizontal: 5.0, vertical: 5),
+              child: ElevatedButton(
+                onPressed: onPressed,
+                style: ElevatedButton.styleFrom(
+                  elevation: 1,
+                  padding: EdgeInsets.symmetric(horizontal: 1, vertical: 20),
+                  shape: RoundedRectangleBorder(
+                    side: BorderSide(color: Color(0xFF066A69)),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  backgroundColor: Color(0xFFF0F4F4),
                 ),
-                backgroundColor: Color(0xFFF0F4F4),
-              ),
-              child: Center(
-                child: Text(
-                  "Continue Without Customer Number",
-                  style: TextStyle(
-                      color: Color(0xFF066A69),
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold),
+                child: Center(
+                  child: Text(
+                    "Continue Without Customer Number",
+                    style: TextStyle(
+                        color: Color(0xFF066A69),
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold),
+                  ),
                 ),
               ),
             ),
-          ),
-          SizedBox(
-            height: 5,
-          ),
-          Center(
-            child: Text(
-              "Select above if the customer denies his/her number",
-              style: TextStyle(
-                  color: Color(0xFF000000),
-                  fontSize: 14,
-                  fontWeight: FontWeight.normal),
+            SizedBox(
+              height: 5,
             ),
-          ),
-          SizedBox(
-            height: 20,
-          ),
-        ],
-      ),
-    );
+            Center(
+              child: Text(
+                "Select above if the customer denies his/her number",
+                style: TextStyle(
+                    color: Color(0xFF000000),
+                    fontSize: 14,
+                    fontWeight: FontWeight.normal),
+              ),
+            ),
+            SizedBox(
+              height: 20,
+            ),
+          ],
+        ),
+      );
+    });
   }
 
   Widget _buildTableView() {
@@ -2241,6 +2358,215 @@ class _OrdersSectionState extends State<OrdersSection>
     );
   }
 
+  Widget _buildRemoveDialog2(CartLine? itemData, {VoidCallback? onPressed}) {
+    return Container(
+      child: Column(
+        children: [
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 20),
+            child: Text(
+              "Are you sure you want to remove this item?",
+              softWrap: true,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(fontWeight: FontWeight.w600),
+            ),
+          ),
+          SizedBox(
+            height: 20,
+          ),
+          Container(
+            // padding: EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: Color(0xFFF8F8F8),
+              border: Border.all(color: Colors.grey.shade300),
+              borderRadius: BorderRadius.circular(10),
+              shape: BoxShape.rectangle,
+            ),
+            //color: Color(0xFFF8F8F8),
+            child: Padding(
+              padding:
+                  const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(height: 5),
+                      RichText(
+                        maxLines: 3,
+                        textAlign: TextAlign.left,
+                        text: TextSpan(
+                          children: <TextSpan>[
+                            TextSpan(
+                              text: '${itemData?.item?.ebonoTitle}',
+                              style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(height: 5),
+                      RichText(
+                        text: TextSpan(
+                          children: <TextSpan>[
+                            TextSpan(
+                              text: '${itemData?.item?.esin}',
+                              style: TextStyle(
+                                  color: Colors.black87,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w400),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(
+                    width: 80,
+                  ),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(height: 5),
+                      RichText(
+                        text: TextSpan(
+                          children: <TextSpan>[
+                            TextSpan(
+                              text: 'Qty:  ',
+                              style: TextStyle(
+                                  color: Colors.black87,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w400),
+                            ),
+                            TextSpan(
+                              text: '${itemData!.quantity?.quantityNumber}',
+                              style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                            TextSpan(
+                              text: ' (${itemData.quantity?.quantityUom})',
+                              style: TextStyle(
+                                  color: CustomColors.greyFont,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.normal),
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(height: 5),
+                      RichText(
+                        text: TextSpan(
+                          children: <TextSpan>[
+                            TextSpan(
+                              text: 'Price:  ',
+                              style: TextStyle(
+                                  color: Colors.black87,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w400),
+                            ),
+                            TextSpan(
+                              text: convertedPrice(
+                                  itemData.unitPrice?.centAmount,
+                                  itemData.unitPrice?.fraction),
+                              style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+          SizedBox(
+            height: 20,
+          ),
+          Container(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Expanded(
+                  flex: 1,
+                  child: Container(
+                    padding:
+                        EdgeInsets.only(left: 4, right: 4, top: 10, bottom: 4),
+                    child: ElevatedButton(
+                      onPressed: onPressed,
+                      style: ElevatedButton.styleFrom(
+                        elevation: 1,
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 1, vertical: 20),
+                        shape: RoundedRectangleBorder(
+                          side: BorderSide(
+                              color: homeController.phoneNumber.isNotEmpty
+                                  ? CustomColors.secondaryColor
+                                  : CustomColors.cardBackground),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        disabledBackgroundColor: CustomColors.cardBackground,
+                        backgroundColor: CustomColors.secondaryColor,
+                      ),
+                      child: Text(
+                        "    Yes, Remove    ",
+                        style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  flex: 1,
+                  child: Container(
+                    padding:
+                        EdgeInsets.only(left: 4, right: 4, top: 10, bottom: 4),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Get.back();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        elevation: 1,
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 1, vertical: 20),
+                        shape: RoundedRectangleBorder(
+                          side: BorderSide(
+                              color: CustomColors.primaryColor, width: 1.5),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        backgroundColor: Color(0xFFF0F4F4),
+                      ),
+                      child: Text(
+                        "    No, Cancel    ",
+                        style: TextStyle(
+                            color: CustomColors.primaryColor,
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
   Widget _buidButton(String label, BuildContext context) {
     return Container(
       width: 220,
@@ -2311,7 +2637,7 @@ class _OrdersSectionState extends State<OrdersSection>
                   ),
                   Text(
                     // 'Wednesday, 18 September 2024',
-                    '${formattedDate}',
+                    formattedDate,
                     maxLines: 1,
                     textAlign: TextAlign.center,
                     style: TextStyle(
@@ -2369,12 +2695,8 @@ class _OrdersSectionState extends State<OrdersSection>
                                     fontWeight: FontWeight.normal),
                               ),
                               TextSpan(
-                                text: convertedPrice(
-                                  homeController.customerResponse.value
-                                      .walletBalance?.centAmount,
-                                  homeController.customerResponse.value
-                                      .walletBalance?.fraction,
-                                ),
+                                text: homeController
+                                    .customerResponse.value.walletBalance,
                                 style: TextStyle(
                                     color: Colors.black,
                                     fontSize: 14,
@@ -2404,7 +2726,7 @@ class _OrdersSectionState extends State<OrdersSection>
                               ),
                               TextSpan(
                                 text: homeController.customerResponse.value
-                                            .customerName !=
+                                            .phoneNumber !=
                                         null
                                     ? '${homeController.customerResponse.value.phoneNumber?.number}'
                                     : " - ",
@@ -2430,12 +2752,8 @@ class _OrdersSectionState extends State<OrdersSection>
                                     fontWeight: FontWeight.normal),
                               ),
                               TextSpan(
-                                text: convertedPrice(
-                                  homeController.customerResponse.value
-                                      .loyaltyPoints?.centAmount,
-                                  homeController.customerResponse.value
-                                      .loyaltyPoints?.fraction,
-                                ),
+                                text: homeController
+                                    .customerResponse.value.loyaltyPoints,
                                 style: TextStyle(
                                     color: Colors.black,
                                     fontSize: 14,

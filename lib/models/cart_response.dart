@@ -4,7 +4,7 @@
 
 import 'dart:convert';
 
-CartResponse cartResponseFromJson(String str) =>
+CartResponse cartResponseFromJson(dynamic str) =>
     CartResponse.fromJson(json.decode(str));
 
 String cartResponseToJson(CartResponse data) => json.encode(data.toJson());
@@ -12,55 +12,106 @@ String cartResponseToJson(CartResponse data) => json.encode(data.toJson());
 class CartResponse {
   String? cartId;
   String? cartType;
+  String? outletId;
+  double? totalUnits;
+  int? totalItems;
   List<CartLine>? cartLines;
-  List<CartTotal>? cartTotals;
-  Audit? audit;
+  AmountPayable? mrpSavings;
+  AmountPayable? amountPayable;
+  List<CartAdjustment>? cartAdjustments;
+  CartResponseAudit? audit;
 
   CartResponse({
     this.cartId,
     this.cartType,
+    this.outletId,
+    this.totalUnits,
+    this.totalItems,
     this.cartLines,
-    this.cartTotals,
+    this.mrpSavings,
+    this.amountPayable,
+    this.cartAdjustments,
     this.audit,
   });
 
   factory CartResponse.fromJson(Map<String, dynamic> json) => CartResponse(
         cartId: json["cart_id"],
         cartType: json["cart_type"],
+        outletId: json["outlet_id"],
+        totalUnits: json["total_units"]?.toDouble(),
+        totalItems: json["total_items"],
         cartLines: json["cart_lines"] == null
             ? []
             : List<CartLine>.from(
                 json["cart_lines"]!.map((x) => CartLine.fromJson(x))),
-        cartTotals: json["cart_totals"] == null
+        mrpSavings: json["mrp_savings"] == null
+            ? null
+            : AmountPayable.fromJson(json["mrp_savings"]),
+        amountPayable: json["amount_payable"] == null
+            ? null
+            : AmountPayable.fromJson(json["amount_payable"]),
+        cartAdjustments: json["cart_adjustments"] == null
             ? []
-            : List<CartTotal>.from(
-                json["cart_totals"]!.map((x) => CartTotal.fromJson(x))),
-        audit: json["audit"] == null ? null : Audit.fromJson(json["audit"]),
+            : List<CartAdjustment>.from(json["cart_adjustments"]!
+                .map((x) => CartAdjustment.fromJson(x))),
+        audit: json["audit"] == null
+            ? null
+            : CartResponseAudit.fromJson(json["audit"]),
       );
 
   Map<String, dynamic> toJson() => {
         "cart_id": cartId,
         "cart_type": cartType,
+        "outlet_id": outletId,
+        "total_units": totalUnits,
+        "total_items": totalItems,
         "cart_lines": cartLines == null
             ? []
             : List<dynamic>.from(cartLines!.map((x) => x.toJson())),
-        "cart_totals": cartTotals == null
+        "mrp_savings": mrpSavings?.toJson(),
+        "amount_payable": amountPayable?.toJson(),
+        "cart_adjustments": cartAdjustments == null
             ? []
-            : List<dynamic>.from(cartTotals!.map((x) => x.toJson())),
+            : List<dynamic>.from(cartAdjustments!.map((x) => x.toJson())),
         "audit": audit?.toJson(),
       };
 }
 
-class Audit {
+class AmountPayable {
+  String? currency;
+  int? centAmount;
+  int? fraction;
+
+  AmountPayable({
+    this.currency,
+    this.centAmount,
+    this.fraction,
+  });
+
+  factory AmountPayable.fromJson(Map<String, dynamic> json) => AmountPayable(
+        currency: json["currency"],
+        centAmount: json["cent_amount"],
+        fraction: json["fraction"],
+      );
+
+  Map<String, dynamic> toJson() => {
+        "currency": currency,
+        "cent_amount": centAmount,
+        "fraction": fraction,
+      };
+}
+
+class CartResponseAudit {
   DateTime? createdAt;
   DateTime? lastModifiedAt;
 
-  Audit({
+  CartResponseAudit({
     this.createdAt,
     this.lastModifiedAt,
   });
 
-  factory Audit.fromJson(Map<String, dynamic> json) => Audit(
+  factory CartResponseAudit.fromJson(Map<String, dynamic> json) =>
+      CartResponseAudit(
         createdAt: json["created_at"] == null
             ? null
             : DateTime.parse(json["created_at"]),
@@ -75,13 +126,61 @@ class Audit {
       };
 }
 
+class CartAdjustment {
+  String? type;
+  String? applicability;
+  String? reference;
+  String? referenceCode;
+  String? description;
+  int? multiplier;
+  bool? taxIncludedInAmount;
+  AmountPayable? amount;
+
+  CartAdjustment({
+    this.type,
+    this.applicability,
+    this.reference,
+    this.referenceCode,
+    this.description,
+    this.multiplier,
+    this.taxIncludedInAmount,
+    this.amount,
+  });
+
+  factory CartAdjustment.fromJson(Map<String, dynamic> json) => CartAdjustment(
+        type: json["type"],
+        applicability: json["applicability"],
+        reference: json["reference"],
+        referenceCode: json["reference_code"],
+        description: json["description"],
+        multiplier: json["multiplier"],
+        taxIncludedInAmount: json["tax_included_in_amount"],
+        amount: json["amount"] == null
+            ? null
+            : AmountPayable.fromJson(json["amount"]),
+      );
+
+  Map<String, dynamic> toJson() => {
+        "type": type,
+        "applicability": applicability,
+        "reference": reference,
+        "reference_code": referenceCode,
+        "description": description,
+        "multiplier": multiplier,
+        "tax_included_in_amount": taxIncludedInAmount,
+        "amount": amount?.toJson(),
+      };
+}
+
 class CartLine {
   String? cartLineId;
   Item? item;
   Quantity? quantity;
-  Mrp? unitPrice;
-  Mrp? mrp;
-  List<CartTotal>? cartLineTotals;
+  AmountPayable? unitPrice;
+  AmountPayable? mrp;
+  AmountPayable? lineTotal;
+  List<String>? applicableCartAdjustments;
+  CartLineAudit? audit;
 
   CartLine({
     this.cartLineId,
@@ -89,7 +188,9 @@ class CartLine {
     this.quantity,
     this.unitPrice,
     this.mrp,
-    this.cartLineTotals,
+    this.lineTotal,
+    this.applicableCartAdjustments,
+    this.audit,
   });
 
   factory CartLine.fromJson(Map<String, dynamic> json) => CartLine(
@@ -100,12 +201,18 @@ class CartLine {
             : Quantity.fromJson(json["quantity"]),
         unitPrice: json["unit_price"] == null
             ? null
-            : Mrp.fromJson(json["unit_price"]),
-        mrp: json["mrp"] == null ? null : Mrp.fromJson(json["mrp"]),
-        cartLineTotals: json["cart_line_totals"] == null
+            : AmountPayable.fromJson(json["unit_price"]),
+        mrp: json["mrp"] == null ? null : AmountPayable.fromJson(json["mrp"]),
+        lineTotal: json["line_total"] == null
+            ? null
+            : AmountPayable.fromJson(json["line_total"]),
+        applicableCartAdjustments: json["applicable_cart_adjustments"] == null
             ? []
-            : List<CartTotal>.from(
-                json["cart_line_totals"]!.map((x) => CartTotal.fromJson(x))),
+            : List<String>.from(
+                json["applicable_cart_adjustments"]!.map((x) => x)),
+        audit: json["audit"] == null
+            ? null
+            : CartLineAudit.fromJson(json["audit"]),
       );
 
   Map<String, dynamic> toJson() => {
@@ -114,112 +221,90 @@ class CartLine {
         "quantity": quantity?.toJson(),
         "unit_price": unitPrice?.toJson(),
         "mrp": mrp?.toJson(),
-        "cart_line_totals": cartLineTotals == null
+        "line_total": lineTotal?.toJson(),
+        "applicable_cart_adjustments": applicableCartAdjustments == null
             ? []
-            : List<dynamic>.from(cartLineTotals!.map((x) => x.toJson())),
+            : List<dynamic>.from(applicableCartAdjustments!.map((x) => x)),
+        "audit": audit?.toJson(),
       };
 }
 
-class CartTotal {
-  String? type;
-  Mrp? amount;
-  int? multiplier;
+class CartLineAudit {
+  String? apiVersion;
+  DateTime? createdAt;
+  DateTime? lastModifiedAt;
 
-  CartTotal({
-    this.type,
-    this.amount,
-    this.multiplier,
+  CartLineAudit({
+    this.apiVersion,
+    this.createdAt,
+    this.lastModifiedAt,
   });
 
-  factory CartTotal.fromJson(Map<String, dynamic> json) => CartTotal(
-        type: json["type"],
-        amount: json["amount"] == null ? null : Mrp.fromJson(json["amount"]),
-        multiplier: json["multiplier"],
+  factory CartLineAudit.fromJson(Map<String, dynamic> json) => CartLineAudit(
+        apiVersion: json["api_version"],
+        createdAt: json["created_at"] == null
+            ? null
+            : DateTime.parse(json["created_at"]),
+        lastModifiedAt: json["last_modified_at"] == null
+            ? null
+            : DateTime.parse(json["last_modified_at"]),
       );
 
   Map<String, dynamic> toJson() => {
-        "type": type,
-        "amount": amount?.toJson(),
-        "multiplier": multiplier,
+        "api_version": apiVersion,
+        "created_at": createdAt?.toIso8601String(),
+        "last_modified_at": lastModifiedAt?.toIso8601String(),
       };
 }
-
-class Mrp {
-  Currency? currency;
-  int? centAmount;
-  int? fraction;
-
-  Mrp({
-    this.currency,
-    this.centAmount,
-    this.fraction,
-  });
-
-  factory Mrp.fromJson(Map<String, dynamic> json) => Mrp(
-        currency: currencyValues.map[json["currency"]]!,
-        centAmount: json["cent_amount"],
-        fraction: json["fraction"],
-      );
-
-  Map<String, dynamic> toJson() => {
-        "currency": currencyValues.reverse[currency],
-        "cent_amount": centAmount,
-        "fraction": fraction,
-      };
-}
-
-enum Currency { INR }
-
-final currencyValues = EnumValues({"INR": Currency.INR});
 
 class Item {
   String? esin;
+  String? saleUom;
   String? ebonoTitle;
+  String? primaryImageUrl;
   String? productType;
 
   Item({
     this.esin,
+    this.saleUom,
     this.ebonoTitle,
+    this.primaryImageUrl,
     this.productType,
   });
 
   factory Item.fromJson(Map<String, dynamic> json) => Item(
         esin: json["esin"],
+        saleUom: json["sale_uom"],
         ebonoTitle: json["ebono_title"],
+        primaryImageUrl: json["primary_image_url"],
         productType: json["product_type"],
       );
 
   Map<String, dynamic> toJson() => {
         "esin": esin,
+        "sale_uom": saleUom,
         "ebono_title": ebonoTitle,
+        "primary_image_url": primaryImageUrl,
         "product_type": productType,
       };
 }
 
 class Quantity {
   int? quantityNumber;
+  String? quantityUom;
 
   Quantity({
     this.quantityNumber,
+    this.quantityUom,
   });
 
   factory Quantity.fromJson(Map<String, dynamic> json) => Quantity(
         quantityNumber: json["quantity_number"],
+        quantityUom: json["quantity_uom"],
       );
 
   Map<String, dynamic> toJson() => {
         "quantity_number": quantityNumber,
+        "quantity_uom": quantityUom,
       };
-}
-
-class EnumValues<T> {
-  Map<String, T> map;
-  late Map<T, String> reverseMap;
-
-  EnumValues(this.map);
-
-  Map<T, String> get reverse {
-    reverseMap = map.map((k, v) => MapEntry(v, k));
-    return reverseMap;
-  }
 }

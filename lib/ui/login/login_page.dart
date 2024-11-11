@@ -3,14 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
-import 'package:get/route_manager.dart';
 import 'package:kpn_pos_application/constants/custom_colors.dart';
 import 'package:kpn_pos_application/navigation/page_routes.dart';
 import 'package:kpn_pos_application/ui/common_text_field.dart';
 import 'package:kpn_pos_application/ui/login/bloc/login_bloc.dart';
-import 'package:kpn_pos_application/ui/login/bloc/login_event.dart';
 import 'package:kpn_pos_application/ui/login/bloc/login_state.dart';
-import 'package:kpn_pos_application/ui/login/model/login_response.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -89,7 +86,8 @@ class _LoginPageState extends State<LoginPage> {
                       Flexible(flex: 3, child: welcomeWidget(context)),
                       state is LoginSuccess
                           ? Flexible(
-                              flex: 2, child: storeDetailsWidget(context, loginBloc))
+                              flex: 2,
+                              child: storeDetailsWidget(context, loginBloc))
                           : Flexible(flex: 2, child: loginWidget(context)),
                       Flexible(flex: 1, child: SizedBox())
                     ],
@@ -206,17 +204,18 @@ class _LoginPageState extends State<LoginPage> {
                     elevation: 6,
                   ),
                   onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      loginBloc.add(
-                        LoginButtonPressed(
-                          loginIdController.text,
-                          passwordController.text,
-                        ),
-                      );
-                    } else {
-                      Get.snackbar(
-                          "Invalid Data", "Please enter all mandatory fields");
-                    }
+                    Get.offAndToNamed('/home');
+                    // if (_formKey.currentState!.validate()) {
+                    // loginBloc.add(
+                    //   LoginButtonPressed(
+                    //     loginIdController.text,
+                    //     passwordController.text,
+                    //   ),
+                    // );
+                    // } else {
+                    //   Get.snackbar(
+                    //       "Invalid Data", "Please enter all mandatory fields");
+                    // }
                   },
                   child: Text(
                     'Sign In',
