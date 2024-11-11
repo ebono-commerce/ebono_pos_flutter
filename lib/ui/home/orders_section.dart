@@ -1415,7 +1415,7 @@ class _OrdersSectionState extends State<OrdersSection>
                                   homeController.cartResponse.value.cartLines
                                               ?.length !=
                                           null
-                                      ? '${homeController.cartResponse.value.cartLines?.length}'
+                                      ? '${homeController.cartResponse.value.totalItems}'
                                       : '-',
                                   style: TextStyle(
                                       color: Colors.black87,
@@ -1429,54 +1429,34 @@ class _OrdersSectionState extends State<OrdersSection>
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  // homeController.cartResponse.value.cartTotals
-                                  //             ?.length !=
-                                  //         null
-                                  //     ? homeController
-                                  //                 .cartResponse.value.cartTotals
-                                  //                 ?.firstWhere((item) =>
-                                  //                     item.type ==
-                                  //                     'GRAND_TOTAL')
-                                  //                 .amount !=
-                                  //             null
-                                  //         ? 'Total Savings'
-                                  //         : '-'
-                                  //     :
-                                  '-',
+                                  'Total Savings',
                                   style: TextStyle(
                                       color: Colors.black,
                                       fontSize: 16,
                                       fontWeight: FontWeight.w500),
                                 ),
                                 Text(
-                                  // homeController.cartResponse.value.cartTotals
-                                  //             ?.length !=
-                                  //         null
-                                  //     ? homeController
-                                  //                 .cartResponse.value.cartTotals
-                                  //                 ?.firstWhere((item) =>
-                                  //                     item.type ==
-                                  //                     'GRAND_TOTAL')
-                                  //                 .amount !=
-                                  //             null
-                                  //         ? convertedPrice(
-                                  //             homeController
-                                  //                 .cartResponse.value.cartTotals
-                                  //                 ?.firstWhere((item) =>
-                                  //                     item.type ==
-                                  //                     'GRAND_TOTAL')
-                                  //                 .amount
-                                  //                 ?.centAmount,
-                                  //             homeController
-                                  //                 .cartResponse.value.cartTotals
-                                  //                 ?.firstWhere((item) =>
-                                  //                     item.type ==
-                                  //                     'GRAND_TOTAL')
-                                  //                 .amount
-                                  //                 ?.fraction)
-                                  //         : '-'
-                                  // :
-                                  '-',
+                                  homeController.cartResponse.value.mrpSavings !=
+                                          null
+                                      ? convertedPrice(
+                                                  homeController
+                                                      .cartResponse
+                                                      .value
+                                                      .mrpSavings!
+                                                      .centAmount,
+                                                  homeController
+                                                      .cartResponse
+                                                      .value
+                                                      .mrpSavings!
+                                                      .fraction) !=
+                                              "₹0.00"
+                                          ? convertedPrice(
+                                              homeController.cartResponse.value
+                                                  .mrpSavings!.centAmount,
+                                              homeController.cartResponse.value
+                                                  .mrpSavings!.fraction)
+                                          : "--"
+                                      : "--",
                                   style: TextStyle(
                                       color: Colors.black87,
                                       fontSize: 16,
@@ -1503,16 +1483,18 @@ class _OrdersSectionState extends State<OrdersSection>
                                 side: BorderSide.none,
                                 borderRadius: BorderRadius.circular(10),
                               ),
-                              backgroundColor:
-                                  // homeController
-                                  //             .cartResponse.value.cartTotals
-                                  //             ?.firstWhere((item) =>
-                                  //                 item.type == 'GRAND_TOTAL')
-                                  //             .amount !=
-                                  //         null
-                                  //     ? CustomColors.secondaryColor
-                                  //     :
-                                  CustomColors.cardBackground),
+                              backgroundColor: homeController
+                                          .cartResponse.value.amountPayable !=
+                                      null
+                                  ? convertedPrice(
+                                              homeController.cartResponse.value
+                                                  .amountPayable!.centAmount,
+                                              homeController.cartResponse.value
+                                                  .amountPayable!.fraction) !=
+                                          "₹0.00"
+                                      ? CustomColors.secondaryColor
+                                      : CustomColors.cardBackground
+                                  : CustomColors.cardBackground),
                           child: SizedBox(
                             height: 56,
                             child: Column(
@@ -1533,7 +1515,15 @@ class _OrdersSectionState extends State<OrdersSection>
                                 //         null
                                 //     ?
                                 Text(
-                                  "--",
+                                  homeController.cartResponse.value
+                                              .amountPayable !=
+                                          null
+                                      ? convertedPrice(
+                                          homeController.cartResponse.value
+                                              .amountPayable!.centAmount,
+                                          homeController.cartResponse.value
+                                              .amountPayable!.fraction)
+                                      : "--",
                                   style: TextStyle(
                                       color: Colors.black,
                                       fontSize: 18,

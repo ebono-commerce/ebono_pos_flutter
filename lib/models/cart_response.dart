@@ -4,7 +4,7 @@
 
 import 'dart:convert';
 
-CartResponse cartResponseFromJson(dynamic str) =>
+CartResponse cartResponseFromJson(String str) =>
     CartResponse.fromJson(json.decode(str));
 
 String cartResponseToJson(CartResponse data) => json.encode(data.toJson());
@@ -18,6 +18,7 @@ class CartResponse {
   List<CartLine>? cartLines;
   AmountPayable? mrpSavings;
   AmountPayable? amountPayable;
+  List<CartAdjustment>? cartAdjustments;
   CartResponseAudit? audit;
 
   CartResponse({
@@ -29,6 +30,7 @@ class CartResponse {
     this.cartLines,
     this.mrpSavings,
     this.amountPayable,
+    this.cartAdjustments,
     this.audit,
   });
 
@@ -36,7 +38,7 @@ class CartResponse {
         cartId: json["cart_id"],
         cartType: json["cart_type"],
         outletId: json["outlet_id"],
-        totalUnits: json["total_units"],
+        totalUnits: json["total_units"]?.toDouble(),
         totalItems: json["total_items"],
         cartLines: json["cart_lines"] == null
             ? []
@@ -48,6 +50,10 @@ class CartResponse {
         amountPayable: json["amount_payable"] == null
             ? null
             : AmountPayable.fromJson(json["amount_payable"]),
+        cartAdjustments: json["cart_adjustments"] == null
+            ? []
+            : List<CartAdjustment>.from(json["cart_adjustments"]!
+                .map((x) => CartAdjustment.fromJson(x))),
         audit: json["audit"] == null
             ? null
             : CartResponseAudit.fromJson(json["audit"]),
@@ -64,6 +70,9 @@ class CartResponse {
             : List<dynamic>.from(cartLines!.map((x) => x.toJson())),
         "mrp_savings": mrpSavings?.toJson(),
         "amount_payable": amountPayable?.toJson(),
+        "cart_adjustments": cartAdjustments == null
+            ? []
+            : List<dynamic>.from(cartAdjustments!.map((x) => x.toJson())),
         "audit": audit?.toJson(),
       };
 }
@@ -117,6 +126,52 @@ class CartResponseAudit {
       };
 }
 
+class CartAdjustment {
+  String? type;
+  String? applicability;
+  String? reference;
+  String? referenceCode;
+  String? description;
+  int? multiplier;
+  bool? taxIncludedInAmount;
+  AmountPayable? amount;
+
+  CartAdjustment({
+    this.type,
+    this.applicability,
+    this.reference,
+    this.referenceCode,
+    this.description,
+    this.multiplier,
+    this.taxIncludedInAmount,
+    this.amount,
+  });
+
+  factory CartAdjustment.fromJson(Map<String, dynamic> json) => CartAdjustment(
+        type: json["type"],
+        applicability: json["applicability"],
+        reference: json["reference"],
+        referenceCode: json["reference_code"],
+        description: json["description"],
+        multiplier: json["multiplier"],
+        taxIncludedInAmount: json["tax_included_in_amount"],
+        amount: json["amount"] == null
+            ? null
+            : AmountPayable.fromJson(json["amount"]),
+      );
+
+  Map<String, dynamic> toJson() => {
+        "type": type,
+        "applicability": applicability,
+        "reference": reference,
+        "reference_code": referenceCode,
+        "description": description,
+        "multiplier": multiplier,
+        "tax_included_in_amount": taxIncludedInAmount,
+        "amount": amount?.toJson(),
+      };
+}
+
 class CartLine {
   String? cartLineId;
   Item? item;
@@ -124,7 +179,7 @@ class CartLine {
   AmountPayable? unitPrice;
   AmountPayable? mrp;
   AmountPayable? lineTotal;
-  List<dynamic>? applicableCartAdjustments;
+  List<String>? applicableCartAdjustments;
   CartLineAudit? audit;
 
   CartLine({
@@ -153,7 +208,7 @@ class CartLine {
             : AmountPayable.fromJson(json["line_total"]),
         applicableCartAdjustments: json["applicable_cart_adjustments"] == null
             ? []
-            : List<dynamic>.from(
+            : List<String>.from(
                 json["applicable_cart_adjustments"]!.map((x) => x)),
         audit: json["audit"] == null
             ? null
