@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:kpn_pos_application/data_store/shared_preference_helper.dart';
 import 'package:kpn_pos_application/ui/login/bloc/login_event.dart';
@@ -27,7 +26,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
 
       _sharedPreferenceHelper.storeAuthToken(response.token);
       outletDetails = response.outletDetails;
-      for(var i in outletDetails){
+      for (var i in outletDetails) {
         outletList.add(i.name);
       }
       emit(LoginSuccess());

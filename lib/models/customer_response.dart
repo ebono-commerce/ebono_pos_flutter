@@ -4,7 +4,7 @@
 
 import 'dart:convert';
 
-CustomerResponse customerResponseFromJson(String str) =>
+CustomerResponse customerResponseFromJson(dynamic str) =>
     CustomerResponse.fromJson(json.decode(str));
 
 String customerResponseToJson(CustomerResponse data) =>
@@ -14,8 +14,8 @@ class CustomerResponse {
   String? cartId;
   PhoneNumber? phoneNumber;
   String? customerName;
-  LoyaltyPoints? walletBalance;
-  LoyaltyPoints? loyaltyPoints;
+  String? walletBalance;
+  String? loyaltyPoints;
 
   CustomerResponse({
     this.cartId,
@@ -28,24 +28,20 @@ class CustomerResponse {
   factory CustomerResponse.fromJson(Map<String, dynamic> json) =>
       CustomerResponse(
         cartId: json["cart_id"],
+        walletBalance: json["wallet_balance"],
+        loyaltyPoints: json["loyalty_points"],
         phoneNumber: json["phone_number"] == null
             ? null
             : PhoneNumber.fromJson(json["phone_number"]),
         customerName: json["customer_name"],
-        walletBalance: json["wallet_balance"] == null
-            ? null
-            : LoyaltyPoints.fromJson(json["wallet_balance"]),
-        loyaltyPoints: json["loyalty_points"] == null
-            ? null
-            : LoyaltyPoints.fromJson(json["loyalty_points"]),
       );
 
   Map<String, dynamic> toJson() => {
         "cart_id": cartId,
         "phone_number": phoneNumber?.toJson(),
         "customer_name": customerName,
-        "wallet_balance": walletBalance?.toJson(),
-        "loyalty_points": loyaltyPoints?.toJson(),
+        "wallet_balance": walletBalance,
+        "loyalty_points": loyaltyPoints,
       };
 }
 

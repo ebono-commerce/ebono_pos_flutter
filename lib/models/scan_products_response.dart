@@ -12,6 +12,8 @@ String scanProductsResponseToJson(ScanProductsResponse data) =>
 
 class ScanProductsResponse {
   String? esin;
+  String? salesUom;
+
   String? ebonoTitle;
   int? packOf;
   bool? isWeighedItem;
@@ -24,6 +26,7 @@ class ScanProductsResponse {
 
   ScanProductsResponse({
     this.esin,
+    this.salesUom,
     this.ebonoTitle,
     this.packOf,
     this.isWeighedItem,
@@ -38,6 +41,7 @@ class ScanProductsResponse {
   factory ScanProductsResponse.fromJson(Map<String, dynamic> json) =>
       ScanProductsResponse(
         esin: json["esin"],
+        salesUom: json["sale_uom"],
         ebonoTitle: json["ebono_title"],
         packOf: json["pack_of"],
         isWeighedItem: json["is_weighed_item"],
@@ -58,6 +62,7 @@ class ScanProductsResponse {
 
   Map<String, dynamic> toJson() => {
         "esin": esin,
+        "sale_uom": salesUom,
         "ebono_title": ebonoTitle,
         "pack_of": packOf,
         "is_weighed_item": isWeighedItem,
