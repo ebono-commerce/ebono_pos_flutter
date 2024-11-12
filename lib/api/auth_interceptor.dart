@@ -10,14 +10,18 @@ class AuthInterceptor extends Interceptor {
 
   @override
   Future<void> onRequest(RequestOptions options, RequestInterceptorHandler handler) async {
-    // Retrieve the token using SharedPreferenceHelper
     String? token = await _sharedPreferenceHelper.getAuthToken();
+    String? appUUID = await _sharedPreferenceHelper.getAppUUID();
 
     if (token != null && !options.uri.path.contains('/login')) {
-      // Add the token to the Authorization header if it exists
       options.headers['Authorization'] = 'Bearer $token';
     }
 
+    if (appUUID != null) {
+      options.headers['x-app-id'] = appUUID;
+    }
+print('app id : ${appUUID}');
+    print('token $token');
     // Continue with the request
     return handler.next(options);
   }

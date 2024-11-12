@@ -1,8 +1,3 @@
-// To parse this JSON data, do
-//
-//     final terminalDetailsResponse = terminalDetailsResponseFromJson(jsonString);
-
-import 'package:meta/meta.dart';
 import 'dart:convert';
 
 TerminalDetailsResponse terminalDetailsResponseFromJson(String str) => TerminalDetailsResponse.fromJson(json.decode(str));
@@ -10,56 +5,56 @@ TerminalDetailsResponse terminalDetailsResponseFromJson(String str) => TerminalD
 String terminalDetailsResponseToJson(TerminalDetailsResponse data) => json.encode(data.toJson());
 
 class TerminalDetailsResponse {
-  RegisterDetails registerDetails;
-  OutletDetails outletDetails;
-  TerminalDetails terminalDetails;
+  RegisterDetails? registerDetails;
+  OutletDetails? outletDetails;
+  TerminalDetails? terminalDetails;
 
   TerminalDetailsResponse({
-    required this.registerDetails,
-    required this.outletDetails,
-    required this.terminalDetails,
+    this.registerDetails,
+    this.outletDetails,
+    this.terminalDetails,
   });
 
   factory TerminalDetailsResponse.fromJson(Map<String, dynamic> json) => TerminalDetailsResponse(
-    registerDetails: RegisterDetails.fromJson(json["register_details"]),
-    outletDetails: OutletDetails.fromJson(json["outlet_details"]),
-    terminalDetails: TerminalDetails.fromJson(json["terminal_details"]),
+    registerDetails: json["register_details"] == null ? null : RegisterDetails.fromJson(json["register_details"]),
+    outletDetails: json["outlet_details"] == null ? null : OutletDetails.fromJson(json["outlet_details"]),
+    terminalDetails: json["terminal_details"] == null ? null : TerminalDetails.fromJson(json["terminal_details"]),
   );
 
   Map<String, dynamic> toJson() => {
-    "register_details": registerDetails.toJson(),
-    "outlet_details": outletDetails.toJson(),
-    "terminal_details": terminalDetails.toJson(),
+    "register_details": registerDetails?.toJson(),
+    "outlet_details": outletDetails?.toJson(),
+    "terminal_details": terminalDetails?.toJson(),
   };
 }
 
 class OutletDetails {
-  String outletId;
-  String name;
-  String zoneId;
-  String zoneShortCode;
-  AllowedPosIps allowedPosIps;
-  String outletCustomerProxyPhoneNumber;
-  String quantityEditMode;
-  String lineDeleteMode;
-  String enableHoldCartMode;
-  String priceEditMode;
-  String salesAssociateLink;
-  bool isActive;
+  String? outletId;
+  String? name;
+  String? zoneId;
+  String? zoneShortCode;
+  AllowedPosIps? allowedPosIps;
+  String? outletCustomerProxyPhoneNumber;
+  String? quantityEditMode;
+  String? lineDeleteMode;
+  String? enableHoldCartMode;
+  String? priceEditMode;
+  String? salesAssociateLink;
+  bool? isActive;
 
   OutletDetails({
-    required this.outletId,
-    required this.name,
-    required this.zoneId,
-    required this.zoneShortCode,
-    required this.allowedPosIps,
-    required this.outletCustomerProxyPhoneNumber,
-    required this.quantityEditMode,
-    required this.lineDeleteMode,
-    required this.enableHoldCartMode,
-    required this.priceEditMode,
-    required this.salesAssociateLink,
-    required this.isActive,
+    this.outletId,
+    this.name,
+    this.zoneId,
+    this.zoneShortCode,
+    this.allowedPosIps,
+    this.outletCustomerProxyPhoneNumber,
+    this.quantityEditMode,
+    this.lineDeleteMode,
+    this.enableHoldCartMode,
+    this.priceEditMode,
+    this.salesAssociateLink,
+    this.isActive,
   });
 
   factory OutletDetails.fromJson(Map<String, dynamic> json) => OutletDetails(
@@ -67,7 +62,7 @@ class OutletDetails {
     name: json["name"],
     zoneId: json["zone_id"],
     zoneShortCode: json["zone_short_code"],
-    allowedPosIps: AllowedPosIps.fromJson(json["allowed_pos_ips"]),
+    allowedPosIps: json["allowed_pos_ips"] == null ? null : AllowedPosIps.fromJson(json["allowed_pos_ips"]),
     outletCustomerProxyPhoneNumber: json["outlet_customer_proxy_phone_number"],
     quantityEditMode: json["quantity_edit_mode"],
     lineDeleteMode: json["line_delete_mode"],
@@ -82,7 +77,7 @@ class OutletDetails {
     "name": name,
     "zone_id": zoneId,
     "zone_short_code": zoneShortCode,
-    "allowed_pos_ips": allowedPosIps.toJson(),
+    "allowed_pos_ips": allowedPosIps?.toJson(),
     "outlet_customer_proxy_phone_number": outletCustomerProxyPhoneNumber,
     "quantity_edit_mode": quantityEditMode,
     "line_delete_mode": lineDeleteMode,
@@ -94,34 +89,34 @@ class OutletDetails {
 }
 
 class AllowedPosIps {
-  List<String> allowedIpList;
-  List<String> allowedIpRange;
-  String enableIpRestriction;
+  List<dynamic>? allowedIpList;
+  List<dynamic>? allowedIpRange;
+  bool? enableIpRestriction;
 
   AllowedPosIps({
-    required this.allowedIpList,
-    required this.allowedIpRange,
-    required this.enableIpRestriction,
+    this.allowedIpList,
+    this.allowedIpRange,
+    this.enableIpRestriction,
   });
 
   factory AllowedPosIps.fromJson(Map<String, dynamic> json) => AllowedPosIps(
-    allowedIpList: List<String>.from(json["allowed_ip_list"].map((x) => x)),
-    allowedIpRange: List<String>.from(json["allowed_ip_range"].map((x) => x)),
+    allowedIpList: json["allowed_ip_list"] == null ? [] : List<dynamic>.from(json["allowed_ip_list"]!.map((x) => x)),
+    allowedIpRange: json["allowed_ip_range"] == null ? [] : List<dynamic>.from(json["allowed_ip_range"]!.map((x) => x)),
     enableIpRestriction: json["enable_ip_restriction"],
   );
 
   Map<String, dynamic> toJson() => {
-    "allowed_ip_list": List<dynamic>.from(allowedIpList.map((x) => x)),
-    "allowed_ip_range": List<dynamic>.from(allowedIpRange.map((x) => x)),
+    "allowed_ip_list": allowedIpList == null ? [] : List<dynamic>.from(allowedIpList!.map((x) => x)),
+    "allowed_ip_range": allowedIpRange == null ? [] : List<dynamic>.from(allowedIpRange!.map((x) => x)),
     "enable_ip_restriction": enableIpRestriction,
   };
 }
 
 class RegisterDetails {
-  String registerId;
+  String? registerId;
 
   RegisterDetails({
-    required this.registerId,
+    this.registerId,
   });
 
   factory RegisterDetails.fromJson(Map<String, dynamic> json) => RegisterDetails(
@@ -134,24 +129,24 @@ class RegisterDetails {
 }
 
 class TerminalDetails {
-  String terminalId;
-  String terminalName;
-  String status;
-  bool isEdcIntegrated;
-  bool isWeighingScaleIntegrated;
-  List<EdcDevice> edcDevices;
-  PrinterDevice printerDevice;
-  bool isActive;
+  String? terminalId;
+  String? terminalName;
+  String? status;
+  bool? isEdcIntegrated;
+  bool? isWeighingScaleIntegrated;
+  List<EdcDevice>? edcDevices;
+  PrinterDevice? printerDevice;
+  bool? isActive;
 
   TerminalDetails({
-    required this.terminalId,
-    required this.terminalName,
-    required this.status,
-    required this.isEdcIntegrated,
-    required this.isWeighingScaleIntegrated,
-    required this.edcDevices,
-    required this.printerDevice,
-    required this.isActive,
+    this.terminalId,
+    this.terminalName,
+    this.status,
+    this.isEdcIntegrated,
+    this.isWeighingScaleIntegrated,
+    this.edcDevices,
+    this.printerDevice,
+    this.isActive,
   });
 
   factory TerminalDetails.fromJson(Map<String, dynamic> json) => TerminalDetails(
@@ -160,8 +155,8 @@ class TerminalDetails {
     status: json["status"],
     isEdcIntegrated: json["is_edc_integrated"],
     isWeighingScaleIntegrated: json["is_weighing_scale_integrated"],
-    edcDevices: List<EdcDevice>.from(json["edc_devices"].map((x) => EdcDevice.fromJson(x))),
-    printerDevice: PrinterDevice.fromJson(json["printer_device"]),
+    edcDevices: json["edc_devices"] == null ? [] : List<EdcDevice>.from(json["edc_devices"]!.map((x) => EdcDevice.fromJson(x))),
+    printerDevice: json["printer_device"] == null ? null : PrinterDevice.fromJson(json["printer_device"]),
     isActive: json["is_active"],
   );
 
@@ -171,49 +166,49 @@ class TerminalDetails {
     "status": status,
     "is_edc_integrated": isEdcIntegrated,
     "is_weighing_scale_integrated": isWeighingScaleIntegrated,
-    "edc_devices": List<dynamic>.from(edcDevices.map((x) => x.toJson())),
-    "printer_device": printerDevice.toJson(),
+    "edc_devices": edcDevices == null ? [] : List<dynamic>.from(edcDevices!.map((x) => x.toJson())),
+    "printer_device": printerDevice?.toJson(),
     "is_active": isActive,
   };
 }
 
 class EdcDevice {
-  String pspId;
-  String deviceType;
-  String appKey;
-  String username;
-  String deviceId;
+  String? pspId;
+  String? appKey;
+  String? username;
+  String? deviceId;
+  String? deviceType;
 
   EdcDevice({
-    required this.pspId,
-    required this.deviceType,
-    required this.appKey,
-    required this.username,
-    required this.deviceId,
+    this.pspId,
+    this.appKey,
+    this.username,
+    this.deviceId,
+    this.deviceType,
   });
 
   factory EdcDevice.fromJson(Map<String, dynamic> json) => EdcDevice(
     pspId: json["psp_id"],
-    deviceType: json["device_type"],
     appKey: json["app_key"],
     username: json["username"],
     deviceId: json["device_id"],
+    deviceType: json["device_type"],
   );
 
   Map<String, dynamic> toJson() => {
     "psp_id": pspId,
-    "device_type": deviceType,
     "app_key": appKey,
     "username": username,
     "device_id": deviceId,
+    "device_type": deviceType,
   };
 }
 
 class PrinterDevice {
-  String printerType;
+  String? printerType;
 
   PrinterDevice({
-    required this.printerType,
+    this.printerType,
   });
 
   factory PrinterDevice.fromJson(Map<String, dynamic> json) => PrinterDevice(

@@ -20,6 +20,24 @@ class SharedPreferenceHelper {
     await prefs.clear();
   }
 
+  // Store the appUUID
+  Future<void> storeAppUUID(String appUUID) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(SharedPreferenceConstants.appUUID, appUUID);
+  }
+
+  // Retrieve the appUUID
+  Future<String?> getAppUUID() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(SharedPreferenceConstants.appUUID);
+  }
+
+  // Clear the appUUID
+  Future<void> clearAppUUID() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(SharedPreferenceConstants.appUUID);
+  }
+
   // Store the token
   Future<void> storeAuthToken(String token) async {
     final prefs = await SharedPreferences.getInstance();

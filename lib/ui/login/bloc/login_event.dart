@@ -19,8 +19,16 @@ class GetOutletDetails extends LoginEvent {
   GetOutletDetails(this.outletName);
 }
 
-class GetTerminalDetails extends LoginEvent {
+class SelectTerminal extends LoginEvent {
   final String terminalName;
 
-  GetTerminalDetails(this.terminalName);
+  SelectTerminal(this.terminalName);
+}
+
+class SubmitTerminalDetails extends LoginEvent {}
+
+class SelectPosMode extends LoginEvent{
+  final String posMode;
+
+  SelectPosMode(this.posMode);
 }

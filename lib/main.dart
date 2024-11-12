@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:kpn_pos_application/navigation/navigation.dart';
 import 'package:kpn_pos_application/theme/theme_data.dart';
 import 'package:kpn_pos_application/utils/SDP.dart';
+import 'package:uuid/uuid.dart';
 
 import 'di/initial_binding.dart';
 import 'navigation/page_routes.dart';
@@ -18,6 +19,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     SDP.init(context);
+
     return GetMaterialApp(
       initialRoute: PageRoutes.login,
       theme: themeData(context),

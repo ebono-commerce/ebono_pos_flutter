@@ -9,6 +9,7 @@ import 'package:kpn_pos_application/ui/common_text_field.dart';
 import 'package:kpn_pos_application/ui/login/bloc/login_bloc.dart';
 import 'package:kpn_pos_application/ui/login/bloc/login_event.dart';
 import 'package:kpn_pos_application/ui/login/bloc/login_state.dart';
+import 'package:uuid/uuid.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -27,11 +28,12 @@ class _LoginPageState extends State<LoginPage> {
   TextEditingController loginIdController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
-  List<String> selectedStoreModes = [];
 
   final loginBloc = Get.find<LoginBloc>();
 
   final GlobalKey<DropdownSearchState> dropDownKey =
+      GlobalKey<DropdownSearchState>();
+  final GlobalKey<DropdownSearchState> terminalDropDownKey =
       GlobalKey<DropdownSearchState>();
   late ThemeData theme;
 
@@ -70,8 +72,11 @@ class _LoginPageState extends State<LoginPage> {
             } else if (state is GetOutletDetailsSuccess) {
               Get.snackbar(
                   "Outlet Details", "Outlet details loaded successfully!");
-              setState(() {});
             } else if (state is GetOutletDetailsFailure) {
+              Get.snackbar("Error", state.error);
+            } else if (state is SubmitTerminalDetailsSuccess) {
+              Get.toNamed(PageRoutes.home);
+            } else if (state is SubmitTerminalDetailsFailure) {
               Get.snackbar("Error", state.error);
             }
           },
@@ -84,7 +89,9 @@ class _LoginPageState extends State<LoginPage> {
                   child: Row(
                     children: [
                       Flexible(flex: 3, child: welcomeWidget(context)),
-                      state is LoginSuccess || state is GetOutletDetailsSuccess
+                      state is LoginSuccess ||
+                              state is GetOutletDetailsSuccess ||
+                              state is SubmitTerminalDetailsSuccess
                           ? Flexible(
                               flex: 2,
                               child: storeDetailsWidget(context, loginBloc))
@@ -93,7 +100,9 @@ class _LoginPageState extends State<LoginPage> {
                     ],
                   ),
                 ),
-                state is LoginLoading
+                state is LoginLoading ||
+                        state is GetOutletDetailsLoading ||
+                        state is SubmitTerminalDetailsLoading
                     ? Center(child: CircularProgressIndicator())
                     : SizedBox(),
               ]);
@@ -254,6 +263,7 @@ class _LoginPageState extends State<LoginPage> {
   Widget storeDetailsWidget(BuildContext context, LoginBloc loginBloc) {
     var outletDetails = loginBloc.outletList;
     var terminalDetails = loginBloc.terminalList;
+    var allowedPosDetails = loginBloc.allowedPos;
 
     return Card(
       shape: RoundedRectangleBorder(
@@ -276,9 +286,11 @@ class _LoginPageState extends State<LoginPage> {
                       label: 'Enter Store Id')),
               onChanged: (value) {
                 if (value != null) {
-                  loginBloc.add(
-                    GetOutletDetails(value),
-                  );
+                  Future.delayed(Duration(milliseconds: 200), () {
+                    loginBloc.add(
+                      GetOutletDetails(value),
+                    );
+                  });
                 }
               },
               suffixProps: DropdownSuffixProps(
@@ -308,54 +320,38 @@ class _LoginPageState extends State<LoginPage> {
 
             // Store Mode Selection
             Wrap(
+              crossAxisAlignment: WrapCrossAlignment.start,
               alignment: WrapAlignment.start,
-              children: [
-                storeModeWidget(
-                    imagePath: 'assets/images/vegetables.png',
-                    label: 'Fruits & Vegetables',
-                    context: context,
-                    mode: '1'),
-                // General
-                storeModeWidget(
-                    imagePath: 'assets/images/vegetables.png',
-                    label: 'General',
-                    context: context,
-                    mode: '2'),
-                // Non-veg
-                storeModeWidget(
-                    imagePath: 'assets/images/vegetables.png',
-                    label: 'Non-veg',
-                    context: context,
-                    mode: '3'),
-                // Juices
-                storeModeWidget(
-                    imagePath: 'assets/images/vegetables.png',
-                    label: 'Juices',
-                    context: context,
-                    mode: '4'),
-              ],
+              children: allowedPosDetails
+                  .where((modeKey) =>
+                      loginBloc.allowedPosData.containsKey(modeKey))
+                  .map((modeKey) => storeModeWidget(
+                        imagePath:
+                            loginBloc.allowedPosData[modeKey]!['imagePath']!,
+                        label: loginBloc.allowedPosData[modeKey]!['label']!,
+                        context: context,
+                        mode: loginBloc.allowedPosData[modeKey]!['mode']!,
+                      ))
+                  .toList(),
             ),
             SizedBox(height: 20),
-           /* // Terminal Id input
-            commonTextField(
-                label: 'Enter Terminal Id',
-                focusNode: terminalIdFocusNode,
-                controller: terminalIdController),*/
-
             terminalDetails.isNotEmpty
                 ? DropdownSearch<String>(
-                    key: dropDownKey,
+                    key: terminalDropDownKey,
                     items: (filter, infiniteScrollProps) => terminalDetails,
                     decoratorProps: DropDownDecoratorProps(
                         decoration: textFieldDecoration(
                             isFocused:
-                                dropDownKey.currentState?.isFocused == true,
+                                terminalDropDownKey.currentState?.isFocused ==
+                                    true,
                             label: 'Enter Terminal Id')),
                     onChanged: (value) {
                       if (value != null) {
-                        loginBloc.add(
-                          GetTerminalDetails(value),
-                        );
+                        Future.delayed(Duration(milliseconds: 200), () {
+                          loginBloc.add(
+                            SelectTerminal(value),
+                          );
+                        });
                       }
                     },
                     suffixProps: DropdownSuffixProps(
@@ -401,7 +397,11 @@ class _LoginPageState extends State<LoginPage> {
                   elevation: 6,
                 ),
                 onPressed: () {
-                  Get.toNamed(PageRoutes.home);
+                  Future.delayed(Duration(milliseconds: 200), () {
+                    loginBloc.add(
+                      SubmitTerminalDetails(),
+                    );
+                  });
                 },
                 child: Text(
                   'Continue',
@@ -420,15 +420,14 @@ class _LoginPageState extends State<LoginPage> {
       required String label,
       required String mode,
       required BuildContext context}) {
-    bool isSelected = selectedStoreModes.contains(mode);
+    bool isSelected = loginBloc.selectedPosMode == mode;
     return GestureDetector(
       onTap: () {
+        loginBloc.add(
+          SelectPosMode(mode),
+        );
         setState(() {
-          if (isSelected) {
-            selectedStoreModes.remove(mode);
-          } else {
-            selectedStoreModes.add(mode);
-          }
+          isSelected = loginBloc.selectedPosMode == mode;
         });
       },
       child: Card(
