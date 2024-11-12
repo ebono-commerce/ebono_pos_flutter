@@ -204,6 +204,7 @@ class _LoginPageState extends State<LoginPage> {
                     elevation: 6,
                   ),
                   onPressed: () {
+                    //  Get.toNamed(PageRoutes.home);
                     if (_formKey.currentState!.validate()) {
                       loginBloc.add(
                         LoginButtonPressed(
@@ -336,7 +337,7 @@ class _LoginPageState extends State<LoginPage> {
               ],
             ),
             SizedBox(height: 20),
-           /* // Terminal Id input
+            /* // Terminal Id input
             commonTextField(
                 label: 'Enter Terminal Id',
                 focusNode: terminalIdFocusNode,

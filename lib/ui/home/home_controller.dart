@@ -244,6 +244,7 @@ class HomeController extends GetxController {
         clearCart();
         cartResponse.value = CartResponse.fromJson(json.decode(response.body));
         print("Success : ${response.body}");
+        cartLines.clear();
         if (cartResponse.value.cartLines != null) {
           for (var element in cartResponse.value.cartLines!) {
             addCartLine(element);
