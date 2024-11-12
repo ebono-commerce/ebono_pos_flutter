@@ -245,7 +245,7 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
               child:  commonTextField(
                 label: ' Enter value ',
                 focusNode: qwertyFocusNode,
-                readOnly: true,
+                readOnly: false,
                 controller: qwertyTextController,
               ),
             ),

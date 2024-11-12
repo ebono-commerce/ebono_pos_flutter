@@ -19,7 +19,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     SDP.init(context);
     return GetMaterialApp(
-      initialRoute: PageRoutes.home,
+      initialRoute: PageRoutes.login,
       theme: themeData(context),
       initialBinding: InitialBinding(),
       getPages: getPages(),

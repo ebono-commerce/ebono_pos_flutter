@@ -7,6 +7,7 @@ import 'package:kpn_pos_application/constants/custom_colors.dart';
 import 'package:kpn_pos_application/navigation/page_routes.dart';
 import 'package:kpn_pos_application/ui/common_text_field.dart';
 import 'package:kpn_pos_application/ui/login/bloc/login_bloc.dart';
+import 'package:kpn_pos_application/ui/login/bloc/login_event.dart';
 import 'package:kpn_pos_application/ui/login/bloc/login_state.dart';
 
 class LoginPage extends StatefulWidget {
@@ -27,15 +28,6 @@ class _LoginPageState extends State<LoginPage> {
   TextEditingController passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   List<String> selectedStoreModes = [];
-  final List<String> _items = [
-    'ST001',
-    'ST002',
-    'ST003',
-    'ST004',
-    'ST005',
-    'ST006',
-    'ST007'
-  ];
 
   final loginBloc = Get.find<LoginBloc>();
 
@@ -70,21 +62,29 @@ class _LoginPageState extends State<LoginPage> {
         child: BlocListener<LoginBloc, LoginState>(
           listener: (context, state) {
             if (state is LoginSuccess) {
-              // Navigate to home page on success
-              //Get.offAndToNamed('/home');
+              loginBloc.add(
+                GetOutletDetails(loginBloc.outletList.first),
+              );
             } else if (state is LoginFailure) {
               Get.snackbar("Login Error ui", state.error);
+            } else if (state is GetOutletDetailsSuccess) {
+              Get.snackbar(
+                  "Outlet Details", "Outlet details loaded successfully!");
+              setState(() {});
+            } else if (state is GetOutletDetailsFailure) {
+              Get.snackbar("Error", state.error);
             }
           },
           child: BlocBuilder<LoginBloc, LoginState>(
             builder: (context, state) {
+              print("Current State: $state");
               return Stack(children: [
                 Container(
                   color: CustomColors.backgroundColor,
                   child: Row(
                     children: [
                       Flexible(flex: 3, child: welcomeWidget(context)),
-                      state is LoginSuccess
+                      state is LoginSuccess || state is GetOutletDetailsSuccess
                           ? Flexible(
                               flex: 2,
                               child: storeDetailsWidget(context, loginBloc))
@@ -204,18 +204,17 @@ class _LoginPageState extends State<LoginPage> {
                     elevation: 6,
                   ),
                   onPressed: () {
-                    Get.offAndToNamed('/home');
-                    // if (_formKey.currentState!.validate()) {
-                    // loginBloc.add(
-                    //   LoginButtonPressed(
-                    //     loginIdController.text,
-                    //     passwordController.text,
-                    //   ),
-                    // );
-                    // } else {
-                    //   Get.snackbar(
-                    //       "Invalid Data", "Please enter all mandatory fields");
-                    // }
+                    if (_formKey.currentState!.validate()) {
+                      loginBloc.add(
+                        LoginButtonPressed(
+                          loginIdController.text,
+                          passwordController.text,
+                        ),
+                      );
+                    } else {
+                      Get.snackbar(
+                          "Invalid Data", "Please enter all mandatory fields");
+                    }
                   },
                   child: Text(
                     'Sign In',
@@ -254,6 +253,8 @@ class _LoginPageState extends State<LoginPage> {
 
   Widget storeDetailsWidget(BuildContext context, LoginBloc loginBloc) {
     var outletDetails = loginBloc.outletList;
+    var terminalDetails = loginBloc.terminalList;
+
     return Card(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(15.0),
@@ -274,8 +275,11 @@ class _LoginPageState extends State<LoginPage> {
                       isFocused: dropDownKey.currentState?.isFocused == true,
                       label: 'Enter Store Id')),
               onChanged: (value) {
-                // Handle value
-                // change
+                if (value != null) {
+                  loginBloc.add(
+                    GetOutletDetails(value),
+                  );
+                }
               },
               suffixProps: DropdownSuffixProps(
                   dropdownButtonProps: DropdownButtonProps(
@@ -332,11 +336,51 @@ class _LoginPageState extends State<LoginPage> {
               ],
             ),
             SizedBox(height: 20),
-            // Terminal Id input
+           /* // Terminal Id input
             commonTextField(
                 label: 'Enter Terminal Id',
                 focusNode: terminalIdFocusNode,
-                controller: terminalIdController),
+                controller: terminalIdController),*/
+
+            terminalDetails.isNotEmpty
+                ? DropdownSearch<String>(
+                    key: dropDownKey,
+                    items: (filter, infiniteScrollProps) => terminalDetails,
+                    decoratorProps: DropDownDecoratorProps(
+                        decoration: textFieldDecoration(
+                            isFocused:
+                                dropDownKey.currentState?.isFocused == true,
+                            label: 'Enter Terminal Id')),
+                    onChanged: (value) {
+                      if (value != null) {
+                        loginBloc.add(
+                          GetTerminalDetails(value),
+                        );
+                      }
+                    },
+                    suffixProps: DropdownSuffixProps(
+                        dropdownButtonProps: DropdownButtonProps(
+                      iconOpened: Icon(Icons.keyboard_arrow_up),
+                      iconClosed: Icon(Icons.keyboard_arrow_down),
+                    )),
+                    selectedItem: terminalDetails.first,
+                    popupProps: PopupProps.bottomSheet(
+                      showSearchBox: true,
+                      fit: FlexFit.loose,
+                      showSelectedItems: true,
+                      searchFieldProps: TextFieldProps(
+                        controller: terminalIdController,
+                        focusNode: terminalIdFocusNode,
+                        decoration: textFieldDecoration(
+                            isFocused: terminalIdFocusNode.hasFocus,
+                            filled: true,
+                            label: '"Search Terminal Id',
+                            prefixIcon: Icon(Icons.search)),
+                      ),
+                    ),
+                    //dropdownBuilder: (ctx, selectedItem) => Text(selectedItem!.name),
+                  )
+                : SizedBox(),
             SizedBox(height: 20),
 
             // Sign in button

@@ -20,7 +20,7 @@ class CustomQwertyPad extends StatelessWidget {
   }
 
   void _onEnter() {
-    textController.text += '\n';
+    textController.clear();
   }
 
   void _onSpace() {
