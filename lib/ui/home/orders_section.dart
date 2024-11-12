@@ -289,8 +289,8 @@ class _OrdersSectionState extends State<OrdersSection>
                     shrinkWrap: true,
                     itemCount: homeController.cartLines.length,
                     itemBuilder: (context, index) {
-                      var cartLines =
-                          homeController.cartResponse.value.cartLines;
+                      // var cartLines =
+                      //     homeController.cartResponse.value.cartLines;
                       return Table(
                         border: TableBorder.symmetric(
                             outside:
@@ -305,7 +305,7 @@ class _OrdersSectionState extends State<OrdersSection>
                           6: FlexColumnWidth(1),
                         },
                         children: [
-                          ...cartLines!.map((itemData) {
+                          ...homeController.cartLines!.map((itemData) {
                             return TableRow(
                               decoration: BoxDecoration(
                                   // color: Colors.grey.shade300,
