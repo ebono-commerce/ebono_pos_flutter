@@ -204,18 +204,18 @@ class _LoginPageState extends State<LoginPage> {
                     elevation: 6,
                   ),
                   onPressed: () {
-                    //  Get.toNamed(PageRoutes.home);
-                    if (_formKey.currentState!.validate()) {
-                      loginBloc.add(
-                        LoginButtonPressed(
-                          loginIdController.text,
-                          passwordController.text,
-                        ),
-                      );
-                    } else {
-                      Get.snackbar(
-                          "Invalid Data", "Please enter all mandatory fields");
-                    }
+                    Get.toNamed(PageRoutes.home);
+                    // if (_formKey.currentState!.validate()) {
+                    //   loginBloc.add(
+                    //     LoginButtonPressed(
+                    //       loginIdController.text,
+                    //       passwordController.text,
+                    //     ),
+                    //   );
+                    // } else {
+                    //   Get.snackbar(
+                    //       "Invalid Data", "Please enter all mandatory fields");
+                    // }
                   },
                   child: Text(
                     'Sign In',

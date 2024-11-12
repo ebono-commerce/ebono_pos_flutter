@@ -279,275 +279,233 @@ class _OrdersSectionState extends State<OrdersSection>
                   Padding(padding: const EdgeInsets.all(10.0), child: Text("")),
                 ],
               ),
+              ...homeController.cartLines.map((itemData) {
+                return TableRow(
+                  decoration: BoxDecoration(
+                      // color: Colors.grey.shade300,
+                      border:
+                          Border.all(color: Colors.grey.shade300, width: 1)),
+                  // decoration: BoxDecoration(
+                  //   color: Colors.white,
+                  // ),
+                  children: [
+                    Container(
+                      color: Colors.white,
+                      padding: const EdgeInsets.all(8.0),
+                      child: Padding(
+                          padding: const EdgeInsets.all(10.0),
+                          child: Text(
+                            '${itemData.item?.esin}',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            softWrap: true,
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelLarge
+                                ?.copyWith(
+                                    fontWeight: FontWeight.w500,
+                                    color: CustomColors.black),
+                          )),
+                    ),
+                    Container(
+                      color: Colors.white,
+                      padding: const EdgeInsets.all(4.0),
+                      child: Padding(
+                          padding: const EdgeInsets.all(2.0),
+                          child: Text(
+                            '${itemData.item?.ebonoTitle}',
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            softWrap: true,
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelLarge
+                                ?.copyWith(
+                                    fontWeight: FontWeight.w500,
+                                    color: CustomColors.black),
+                          )),
+                    ),
+                    Container(
+                      color: Colors.white,
+                      padding: const EdgeInsets.all(2.0),
+                      child: Padding(
+                        padding: const EdgeInsets.all(2.0),
+                        child: Obx(() {
+                          return TextField(
+                            controller: TextEditingController(
+                                text:
+                                    ' ${widget.weightController.weight.value}'),
+                            onEditingComplete: () {},
+                            onSubmitted: (value) {
+                              try {
+                                // Convert the string to a double
+                                double doubleValue = double.parse(value);
+                                homeController.updateCartItemApiCall(
+                                  itemData.cartLineId,
+                                  itemData.quantity?.quantityUom,
+                                  doubleValue,
+                                );
+                              } catch (e) {
+                                // Handle the error if the conversion fails
+                                print(
+                                    'Error: Invalid input for quantity. Please enter a valid number.');
+                              }
+                            },
+                            onChanged: (value) {},
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelLarge
+                                ?.copyWith(
+                                    fontWeight: FontWeight.w500,
+                                    color: CustomColors.black),
+                            decoration: InputDecoration(
+                                fillColor: Colors.white,
+                                focusColor: Colors.white,
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                  borderSide: BorderSide(
+                                    color: Colors.grey.shade300,
+                                    // Normal border color
+                                    width: 1,
+                                  ),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                  borderSide: BorderSide(
+                                    color: Colors.grey.shade300,
+                                    // Focused border color
+                                    width: 1,
+                                  ),
+                                ),
+                                errorBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                  borderSide: BorderSide(
+                                    color: Colors.red, // Error border color
+                                    width: 1,
+                                  ),
+                                ),
+                                focusedErrorBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                  borderSide: BorderSide(
+                                    color: Colors.red,
+                                    // Focused error border color
+                                    width: 1,
+                                  ),
+                                ),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                  borderSide: BorderSide(
+                                    color: Colors.grey.shade300,
+                                    width: 1,
+                                  ),
+                                ),
+                                hintText:
+                                    "${itemData.quantity?.quantityNumber}",
+                                suffixText:
+                                    "${itemData.quantity?.quantityUom}"),
+                          );
+                        }),
+                      ),
+                    ),
+                    Container(
+                      color: Colors.white,
+                      padding: const EdgeInsets.all(8.0),
+                      child: Padding(
+                          padding: const EdgeInsets.all(10.0),
+                          child: Text(
+                            '',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            softWrap: true,
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelLarge
+                                ?.copyWith(
+                                    fontWeight: FontWeight.w500,
+                                    color: CustomColors.black),
+                          )),
+                    ),
+                    Container(
+                      color: Colors.white,
+                      padding: const EdgeInsets.all(8.0),
+                      child: Padding(
+                          padding: const EdgeInsets.all(10.0),
+                          child: Text(
+                            convertedPrice(itemData.mrp?.centAmount,
+                                itemData.mrp?.fraction),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            softWrap: true,
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelLarge
+                                ?.copyWith(
+                                    fontWeight: FontWeight.w500,
+                                    color: CustomColors.black),
+                          )),
+                    ),
+                    Container(
+                        color: Colors.white,
+                        padding: const EdgeInsets.all(8.0),
+                        child: Padding(
+                            padding: const EdgeInsets.all(10.0),
+                            child: Text(
+                              convertedPrice(itemData.unitPrice?.centAmount,
+                                  itemData.unitPrice?.fraction),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              softWrap: true,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .labelLarge
+                                  ?.copyWith(
+                                      fontWeight: FontWeight.w500,
+                                      color: CustomColors.black),
+                            ))),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Container(
+                        padding: const EdgeInsets.all(0.0),
+                        width: 50,
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: Color(0xFFE56363),
+                            width: 1,
+                          ),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: IconButton(
+                          icon: ImageIcon(
+                            size: 20,
+                            color: Color(0xFFE56363),
+                            AssetImage('assets/images/ic_remove.png'),
+                          ),
+                          onPressed: () {
+                            Get.defaultDialog(
+                                contentPadding: EdgeInsets.only(
+                                  left: 10,
+                                  right: 10,
+                                ),
+                                title: '',
+                                middleText: '',
+                                titlePadding: EdgeInsets.all(0),
+                                barrierDismissible: false,
+                                backgroundColor: Colors.white,
+                                content: _buildRemoveDialog2(itemData,
+                                    onPressed: () {
+                                  homeController.deleteCartItemApiCall(
+                                      itemData.cartLineId);
+                                  Get.back();
+                                }));
+                          },
+                        ),
+                      ),
+                    )
+                  ],
+                );
+              })
             ],
           ),
-
-          //ROW
-          homeController.cartLines.isNotEmpty
-              ? Expanded(
-                  child: ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: homeController.cartLines.length,
-                    itemBuilder: (context, index) {
-                      // var cartLines =
-                      //     homeController.cartResponse.value.cartLines;
-                      return Table(
-                        border: TableBorder.symmetric(
-                            outside:
-                                BorderSide(width: 1, color: Color(0xFFF7F7F7))),
-                        columnWidths: {
-                          0: FlexColumnWidth(2),
-                          1: FlexColumnWidth(3),
-                          2: FlexColumnWidth(2),
-                          3: FlexColumnWidth(1),
-                          4: FlexColumnWidth(2),
-                          5: FlexColumnWidth(2),
-                          6: FlexColumnWidth(1),
-                        },
-                        children: [
-                          ...homeController.cartLines!.map((itemData) {
-                            return TableRow(
-                              decoration: BoxDecoration(
-                                  // color: Colors.grey.shade300,
-                                  border: Border.all(
-                                      color: Colors.grey.shade300, width: 1)),
-                              // decoration: BoxDecoration(
-                              //   color: Colors.white,
-                              // ),
-                              children: [
-                                Container(
-                                  color: Colors.white,
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Padding(
-                                      padding: const EdgeInsets.all(10.0),
-                                      child: Text(
-                                        '${itemData.item?.esin}',
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                        softWrap: true,
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .labelLarge
-                                            ?.copyWith(
-                                                fontWeight: FontWeight.w500,
-                                                color: CustomColors.black),
-                                      )),
-                                ),
-                                Container(
-                                  color: Colors.white,
-                                  padding: const EdgeInsets.all(4.0),
-                                  child: Padding(
-                                      padding: const EdgeInsets.all(2.0),
-                                      child: Text(
-                                        '${itemData.item?.ebonoTitle}',
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
-                                        softWrap: true,
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .labelLarge
-                                            ?.copyWith(
-                                                fontWeight: FontWeight.w500,
-                                                color: CustomColors.black),
-                                      )),
-                                ),
-                                Container(
-                                  color: Colors.white,
-                                  padding: const EdgeInsets.all(2.0),
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(2.0),
-                                    child: Obx(() {
-                                      return TextField(
-                                        controller: TextEditingController(
-                                            text:
-                                                ' ${widget.weightController.weight.value}'),
-                                        onEditingComplete: () {},
-                                        onSubmitted: (value) {
-                                          try {
-                                            // Convert the string to a double
-                                            double doubleValue =
-                                                double.parse(value);
-                                            homeController
-                                                .updateCartItemApiCall(
-                                              itemData.cartLineId,
-                                              itemData.quantity?.quantityUom,
-                                              doubleValue,
-                                            );
-                                          } catch (e) {
-                                            // Handle the error if the conversion fails
-                                            print(
-                                                'Error: Invalid input for quantity. Please enter a valid number.');
-                                          }
-                                        },
-                                        onChanged: (value) {},
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .labelLarge
-                                            ?.copyWith(
-                                                fontWeight: FontWeight.w500,
-                                                color: CustomColors.black),
-                                        decoration: InputDecoration(
-                                            fillColor: Colors.white,
-                                            focusColor: Colors.white,
-                                            enabledBorder: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
-                                              borderSide: BorderSide(
-                                                color: Colors.grey.shade300,
-                                                // Normal border color
-                                                width: 1,
-                                              ),
-                                            ),
-                                            focusedBorder: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
-                                              borderSide: BorderSide(
-                                                color: Colors.grey.shade300,
-                                                // Focused border color
-                                                width: 1,
-                                              ),
-                                            ),
-                                            errorBorder: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
-                                              borderSide: BorderSide(
-                                                color: Colors
-                                                    .red, // Error border color
-                                                width: 1,
-                                              ),
-                                            ),
-                                            focusedErrorBorder:
-                                                OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
-                                              borderSide: BorderSide(
-                                                color: Colors.red,
-                                                // Focused error border color
-                                                width: 1,
-                                              ),
-                                            ),
-                                            border: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
-                                              borderSide: BorderSide(
-                                                color: Colors.grey.shade300,
-                                                width: 1,
-                                              ),
-                                            ),
-                                            hintText:
-                                                "${itemData.quantity?.quantityNumber}",
-                                            suffixText:
-                                                "${itemData.quantity?.quantityUom}"),
-                                      );
-                                    }),
-                                  ),
-                                ),
-                                Container(
-                                  color: Colors.white,
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Padding(
-                                      padding: const EdgeInsets.all(10.0),
-                                      child: Text(
-                                        '',
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                        softWrap: true,
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .labelLarge
-                                            ?.copyWith(
-                                                fontWeight: FontWeight.w500,
-                                                color: CustomColors.black),
-                                      )),
-                                ),
-                                Container(
-                                  color: Colors.white,
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Padding(
-                                      padding: const EdgeInsets.all(10.0),
-                                      child: Text(
-                                        convertedPrice(itemData.mrp?.centAmount,
-                                            itemData.mrp?.fraction),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                        softWrap: true,
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .labelLarge
-                                            ?.copyWith(
-                                                fontWeight: FontWeight.w500,
-                                                color: CustomColors.black),
-                                      )),
-                                ),
-                                Container(
-                                    color: Colors.white,
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Padding(
-                                        padding: const EdgeInsets.all(10.0),
-                                        child: Text(
-                                          convertedPrice(
-                                              itemData.unitPrice?.centAmount,
-                                              itemData.unitPrice?.fraction),
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                          softWrap: true,
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .labelLarge
-                                              ?.copyWith(
-                                                  fontWeight: FontWeight.w500,
-                                                  color: CustomColors.black),
-                                        ))),
-                                Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Container(
-                                    padding: const EdgeInsets.all(0.0),
-                                    width: 50,
-                                    decoration: BoxDecoration(
-                                      border: Border.all(
-                                        color: Color(0xFFE56363),
-                                        width: 1,
-                                      ),
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                    child: IconButton(
-                                      icon: ImageIcon(
-                                        size: 20,
-                                        color: Color(0xFFE56363),
-                                        AssetImage(
-                                            'assets/images/ic_remove.png'),
-                                      ),
-                                      onPressed: () {
-                                        Get.defaultDialog(
-                                            contentPadding: EdgeInsets.only(
-                                              left: 10,
-                                              right: 10,
-                                            ),
-                                            title: '',
-                                            middleText: '',
-                                            titlePadding: EdgeInsets.all(0),
-                                            barrierDismissible: false,
-                                            backgroundColor: Colors.white,
-                                            content: _buildRemoveDialog2(
-                                                itemData, onPressed: () {
-                                              homeController
-                                                  .deleteCartItemApiCall(
-                                                      itemData.cartLineId);
-                                              Get.back();
-                                            }));
-                                      },
-                                    ),
-                                  ),
-                                )
-                              ],
-                            );
-                          })
-                        ],
-                      );
-                    },
-                  ),
-                )
-              : Container()
         ],
       ),
     );
@@ -1128,8 +1086,8 @@ class _OrdersSectionState extends State<OrdersSection>
                                                     .ebonoTitle
                                                     ?.isNotEmpty ==
                                                 true
-                                            ? ' 1 '
-                                            : ' - ',
+                                            ? '1'
+                                            : " - ",
                                         style: TextStyle(
                                             color: Colors.black,
                                             fontSize: 14,
@@ -1297,6 +1255,7 @@ class _OrdersSectionState extends State<OrdersSection>
                                 onChanged: (value) {
                                   input = value;
                                   print(" onChanged: $input");
+                                  homeController.scanApiCall(input);
                                 },
                               ),
                             ),

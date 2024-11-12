@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
-import 'package:kpn_pos_application/ui/common_text_field.dart';
 
 class CustomQwertyPad extends StatelessWidget {
   final TextEditingController textController;
@@ -32,7 +30,7 @@ class CustomQwertyPad extends StatelessWidget {
     focusNode.addListener(() {});
     return Column(
       children: [
-       /* Padding(
+        /* Padding(
           padding: const EdgeInsets.all(16.0),
           child: ConstrainedBox(
             constraints: BoxConstraints(
@@ -125,7 +123,6 @@ class CustomQwertyPad extends StatelessWidget {
                 _buildKeyDot('assets/images/qwerty_dot.png'),
                 _buildKeyDot('assets/images/qwerty_comma.png'),
                 _buildKeyEnterIcon('assets/images/qwerty_enter.png'),
-
               ],
             )
           ],
