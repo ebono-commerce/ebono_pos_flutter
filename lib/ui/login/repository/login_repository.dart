@@ -2,8 +2,11 @@ import 'dart:convert';
 
 import 'package:kpn_pos_application/api/api_constants.dart';
 import 'package:kpn_pos_application/api/api_helper.dart';
+import 'package:kpn_pos_application/ui/login/model/get_terminal_details_request.dart';
 import 'package:kpn_pos_application/ui/login/model/login_request.dart';
 import 'package:kpn_pos_application/ui/login/model/login_response.dart';
+import 'package:kpn_pos_application/ui/login/model/logout_response.dart';
+import 'package:kpn_pos_application/ui/login/model/outlet_details_response.dart';
 
 class LoginRepository {
   final ApiHelper _apiHelper;
@@ -27,14 +30,44 @@ class LoginRepository {
     }
   }
 
-  Future<List<dynamic>> getNodes() async {
+
+  Future<LogoutResponse> logout({required String token}) async {
+    try {
+      final response = await _apiHelper.post(
+        ApiConstants.logout,
+        data: {'token':token},
+      );
+      final logoutResponse = logoutResponseFromJson(jsonEncode(response));
+
+      return logoutResponse;
+    } catch (e) {
+      throw Exception('Failed to parse data');
+    }
+  }
+
+  Future<OutletDetailsResponse> getOutletDetails(String outletId) async {
     try {
       final response = await _apiHelper.get(
-        '/nodes',
+        '${ApiConstants.outletDetails}OCHNMYL01/details',
+
       );
-      return response.data;
+      final outletDetailsResponse = outletDetailsResponseFromJson(jsonEncode(response));
+      return outletDetailsResponse;
     } catch (e) {
-      throw Exception('Failed to load data');
+      throw Exception('Failed to parse data');
+    }
+  }
+
+  Future<OutletDetailsResponse> getTerminalDetails(GetTerminalDetailsRequest request) async {
+    try {
+      final response = await _apiHelper.post(
+        ApiConstants.terminalDetails,
+        data: request.toJson(),
+      );
+      final outletDetailsResponse = outletDetailsResponseFromJson(jsonEncode(response));
+      return outletDetailsResponse;
+    } catch (e) {
+      throw Exception('Failed to parse data');
     }
   }
 }
