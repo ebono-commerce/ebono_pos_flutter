@@ -162,6 +162,7 @@ class HomeController extends GetxController {
         body: jsonEncode(reqBody),
       );
       if (response.statusCode == 200) {
+        clearCart();
         cartResponse.value = CartResponse.fromJson(json.decode(response.body));
         print("Success : ${response.body}");
         cartLines.clear();
