@@ -19,6 +19,7 @@ class HomeController extends GetxController {
   // Example method to add a new cart line void
   addCartLine(CartLine cartLine) {
     cartLines.add(cartLine);
+    print('cart List: ${cartLines.toList()}');
   }
 
   // Example method to remove a cart line void
@@ -29,8 +30,6 @@ class HomeController extends GetxController {
   var scanProductsResponse = ScanProductsResponse().obs;
   var customerResponse = CustomerResponse().obs;
   var cartResponse = CartResponse().obs;
-
-  //var addToCart = CartResponse().obs;
 
   @override
   void onInit() {
@@ -55,7 +54,6 @@ class HomeController extends GetxController {
     cartResponse.value = CartResponse(cartId: '', cartType: '');
     phoneNumber.value = '';
     cartId.value = '';
-    // cartLines.clear();
   }
 
   Future<void> clearScanData() async {
@@ -70,17 +68,9 @@ class HomeController extends GetxController {
 
   Future<void> clearCart() async {
     cartResponse.value = CartResponse(cartId: '', cartType: '');
-    //cartLines.clear();
   }
 
   Future<void> scanApiCall(String code) async {
-    /*
-    10005380 - without weight
-10005194
-10004858
-10004294
-10004095
-    */
     print(" scanApiCall: $code");
 
     isLoading(true);
@@ -114,10 +104,11 @@ class HomeController extends GetxController {
   }
 
   Future<void> fetchCustomer() async {
+    print("fetchCustomer ");
     isLoading(true);
     try {
       final reqBody = {
-        "phone_number": '9866863813',
+        "phone_number": phoneNumber.value,
         "cart_type": "POS",
         "outlet_id": "OCHNMYL01"
       };
@@ -132,6 +123,7 @@ class HomeController extends GetxController {
         body: jsonEncode(reqBody),
       );
       if (response.statusCode == 200 || response.statusCode == 201) {
+        clearCart();
         customerResponse.value =
             CustomerResponse.fromJson(json.decode(response.body));
         print("Success : ${response.body}");
@@ -149,6 +141,7 @@ class HomeController extends GetxController {
 
   Future<void> fetchCartCall() async {
     isLoading(true);
+    cartLines.value.clear();
     try {
       final reqBody = {"cart_id": cartId.value};
       final response = await http.post(
@@ -162,9 +155,10 @@ class HomeController extends GetxController {
         body: jsonEncode(reqBody),
       );
       if (response.statusCode == 200) {
+        clearCart();
         cartResponse.value = CartResponse.fromJson(json.decode(response.body));
         print("Success : ${response.body}");
-        cartLines.clear();
+        cartLines.value.clear();
         if (cartResponse.value.cartLines != null) {
           for (var element in cartResponse.value.cartLines!) {
             addCartLine(element);
@@ -213,7 +207,6 @@ class HomeController extends GetxController {
         cartResponse.value = CartResponse.fromJson(json.decode(response.body));
         print("Success : ${response.body}");
         fetchCartCall();
-        clearScanData();
       } else {
         Get.snackbar("", "Something went wrong");
       }
@@ -243,11 +236,7 @@ class HomeController extends GetxController {
         clearCart();
         cartResponse.value = CartResponse.fromJson(json.decode(response.body));
         print("Success : ${response.body}");
-        if (cartResponse.value.cartLines != null) {
-          for (var element in cartResponse.value.cartLines!) {
-            addCartLine(element);
-          }
-        }
+        fetchCartCall();
       } else {
         Get.snackbar("", "Something went wrong");
       }
@@ -276,15 +265,10 @@ class HomeController extends GetxController {
         body: jsonEncode(reqBody),
       );
       if (response.statusCode == 200) {
+        clearCart();
         cartResponse.value = CartResponse.fromJson(json.decode(response.body));
         print("Success : ${response.body}");
-        cartLines.clear();
         fetchCartCall();
-        if (cartResponse.value.cartLines != null) {
-          for (var element in cartResponse.value.cartLines!) {
-            addCartLine(element);
-          }
-        }
       } else {
         Get.snackbar("", "Something went wrong");
       }
