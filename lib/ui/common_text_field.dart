@@ -4,6 +4,7 @@ import 'package:kpn_pos_application/constants/custom_colors.dart';
 Widget commonTextField({required String label,
   required FocusNode focusNode,
   bool obscureText = false,
+  bool readOnly = false,
   required TextEditingController controller,
   FormFieldValidator<String>? validator,
 }) {
@@ -12,6 +13,7 @@ Widget commonTextField({required String label,
     obscureText: obscureText,
     controller: controller,
     validator: validator,
+    readOnly: readOnly,
     decoration:
     textFieldDecoration(isFocused: focusNode.hasFocus, label: label),
   );

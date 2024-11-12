@@ -18,6 +18,8 @@ class ApiHelper {
       receiveTimeout: const Duration(seconds: 30),
       headers: {
         'Content-Type': 'application/json',
+        'x-app-id': '8521954d-6746-49c2-b50c-1593cf0adb42', // hardcoded for now
+        'x-channel': 'POS'
       },
     ));
 

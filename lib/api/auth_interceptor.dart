@@ -13,7 +13,7 @@ class AuthInterceptor extends Interceptor {
     // Retrieve the token using SharedPreferenceHelper
     String? token = await _sharedPreferenceHelper.getAuthToken();
 
-    if (token != null) {
+    if (token != null && !options.uri.path.contains('/login')) {
       // Add the token to the Authorization header if it exists
       options.headers['Authorization'] = 'Bearer $token';
     }
