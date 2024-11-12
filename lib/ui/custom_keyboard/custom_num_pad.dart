@@ -4,7 +4,7 @@ import 'package:kpn_pos_application/ui/common_text_field.dart';
 class CustomNumPad extends StatefulWidget {
   final TextEditingController textController;
 
-  CustomNumPad({super.key, required this.textController});
+  const CustomNumPad({super.key, required this.textController});
 
   @override
   State<CustomNumPad> createState() => _CustomNumPadState();
@@ -19,8 +19,8 @@ class _CustomNumPadState extends State<CustomNumPad> {
 
   void _onClear() {
     if (widget.textController.text.isNotEmpty) {
-      widget.textController.text =
-          widget.textController.text.substring(0, widget.textController.text.length - 1);
+      widget.textController.text = widget.textController.text
+          .substring(0, widget.textController.text.length - 1);
     }
   }
 
@@ -53,9 +53,8 @@ class _CustomNumPadState extends State<CustomNumPad> {
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: ConstrainedBox(
-              constraints: BoxConstraints(
-                  maxWidth: 300, minWidth: 100),
-              child:  commonTextField(
+              constraints: BoxConstraints(maxWidth: 300, minWidth: 100),
+              child: commonTextField(
                 label: ' Enter Code, Quantity ',
                 focusNode: focusNode,
                 readOnly: false,
