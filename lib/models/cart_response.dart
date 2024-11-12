@@ -290,7 +290,7 @@ class Item {
 }
 
 class Quantity {
-  int? quantityNumber;
+  double? quantityNumber;
   String? quantityUom;
 
   Quantity({
@@ -299,7 +299,7 @@ class Quantity {
   });
 
   factory Quantity.fromJson(Map<String, dynamic> json) => Quantity(
-        quantityNumber: json["quantity_number"],
+        quantityNumber: json["quantity_number"]?.toDouble(),
         quantityUom: json["quantity_uom"],
       );
 
