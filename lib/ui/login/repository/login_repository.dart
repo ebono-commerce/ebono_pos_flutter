@@ -7,6 +7,7 @@ import 'package:kpn_pos_application/ui/login/model/login_request.dart';
 import 'package:kpn_pos_application/ui/login/model/login_response.dart';
 import 'package:kpn_pos_application/ui/login/model/logout_response.dart';
 import 'package:kpn_pos_application/ui/login/model/outlet_details_response.dart';
+import 'package:kpn_pos_application/ui/login/model/terminal_details_response.dart';
 
 class LoginRepository {
   final ApiHelper _apiHelper;
@@ -48,7 +49,7 @@ class LoginRepository {
   Future<OutletDetailsResponse> getOutletDetails(String outletId) async {
     try {
       final response = await _apiHelper.get(
-        '${ApiConstants.outletDetails}OCHNMYL01/details',
+        '${ApiConstants.outletDetails}$outletId/details',
 
       );
       final outletDetailsResponse = outletDetailsResponseFromJson(jsonEncode(response));
@@ -58,14 +59,14 @@ class LoginRepository {
     }
   }
 
-  Future<OutletDetailsResponse> getTerminalDetails(GetTerminalDetailsRequest request) async {
+  Future<TerminalDetailsResponse> getTerminalDetails(GetTerminalDetailsRequest request) async {
     try {
       final response = await _apiHelper.post(
         ApiConstants.terminalDetails,
         data: request.toJson(),
       );
-      final outletDetailsResponse = outletDetailsResponseFromJson(jsonEncode(response));
-      return outletDetailsResponse;
+      final terminalDetailsResponse = terminalDetailsResponseFromJson(jsonEncode(response));
+      return terminalDetailsResponse;
     } catch (e) {
       throw Exception('Failed to parse data');
     }

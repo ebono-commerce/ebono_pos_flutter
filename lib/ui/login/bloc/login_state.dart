@@ -18,10 +18,20 @@ class LogoutFailure extends LoginState {
   LogoutFailure(this.error);
 }
 
+class GetOutletDetailsLoading extends LoginState {}
 
 class GetOutletDetailsSuccess extends LoginState {}
 
 class GetOutletDetailsFailure extends LoginState {
   final String error;
   GetOutletDetailsFailure(this.error);
+}
+
+class SubmitTerminalDetailsLoading extends LoginState {}
+
+class SubmitTerminalDetailsSuccess extends LoginState {}
+
+class SubmitTerminalDetailsFailure extends LoginState {
+  final String error;
+  SubmitTerminalDetailsFailure(this.error);
 }
