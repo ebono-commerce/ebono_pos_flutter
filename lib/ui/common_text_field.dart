@@ -7,6 +7,7 @@ Widget commonTextField({required String label,
   bool readOnly = false,
   required TextEditingController controller,
   FormFieldValidator<String>? validator,
+  Function(String)? onValueChanged,
 }) {
   return TextFormField(
     focusNode: focusNode,
@@ -16,6 +17,9 @@ Widget commonTextField({required String label,
     readOnly: readOnly,
     decoration:
     textFieldDecoration(isFocused: focusNode.hasFocus, label: label),
+    onChanged: (value){
+      onValueChanged!(value);
+    },
   );
 }
 

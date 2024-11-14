@@ -96,8 +96,33 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Spacer(),
-                    CustomNumPad(
-                      textController: numPadTextController,
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        border: Border.all(color: Colors.grey),
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(10),
+                        ),
+                        shape: BoxShape.rectangle,
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: commonTextField(
+                              label: ' Enter Code, Quantity ',
+                              focusNode: FocusNode(),
+                              readOnly: false,
+                              controller: numPadTextController,
+                            ),
+                          ),
+                          CustomNumPad(
+                            textController: numPadTextController,
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 )),
