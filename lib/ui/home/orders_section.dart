@@ -243,6 +243,7 @@ class _OrdersSectionState extends State<OrdersSection>
               ...homeController.cartLines.map((itemData) {
                 /*itemData.controller?.text =
                     weightController.weight.value.toString();*/
+               // var focus =  itemData.focusNode ?? FocusNode();
                 itemData.focusNode?.addListener(() {
                   setState(() {});
                 });
@@ -302,44 +303,39 @@ class _OrdersSectionState extends State<OrdersSection>
                       padding: const EdgeInsets.all(2.0),
                       child: Padding(
                         padding: const EdgeInsets.all(2.0),
-                        child: InkWell(
-                          onTap: () {
-                            print('on tap');
-                            itemData.focusNode?.requestFocus();
-                          },
-                          child: IgnorePointer(
-                            child: commonTextField(
-                                label: '',
-                                focusNode: itemData.focusNode ?? FocusNode(),
-                                readOnly: false,
-                                controller: itemData.controller ??
-                                    TextEditingController(),
-                                onValueChanged: (value) {},
-                                onTap: () {
-                                  print('on tap');
-                                  itemData.focusNode?.requestFocus();
-                                }),
-                          ),
+                        child: commonTextField(
+                          label: '',
+                          focusNode: itemData.focusNode ?? FocusNode(),
+                          readOnly: false,
+                          controller:
+                              itemData.controller ?? TextEditingController(),
+                          onValueChanged: (value) {},
                         ),
                       ),
                     ),
-                    Container(
-                      color: Colors.white,
-                      padding: const EdgeInsets.all(8.0),
-                      child: Padding(
-                          padding: const EdgeInsets.all(10.0),
-                          child: Text(
-                            '',
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            softWrap: true,
-                            style: Theme.of(context)
-                                .textTheme
-                                .labelLarge
-                                ?.copyWith(
-                                    fontWeight: FontWeight.w500,
-                                    color: CustomColors.black),
-                          )),
+                    InkWell(
+                      onTap: () {
+                        print('on tap');
+                        itemData.focusNode?.requestFocus();
+                      },
+                      child: Container(
+                        color: Colors.white,
+                        padding: const EdgeInsets.all(8.0),
+                        child: Padding(
+                            padding: const EdgeInsets.all(10.0),
+                            child: Text(
+                              itemData.quantity?.quantityUom ?? '',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              softWrap: true,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .labelLarge
+                                  ?.copyWith(
+                                      fontWeight: FontWeight.w500,
+                                      color: CustomColors.black),
+                            )),
+                      ),
                     ),
                     Container(
                       color: Colors.white,

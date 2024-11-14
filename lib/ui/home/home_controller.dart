@@ -30,7 +30,7 @@ class HomeController extends GetxController {
         audit: cartLine.audit,
         controller: TextEditingController(
             text: cartLine.quantity?.quantityNumber.toString()),
-        focusNode: cartLine.focusNode);
+        focusNode: FocusNode());
     cartLines.add(cart);
     print('cart List: ${cartLines.toList()}');
   }
