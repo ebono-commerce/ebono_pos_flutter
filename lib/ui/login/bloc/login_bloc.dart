@@ -109,15 +109,22 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       final OutletDetailsResponse response =
           await _loginRepository.getOutletDetails(selectedOutletId);
 
-      _sharedPreferenceHelper.storeSelectedOutlet(response.outletId);
-      terminalDetails = response.terminals;
+      _sharedPreferenceHelper.storeSelectedOutlet(response.outletId ?? "");
+      terminalDetails = response.terminals ?? [];
       terminalList.clear();
-      for (var i in terminalDetails) {
-        terminalList.add(i.terminalName);
+      if(terminalDetails.isNotEmpty) {
+        for (var i in terminalDetails) {
+          if(i.terminalName != null){
+            terminalList.add(i.terminalName!);
+          }
+        }
+        selectedTerminalId = response.terminals?.first.terminalId ?? '';
       }
-      selectedTerminalId = response.terminals.first.terminalId;
-      allowedPos.clear();
-      allowedPos.addAll(response.allowedPosModes);
+      if(response.allowedPosModes != null){
+        allowedPos.clear();
+        allowedPos.addAll(response.allowedPosModes!);
+      }
+
       emit(GetOutletDetailsSuccess());
     } catch (error) {
       emit(GetOutletDetailsFailure(error.toString()));
@@ -132,7 +139,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
 
     for (var i in terminalDetails) {
       if (event.terminalName == i.terminalName) {
-        selectedTerminalId = i.terminalId;
+        selectedTerminalId = i.terminalId ?? '';
       }
     }
   }

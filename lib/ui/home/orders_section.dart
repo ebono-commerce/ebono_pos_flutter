@@ -12,7 +12,6 @@ import 'package:kpn_pos_application/ui/payment_summary/weight_controller.dart';
 import 'package:kpn_pos_application/utils/common_methods.dart';
 import 'package:kpn_pos_application/utils/dash_line.dart';
 
-
 class OrdersSection extends StatefulWidget {
   final WeightController weightController;
   final HomeController homeController;
@@ -245,8 +244,11 @@ class _OrdersSectionState extends State<OrdersSection>
                 itemData.focusNode?.addListener(() {
                   setState(() {});
                 });
-                if(itemData.focusNode!.hasFocus){
-                  itemData.controller?.text = weightController.weight.value.toString();
+                if (itemData.focusNode != null) {
+                  if (itemData.focusNode?.hasFocus == true) {
+                    itemData.controller?.text =
+                        weightController.weight.value.toString();
+                  }
                 }
                 return TableRow(
                   decoration: BoxDecoration(
@@ -298,95 +300,18 @@ class _OrdersSectionState extends State<OrdersSection>
                       padding: const EdgeInsets.all(2.0),
                       child: Padding(
                         padding: const EdgeInsets.all(2.0),
-                        child: Obx(() {
-                          return InkWell(
-                            onTap: (){
-                              itemData.focusNode?.requestFocus();
-                            },
-                            child: commonTextField(
+                        child: InkWell(
+                          onTap: () {
+                            itemData.focusNode?.requestFocus();
+                          },
+                          child: commonTextField(
                               label: '',
-                              focusNode: itemData.focusNode!,
+                              focusNode: itemData.focusNode ?? FocusNode(),
                               readOnly: false,
-                              controller: itemData.controller!,
-                              onValueChanged: (value){
-
-                              }
-                            ),
-                          );
-                          return TextField(
-                            controller: itemData.controller,
-                            onEditingComplete: () {},
-                            onSubmitted: (value) {
-                              try {
-                                // Convert the string to a double
-                                double doubleValue = double.parse(value);
-                                homeController.updateCartItemApiCall(
-                                  itemData.cartLineId,
-                                  itemData.quantity?.quantityUom,
-                                  doubleValue,
-                                );
-                              } catch (e) {
-                                // Handle the error if the conversion fails
-                                print(
-                                    'Error: Invalid input for quantity. Please enter a valid number.');
-                              }
-                            },
-                            onChanged: (value) {
-
-                            },
-                            style: Theme.of(context)
-                                .textTheme
-                                .labelLarge
-                                ?.copyWith(
-                                    fontWeight: FontWeight.w500,
-                                    color: CustomColors.black),
-                            decoration: InputDecoration(
-                                fillColor: Colors.white,
-                                focusColor: Colors.white,
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: BorderSide(
-                                    color: Colors.grey.shade300,
-                                    // Normal border color
-                                    width: 1,
-                                  ),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: BorderSide(
-                                    color: Colors.grey.shade300,
-                                    // Focused border color
-                                    width: 1,
-                                  ),
-                                ),
-                                errorBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: BorderSide(
-                                    color: Colors.red, // Error border color
-                                    width: 1,
-                                  ),
-                                ),
-                                focusedErrorBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: BorderSide(
-                                    color: Colors.red,
-                                    // Focused error border color
-                                    width: 1,
-                                  ),
-                                ),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: BorderSide(
-                                    color: Colors.grey.shade300,
-                                    width: 1,
-                                  ),
-                                ),
-                                hintText:
-                                    "${itemData.quantity?.quantityNumber}",
-                                suffixText:
-                                    "${itemData.quantity?.quantityUom}"),
-                          );
-                        }),
+                              controller: itemData.controller ??
+                                  TextEditingController(),
+                              onValueChanged: (value) {}),
+                        ),
                       ),
                     ),
                     Container(

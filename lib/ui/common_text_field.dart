@@ -18,7 +18,9 @@ Widget commonTextField({required String label,
     decoration:
     textFieldDecoration(isFocused: focusNode.hasFocus, label: label),
     onChanged: (value){
-      onValueChanged!(value);
+      if(onValueChanged != null){
+        onValueChanged(value);
+      }
     },
   );
 }
