@@ -304,15 +304,22 @@ class _OrdersSectionState extends State<OrdersSection>
                         padding: const EdgeInsets.all(2.0),
                         child: InkWell(
                           onTap: () {
+                            print('on tap');
                             itemData.focusNode?.requestFocus();
                           },
-                          child: commonTextField(
-                              label: '',
-                              focusNode: itemData.focusNode ?? FocusNode(),
-                              readOnly: false,
-                              controller: itemData.controller ??
-                                  TextEditingController(),
-                              onValueChanged: (value) {}),
+                          child: IgnorePointer(
+                            child: commonTextField(
+                                label: '',
+                                focusNode: itemData.focusNode ?? FocusNode(),
+                                readOnly: false,
+                                controller: itemData.controller ??
+                                    TextEditingController(),
+                                onValueChanged: (value) {},
+                                onTap: () {
+                                  print('on tap');
+                                  itemData.focusNode?.requestFocus();
+                                }),
+                          ),
                         ),
                       ),
                     ),
