@@ -9,7 +9,6 @@ import 'package:kpn_pos_application/ui/common_text_field.dart';
 import 'package:kpn_pos_application/ui/login/bloc/login_bloc.dart';
 import 'package:kpn_pos_application/ui/login/bloc/login_event.dart';
 import 'package:kpn_pos_application/ui/login/bloc/login_state.dart';
-import 'package:uuid/uuid.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -213,6 +212,7 @@ class _LoginPageState extends State<LoginPage> {
                     elevation: 6,
                   ),
                   onPressed: () {
+                    Get.toNamed(PageRoutes.home);
                     if (_formKey.currentState!.validate()) {
                       loginBloc.add(
                         LoginButtonPressed(

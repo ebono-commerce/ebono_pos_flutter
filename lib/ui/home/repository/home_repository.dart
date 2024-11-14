@@ -58,11 +58,11 @@ class HomeRepository {
     }
   }
 
-  Future<CartResponse> addToCart(
-      AddToCartRequest request, String cartId) async {
+  Future<CartResponse> addToCart(AddToCartRequest request,
+      String? cartId) async {
     try {
       final response = await _apiHelper.post(
-        '${ApiConstants.baseUrl}/checkout/v1/cart/$cartId/items',
+        '${ApiConstants.baseUrl}checkout/v1/cart/$cartId/items',
         data: request.toJson(),
       );
       final cartResponse = cartResponseFromJson(jsonEncode(response));
@@ -76,7 +76,7 @@ class HomeRepository {
       DeleteCartRequest request, String cartId, String cartLineId) async {
     try {
       final response = await _apiHelper.post(
-        '${ApiConstants.baseUrl}/checkout/v1/cart/$cartId/cart-line/$cartLineId',
+        '${ApiConstants.baseUrl}checkout/v1/cart/$cartId/cart-line/$cartLineId',
         data: request.toJson(),
       );
       final cartResponse = cartResponseFromJson(jsonEncode(response));
@@ -90,7 +90,7 @@ class HomeRepository {
       UpdateCartRequest request, String cartId, String cartLineId) async {
     try {
       final response = await _apiHelper.post(
-        '${ApiConstants.baseUrl}/checkout/v1/cart/$cartId/cart-line/$cartLineId',
+        '${ApiConstants.baseUrl}checkout/v1/cart/$cartId/cart-line/$cartLineId',
         data: request.toJson(),
       );
       final cartResponse = cartResponseFromJson(jsonEncode(response));

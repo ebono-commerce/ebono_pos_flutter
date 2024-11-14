@@ -11,7 +11,7 @@ String addToCartRequestToJson(AddToCartRequest data) =>
     json.encode(data.toJson());
 
 class AddToCartRequest {
-  List<CartLine>? cartLines;
+  List<AddToCartCartLine>? cartLines;
 
   AddToCartRequest({
     this.cartLines,
@@ -21,8 +21,8 @@ class AddToCartRequest {
       AddToCartRequest(
         cartLines: json["cart_lines"] == null
             ? []
-            : List<CartLine>.from(
-                json["cart_lines"]!.map((x) => CartLine.fromJson(x))),
+            : List<AddToCartCartLine>.from(
+                json["cart_lines"]!.map((x) => AddToCartCartLine.fromJson(x))),
       );
 
   Map<String, dynamic> toJson() => {
@@ -32,22 +32,23 @@ class AddToCartRequest {
       };
 }
 
-class CartLine {
+class AddToCartCartLine {
   String? esin;
-  Quantity? quantity;
+  AddToCartQuantity? quantity;
   String? mrpId;
 
-  CartLine({
+  AddToCartCartLine({
     this.esin,
     this.quantity,
     this.mrpId,
   });
 
-  factory CartLine.fromJson(Map<String, dynamic> json) => CartLine(
+  factory AddToCartCartLine.fromJson(Map<String, dynamic> json) =>
+      AddToCartCartLine(
         esin: json["esin"],
         quantity: json["quantity"] == null
             ? null
-            : Quantity.fromJson(json["quantity"]),
+            : AddToCartQuantity.fromJson(json["quantity"]),
         mrpId: json["mrp_id"],
       );
 
@@ -58,17 +59,18 @@ class CartLine {
       };
 }
 
-class Quantity {
-  double? quantityNumber;
+class AddToCartQuantity {
+  int? quantityNumber;
   String? quantityUom;
 
-  Quantity({
+  AddToCartQuantity({
     this.quantityNumber,
     this.quantityUom,
   });
 
-  factory Quantity.fromJson(Map<String, dynamic> json) => Quantity(
-        quantityNumber: json["quantity_number"]?.toDouble(),
+  factory AddToCartQuantity.fromJson(Map<String, dynamic> json) =>
+      AddToCartQuantity(
+        quantityNumber: json["quantity_number"],
         quantityUom: json["quantity_uom"],
       );
 

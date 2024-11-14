@@ -12,11 +12,14 @@ String customerRequestToJson(CustomerRequest data) =>
 
 class CustomerRequest {
   String? phoneNumber;
+  String? customerName;
+
   String? cartType;
   String? outletId;
 
   CustomerRequest({
     this.phoneNumber,
+    this.customerName,
     this.cartType,
     this.outletId,
   });
@@ -24,12 +27,14 @@ class CustomerRequest {
   factory CustomerRequest.fromJson(Map<String, dynamic> json) =>
       CustomerRequest(
         phoneNumber: json["phone_number"],
+        customerName: json["customer_name"],
         cartType: json["cart_type"],
         outletId: json["outlet_id"],
       );
 
   Map<String, dynamic> toJson() => {
         "phone_number": phoneNumber,
+        "customer_name": customerName,
         "cart_type": cartType,
         "outlet_id": outletId,
       };

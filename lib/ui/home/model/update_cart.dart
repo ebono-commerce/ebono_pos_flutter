@@ -11,7 +11,7 @@ String updateCartRequestToJson(UpdateCartRequest data) =>
     json.encode(data.toJson());
 
 class UpdateCartRequest {
-  Quantity? quantity;
+  UpdateQuantity? quantity;
 
   UpdateCartRequest({
     this.quantity,
@@ -21,7 +21,7 @@ class UpdateCartRequest {
       UpdateCartRequest(
         quantity: json["quantity"] == null
             ? null
-            : Quantity.fromJson(json["quantity"]),
+            : UpdateQuantity.fromJson(json["quantity"]),
       );
 
   Map<String, dynamic> toJson() => {
@@ -29,16 +29,16 @@ class UpdateCartRequest {
       };
 }
 
-class Quantity {
+class UpdateQuantity {
   double? quantityNumber;
   String? quantityUom;
 
-  Quantity({
+  UpdateQuantity({
     this.quantityNumber,
     this.quantityUom,
   });
 
-  factory Quantity.fromJson(Map<String, dynamic> json) => Quantity(
+  factory UpdateQuantity.fromJson(Map<String, dynamic> json) => UpdateQuantity(
         quantityNumber: json["quantity_number"]?.toDouble(),
         quantityUom: json["quantity_uom"],
       );

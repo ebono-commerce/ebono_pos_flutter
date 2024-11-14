@@ -1,38 +1,47 @@
 import 'package:flutter/material.dart';
 import 'package:kpn_pos_application/constants/custom_colors.dart';
 
-Widget commonTextField({required String label,
-  required FocusNode focusNode,
-  bool obscureText = false,
-  bool readOnly = false,
-  required TextEditingController controller,
-  FormFieldValidator<String>? validator,
-  Function(String)? onValueChanged,
-  Function()? onTap,
-}) {
+Widget commonTextField(
+    {required String label,
+    required FocusNode focusNode,
+    bool obscureText = false,
+    bool readOnly = false,
+    required TextEditingController controller,
+    FormFieldValidator<String>? validator,
+    Function(String)? onValueChanged,
+    Function()? onTap,
+    String? suffixLabel = '',
+    Widget? suffixWidget}) {
   return TextFormField(
     focusNode: focusNode,
     obscureText: obscureText,
     controller: controller,
     validator: validator,
     readOnly: readOnly,
-    decoration:
-    textFieldDecoration(isFocused: focusNode.hasFocus, label: label),
-    onTap:(){
+    decoration: textFieldDecoration(
+        isFocused: focusNode.hasFocus,
+        label: label,
+        suffixLabel: suffixLabel,
+        suffixWidget: suffixWidget),
+    onTap: () {
       onTap;
     },
-    onChanged: (value){
-      if(onValueChanged != null){
+    onChanged: (value) {
+      if (onValueChanged != null) {
         onValueChanged(value);
       }
     },
   );
 }
 
-InputDecoration textFieldDecoration({required bool isFocused,
+InputDecoration textFieldDecoration({
+  required bool isFocused,
   required String label,
   filled = true,
-  Widget? prefixIcon}) {
+  String? suffixLabel,
+  Widget? prefixIcon,
+  Widget? suffixWidget,
+}) {
   return InputDecoration(
       filled: filled,
       prefixIcon: prefixIcon,
@@ -41,10 +50,10 @@ InputDecoration textFieldDecoration({required bool isFocused,
       labelStyle: TextStyle(color: CustomColors.enabledLabelColor),
       enabledBorder: enabledBorder(),
       focusedBorder: focusedBorder(),
-    errorBorder: errorBorder(),
-    focusedErrorBorder: errorBorder(),
-
-  );
+      errorBorder: errorBorder(),
+      focusedErrorBorder: errorBorder(),
+      suffixText: suffixLabel,
+      suffix: suffixWidget);
 }
 
 OutlineInputBorder enabledBorder() {

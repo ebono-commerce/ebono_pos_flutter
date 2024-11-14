@@ -1,36 +1,30 @@
-import 'dart:convert';
-
 import 'package:get/get.dart';
-import 'package:http/http.dart' as http;
 import 'package:kpn_pos_application/api/api_helper.dart';
 import 'package:kpn_pos_application/models/cart_response.dart';
 import 'package:kpn_pos_application/models/customer_response.dart';
 import 'package:kpn_pos_application/models/scan_products_response.dart';
+import 'package:kpn_pos_application/ui/home/model/add_to_cart.dart';
+import 'package:kpn_pos_application/ui/home/model/cart_request.dart';
+import 'package:kpn_pos_application/ui/home/model/customer_request.dart';
+import 'package:kpn_pos_application/ui/home/model/delete_cart.dart';
+import 'package:kpn_pos_application/ui/home/model/update_cart.dart';
 import 'package:kpn_pos_application/ui/home/repository/home_repository.dart';
 
 class HomeController extends GetxController {
-  var isLoading = false.obs;
-  var phoneNumber = ''.obs;
-  var customerName = ''.obs;
-
-  var scanCode = ''.obs;
-
-  var cartId = ''.obs;
-  var cartLines = <CartLine>[].obs;
   late final HomeRepository _homeRepository;
-  late final ApiHelper _apiHelper; // Constructor for dependency injection
+  late final ApiHelper _apiHelper;
+
   HomeController(this._homeRepository, this._apiHelper);
 
-  // Example method to add a new cart line void
-  addCartLine(CartLine cartLine) {
-    cartLines.add(cartLine);
-    print('cart List: ${cartLines.toList()}');
-  }
+  var isLoading = false.obs;
 
-  // Example method to remove a cart line void
-  void removeCartLine(CartLine cartLine) {
-    cartLines.remove(cartLine);
-  }
+  var phoneNumber = ''.obs;
+  var customerName = ''.obs;
+  var scanCode = ''.obs;
+  var cartId = ''.obs;
+  var isDisplayAddCustomerView = true.obs;
+
+  var cartLines = <CartLine>[].obs;
 
   var scanProductsResponse = ScanProductsResponse().obs;
   var customerResponse = CustomerResponse().obs;
@@ -39,10 +33,26 @@ class HomeController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    intializationResponse();
+    initialResponse();
   }
 
-  Future<void> intializationResponse() async {
+  void addCartLine(CartLine cartLine) {
+    cartLines.add(cartLine);
+  }
+
+  void removeCartLine(CartLine cartLine) {
+    cartLines.remove(cartLine);
+  }
+
+  Future<void> initialCustomerDetails() async {
+    customerResponse.value = CustomerResponse(
+      cartId: '',
+    );
+    phoneNumber.value = '';
+    cartId.value = '';
+  }
+
+  Future<void> initialResponse() async {
     scanProductsResponse.value = ScanProductsResponse(
       esin: '',
       ebonoTitle: '-',
@@ -75,10 +85,20 @@ class HomeController extends GetxController {
   }
 
   Future<void> scanApiCall(String code) async {
-    print(" scanApiCall: $code");
+    print("API scanApiCall: $code");
     try {
       var response = await _homeRepository.getScanProduct(code);
       scanProductsResponse.value = response;
+      if (response != null) {
+        if (cartId.value != "") {
+          addToCartApiCall(
+              scanProductsResponse.value.esin,
+              1,
+              scanProductsResponse.value.priceList!.first.mrpId,
+              scanProductsResponse.value.salesUom,
+              cartId.value);
+        }
+      }
     } catch (e) {
       print("Error $e");
     } finally {
@@ -86,107 +106,47 @@ class HomeController extends GetxController {
     }
   }
 
-  Future<void> scanApiCall1(String code) async {
-    print(" scanApiCall: $code");
-
-    isLoading(true);
-    try {
-      final response = await http.get(
-          Uri.parse(
-              'https://services-staging.kpnfresh.com/store/catalog/v1/products/scan?code=$code'),
-          headers: {
-            'Content-Type': 'application/json',
-            'x-app-id': '8521954d-6746-49c2-b50c-1593cf0adb42',
-            'x-channel': 'POS'
-          });
-      if (response.statusCode == 200) {
-        scanProductsResponse.value =
-            ScanProductsResponse.fromJson(json.decode(response.body));
-        print("Success : ${response.body}");
-        addToCartApiCall(
-            scanProductsResponse.value.esin,
-            1,
-            scanProductsResponse.value.priceList!.first.mrpId,
-            scanProductsResponse.value.salesUom,
-            "$cartId");
-      } else {
-        print("Error");
-      }
-    } catch (e) {
-      print("Error $e");
-    } finally {
-      isLoading(false);
-    }
-  }
-
   Future<void> fetchCustomer() async {
-    print("fetchCustomer ");
-    isLoading(true);
+    print("API fetchCustomer: ${phoneNumber.value}");
     try {
-      final reqBody = {
-        "phone_number": phoneNumber.value,
-        "cart_type": "POS",
-        "outlet_id": "OCHNMYL01"
-      };
-      final response = await http.post(
-        Uri.parse(
-            'https://services-staging.kpnfresh.com/store/account/v1/customer/fetch'),
-        headers: {
-          'Content-Type': 'application/json',
-          'x-app-id': '8521954d-6746-49c2-b50c-1593cf0adb42',
-          'x-channel': 'POS'
-        },
-        body: jsonEncode(reqBody),
-      );
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        clearCart();
-        customerResponse.value =
-            CustomerResponse.fromJson(json.decode(response.body));
-        print("Success : ${response.body}");
+      var response = await _homeRepository.fetchCustomer(CustomerRequest(
+          phoneNumber: phoneNumber.value,
+          customerName: customerName.value,
+          cartType: 'POS',
+          outletId: "OCHNMYL01"));
+      if (response != null) {
+        customerResponse.value = response;
         cartId.value = customerResponse.value.cartId.toString();
+        customerName.value = customerResponse.value.customerName.toString();
         fetchCartCall();
-      } else {
-        Get.snackbar("", "Something went wrong");
       }
     } catch (e) {
       print("Error $e");
     } finally {
-      isLoading(false);
+      print("Error");
     }
   }
 
   Future<void> fetchCartCall() async {
-    isLoading(true);
+    print("API fetchCartCall: ${cartId.value}");
+
     cartLines.value.clear();
     try {
-      final reqBody = {"cart_id": cartId.value};
-      final response = await http.post(
-        Uri.parse(
-            'https://services-staging.kpnfresh.com/store/checkout/v1/cart/fetch?schema=DETAIL'),
-        headers: {
-          'Content-Type': 'application/json',
-          'x-app-id': '8521954d-6746-49c2-b50c-1593cf0adb42',
-          'x-channel': 'POS'
-        },
-        body: jsonEncode(reqBody),
-      );
-      if (response.statusCode == 200) {
-        clearCart();
-        cartResponse.value = CartResponse.fromJson(json.decode(response.body));
-        print("Success : ${response.body}");
-        cartLines.value.clear();
+      clearCart();
+      var response =
+          await _homeRepository.getCart(CartRequest(cartId: cartId.value));
+      if (response != null) {
+        cartResponse.value = response;
         if (cartResponse.value.cartLines != null) {
           for (var element in cartResponse.value.cartLines!) {
             addCartLine(element);
           }
         }
-      } else {
-        Get.snackbar("", "Something went wrong");
       }
     } catch (e) {
       print("Error $e");
     } finally {
-      isLoading(false);
+      print("Error");
     }
   }
 
@@ -197,101 +157,78 @@ class HomeController extends GetxController {
     String? qtyUom,
     String? cartId,
   ) async {
-    isLoading(true);
+    print("API addToCartApiCall: $esin | $mrpId | $qty | $cartId");
+
     try {
-      final reqBody = {
-        "cart_lines": [
-          {
-            "esin": "$esin",
-            "quantity": {"quantity_number": qty, "quantity_uom": "$qtyUom"},
-            "mrp_id": "$mrpId"
-          }
-        ]
-      };
-      final response = await http.post(
-        Uri.parse(
-            'https://services-staging.kpnfresh.com/store/checkout/v1/cart/$cartId/items'),
-        headers: {
-          'Content-Type': 'application/json',
-          'x-app-id': '8521954d-6746-49c2-b50c-1593cf0adb42',
-          'x-channel': 'POS'
-        },
-        body: jsonEncode(reqBody),
-      );
-      if (response.statusCode == 200) {
-        clearCart();
-        cartResponse.value = CartResponse.fromJson(json.decode(response.body));
-        print("Success : ${response.body}");
+      var response = await _homeRepository.addToCart(
+          AddToCartRequest(cartLines: [
+            AddToCartCartLine(
+                esin: esin,
+                quantity:
+                    AddToCartQuantity(quantityNumber: qty, quantityUom: qtyUom),
+                mrpId: mrpId)
+          ]),
+          cartId);
+      if (response != null) {
+        cartResponse.value = response;
         fetchCartCall();
-      } else {
-        Get.snackbar("", "Something went wrong");
       }
     } catch (e) {
       print("Error $e");
     } finally {
-      isLoading(false);
+      print("Error");
     }
   }
 
   Future<void> deleteCartItemApiCall(String? cartLineId) async {
-    final reqBody = {};
-    isLoading(true);
+    print("API deleteCartItemApiCall: $cartLineId");
 
     try {
-      final response = await http.delete(
-        Uri.parse(
-            'https://services-staging.kpnfresh.com/store/checkout/v1/cart/$cartId/cart-line/$cartLineId'),
-        headers: {
-          'Content-Type': 'application/json',
-          'x-app-id': '8521954d-6746-49c2-b50c-1593cf0adb42',
-          'x-channel': 'POS'
-        },
-        body: jsonEncode(reqBody),
-      );
-      if (response.statusCode == 200) {
-        clearCart();
-        cartResponse.value = CartResponse.fromJson(json.decode(response.body));
-        print("Success : ${response.body}");
+      var response = await _homeRepository.deleteCartItem(
+          DeleteCartRequest(), cartId.value, cartLineId!);
+      if (response != null) {
+        cartResponse.value = response;
         fetchCartCall();
-      } else {
-        Get.snackbar("", "Something went wrong");
       }
     } catch (e) {
       print("Error $e");
     } finally {
-      isLoading(false);
+      print("Error");
     }
   }
 
-  Future<void> updateCartItemApiCall(
-      String? cartLineId, String? quantityUom, double? quantity) async {
-    final reqBody = {
-      "quantity": {"quantity_number": quantity, "quantity_uom": "$quantityUom"}
-    };
-    isLoading(true);
+  Future<void> updateCartItemApiCall(String? cartLineId, String? qUom,
+      double? qty) async {
+    print("API updateCartItemApiCall: $qty | $cartLineId");
     try {
-      final response = await http.post(
-        Uri.parse(
-            'https://services-staging.kpnfresh.com/store/checkout/v1/cart/$cartId/cart-line/$cartLineId'),
-        headers: {
-          'Content-Type': 'application/json',
-          'x-app-id': '8521954d-6746-49c2-b50c-1593cf0adb42',
-          'x-channel': 'POS'
-        },
-        body: jsonEncode(reqBody),
-      );
-      if (response.statusCode == 200) {
-        clearCart();
-        cartResponse.value = CartResponse.fromJson(json.decode(response.body));
-        print("Success : ${response.body}");
+      var response = await _homeRepository.updateCartItem(
+          UpdateCartRequest(
+              quantity: UpdateQuantity(quantityNumber: qty, quantityUom: qUom)),
+          cartId.value,
+          cartLineId!);
+      if (response != null) {
+        cartResponse.value = response;
         fetchCartCall();
-      } else {
-        Get.snackbar("", "Something went wrong");
       }
     } catch (e) {
       print("Error $e");
     } finally {
-      isLoading(false);
+      print("Error");
     }
   }
+
+/*
+  Login:
+9999912343
+9999912342
+9999912341
+
+10000139
+10000004
+10000027
+10001394
+10007352
+10000071
+10004726
+  */
 }
