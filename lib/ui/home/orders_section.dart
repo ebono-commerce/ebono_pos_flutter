@@ -247,10 +247,27 @@ class _OrdersSectionState extends State<OrdersSection>
                 itemData.focusNode?.addListener(() {
                   setState(() {});
                 });
+                itemData.controller?.addListener((){
+                  print('on listener');
+                  print(itemData.controller?.text);
+                  try {
+                    if (itemData.controller?.text != '0.0' && itemData.controller?.text.isBlank != true && itemData.controller?.text != itemData.quantity?.quantityNumber.toString()) {
+                      double doubleValue = double.parse(itemData.controller?.text ?? '');
+                      homeController.updateCartItemApiCall(
+                        itemData.cartLineId,
+                        itemData.quantity?.quantityUom,
+                        doubleValue,
+                      );
+                    }
+                  } on Exception catch (e) {
+                    print(e);
+                  }
+                });
                 if (itemData.focusNode != null) {
                   if (itemData.focusNode?.hasFocus == true) {
                     itemData.controller?.text =
                         weightController.weight.value.toString();
+                    weightController.weight.value = 0.0;
                   }
                 }
                 return TableRow(
@@ -306,20 +323,12 @@ class _OrdersSectionState extends State<OrdersSection>
                         child: commonTextField(
                           label: '',
                           focusNode: itemData.focusNode ?? FocusNode(),
-                          readOnly: false,
+                          readOnly: true,
                           controller:
                               itemData.controller ?? TextEditingController(),
                           onValueChanged: (value) {
-                            try {
-                              double doubleValue = double.parse(value);
-                              homeController.updateCartItemApiCall(
-                                itemData.cartLineId,
-                                itemData.quantity?.quantityUom,
-                                doubleValue,
-                              );
-                            } on Exception catch (e) {
-                              print(e);
-                            }
+                            print('on value change');
+
                           },
                         ),
                       ),
