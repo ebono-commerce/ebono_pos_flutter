@@ -21,6 +21,7 @@ class _HomePageState extends State<HomePage> {
   int _selectedButton = 2;
   bool isOnline = false;
   final String port = '/dev/ttyUSB0'; // Replace with actual port
+
   final String model = 'alfa';
   final int rate = 9600;
   final int timeout = 1000;

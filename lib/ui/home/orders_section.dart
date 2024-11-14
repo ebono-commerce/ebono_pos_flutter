@@ -241,6 +241,8 @@ class _OrdersSectionState extends State<OrdersSection>
                 ],
               ),
               ...homeController.cartLines.map((itemData) {
+                /*itemData.controller?.text =
+                    weightController.weight.value.toString();*/
                 itemData.focusNode?.addListener(() {
                   setState(() {});
                 });
@@ -1631,139 +1633,6 @@ class _OrdersSectionState extends State<OrdersSection>
   }
 }
 
-/*
-  Container(
-                              width: 200,
-                              height: 80,
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 5.0,
-                                  vertical: 5), // Adjust the value as needed
-                              child: TextButton(
-                                style: TextButton.styleFrom(
-                                  padding: EdgeInsets.all(20),
-                                  shape: RoundedRectangleBorder(
-                                    side: BorderSide(color: Colors.teal),
-                                    borderRadius: BorderRadius.circular(6),
-                                  ),
-                                  backgroundColor: Colors.teal.shade50,
-                                ),
-                                onPressed: () {},
-                                child: Text(
-                                  'Customer',
-                                  maxLines: 2,
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    color: Colors.teal,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Container(
-                              width: 200,
-                              height: 80,
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 5.0,
-                                  vertical: 5), // Adjust the value as needed
-                              child: TextButton(
-                                style: TextButton.styleFrom(
-                                  padding: EdgeInsets.all(20),
-                                  shape: RoundedRectangleBorder(
-                                    side: BorderSide(color: Colors.teal),
-                                    borderRadius: BorderRadius.circular(6),
-                                  ),
-                                  backgroundColor: Colors.teal.shade50,
-                                ),
-                                onPressed: () {},
-                                child: Text(
-                                  'Search items',
-                                  maxLines: 2,
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    color: Colors.teal,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Container(
-                              width: 200,
-                              height: 80,
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 5.0,
-                                  vertical: 5), // Adjust the value as needed
-                              child: TextButton(
-                                style: TextButton.styleFrom(
-                                  padding: EdgeInsets.all(20),
-                                  shape: RoundedRectangleBorder(
-                                    side: BorderSide(color: Colors.teal),
-                                    borderRadius: BorderRadius.circular(6),
-                                  ),
-                                  backgroundColor: Colors.teal.shade50,
-                                ),
-                                onPressed: () {},
-                                child: Text(
-                                  'Inventory Inquiry',
-                                  maxLines: 2,
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    color: Colors.teal,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Container(
-                              width: 200,
-                              height: 80,
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 5.0,
-                                  vertical: 5), // Adjust the value as needed
-                              child: TextButton(
-                                style: TextButton.styleFrom(
-                                  padding: EdgeInsets.all(20),
-                                  shape: RoundedRectangleBorder(
-                                    side: BorderSide(color: Colors.teal),
-                                    borderRadius: BorderRadius.circular(6),
-                                  ),
-                                  backgroundColor: Colors.teal.shade50,
-                                ),
-                                onPressed: () {},
-                                child: Text(
-                                  'Coupons',
-                                  maxLines: 2,
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    color: Colors.teal,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Container(
-                              width: 200,
-                              height: 80,
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 5.0,
-                                  vertical: 5), // Adjust the value as needed
-                              child: TextButton(
-                                style: TextButton.styleFrom(
-                                  padding: EdgeInsets.all(20),
-                                  shape: RoundedRectangleBorder(
-                                    side: BorderSide(color: Colors.teal),
-                                    borderRadius: BorderRadius.circular(6),
-                                  ),
-                                  backgroundColor: Colors.teal.shade50,
-                                ),
-                                onPressed: () {},
-                                child: Text(
-                                  'Sales Associate',
-                                  maxLines: 2,
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    color: Colors.teal,
-                                  ),
-                                ),
-                              ),
-                            ),
-
-*/
 String convertedPrice(int? centAmount, int? fraction) {
   if (centAmount == null) {
     return '₹0.00'; // Handle null values gracefully
