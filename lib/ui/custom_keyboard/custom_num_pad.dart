@@ -1,10 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:kpn_pos_application/ui/common_text_field.dart';
 
 class CustomNumPad extends StatefulWidget {
   final TextEditingController textController;
+  final void Function(String)? onEnterPressed;
+  final void Function(String)? onValueChanged;
+  final void Function(String)? onClearAll;
 
-  const CustomNumPad({super.key, required this.textController});
+  const CustomNumPad(
+      {super.key,
+      required this.textController,
+      this.onEnterPressed,
+      this.onValueChanged,
+      this.onClearAll});
 
   @override
   State<CustomNumPad> createState() => _CustomNumPadState();
@@ -17,6 +24,10 @@ class _CustomNumPadState extends State<CustomNumPad> {
     widget.textController.text += value;
   }
 
+  void _onEnterPressed(String value) {
+    widget.onEnterPressed!(value);
+  }
+
   void _onClear() {
     if (widget.textController.text.isNotEmpty) {
       widget.textController.text = widget.textController.text
@@ -26,6 +37,14 @@ class _CustomNumPadState extends State<CustomNumPad> {
 
   void _onClearAll() {
     widget.textController.clear();
+    widget.onClearAll!(widget.textController.text);
+
+  }
+
+  void _handleValueChanged() {
+    if (widget.onValueChanged != null) {
+      widget.onValueChanged!(widget.textController.text);
+    }
   }
 
   @override
@@ -33,82 +52,67 @@ class _CustomNumPadState extends State<CustomNumPad> {
     focusNode.addListener(() {
       setState(() {});
     });
+    widget.textController.addListener(_handleValueChanged);
+
     super.initState();
   }
 
   @override
+  void dispose() {
+    focusNode.dispose();
+    widget.textController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 15),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border.all(color: Colors.grey),
-        borderRadius: BorderRadius.all(
-          Radius.circular(10),
-        ),
-        shape: BoxShape.rectangle,
-      ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: 300, minWidth: 100),
-              child: commonTextField(
-                label: ' Enter Code, Quantity ',
-                focusNode: focusNode,
-                readOnly: false,
-                controller: widget.textController,
-              ),
-            ),
-          ),
-          Column(
+          Row(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  _buildKeyIcon('assets/images/number_7.png', "7"),
-                  _buildKeyIcon('assets/images/number_8.png', "8"),
-                  _buildKeyIcon('assets/images/number_9.png', "9"),
-                  _buildKeyClear('assets/images/number_back.png')
-                ],
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  _buildKeyIcon('assets/images/number_4.png', "4"),
-                  _buildKeyIcon('assets/images/number_5.png', "5"),
-                  _buildKeyIcon('assets/images/number_6.png', "6"),
-                  _buildKeyClearAll('assets/images/number_clear.png')
-                ],
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Column(children: [
-                    Row(
-                      children: [
-                        _buildKeyIcon('assets/images/number_1.png', "1"),
-                        _buildKeyIcon('assets/images/number_2.png', "2"),
-                        _buildKeyIcon('assets/images/number_3.png', "3"),
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        _buildKeyDot('assets/images/number_dot.png'),
-                        _buildKeyIcon('assets/images/number_0.png', "0"),
-                        _buildKeyIcon('assets/images/number_00.png', "00"),
-                      ],
-                    ),
-                  ]),
-                  _buildKeyEnterIcon('assets/images/number_enter.png')
-                ],
-              ),
+              _buildKeyIcon('assets/images/number_7.png', "7"),
+              _buildKeyIcon('assets/images/number_8.png', "8"),
+              _buildKeyIcon('assets/images/number_9.png', "9"),
+              _buildKeyClear('assets/images/number_back.png')
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              _buildKeyIcon('assets/images/number_4.png', "4"),
+              _buildKeyIcon('assets/images/number_5.png', "5"),
+              _buildKeyIcon('assets/images/number_6.png', "6"),
+              _buildKeyClearAll('assets/images/number_clear.png')
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Column(children: [
+                Row(
+                  children: [
+                    _buildKeyIcon('assets/images/number_1.png', "1"),
+                    _buildKeyIcon('assets/images/number_2.png', "2"),
+                    _buildKeyIcon('assets/images/number_3.png', "3"),
+                  ],
+                ),
+                Row(
+                  children: [
+                    _buildKeyDot('assets/images/number_dot.png'),
+                    _buildKeyIcon('assets/images/number_0.png', "0"),
+                    _buildKeyIcon('assets/images/number_00.png', "00"),
+                  ],
+                ),
+              ]),
+              _buildKeyEnterIcon('assets/images/number_enter.png')
             ],
           ),
         ],
@@ -195,7 +199,7 @@ class _CustomNumPadState extends State<CustomNumPad> {
   Widget _buildKeyEnterIcon(String img) {
     return InkWell(
       onTap: () {
-        _onClearAll();
+        _onEnterPressed(widget.textController.text);
       },
       child: Container(
         padding: EdgeInsets.symmetric(vertical: 50.0, horizontal: 1),

@@ -5,11 +5,12 @@ import 'package:intl/intl.dart';
 import 'package:kpn_pos_application/constants/custom_colors.dart';
 import 'package:kpn_pos_application/models/cart_response.dart';
 import 'package:kpn_pos_application/navigation/page_routes.dart';
+import 'package:kpn_pos_application/ui/common_text_field.dart';
+import 'package:kpn_pos_application/ui/custom_keyboard/custom_num_pad.dart';
 import 'package:kpn_pos_application/ui/home/home_controller.dart';
+import 'package:kpn_pos_application/ui/payment_summary/weight_controller.dart';
+import 'package:kpn_pos_application/utils/common_methods.dart';
 import 'package:kpn_pos_application/utils/dash_line.dart';
-import 'package:kpn_pos_application/utils/keypad_screen.dart';
-
-import '../payment_summary/weight_controller.dart';
 
 class OrdersSection extends StatefulWidget {
   final WeightController weightController;
@@ -24,9 +25,8 @@ class OrdersSection extends StatefulWidget {
 class _OrdersSectionState extends State<OrdersSection>
     with WidgetsBindingObserver {
   String _selectedWidget = 'OPEN_REGISTER';
-  String input = '';
-  final FocusNode _focusNode = FocusNode();
-  final TextEditingController _controller = TextEditingController();
+  final FocusNode _numPadFocusNode = FocusNode();
+  final TextEditingController _numPadTextController = TextEditingController();
 
   final TextEditingController _controllerPhoneNumber = TextEditingController();
   final TextEditingController _controllerCustomerName = TextEditingController();
@@ -36,44 +36,12 @@ class _OrdersSectionState extends State<OrdersSection>
 
   @override
   void initState() {
-    _controller.addListener(() {
-      setState(() {
-        input = _controller.text;
-      });
-    });
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _focusNode.requestFocus();
-    });
     if (mounted == true) {
       weightController = widget.weightController;
       homeController = widget.homeController;
       homeController.intializationResponse();
     }
     super.initState();
-  }
-
-  void _onKeyPressed(String value) {
-    setState(() {
-      input += value;
-    });
-  }
-
-  void _onKeyPressedEnter(String value) {
-    homeController.scanApiCall(input);
-    print('Entered number: $input');
-  }
-
-  void _onClear() {
-    setState(() {
-      input = input.substring(0, input.length - 1);
-    });
-  }
-
-  void _onClearAll() {
-    setState(() {
-      input = '';
-      homeController.clearScanData();
-    });
   }
 
   void _onWidgetNameUpdatePressed(String value) {
@@ -100,18 +68,11 @@ class _OrdersSectionState extends State<OrdersSection>
     }
   }
 
-  // @override
-  // void didChangeAppLifecycleState(AppLifecycleState state) {
-  //   if (state == AppLifecycleState.resumed) {
-  //     _focusNode.requestFocus();
-  //   }
-  // }
-  //
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    _focusNode.dispose();
-    _controller.dispose();
+    _numPadFocusNode.dispose();
+    _numPadTextController.dispose();
     super.dispose();
   }
 
@@ -280,6 +241,35 @@ class _OrdersSectionState extends State<OrdersSection>
                 ],
               ),
               ...homeController.cartLines.map((itemData) {
+                /*itemData.controller?.text =
+                    weightController.weight.value.toString();*/
+                // var focus =  itemData.focusNode ?? FocusNode();
+                itemData.focusNode?.addListener(() {
+                  setState(() {});
+                });
+                itemData.controller?.addListener((){
+                  print('on listener');
+                  print(itemData.controller?.text);
+                  try {
+                    if (itemData.controller?.text != '0.0' && itemData.controller?.text.isBlank != true && itemData.controller?.text != itemData.quantity?.quantityNumber.toString()) {
+                      double doubleValue = double.parse(itemData.controller?.text ?? '');
+                      homeController.updateCartItemApiCall(
+                        itemData.cartLineId,
+                        itemData.quantity?.quantityUom,
+                        doubleValue,
+                      );
+                    }
+                  } on Exception catch (e) {
+                    print(e);
+                  }
+                });
+                if (itemData.focusNode != null) {
+                  if (itemData.focusNode?.hasFocus == true) {
+                    itemData.controller?.text =
+                        weightController.weight.value.toString();
+                    weightController.weight.value = 0.0;
+                  }
+                }
                 return TableRow(
                   decoration: BoxDecoration(
                       // color: Colors.grey.shade300,
@@ -330,100 +320,42 @@ class _OrdersSectionState extends State<OrdersSection>
                       padding: const EdgeInsets.all(2.0),
                       child: Padding(
                         padding: const EdgeInsets.all(2.0),
-                        child: Obx(() {
-                          return TextField(
-                            controller: TextEditingController(
-                                text:
-                                    ' ${widget.weightController.weight.value}'),
-                            onEditingComplete: () {},
-                            onSubmitted: (value) {
-                              try {
-                                // Convert the string to a double
-                                double doubleValue = double.parse(value);
-                                homeController.updateCartItemApiCall(
-                                  itemData.cartLineId,
-                                  itemData.quantity?.quantityUom,
-                                  doubleValue,
-                                );
-                              } catch (e) {
-                                // Handle the error if the conversion fails
-                                print(
-                                    'Error: Invalid input for quantity. Please enter a valid number.');
-                              }
-                            },
-                            onChanged: (value) {},
-                            style: Theme.of(context)
-                                .textTheme
-                                .labelLarge
-                                ?.copyWith(
-                                    fontWeight: FontWeight.w500,
-                                    color: CustomColors.black),
-                            decoration: InputDecoration(
-                                fillColor: Colors.white,
-                                focusColor: Colors.white,
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: BorderSide(
-                                    color: Colors.grey.shade300,
-                                    // Normal border color
-                                    width: 1,
-                                  ),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: BorderSide(
-                                    color: Colors.grey.shade300,
-                                    // Focused border color
-                                    width: 1,
-                                  ),
-                                ),
-                                errorBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: BorderSide(
-                                    color: Colors.red, // Error border color
-                                    width: 1,
-                                  ),
-                                ),
-                                focusedErrorBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: BorderSide(
-                                    color: Colors.red,
-                                    // Focused error border color
-                                    width: 1,
-                                  ),
-                                ),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: BorderSide(
-                                    color: Colors.grey.shade300,
-                                    width: 1,
-                                  ),
-                                ),
-                                hintText:
-                                    "${itemData.quantity?.quantityNumber}",
-                                suffixText:
-                                    "${itemData.quantity?.quantityUom}"),
-                          );
-                        }),
+                        child: commonTextField(
+                          label: '',
+                          focusNode: itemData.focusNode ?? FocusNode(),
+                          readOnly: true,
+                          controller:
+                              itemData.controller ?? TextEditingController(),
+                          onValueChanged: (value) {
+                            print('on value change');
+
+                          },
+                        ),
                       ),
                     ),
-                    Container(
-                      color: Colors.white,
-                      padding: const EdgeInsets.all(8.0),
-                      child: Padding(
-                          padding: const EdgeInsets.all(10.0),
-                          child: Text(
-                            '',
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            softWrap: true,
-                            style: Theme.of(context)
-                                .textTheme
-                                .labelLarge
-                                ?.copyWith(
-                                    fontWeight: FontWeight.w500,
-                                    color: CustomColors.black),
-                          )),
+                    InkWell(
+                      onTap: () {
+                        print('on tap');
+                        itemData.focusNode?.requestFocus();
+                      },
+                      child: Container(
+                        color: Colors.white,
+                        padding: const EdgeInsets.all(8.0),
+                        child: Padding(
+                            padding: const EdgeInsets.all(10.0),
+                            child: Text(
+                              itemData.quantity?.quantityUom ?? '',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              softWrap: true,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .labelLarge
+                                  ?.copyWith(
+                                      fontWeight: FontWeight.w500,
+                                      color: CustomColors.black),
+                            )),
+                      ),
                     ),
                     Container(
                       color: Colors.white,
@@ -509,507 +441,6 @@ class _OrdersSectionState extends State<OrdersSection>
         ],
       ),
     );
-  }
-
-  Widget _buildTableView1() {
-    return Container(
-      padding: EdgeInsets.only(bottom: 2),
-      margin: EdgeInsets.all(10),
-      decoration: BoxDecoration(
-          border: Border.all(
-            color: Colors.grey.shade300,
-          ),
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(10),
-            topRight: Radius.circular(10),
-            bottomLeft: Radius.circular(10),
-            bottomRight: Radius.circular(10),
-          )),
-      child: Column(
-        children: [
-          //Table header
-          Table(
-            columnWidths: {
-              0: FlexColumnWidth(2),
-              1: FlexColumnWidth(3),
-              2: FlexColumnWidth(2),
-              3: FlexColumnWidth(2),
-              4: FlexColumnWidth(2),
-              5: FlexColumnWidth(1),
-            },
-            children: [
-              TableRow(
-                decoration: BoxDecoration(
-                    color: Colors.grey.shade300,
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(10),
-                      topRight: Radius.circular(10),
-                      bottomLeft: Radius.circular(0),
-                      bottomRight: Radius.circular(0),
-                    )), // Header background color
-                children: [
-                  Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child: Text(
-                        "Item Code",
-                        style: Theme.of(context)
-                            .textTheme
-                            .labelMedium
-                            ?.copyWith(
-                                fontWeight: FontWeight.w100,
-                                color: CustomColors.greyFont),
-                      )),
-                  Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child: Text(
-                        "Name",
-                        style: Theme.of(context)
-                            .textTheme
-                            .labelMedium
-                            ?.copyWith(
-                                fontWeight: FontWeight.w100,
-                                color: CustomColors.greyFont),
-                      )),
-                  Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child: Text(
-                        "Quantity",
-                        style: Theme.of(context)
-                            .textTheme
-                            .labelMedium
-                            ?.copyWith(
-                                fontWeight: FontWeight.w100,
-                                color: CustomColors.greyFont),
-                      )),
-                  Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child: Text(
-                        "MRP ₹",
-                        style: Theme.of(context)
-                            .textTheme
-                            .labelMedium
-                            ?.copyWith(
-                                fontWeight: FontWeight.w100,
-                                color: CustomColors.greyFont),
-                      )),
-                  Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child: Text(
-                        "Price ₹",
-                        style: Theme.of(context)
-                            .textTheme
-                            .labelMedium
-                            ?.copyWith(
-                                fontWeight: FontWeight.w100,
-                                color: CustomColors.greyFont),
-                      )),
-                  Padding(padding: const EdgeInsets.all(10.0), child: Text("")),
-                ],
-              ),
-            ],
-          ),
-          //ROW
-          Table(
-            border: TableBorder.symmetric(
-                outside: BorderSide(width: 1, color: Color(0xFFF7F7F7))),
-            // Optional: to add borders to the table
-
-            columnWidths: {
-              0: FlexColumnWidth(2),
-              1: FlexColumnWidth(3),
-              2: FlexColumnWidth(2),
-              3: FlexColumnWidth(2),
-              4: FlexColumnWidth(2),
-              5: FlexColumnWidth(1),
-            },
-            children: [
-              TableRow(
-                decoration: BoxDecoration(
-                    // color: Colors.grey.shade300,
-                    border: Border.all(color: Colors.grey.shade300, width: 1)),
-                // decoration: BoxDecoration(
-                //   color: Colors.white,
-                // ),
-                children: [
-                  Container(
-                    color: Colors.white,
-                    padding: const EdgeInsets.all(8.0),
-                    child: Padding(
-                        padding: const EdgeInsets.all(10.0),
-                        child: Text(
-                          "999999999",
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          softWrap: true,
-                          style: Theme.of(context)
-                              .textTheme
-                              .labelLarge
-                              ?.copyWith(
-                                  fontWeight: FontWeight.w500,
-                                  color: CustomColors.black),
-                        )),
-                  ),
-                  Container(
-                    color: Colors.white,
-                    padding: const EdgeInsets.all(4.0),
-                    child: Padding(
-                        padding: const EdgeInsets.all(2.0),
-                        child: Text(
-                          "Dawat basmati rice 1kg Dawat basmati rice 1kg",
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          softWrap: true,
-                          style: Theme.of(context)
-                              .textTheme
-                              .labelLarge
-                              ?.copyWith(
-                                  fontWeight: FontWeight.w500,
-                                  color: CustomColors.black),
-                        )),
-                  ),
-                  Container(
-                    color: Colors.white,
-                    padding: const EdgeInsets.all(2.0),
-                    child: Padding(
-                      padding: const EdgeInsets.all(2.0),
-                      child: Obx(() {
-                        return TextField(
-                          controller: TextEditingController(
-                              text: ' ${widget.weightController.weight.value}'),
-                          style: Theme.of(context)
-                              .textTheme
-                              .labelLarge
-                              ?.copyWith(
-                                  fontWeight: FontWeight.w500,
-                                  color: CustomColors.black),
-                          decoration: InputDecoration(
-                              fillColor: Colors.white,
-                              focusColor: Colors.white,
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                                borderSide: BorderSide(
-                                  color: Colors
-                                      .grey.shade300, // Normal border color
-                                  width: 1,
-                                ),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                                borderSide: BorderSide(
-                                  color: Colors
-                                      .grey.shade300, // Focused border color
-                                  width: 1,
-                                ),
-                              ),
-                              errorBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                                borderSide: BorderSide(
-                                  color: Colors.red, // Error border color
-                                  width: 1,
-                                ),
-                              ),
-                              focusedErrorBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                                borderSide: BorderSide(
-                                  color: Colors.red,
-                                  // Focused error border color
-                                  width: 1,
-                                ),
-                              ),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                                borderSide: BorderSide(
-                                  color: Colors.grey.shade300,
-                                  width: 1,
-                                ),
-                              ),
-                              hintText: "000.099",
-                              suffixText: "KG"),
-                        );
-                      }),
-                    ),
-                  ),
-                  Container(
-                    color: Colors.white,
-                    padding: const EdgeInsets.all(8.0),
-                    child: Padding(
-                        padding: const EdgeInsets.all(10.0),
-                        child: Text(
-                          "99999",
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          softWrap: true,
-                          style: Theme.of(context)
-                              .textTheme
-                              .labelLarge
-                              ?.copyWith(
-                                  fontWeight: FontWeight.w500,
-                                  color: CustomColors.black),
-                        )),
-                  ),
-                  Container(
-                      color: Colors.white,
-                      padding: const EdgeInsets.all(8.0),
-                      child: Padding(
-                          padding: const EdgeInsets.all(10.0),
-                          child: Text(
-                            "99999.99",
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            softWrap: true,
-                            style: Theme.of(context)
-                                .textTheme
-                                .labelLarge
-                                ?.copyWith(
-                                    fontWeight: FontWeight.w500,
-                                    color: CustomColors.black),
-                          ))),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Container(
-                      padding: const EdgeInsets.all(0.0),
-                      width: 50,
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: Color(0xFFE56363),
-                          width: 1,
-                        ),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: IconButton(
-                        icon: ImageIcon(
-                          size: 20,
-                          color: Color(0xFFE56363),
-                          AssetImage('assets/images/ic_remove.png'),
-                        ),
-                        onPressed: () {
-                          Get.defaultDialog(
-                              contentPadding: EdgeInsets.only(
-                                left: 10,
-                                right: 10,
-                              ),
-                              // Custom padding
-
-                              // contentPadding: EdgeInsets.all(0),
-                              title: '',
-                              // Empty title to remove space
-                              middleText: '',
-                              titlePadding: EdgeInsets.all(0),
-                              barrierDismissible: false,
-                              backgroundColor: Colors.white,
-                              content: _buildRemoveDialog());
-                        },
-                      ),
-                    ),
-                  )
-                ],
-              ),
-            ],
-          ),
-
-          input != ""
-              ? Table(
-                  border: TableBorder.symmetric(
-                      outside: BorderSide(width: 1, color: Color(0xFFF7F7F7))),
-                  // Optional: to add borders to the table
-
-                  columnWidths: {
-                    0: FlexColumnWidth(2),
-                    1: FlexColumnWidth(3),
-                    2: FlexColumnWidth(2),
-                    3: FlexColumnWidth(2),
-                    4: FlexColumnWidth(2),
-                    5: FlexColumnWidth(1),
-                  },
-                  children: [
-                    TableRow(
-                      decoration: BoxDecoration(
-                          // color: Colors.grey.shade300,
-                          border: Border.all(
-                              color: Colors.grey.shade300, width: 1)),
-                      // decoration: BoxDecoration(
-                      //   color: Colors.white,
-                      // ),
-                      children: [
-                        Container(
-                          color: Colors.white,
-                          padding: const EdgeInsets.all(8.0),
-                          child: Padding(
-                              padding: const EdgeInsets.all(10.0),
-                              child: Text(
-                                "999999999",
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                softWrap: true,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .labelLarge
-                                    ?.copyWith(
-                                        fontWeight: FontWeight.w500,
-                                        color: CustomColors.black),
-                              )),
-                        ),
-                        Container(
-                          color: Colors.white,
-                          padding: const EdgeInsets.all(4.0),
-                          child: Padding(
-                              padding: const EdgeInsets.all(2.0),
-                              child: Text(
-                                "Dawat basmati rice 1kg Dawat basmati rice 1kg",
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                                softWrap: true,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .labelLarge
-                                    ?.copyWith(
-                                        fontWeight: FontWeight.w500,
-                                        color: CustomColors.black),
-                              )),
-                        ),
-                        Container(
-                          color: Colors.white,
-                          padding: const EdgeInsets.all(2.0),
-                          child: Padding(
-                            padding: const EdgeInsets.all(2.0),
-                            child: TextField(
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .labelLarge
-                                  ?.copyWith(
-                                      fontWeight: FontWeight.w500,
-                                      color: CustomColors.black),
-                              decoration: InputDecoration(
-                                  fillColor: Colors.white,
-                                  focusColor: Colors.white,
-                                  enabledBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                    borderSide: BorderSide(
-                                      color: Colors
-                                          .grey.shade300, // Normal border color
-                                      width: 1,
-                                    ),
-                                  ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                    borderSide: BorderSide(
-                                      color: Colors.grey
-                                          .shade300, // Focused border color
-                                      width: 1,
-                                    ),
-                                  ),
-                                  errorBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                    borderSide: BorderSide(
-                                      color: Colors.red, // Error border color
-                                      width: 1,
-                                    ),
-                                  ),
-                                  focusedErrorBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                    borderSide: BorderSide(
-                                      color: Colors
-                                          .red, // Focused error border color
-                                      width: 1,
-                                    ),
-                                  ),
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                    borderSide: BorderSide(
-                                      color: Colors.grey.shade300,
-                                      width: 1,
-                                    ),
-                                  ),
-                                  hintText: "000.099",
-                                  suffixText: "KG"),
-                            ),
-                          ),
-                        ),
-                        Container(
-                          color: Colors.white,
-                          padding: const EdgeInsets.all(8.0),
-                          child: Padding(
-                              padding: const EdgeInsets.all(10.0),
-                              child: Text(
-                                "99999",
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                softWrap: true,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .labelLarge
-                                    ?.copyWith(
-                                        fontWeight: FontWeight.w500,
-                                        color: CustomColors.black),
-                              )),
-                        ),
-                        Container(
-                            color: Colors.white,
-                            padding: const EdgeInsets.all(8.0),
-                            child: Padding(
-                                padding: const EdgeInsets.all(10.0),
-                                child: Text(
-                                  "99999.99",
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  softWrap: true,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .labelLarge
-                                      ?.copyWith(
-                                          fontWeight: FontWeight.w500,
-                                          color: CustomColors.black),
-                                ))),
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Container(
-                            padding: const EdgeInsets.all(0.0),
-                            width: 50,
-                            decoration: BoxDecoration(
-                              border: Border.all(
-                                color: Color(0xFFE56363),
-                                width: 1,
-                              ),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: IconButton(
-                              icon: ImageIcon(
-                                size: 20,
-                                color: Color(0xFFE56363),
-                                AssetImage('assets/images/ic_remove.png'),
-                              ),
-                              onPressed: () {
-                                Get.defaultDialog(
-                                    contentPadding: EdgeInsets.only(
-                                      left: 10,
-                                      right: 10,
-                                    ),
-                                    // Custom padding
-
-                                    // contentPadding: EdgeInsets.all(0),
-                                    title: '',
-                                    // Empty title to remove space
-                                    middleText: '',
-                                    titlePadding: EdgeInsets.all(0),
-                                    barrierDismissible: false,
-                                    backgroundColor: Colors.white,
-                                    content: _buildRemoveDialog());
-                              },
-                            ),
-                          ),
-                        )
-                      ],
-                    ),
-                  ],
-                )
-              : Container()
-        ],
-      ),
-    );
-  }
-
-  Widget _buildNumberPadSection1() {
-    return KeypadScreen();
   }
 
   Widget _buildNumberPadSection(HomeController homeController) {
@@ -1168,8 +599,8 @@ class _OrdersSectionState extends State<OrdersSection>
                       ),
                     ),
                     Padding(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 10, horizontal: 10),
+                      padding: const EdgeInsets.only(
+                          bottom: 10, left: 10, right: 10),
                       child: DashedLine(
                         height: 0.4,
                         dashWidth: 4,
@@ -1177,148 +608,36 @@ class _OrdersSectionState extends State<OrdersSection>
                       ),
                     ),
                     Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.all(10.0),
-                              child: TextField(
-                                // focusNode: _focusNode,
-                                controller: TextEditingController(text: input),
-                                //controller: _controller,
-                                decoration: InputDecoration(
-                                  fillColor: Colors.white,
-                                  focusColor: Colors.white,
-                                  enabledBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                    borderSide: BorderSide(
-                                      color: Colors.grey.shade300,
-                                      // Normal border color
-                                      width: 1,
-                                    ),
-                                  ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                    borderSide: BorderSide(
-                                      color: Colors.grey.shade300,
-                                      // Focused border color
-                                      width: 1,
-                                    ),
-                                  ),
-                                  errorBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                    borderSide: BorderSide(
-                                      color: Colors.red, // Error border color
-                                      width: 1,
-                                    ),
-                                  ),
-                                  focusedErrorBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                    borderSide: BorderSide(
-                                      color: Colors
-                                          .red, // Focused error border color
-                                      width: 1,
-                                    ),
-                                  ),
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                    borderSide: BorderSide(
-                                      color: Colors.grey.shade300,
-                                      width: 1,
-                                    ),
-                                  ),
-                                  label: RichText(
-                                    text: TextSpan(
-                                      children: [
-                                        TextSpan(
-                                          text: ' Enter Code, Quantity ',
-                                          style: TextStyle(
-                                            color: Colors.black,
-                                            fontWeight: FontWeight.normal,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                                onEditingComplete: () {
-                                  setState(() {
-                                    input = _controller.text;
-                                    homeController.scanApiCall(input);
-                                    print(" onEditingComplete: $input");
-                                  });
-                                },
-                                onChanged: (value) {
-                                  input = value;
-                                  print(" onChanged: $input");
-                                  homeController.scanApiCall(input);
-                                },
-                              ),
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                _buildKeyIcon(
-                                    'assets/images/number_7.png', "7"),
-                                _buildKeyIcon(
-                                    'assets/images/number_8.png', "8"),
-                                _buildKeyIcon(
-                                    'assets/images/number_9.png', "9"),
-                                _buildKeyClear(
-                                    'assets/images/number_back.png', "C")
-                              ],
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                _buildKeyIcon(
-                                    'assets/images/number_4.png', "4"),
-                                _buildKeyIcon(
-                                    'assets/images/number_5.png', "5"),
-                                _buildKeyIcon(
-                                    'assets/images/number_6.png', "6"),
-                                _buildKeyClearAll(
-                                    'assets/images/number_clear.png', "CA")
-                              ],
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Column(children: [
-                                  Row(
-                                    children: [
-                                      _buildKeyIcon(
-                                          'assets/images/number_1.png', "1"),
-                                      _buildKeyIcon(
-                                          'assets/images/number_2.png', "2"),
-                                      _buildKeyIcon(
-                                          'assets/images/number_3.png', "3"),
-                                    ],
-                                  ),
-                                  Row(
-                                    children: [
-                                      _buildKeyDot(
-                                          'assets/images/number_dot.png', "."),
-                                      _buildKeyIcon(
-                                          'assets/images/number_0.png', "0"),
-                                      _buildKeyIcon(
-                                          'assets/images/number_00.png', "00"),
-                                    ],
-                                  ),
-                                ]),
-                                _buildKeyEnterIcon(
-                                    'assets/images/number_enter.png', "Enter")
-                              ],
-                            ),
-                          ],
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                          child: commonTextField(
+                            label: ' Enter Code, Quantity ',
+                            focusNode: _numPadFocusNode,
+                            readOnly: false,
+                            controller: _numPadTextController,
+                          ),
                         ),
+                        CustomNumPad(
+                          textController: _numPadTextController,
+                          onEnterPressed: (text) {
+                            print("Enter pressed with text: $text");
+                            _numPadFocusNode.unfocus();
+                          },
+                          onValueChanged: (text) {
+                            print("onTextListener text: $text");
+                            if (isValidOfferId(text)) {
+                              homeController.scanApiCall(text);
+                            }
+                          },
+                          onClearAll: (text) {
+                            print("onClearAll $text");
+
+                            homeController.clearScanData();
+                          },
+                        )
                       ],
                     ),
                     SizedBox(
@@ -1875,7 +1194,7 @@ class _OrdersSectionState extends State<OrdersSection>
               ),
             ),
           ),
-        
+
          */
             Container(
               // width: 200,
@@ -1922,399 +1241,6 @@ class _OrdersSectionState extends State<OrdersSection>
         ),
       );
     });
-  }
-
-  Widget _buildTableView() {
-    return LayoutBuilder(builder: (context, constraints) {
-      final isTabletOrDesktop = constraints.maxWidth > 600;
-      return Expanded(
-        child: SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10),
-            child: DataTable(
-              dataRowMinHeight: 48,
-              // horizontalMargin: 50,
-              border: TableBorder.all(
-                style: BorderStyle.none,
-                width: 0.2,
-                color: Colors.grey.shade600,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(10),
-                  topRight: Radius.circular(10),
-                  bottomLeft: Radius.circular(10),
-                  bottomRight: Radius.circular(10),
-                ),
-              ),
-              columnSpacing: isTabletOrDesktop ? 72 : 40,
-              headingRowColor: WidgetStateProperty.all(Colors.grey.shade300),
-              columns: [
-                DataColumn(
-                    headingRowAlignment: MainAxisAlignment.start,
-                    label: Container(
-                      width: 100,
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 5.0, vertical: 4.0),
-                      child: Text('Item Code'),
-                    )),
-                DataColumn(
-                    label: Container(
-                        width: 150,
-                        padding: EdgeInsets.symmetric(
-                            horizontal: 5.0, vertical: 4.0),
-                        child: Text('Name'))),
-                DataColumn(
-                    label: Container(
-                        width: 120,
-                        padding: EdgeInsets.symmetric(
-                            horizontal: 20.0, vertical: 4.0),
-                        child: Text('Qty'))),
-                DataColumn(
-                    label: Container(
-                        width: 80,
-                        padding: EdgeInsets.symmetric(
-                            horizontal: 5.0, vertical: 4.0),
-                        child: Text('MRP'))),
-                DataColumn(
-                    label: Container(
-                        width: 80,
-                        padding: EdgeInsets.symmetric(
-                            horizontal: 5.0, vertical: 4.0),
-                        child: Text('Price'))),
-                DataColumn(
-                    label: Container(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: 5.0, vertical: 4.0),
-                        child: Text('Action'))),
-              ],
-              rows: [
-                DataRow(cells: [
-                  DataCell(Container(
-                      width: 100,
-                      height: 80,
-                      alignment: Alignment.center,
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 5.0, vertical: 4.0),
-                      child: Text(
-                        '99999999999',
-                        softWrap: true,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ))),
-                  DataCell(Container(
-                      width: 150,
-                      height: 50,
-                      alignment: Alignment.center,
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 5.0, vertical: 4.0),
-                      child: Text(
-                        'Dawat basmati rice 1kg Dawat basmati rice 1kg',
-                        softWrap: true,
-                        maxLines: 3,
-                        overflow: TextOverflow.ellipsis,
-                      ))),
-                  DataCell(Container(
-                    width: 120,
-                    height: 50,
-                    alignment: Alignment.center,
-                    child: Padding(
-                      padding: const EdgeInsets.all(2.0),
-                      child: TextField(
-                        decoration: InputDecoration(
-                            fillColor: Colors.white,
-                            focusColor: Colors.white,
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: BorderSide(
-                                color:
-                                    Colors.grey.shade300, // Normal border color
-                                width: 1,
-                              ),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: BorderSide(
-                                color: Colors
-                                    .grey.shade300, // Focused border color
-                                width: 1,
-                              ),
-                            ),
-                            errorBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: BorderSide(
-                                color: Colors.red, // Error border color
-                                width: 1,
-                              ),
-                            ),
-                            focusedErrorBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: BorderSide(
-                                color: Colors.red, // Focused error border color
-                                width: 1,
-                              ),
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: BorderSide(
-                                color: Colors.grey.shade300,
-                                width: 1,
-                              ),
-                            ),
-                            hintText: "000.099",
-                            suffixText: "KG"),
-                      ),
-                    ),
-                  )),
-                  DataCell(Container(
-                      width: 80,
-                      height: 120,
-                      alignment: Alignment.center,
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 5.0, vertical: 4.0),
-                      child: Text(
-                        '₹99999',
-                        softWrap: true,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ))),
-                  DataCell(Container(
-                      width: 80,
-                      height: 100,
-                      alignment: Alignment.center,
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 5.0, vertical: 4.0),
-                      child: Text(
-                        '₹99999.99',
-                        softWrap: true,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ))),
-                  DataCell(Container(
-                    width: 50,
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        color: Color(0xFFE56363),
-                        width: 1,
-                      ),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: IconButton(
-                      icon: ImageIcon(
-                        size: 20,
-                        color: Color(0xFFE56363),
-                        AssetImage('assets/images/ic_remove.png'),
-                      ),
-                      onPressed: () {
-                        Get.defaultDialog(
-                            contentPadding: EdgeInsets.only(
-                              left: 10,
-                              right: 10,
-                            ),
-                            // Custom padding
-
-                            // contentPadding: EdgeInsets.all(0),
-                            title: '',
-                            // Empty title to remove space
-                            middleText: '',
-                            titlePadding: EdgeInsets.all(0),
-                            barrierDismissible: false,
-                            backgroundColor: Colors.white,
-                            content: _buildRemoveDialog());
-                      },
-                    ),
-                  )),
-                ]),
-              ],
-            ),
-          ),
-        ),
-      );
-    });
-  }
-
-  Widget _buildRemoveDialog() {
-    return Container(
-      child: Column(
-        children: [
-          Container(
-            // padding: EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: Color(0xFFF8F8F8),
-              border: Border.all(color: Colors.grey.shade300),
-              borderRadius: BorderRadius.circular(10),
-              shape: BoxShape.rectangle,
-            ),
-            //color: Color(0xFFF8F8F8),
-            child: Padding(
-              padding:
-                  const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    padding: EdgeInsets.all(4),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      border: Border.all(color: Colors.grey.shade300),
-                      borderRadius: BorderRadius.circular(10),
-                      shape: BoxShape.rectangle,
-                    ),
-                    child: Image.asset(
-                      'assets/images/sweet_corn.webp',
-                      // height: 80,
-                      // width: 80,
-                      cacheHeight: 50,
-                      cacheWidth: 50,
-                    ),
-                  ),
-                  SizedBox(
-                    width: 20,
-                  ),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        child: Text('Alphonso Mango',
-                            maxLines: 2,
-                            softWrap: true,
-                            style: TextStyle(
-                                overflow: TextOverflow.ellipsis,
-                                color: Colors.black,
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold)),
-                      ),
-                      SizedBox(height: 5),
-                      RichText(
-                        text: TextSpan(
-                          children: <TextSpan>[
-                            TextSpan(
-                              text: 'Qty:  ',
-                              style: TextStyle(
-                                  color: Colors.black87,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w400),
-                            ),
-                            TextSpan(
-                              text: '1',
-                              style: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold),
-                            ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(height: 5),
-                      RichText(
-                        text: TextSpan(
-                          children: <TextSpan>[
-                            TextSpan(
-                              text: 'Price:  ',
-                              style: TextStyle(
-                                  color: Colors.black87,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w400),
-                            ),
-                            TextSpan(
-                              text: '₹1200',
-                              style: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-          SizedBox(
-            height: 20,
-          ),
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 20),
-            child: Text(
-              "Are you sure you want to remove this item?",
-              softWrap: true,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(fontWeight: FontWeight.w600),
-            ),
-          ),
-          SizedBox(
-            height: 20,
-          ),
-          Container(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Expanded(
-                  flex: 1,
-                  child: Container(
-                    padding:
-                        EdgeInsets.only(left: 4, right: 4, top: 10, bottom: 4),
-                    child: ElevatedButton(
-                      onPressed: () {
-                        Get.back();
-                      },
-                      style: ElevatedButton.styleFrom(
-                          elevation: 1,
-                          padding:
-                              EdgeInsets.symmetric(horizontal: 1, vertical: 20),
-                          shape: RoundedRectangleBorder(
-                            side: BorderSide.none,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          backgroundColor: Colors.green),
-                      child: Text(
-                        "    Yes, Remove    ",
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ),
-                ),
-                Expanded(
-                  flex: 1,
-                  child: Container(
-                    padding:
-                        EdgeInsets.only(left: 4, right: 4, top: 10, bottom: 4),
-                    child: ElevatedButton(
-                      onPressed: () {
-                        Get.back();
-                      },
-                      style: ElevatedButton.styleFrom(
-                          elevation: 1,
-                          padding:
-                              EdgeInsets.symmetric(horizontal: 1, vertical: 20),
-                          shape: RoundedRectangleBorder(
-                            side: BorderSide.none,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          backgroundColor: Colors.red),
-                      child: Text(
-                        "    No, Cancel    ",
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          )
-        ],
-      ),
-    );
   }
 
   Widget _buildRemoveDialog2(CartLine? itemData, {VoidCallback? onPressed}) {
@@ -2452,74 +1378,72 @@ class _OrdersSectionState extends State<OrdersSection>
           SizedBox(
             height: 20,
           ),
-          Container(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Expanded(
-                  flex: 1,
-                  child: Container(
-                    padding:
-                        EdgeInsets.only(left: 4, right: 4, top: 10, bottom: 4),
-                    child: ElevatedButton(
-                      onPressed: onPressed,
-                      style: ElevatedButton.styleFrom(
-                        elevation: 1,
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 1, vertical: 20),
-                        shape: RoundedRectangleBorder(
-                          side: BorderSide(
-                              color: homeController.phoneNumber.isNotEmpty
-                                  ? CustomColors.secondaryColor
-                                  : CustomColors.cardBackground),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        disabledBackgroundColor: CustomColors.cardBackground,
-                        backgroundColor: CustomColors.secondaryColor,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Expanded(
+                flex: 1,
+                child: Container(
+                  padding:
+                      EdgeInsets.only(left: 4, right: 4, top: 10, bottom: 4),
+                  child: ElevatedButton(
+                    onPressed: onPressed,
+                    style: ElevatedButton.styleFrom(
+                      elevation: 1,
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 1, vertical: 20),
+                      shape: RoundedRectangleBorder(
+                        side: BorderSide(
+                            color: homeController.phoneNumber.isNotEmpty
+                                ? CustomColors.secondaryColor
+                                : CustomColors.cardBackground),
+                        borderRadius: BorderRadius.circular(10),
                       ),
-                      child: Text(
-                        "    Yes, Remove    ",
-                        style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold),
-                      ),
+                      disabledBackgroundColor: CustomColors.cardBackground,
+                      backgroundColor: CustomColors.secondaryColor,
+                    ),
+                    child: Text(
+                      "    Yes, Remove    ",
+                      style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold),
                     ),
                   ),
                 ),
-                Expanded(
-                  flex: 1,
-                  child: Container(
-                    padding:
-                        EdgeInsets.only(left: 4, right: 4, top: 10, bottom: 4),
-                    child: ElevatedButton(
-                      onPressed: () {
-                        Get.back();
-                      },
-                      style: ElevatedButton.styleFrom(
-                        elevation: 1,
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 1, vertical: 20),
-                        shape: RoundedRectangleBorder(
-                          side: BorderSide(
-                              color: CustomColors.primaryColor, width: 1.5),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        backgroundColor: Color(0xFFF0F4F4),
+              ),
+              Expanded(
+                flex: 1,
+                child: Container(
+                  padding:
+                      EdgeInsets.only(left: 4, right: 4, top: 10, bottom: 4),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Get.back();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      elevation: 1,
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 1, vertical: 20),
+                      shape: RoundedRectangleBorder(
+                        side: BorderSide(
+                            color: CustomColors.primaryColor, width: 1.5),
+                        borderRadius: BorderRadius.circular(10),
                       ),
-                      child: Text(
-                        "    No, Cancel    ",
-                        style: TextStyle(
-                            color: CustomColors.primaryColor,
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold),
-                      ),
+                      backgroundColor: Color(0xFFF0F4F4),
+                    ),
+                    child: Text(
+                      "    No, Cancel    ",
+                      style: TextStyle(
+                          color: CustomColors.primaryColor,
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold),
                     ),
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           )
         ],
       ),
@@ -2607,124 +1531,122 @@ class _OrdersSectionState extends State<OrdersSection>
                 ],
               ),
               Spacer(),
-              Container(
-                child: Row(
-                  children: [
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        RichText(
-                          text: TextSpan(
-                            children: <TextSpan>[
-                              TextSpan(
-                                text: 'Customer: ',
-                                style: TextStyle(
-                                    color: Colors.grey,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.normal),
-                              ),
-                              TextSpan(
-                                text: homeController.customerResponse.value
-                                            .customerName !=
-                                        null
-                                    ? homeController
-                                        .customerResponse.value.customerName
-                                        .toString()
-                                    : " - ",
-                                style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold),
-                              ),
-                            ],
-                          ),
+              Row(
+                children: [
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      RichText(
+                        text: TextSpan(
+                          children: <TextSpan>[
+                            TextSpan(
+                              text: 'Customer: ',
+                              style: TextStyle(
+                                  color: Colors.grey,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.normal),
+                            ),
+                            TextSpan(
+                              text: homeController.customerResponse.value
+                                          .customerName !=
+                                      null
+                                  ? homeController
+                                      .customerResponse.value.customerName
+                                      .toString()
+                                  : " - ",
+                              style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ],
                         ),
-                        SizedBox(
-                          height: 5,
+                      ),
+                      SizedBox(
+                        height: 5,
+                      ),
+                      RichText(
+                        text: TextSpan(
+                          children: <TextSpan>[
+                            TextSpan(
+                              text: 'Wallet balance: - ',
+                              style: TextStyle(
+                                  color: Colors.grey,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.normal),
+                            ),
+                            TextSpan(
+                              text: homeController
+                                  .customerResponse.value.walletBalance,
+                              style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ],
                         ),
-                        RichText(
-                          text: TextSpan(
-                            children: <TextSpan>[
-                              TextSpan(
-                                text: 'Wallet balance: - ',
-                                style: TextStyle(
-                                    color: Colors.grey,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.normal),
-                              ),
-                              TextSpan(
-                                text: homeController
-                                    .customerResponse.value.walletBalance,
-                                style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold),
-                              ),
-                            ],
-                          ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(
+                    width: 40,
+                  ),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      RichText(
+                        text: TextSpan(
+                          children: <TextSpan>[
+                            TextSpan(
+                              text: 'Contact No.: ',
+                              style: TextStyle(
+                                  color: Colors.grey,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.normal),
+                            ),
+                            TextSpan(
+                              text: homeController
+                                          .customerResponse.value.phoneNumber !=
+                                      null
+                                  ? '${homeController.customerResponse.value.phoneNumber?.number}'
+                                  : " - ",
+                              style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                    SizedBox(
-                      width: 40,
-                    ),
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        RichText(
-                          text: TextSpan(
-                            children: <TextSpan>[
-                              TextSpan(
-                                text: 'Contact No.: ',
-                                style: TextStyle(
-                                    color: Colors.grey,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.normal),
-                              ),
-                              TextSpan(
-                                text: homeController.customerResponse.value
-                                            .phoneNumber !=
-                                        null
-                                    ? '${homeController.customerResponse.value.phoneNumber?.number}'
-                                    : " - ",
-                                style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold),
-                              ),
-                            ],
-                          ),
+                      ),
+                      SizedBox(
+                        height: 5,
+                      ),
+                      RichText(
+                        text: TextSpan(
+                          children: <TextSpan>[
+                            TextSpan(
+                              text: 'Loyalty Points: - ',
+                              style: TextStyle(
+                                  color: Colors.grey,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.normal),
+                            ),
+                            TextSpan(
+                              text: homeController
+                                  .customerResponse.value.loyaltyPoints,
+                              style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ],
                         ),
-                        SizedBox(
-                          height: 5,
-                        ),
-                        RichText(
-                          text: TextSpan(
-                            children: <TextSpan>[
-                              TextSpan(
-                                text: 'Loyalty Points: - ',
-                                style: TextStyle(
-                                    color: Colors.grey,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.normal),
-                              ),
-                              TextSpan(
-                                text: homeController
-                                    .customerResponse.value.loyaltyPoints,
-                                style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+                      ),
+                    ],
+                  ),
+                ],
               )
             ],
           ),
@@ -2732,261 +1654,8 @@ class _OrdersSectionState extends State<OrdersSection>
       ),
     );
   }
-
-  // number pad
-  Widget _buildKeyIcon(String img, String label, {VoidCallback? onPressed}) {
-    return GestureDetector(
-      onTap: onPressed ?? () => _onKeyPressed(label),
-      child: Container(
-        padding: EdgeInsets.all(20.0),
-        margin: EdgeInsets.all(5.0),
-        decoration: BoxDecoration(
-          color: Color(0xFFF0F4F4),
-          border: Border.all(color: Color(0xFFF0F4F4)),
-          borderRadius: BorderRadius.circular(10.0),
-        ),
-        child: Center(
-          child: Image.asset(
-            img,
-            height: 20,
-            width: 20,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildKeyClear(String img, String label, {VoidCallback? onPressed}) {
-    return GestureDetector(
-      onTap: onPressed ?? () => _onClear(),
-      child: Container(
-        padding: EdgeInsets.all(20.0),
-        margin: EdgeInsets.all(5.0),
-        decoration: BoxDecoration(
-          color: Color(0xFFF0F4F4),
-          border: Border.all(color: Color(0xFFF0F4F4)),
-          borderRadius: BorderRadius.circular(10.0),
-        ),
-        child: Center(
-          child: Image.asset(
-            img,
-            height: 20,
-            width: 20,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildKeyClearAll(String img, String label,
-      {VoidCallback? onPressed}) {
-    return GestureDetector(
-      onTap: onPressed ?? () => _onClearAll(),
-      child: Container(
-        padding: EdgeInsets.all(20.0),
-        margin: EdgeInsets.all(5.0),
-        decoration: BoxDecoration(
-          color: Color(0xFFF0F4F4),
-          border: Border.all(color: Color(0xFFF0F4F4)),
-          borderRadius: BorderRadius.circular(10.0),
-        ),
-        child: Center(
-          child: Image.asset(
-            img,
-            height: 20,
-            width: 20,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildKeyDot(String img, String label, {VoidCallback? onPressed}) {
-    return GestureDetector(
-      onTap: onPressed ?? () => _onKeyPressed(label),
-      child: Container(
-        padding: EdgeInsets.all(10.0),
-        margin: EdgeInsets.all(5.0),
-        decoration: BoxDecoration(
-          color: Color(0xFFF0F4F4),
-          border: Border.all(color: Color(0xFFF0F4F4)),
-          borderRadius: BorderRadius.circular(10.0),
-        ),
-        child: Center(
-          child: Container(
-            margin: const EdgeInsets.all(15.0),
-            child: Image.asset(
-              img,
-              height: 10,
-              width: 10,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildKeyEnterIcon(String img, String label,
-      {VoidCallback? onPressed}) {
-    return GestureDetector(
-      onTap: onPressed ?? () => _onKeyPressedEnter(label),
-      child: Container(
-        padding: EdgeInsets.symmetric(vertical: 50.0, horizontal: 1),
-        margin: EdgeInsets.all(5.0),
-        decoration: BoxDecoration(
-          color: Color(0xFFF0F4F4),
-          border: Border.all(color: Color(0xFFF0F4F4)),
-          borderRadius: BorderRadius.circular(10.0),
-        ),
-        child: Center(
-          child: Container(
-            padding: EdgeInsets.symmetric(vertical: 0.0, horizontal: 15),
-            // margin: const EdgeInsets.all(15.0),
-            child: Image.asset(
-              img,
-              height: 30,
-              width: 30,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
 }
 
-/*
-  Container(
-                              width: 200,
-                              height: 80,
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 5.0,
-                                  vertical: 5), // Adjust the value as needed
-                              child: TextButton(
-                                style: TextButton.styleFrom(
-                                  padding: EdgeInsets.all(20),
-                                  shape: RoundedRectangleBorder(
-                                    side: BorderSide(color: Colors.teal),
-                                    borderRadius: BorderRadius.circular(6),
-                                  ),
-                                  backgroundColor: Colors.teal.shade50,
-                                ),
-                                onPressed: () {},
-                                child: Text(
-                                  'Customer',
-                                  maxLines: 2,
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    color: Colors.teal,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Container(
-                              width: 200,
-                              height: 80,
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 5.0,
-                                  vertical: 5), // Adjust the value as needed
-                              child: TextButton(
-                                style: TextButton.styleFrom(
-                                  padding: EdgeInsets.all(20),
-                                  shape: RoundedRectangleBorder(
-                                    side: BorderSide(color: Colors.teal),
-                                    borderRadius: BorderRadius.circular(6),
-                                  ),
-                                  backgroundColor: Colors.teal.shade50,
-                                ),
-                                onPressed: () {},
-                                child: Text(
-                                  'Search items',
-                                  maxLines: 2,
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    color: Colors.teal,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Container(
-                              width: 200,
-                              height: 80,
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 5.0,
-                                  vertical: 5), // Adjust the value as needed
-                              child: TextButton(
-                                style: TextButton.styleFrom(
-                                  padding: EdgeInsets.all(20),
-                                  shape: RoundedRectangleBorder(
-                                    side: BorderSide(color: Colors.teal),
-                                    borderRadius: BorderRadius.circular(6),
-                                  ),
-                                  backgroundColor: Colors.teal.shade50,
-                                ),
-                                onPressed: () {},
-                                child: Text(
-                                  'Inventory Inquiry',
-                                  maxLines: 2,
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    color: Colors.teal,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Container(
-                              width: 200,
-                              height: 80,
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 5.0,
-                                  vertical: 5), // Adjust the value as needed
-                              child: TextButton(
-                                style: TextButton.styleFrom(
-                                  padding: EdgeInsets.all(20),
-                                  shape: RoundedRectangleBorder(
-                                    side: BorderSide(color: Colors.teal),
-                                    borderRadius: BorderRadius.circular(6),
-                                  ),
-                                  backgroundColor: Colors.teal.shade50,
-                                ),
-                                onPressed: () {},
-                                child: Text(
-                                  'Coupons',
-                                  maxLines: 2,
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    color: Colors.teal,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Container(
-                              width: 200,
-                              height: 80,
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 5.0,
-                                  vertical: 5), // Adjust the value as needed
-                              child: TextButton(
-                                style: TextButton.styleFrom(
-                                  padding: EdgeInsets.all(20),
-                                  shape: RoundedRectangleBorder(
-                                    side: BorderSide(color: Colors.teal),
-                                    borderRadius: BorderRadius.circular(6),
-                                  ),
-                                  backgroundColor: Colors.teal.shade50,
-                                ),
-                                onPressed: () {},
-                                child: Text(
-                                  'Sales Associate',
-                                  maxLines: 2,
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    color: Colors.teal,
-                                  ),
-                                ),
-                              ),
-                            ),
-                         
-*/
 String convertedPrice(int? centAmount, int? fraction) {
   if (centAmount == null) {
     return '₹0.00'; // Handle null values gracefully

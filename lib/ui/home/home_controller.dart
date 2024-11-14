@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:kpn_pos_application/models/cart_response.dart';
@@ -18,7 +19,19 @@ class HomeController extends GetxController {
 
   // Example method to add a new cart line void
   addCartLine(CartLine cartLine) {
-    cartLines.add(cartLine);
+    var cart = CartLine(
+        cartLineId: cartLine.cartLineId,
+        item: cartLine.item,
+        quantity: cartLine.quantity,
+        unitPrice: cartLine.unitPrice,
+        mrp: cartLine.mrp,
+        lineTotal: cartLine.lineTotal,
+        applicableCartAdjustments: cartLine.applicableCartAdjustments,
+        audit: cartLine.audit,
+        controller: TextEditingController(
+            text: cartLine.quantity?.quantityNumber.toString()),
+        focusNode: FocusNode());
+    cartLines.add(cart);
     print('cart List: ${cartLines.toList()}');
   }
 

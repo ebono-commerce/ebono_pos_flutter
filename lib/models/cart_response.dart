@@ -4,6 +4,8 @@
 
 import 'dart:convert';
 
+import 'package:flutter/cupertino.dart';
+
 CartResponse cartResponseFromJson(dynamic str) =>
     CartResponse.fromJson(json.decode(str));
 
@@ -181,7 +183,8 @@ class CartLine {
   AmountPayable? lineTotal;
   List<String>? applicableCartAdjustments;
   CartLineAudit? audit;
-
+  TextEditingController? controller = TextEditingController();
+  FocusNode? focusNode = FocusNode();
   CartLine({
     this.cartLineId,
     this.item,
@@ -191,6 +194,8 @@ class CartLine {
     this.lineTotal,
     this.applicableCartAdjustments,
     this.audit,
+    this.controller,
+    this.focusNode
   });
 
   factory CartLine.fromJson(Map<String, dynamic> json) => CartLine(
