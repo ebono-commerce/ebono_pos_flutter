@@ -243,7 +243,7 @@ class _OrdersSectionState extends State<OrdersSection>
               ...homeController.cartLines.map((itemData) {
                 /*itemData.controller?.text =
                     weightController.weight.value.toString();*/
-               // var focus =  itemData.focusNode ?? FocusNode();
+                // var focus =  itemData.focusNode ?? FocusNode();
                 itemData.focusNode?.addListener(() {
                   setState(() {});
                 });
@@ -309,7 +309,18 @@ class _OrdersSectionState extends State<OrdersSection>
                           readOnly: false,
                           controller:
                               itemData.controller ?? TextEditingController(),
-                          onValueChanged: (value) {},
+                          onValueChanged: (value) {
+                            try {
+                              double doubleValue = double.parse(value);
+                              homeController.updateCartItemApiCall(
+                                itemData.cartLineId,
+                                itemData.quantity?.quantityUom,
+                                doubleValue,
+                              );
+                            } on Exception catch (e) {
+                              print(e);
+                            }
+                          },
                         ),
                       ),
                     ),
