@@ -1,11 +1,12 @@
 import 'dart:convert';
 
-import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
+import 'package:kpn_pos_application/api/api_helper.dart';
 import 'package:kpn_pos_application/models/cart_response.dart';
 import 'package:kpn_pos_application/models/customer_response.dart';
 import 'package:kpn_pos_application/models/scan_products_response.dart';
+import 'package:kpn_pos_application/ui/home/repository/home_repository.dart';
 
 class HomeController extends GetxController {
   var isLoading = false.obs;
@@ -16,22 +17,13 @@ class HomeController extends GetxController {
 
   var cartId = ''.obs;
   var cartLines = <CartLine>[].obs;
+  late final HomeRepository _homeRepository;
+  late final ApiHelper _apiHelper; // Constructor for dependency injection
+  HomeController(this._homeRepository, this._apiHelper);
 
   // Example method to add a new cart line void
   addCartLine(CartLine cartLine) {
-    var cart = CartLine(
-        cartLineId: cartLine.cartLineId,
-        item: cartLine.item,
-        quantity: cartLine.quantity,
-        unitPrice: cartLine.unitPrice,
-        mrp: cartLine.mrp,
-        lineTotal: cartLine.lineTotal,
-        applicableCartAdjustments: cartLine.applicableCartAdjustments,
-        audit: cartLine.audit,
-        controller: TextEditingController(
-            text: cartLine.quantity?.quantityNumber.toString()),
-        focusNode: FocusNode());
-    cartLines.add(cart);
+    cartLines.add(cartLine);
     print('cart List: ${cartLines.toList()}');
   }
 
@@ -48,7 +40,6 @@ class HomeController extends GetxController {
   void onInit() {
     super.onInit();
     intializationResponse();
-    print("HomeController initialized");
   }
 
   Future<void> intializationResponse() async {
@@ -84,6 +75,18 @@ class HomeController extends GetxController {
   }
 
   Future<void> scanApiCall(String code) async {
+    print(" scanApiCall: $code");
+    try {
+      var response = await _homeRepository.getScanProduct(code);
+      scanProductsResponse.value = response;
+    } catch (e) {
+      print("Error $e");
+    } finally {
+      print("Error");
+    }
+  }
+
+  Future<void> scanApiCall1(String code) async {
     print(" scanApiCall: $code");
 
     isLoading(true);
@@ -291,94 +294,4 @@ class HomeController extends GetxController {
       isLoading(false);
     }
   }
-
-/*
-  /// for local data from json
-  
-  Future<void> fetchCartCall() async {
-    isLoading(true);
-    print("API");
-    try {
-      final String response =
-          await rootBundle.loadString('assets/data/fetch_cart.json');
-      final data = json.decode(response);
-      cartResponse.value = CartResponse.fromJson(data);
-      print("Success : $response");
-
-      if (cartResponse.value.cartLines != null) {
-        for (var element in cartResponse.value.cartLines!) {
-          if (element != null) {
-            addCartLine(element);
-          }
-        }
-      }
-    } catch (e) {
-      // Handle error
-      print("Error $e");
-    } finally {
-      isLoading(false);
-    }
-  }
-
-  Future<void> fetchCustomer() async {
-    isLoading(true);
-    try {
-      final String response =
-          await rootBundle.loadString('assets/data/fetch_customer.json');
-      final data = json.decode(response);
-      customerResponse.value = CustomerResponse.fromJson(data);
-      print("Success : $response");
-      // fetch cart api
-      fetchCartCall("36c9e954-26af-4a96-9326-10207922d0b8");
-    } catch (e) {
-      print("Error $e");
-    } finally {
-      isLoading(false);
-    }
-  }
-
-  Future<void> scanApiCall(String code) async {
-    isLoading(true);
-    print("API");
-    try {
-      final String response =
-          await rootBundle.loadString('assets/data/scan_response.json');
-      final data = json.decode(response);
-      //scanProductsResponse = ScanProductsResponse.fromJson(data);
-      scanProductsResponse.value = ScanProductsResponse.fromJson(data);
-      print("Success : $response");
-      //temp api call of fetch cart need to call addto cart  api
-      // fetchCartCall("36c9e954-26af-4a96-9326-10207922d0b8");
-      if (scanProductsResponse.value.isWeighedItem == false) {
-        addToCartApiCall("10004858", "1", "iMwk8mWM", "gm");
-      }
-    } catch (e) {
-      // Handle error
-      print("Error $e");
-    } finally {
-      isLoading(false);
-    }
-  }
-
-
-  Future<void> addToCartApiCall(
-      String esin, String qty, String mrpId, String qtyUom) async {
-    isLoading(true);
-    print("API");
-    try {
-      final String response =
-          await rootBundle.loadString('assets/data/fetch_cart.json');
-      final data = json.decode(response);
-      cartResponse.value = CartResponse.fromJson(data);
-      print("Success : $response");
-      fetchCartCall("36c9e954-26af-4a96-9326-10207922d0b8");
-    } catch (e) {
-      // Handle error
-      print("Error $e");
-    } finally {
-      isLoading(false);
-    }
-  }
-
-*/
 }

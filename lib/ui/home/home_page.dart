@@ -34,7 +34,7 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     if (mounted == true) {
       weightController = Get.put(WeightController(port, model, rate, timeout));
-      homeController = Get.put(HomeController());
+      homeController = Get.find<HomeController>();
     }
   }
 
