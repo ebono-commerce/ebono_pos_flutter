@@ -30,7 +30,7 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
   @override
   void initState() {
     if (mounted == true) {
-      homeController = Get.put(HomeController());
+      homeController = Get.find<HomeController>();
     }
     numpadFocusNode.addListener(() {
       setState(() {});

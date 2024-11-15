@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_styled_toast/flutter_styled_toast.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:kpn_pos_application/constants/custom_colors.dart';
@@ -8,6 +7,7 @@ import 'package:kpn_pos_application/navigation/page_routes.dart';
 import 'package:kpn_pos_application/ui/common_text_field.dart';
 import 'package:kpn_pos_application/ui/custom_keyboard/custom_num_pad.dart';
 import 'package:kpn_pos_application/ui/home/home_controller.dart';
+import 'package:kpn_pos_application/ui/home/widgets/add_customer.dart';
 import 'package:kpn_pos_application/ui/payment_summary/weight_controller.dart';
 import 'package:kpn_pos_application/utils/common_methods.dart';
 import 'package:kpn_pos_application/utils/dash_line.dart';
@@ -24,7 +24,7 @@ class OrdersSection extends StatefulWidget {
 
 class _OrdersSectionState extends State<OrdersSection>
     with WidgetsBindingObserver {
-  String _selectedWidget = 'OPEN_REGISTER';
+  // String _selectedWidget = 'ADD_CUSTOMER';
   final FocusNode _numPadFocusNode = FocusNode();
   final TextEditingController _numPadTextController = TextEditingController();
 
@@ -39,34 +39,34 @@ class _OrdersSectionState extends State<OrdersSection>
     if (mounted == true) {
       weightController = widget.weightController;
       homeController = widget.homeController;
-      homeController.intializationResponse();
+      homeController.initialResponse();
     }
     super.initState();
   }
 
-  void _onWidgetNameUpdatePressed(String value) {
-    setState(() {
-      _selectedWidget = value;
-      print(" Widget Name: $_selectedWidget");
-    });
-  }
+  // void _onWidgetNameUpdatePressed(String value) {
+  //   setState(() {
+  //     _selectedWidget = value;
+  //     print(" Widget Name: $_selectedWidget");
+  //   });
+  // }
 
-  void _StaleButtonPressed(String value) {
-    if (homeController.phoneNumber.value != '') {
-      setState(() {
-        _selectedWidget = value;
-        print(" Widget Name: $_selectedWidget");
-        //add fetch call data
-        homeController.fetchCustomer();
-      });
-    } else {
-      showToast('Please enter phone number',
-          context: context,
-          axis: Axis.horizontal,
-          alignment: Alignment.center,
-          position: StyledToastPosition.center);
-    }
-  }
+  // void _StaleButtonPressed(String value) {
+  //   if (homeController.phoneNumber.value != '') {
+  //     setState(() {
+  //       _selectedWidget = value;
+  //       print(" Widget Name: $_selectedWidget");
+  //       //add fetch call data
+  //       homeController.fetchCustomer();
+  //     });
+  //   } else {
+  //     showToast('Please enter phone number',
+  //         context: context,
+  //         axis: Axis.horizontal,
+  //         alignment: Alignment.center,
+  //         position: StyledToastPosition.center);
+  //   }
+  // }
 
   @override
   void dispose() {
@@ -78,8 +78,6 @@ class _OrdersSectionState extends State<OrdersSection>
 
   @override
   Widget build(BuildContext context) {
-    // final HomeController homeController = Get.put(HomeController());
-
     return Center(
       child: Row(
         children: [
@@ -90,27 +88,31 @@ class _OrdersSectionState extends State<OrdersSection>
                 child: Column(
                   children: [
                     Obx(() {
-                      return _buildOrderdetail(_selectedWidget, context);
+                      return _buildOrderDetail(context);
                     }),
                     Expanded(
-                      // flex: 1,
-                      child: Center(
-                          child: _selectedWidget == 'OPEN_REGISTER'
-                              ? _buildRegisterClosed(context, "ADD_CUSTOMER",
-                                  onPressed: () => _onWidgetNameUpdatePressed(
-                                      "ADD_CUSTOMER"))
-                              : _selectedWidget == 'ADD_CUSTOMER'
-                                  ? _buildAddCustomer(
-                                      context,
-                                      "START_SALE",
-                                      onPressed: () =>
-                                          _StaleButtonPressed("START_SALE"),
-                                    )
-                                  : _selectedWidget == 'START_SALE'
-                                      ? Obx(() {
-                                          return _buildTableView2();
-                                        })
-                                      : Container()),
+                      child: Obx(() {
+                        return Center(
+                          child: homeController.cartId.value != ''
+                              ? AddCustomer(homeController)
+                              : Obx(() {
+                                  return _buildTableView2();
+                                }),
+                        );
+                      }),
+                      // Center(
+                      //     child: _selectedWidget == 'ADD_CUSTOMER'
+                      //         ? _buildAddCustomer(
+                      //             context,
+                      //             "START_SALE",
+                      //             onPressed: () =>
+                      //                 _StaleButtonPressed("START_SALE"),
+                      //           )
+                      //         : _selectedWidget == 'START_SALE'
+                      //             ? Obx(() {
+                      //                 return _buildTableView2();
+                      //               })
+                      //             : Container()),
                     )
                   ],
                 )),
@@ -132,8 +134,6 @@ class _OrdersSectionState extends State<OrdersSection>
   }
 
   Widget _buildTableView2() {
-    print(
-        "_buildTableView2: ${homeController.cartResponse.value.cartLines?.length}");
     return Container(
       padding: EdgeInsets.only(bottom: 2),
       margin: EdgeInsets.all(10),
@@ -247,12 +247,16 @@ class _OrdersSectionState extends State<OrdersSection>
                 itemData.focusNode?.addListener(() {
                   setState(() {});
                 });
-                itemData.controller?.addListener((){
+                itemData.controller?.addListener(() {
                   print('on listener');
                   print(itemData.controller?.text);
                   try {
-                    if (itemData.controller?.text != '0.0' && itemData.controller?.text.isBlank != true && itemData.controller?.text != itemData.quantity?.quantityNumber.toString()) {
-                      double doubleValue = double.parse(itemData.controller?.text ?? '');
+                    if (itemData.controller?.text != '0.0' &&
+                        itemData.controller?.text.isBlank != true &&
+                        itemData.controller?.text !=
+                            itemData.quantity?.quantityNumber.toString()) {
+                      double doubleValue =
+                          double.parse(itemData.controller?.text ?? '');
                       homeController.updateCartItemApiCall(
                         itemData.cartLineId,
                         itemData.quantity?.quantityUom,
@@ -321,26 +325,47 @@ class _OrdersSectionState extends State<OrdersSection>
                       child: Padding(
                         padding: const EdgeInsets.all(2.0),
                         child: commonTextField(
-                          label: '',
-                          focusNode: itemData.focusNode ?? FocusNode(),
-                          readOnly: true,
-                          controller:
-                              itemData.controller ?? TextEditingController(),
-                          onValueChanged: (value) {
-                            print('on value change');
-
-                          },
-                        ),
+                            label: '',
+                            focusNode: itemData.focusNode ?? FocusNode(),
+                            readOnly: true,
+                            controller:
+                                itemData.controller ?? TextEditingController(),
+                            onValueChanged: (value) {
+                              print('on value change');
+                            },
+                            suffixLabel: null,
+                            suffixWidget: InkWell(
+                              onTap: itemData.isWeighedItem == true
+                                  ? () {
+                                      print('on tap');
+                                      itemData.focusNode?.requestFocus();
+                                    }
+                                  : null,
+                              child: Text(
+                                '',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                softWrap: true,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .labelLarge
+                                    ?.copyWith(
+                                        fontWeight: FontWeight.w500,
+                                        color: CustomColors.black),
+                              ),
+                            )),
                       ),
                     ),
                     InkWell(
-                      onTap: () {
-                        print('on tap');
-                        itemData.focusNode?.requestFocus();
-                      },
+                      onTap: itemData.isWeighedItem == true
+                          ? () {
+                              itemData.focusNode?.requestFocus();
+                            }
+                          : null,
                       child: Container(
                         color: Colors.white,
-                        padding: const EdgeInsets.all(8.0),
+                        padding: const EdgeInsets.only(
+                            top: 8.0, bottom: 8.0, right: 8.0, left: 0.0),
                         child: Padding(
                             padding: const EdgeInsets.all(10.0),
                             child: Text(
@@ -348,9 +373,10 @@ class _OrdersSectionState extends State<OrdersSection>
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               softWrap: true,
+                              textAlign: TextAlign.left,
                               style: Theme.of(context)
                                   .textTheme
-                                  .labelLarge
+                                  .labelMedium
                                   ?.copyWith(
                                       fontWeight: FontWeight.w500,
                                       color: CustomColors.black),
@@ -514,15 +540,29 @@ class _OrdersSectionState extends State<OrdersSection>
                                         text: homeController
                                                     .scanProductsResponse
                                                     .value
-                                                    .ebonoTitle
+                                                    .salesUom
                                                     ?.isNotEmpty ==
                                                 true
-                                            ? '1'
+                                            ? '1 '
                                             : " - ",
                                         style: TextStyle(
                                             color: Colors.black,
                                             fontSize: 14,
                                             fontWeight: FontWeight.bold),
+                                      ),
+                                      TextSpan(
+                                        text: homeController
+                                                    .scanProductsResponse
+                                                    .value
+                                                    .salesUom
+                                                    ?.isNotEmpty ==
+                                                true
+                                            ? '(${homeController.scanProductsResponse.value.salesUom})'
+                                            : " - ",
+                                        style: TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.normal),
                                       ),
                                     ],
                                   ),
@@ -843,6 +883,7 @@ class _OrdersSectionState extends State<OrdersSection>
                   ],
                 ),
               ),
+              _buidButton("Clear cart", context),
               _buidButton("Hold cart", context)
             ],
           )),
@@ -935,7 +976,7 @@ class _OrdersSectionState extends State<OrdersSection>
             Center(
               child: Text(
                 "Add customer details",
-                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold, color: CustomColors.black),
                 // style: TextStyle(
                 //     color: Color(0xFF000000),
@@ -1482,7 +1523,7 @@ class _OrdersSectionState extends State<OrdersSection>
     );
   }
 
-  Widget _buildOrderdetail(String label, BuildContext context) {
+  Widget _buildOrderDetail(BuildContext context) {
     DateTime now = DateTime.now();
     // Format the date using intl package
     String formattedDate = DateFormat('EEEE, d MMMM yyyy').format(now);

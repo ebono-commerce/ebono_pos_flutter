@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart' as dio;
 import 'package:kpn_pos_application/data_store/shared_preference_helper.dart';
+
 import 'auth_interceptor.dart';
 
 class ApiHelper {
@@ -10,7 +11,6 @@ class ApiHelper {
   // Singleton instance
   static ApiHelper? _instance;
 
-
   // Private constructor
   ApiHelper._internal(this._baseUrl, this._sharedPreferenceHelper) {
     _dio = dio.Dio(dio.BaseOptions(
@@ -19,7 +19,8 @@ class ApiHelper {
       receiveTimeout: const Duration(seconds: 30),
       headers: {
         'Content-Type': 'application/json',
-        'x-channel': 'POS'
+        'x-channel': 'POS',
+        'x-app-id': '8521954d-6746-49c2-b50c-1593cf0adb42',
       },
     ));
 
@@ -36,20 +37,19 @@ class ApiHelper {
   }
 
   // Factory constructor to return the same instance
-  factory ApiHelper(String baseUrl, SharedPreferenceHelper sharedPreferenceHelper) {
+  factory ApiHelper(
+      String baseUrl, SharedPreferenceHelper sharedPreferenceHelper) {
     _instance ??= ApiHelper._internal(baseUrl, sharedPreferenceHelper);
     return _instance!;
   }
 
-
   // GET request
-  Future<T> get<T>(
-      String endpoint, {
-        Map<String, dynamic>? queryParameters,
-        Map<String, dynamic>? headers,
-        T Function(dynamic json)? parser,
-        dio.CancelToken? cancelToken,
-      }) async {
+  Future<T> get<T>(String endpoint, {
+    Map<String, dynamic>? queryParameters,
+    Map<String, dynamic>? headers,
+    T Function(dynamic json)? parser,
+    dio.CancelToken? cancelToken,
+  }) async {
     try {
       dio.Response response = await _dio.get(
         endpoint,
@@ -64,13 +64,12 @@ class ApiHelper {
   }
 
   // POST request
-  Future<T> post<T>(
-      String endpoint, {
-        Map<String, dynamic>? data,
-        Map<String, dynamic>? headers,
-        T Function(dynamic json)? parser,
-        dio.CancelToken? cancelToken,
-      }) async {
+  Future<T> post<T>(String endpoint, {
+    Map<String, dynamic>? data,
+    Map<String, dynamic>? headers,
+    T Function(dynamic json)? parser,
+    dio.CancelToken? cancelToken,
+  }) async {
     try {
       dio.Response response = await _dio.post(
         endpoint,
@@ -124,9 +123,10 @@ class ApiHelper {
           final errorMessage = errorData is Map<String, dynamic>
               ? errorData['message'] ?? 'Unknown error'
               : 'Unknown error';
-          return Exception(
-            "Received invalid status code: $statusCode. Error: $errorMessage",
-          );
+          return
+              // Exception("Received invalid status code: $statusCode. Error: $errorMessage");
+              Exception("$statusCode | $errorMessage");
+
         case dio.DioExceptionType.connectionError:
           return Exception(
             "Connection to server failed due to internet connection.",
