@@ -11,6 +11,7 @@ import 'package:kpn_pos_application/ui/login/bloc/login_bloc.dart';
 import 'package:kpn_pos_application/ui/login/bloc/login_event.dart';
 import 'package:kpn_pos_application/ui/login/bloc/login_state.dart';
 import 'package:kpn_pos_application/ui/login/repository/login_repository.dart';
+import 'package:libserialport/libserialport.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -29,6 +30,7 @@ class _LoginPageState extends State<LoginPage> {
   TextEditingController loginIdController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+  var availablePorts = SerialPort.availablePorts;
 
   final loginBloc = LoginBloc(Get.find<LoginRepository>(), Get.find<SharedPreferenceHelper>());
 
@@ -41,6 +43,18 @@ class _LoginPageState extends State<LoginPage> {
   @override
   void initState() {
     super.initState();
+    print('Available ports:');
+    var i = 0;
+    for (final name in availablePorts) {
+      final sp = SerialPort(name);
+      print('${++i}) $name');
+      print('\tDescription: ${sp.description}');
+      print('\tManufacturer: ${sp.manufacturer}');
+      print('\tSerial Number: ${sp.serialNumber}');
+      //print('\tProduct ID: 0x${sp.productId}');
+      //print('\tVendor ID: 0x${sp.vendorId}');
+      sp.dispose();
+    }
     storeIdFocusNode.addListener(() {
       setState(() {});
     });
@@ -415,6 +429,162 @@ class _LoginPageState extends State<LoginPage> {
       ),
     );
   }
+
+  Widget portSelectionWidget(BuildContext context, LoginBloc loginBloc) {
+    var outletDetails = loginBloc.outletList;
+    var terminalDetails = loginBloc.terminalList;
+    var allowedPosDetails = loginBloc.allowedPos;
+
+    return Card(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(15.0),
+      ),
+      color: Colors.white,
+      elevation: 10,
+      child: Container(
+        padding: EdgeInsets.all(40),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            DropdownSearch<String>(
+              key: dropDownKey,
+              items: (filter, infiniteScrollProps) => outletDetails,
+              decoratorProps: DropDownDecoratorProps(
+                  decoration: textFieldDecoration(
+                      isFocused: dropDownKey.currentState?.isFocused == true,
+                      label: 'Enter Store Id')),
+              onChanged: (value) {
+                if (value != null) {
+                  Future.delayed(Duration(milliseconds: 200), () {
+                    loginBloc.add(
+                      GetOutletDetails(value),
+                    );
+                  });
+                }
+              },
+              suffixProps: DropdownSuffixProps(
+                  dropdownButtonProps: DropdownButtonProps(
+                    iconOpened: Icon(Icons.keyboard_arrow_up),
+                    iconClosed: Icon(Icons.keyboard_arrow_down),
+                  )),
+              selectedItem: outletDetails.first,
+              popupProps: PopupProps.bottomSheet(
+                showSearchBox: true,
+                fit: FlexFit.loose,
+                showSelectedItems: true,
+                searchFieldProps: TextFieldProps(
+                  controller: storeIdController,
+                  focusNode: storeIdFocusNode,
+                  decoration: textFieldDecoration(
+                      isFocused: storeIdFocusNode.hasFocus,
+                      filled: true,
+                      label: '"Search Store Id',
+                      prefixIcon: Icon(Icons.search)),
+                ),
+              ),
+              //dropdownBuilder: (ctx, selectedItem) => Text(selectedItem!.name),
+            ),
+
+            SizedBox(height: 20),
+
+            // Store Mode Selection
+            Wrap(
+              crossAxisAlignment: WrapCrossAlignment.start,
+              alignment: WrapAlignment.start,
+              children: allowedPosDetails
+                  .where((modeKey) =>
+                  loginBloc.allowedPosData.containsKey(modeKey))
+                  .map((modeKey) => storeModeWidget(
+                imagePath:
+                loginBloc.allowedPosData[modeKey]!['imagePath']!,
+                label: loginBloc.allowedPosData[modeKey]!['label']!,
+                context: context,
+                mode: loginBloc.allowedPosData[modeKey]!['mode']!,
+              ))
+                  .toList(),
+            ),
+            SizedBox(height: 20),
+            terminalDetails.isNotEmpty
+                ? DropdownSearch<String>(
+              key: terminalDropDownKey,
+              items: (filter, infiniteScrollProps) => terminalDetails,
+              decoratorProps: DropDownDecoratorProps(
+                  decoration: textFieldDecoration(
+                      isFocused:
+                      terminalDropDownKey.currentState?.isFocused ==
+                          true,
+                      label: 'Enter Terminal Id')),
+              onChanged: (value) {
+                if (value != null) {
+                  Future.delayed(Duration(milliseconds: 200), () {
+                    loginBloc.add(
+                      SelectTerminal(value),
+                    );
+                  });
+                }
+              },
+              suffixProps: DropdownSuffixProps(
+                  dropdownButtonProps: DropdownButtonProps(
+                    iconOpened: Icon(Icons.keyboard_arrow_up),
+                    iconClosed: Icon(Icons.keyboard_arrow_down),
+                  )),
+              selectedItem: terminalDetails.first,
+              popupProps: PopupProps.bottomSheet(
+                showSearchBox: true,
+                fit: FlexFit.loose,
+                showSelectedItems: true,
+                searchFieldProps: TextFieldProps(
+                  controller: terminalIdController,
+                  focusNode: terminalIdFocusNode,
+                  decoration: textFieldDecoration(
+                      isFocused: terminalIdFocusNode.hasFocus,
+                      filled: true,
+                      label: '"Search Terminal Id',
+                      prefixIcon: Icon(Icons.search)),
+                ),
+              ),
+              //dropdownBuilder: (ctx, selectedItem) => Text(selectedItem!.name),
+            )
+                : SizedBox(),
+            SizedBox(height: 20),
+
+            // Sign in button
+            SizedBox(
+              width: double.infinity,
+              height: 60,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).colorScheme.secondary,
+                  textStyle: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.w500,
+                  ),
+                  padding:
+                  const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  elevation: 6,
+                ),
+                onPressed: () {
+                  Future.delayed(Duration(milliseconds: 200), () {
+                    loginBloc.add(
+                      SubmitTerminalDetails(),
+                    );
+                  });
+                },
+                child: Text(
+                  'Continue',
+                ),
+              ),
+            ),
+            SizedBox(height: 10),
+          ],
+        ),
+      ),
+    );
+  }
+
 
   Widget storeModeWidget(
       {required String imagePath,

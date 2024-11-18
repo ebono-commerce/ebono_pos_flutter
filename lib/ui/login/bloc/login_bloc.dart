@@ -24,6 +24,8 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
   late String selectedOutletId;
   String selectedPosMode = 'POS';
   List<String> allowedPos = [];
+  List<String> availablePorts= [];
+  List<String> availablePortDetails= [];
 
   Map<String, Map<String, String>> allowedPosData = {
     'POS': {
@@ -50,12 +52,18 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
 
   LoginBloc(this._loginRepository, this._sharedPreferenceHelper)
       : super(LoginInitial()) {
+    on<LoginInitial>(_onLoginInitial);
     on<LoginButtonPressed>(_onLoginButtonPressed);
     on<LogoutButtonPressed>(_onLogoutButtonPressed);
     on<GetOutletDetails>(_getOutletDetails);
     on<SelectTerminal>(_selectTerminal);
     on<SubmitTerminalDetails>(_submitTerminalDetails);
     on<SelectPosMode>(_selectPosMode);
+  }
+
+  Future<void> _onLoginInitial(
+      LoginInitial event, Emitter<LoginState> emit) async {
+
   }
 
   Future<void> _onLoginButtonPressed(

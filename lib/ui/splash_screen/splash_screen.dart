@@ -15,22 +15,9 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen> {
 
  var prefs =  Get.find<SharedPreferenceHelper>();
- var availablePorts = SerialPort.availablePorts;
   @override
   void initState() {
     super.initState();
-    print('Available ports:');
-    var i = 0;
-    for (final name in availablePorts) {
-      final sp = SerialPort(name);
-      print('${++i}) $name');
-      print('\tDescription: ${sp.description}');
-      print('\tManufacturer: ${sp.manufacturer}');
-      print('\tSerial Number: ${sp.serialNumber}');
-      print('\tProduct ID: 0x${sp.productId}');
-      print('\tVendor ID: 0x${sp.vendorId}');
-      sp.dispose();
-    }
     _checkLoginStatus();
   }
 
@@ -42,7 +29,7 @@ class _SplashScreenState extends State<SplashScreen> {
     final isLoggedIn = await prefs.getLoginStatus() ?? false;
 
     // Navigate to the appropriate screen
-    if (!isLoggedIn) {
+    if (isLoggedIn) {
       Get.offNamed(PageRoutes.home);
     } else {
       Get.offNamed(PageRoutes.login);
