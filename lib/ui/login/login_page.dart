@@ -30,9 +30,9 @@ class _LoginPageState extends State<LoginPage> {
   TextEditingController loginIdController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
-  var availablePorts = SerialPort.availablePorts;
 
-  final loginBloc = LoginBloc(Get.find<LoginRepository>(), Get.find<SharedPreferenceHelper>());
+  final loginBloc = LoginBloc(
+      Get.find<LoginRepository>(), Get.find<SharedPreferenceHelper>());
 
   final GlobalKey<DropdownSearchState> dropDownKey =
       GlobalKey<DropdownSearchState>();
@@ -43,9 +43,10 @@ class _LoginPageState extends State<LoginPage> {
   @override
   void initState() {
     super.initState();
+    loginBloc.add(LoginInitialEvent());
     print('Available ports:');
     var i = 0;
-    for (final name in availablePorts) {
+    for (final name in loginBloc.availablePorts) {
       final sp = SerialPort(name);
       print('${++i}) $name');
       print('\tDescription: ${sp.description}');
@@ -110,7 +111,7 @@ class _LoginPageState extends State<LoginPage> {
                           ? Flexible(
                               flex: 2,
                               child: storeDetailsWidget(context, loginBloc))
-                          : Flexible(flex: 2, child: loginWidget(context)),
+                          : state is LoginInitial ? Flexible(flex: 2, child: portSelectionWidget(context, loginBloc)):  Flexible(flex: 2, child: loginWidget(context)),
                       Flexible(flex: 1, child: SizedBox())
                     ],
                   ),
@@ -431,9 +432,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Widget portSelectionWidget(BuildContext context, LoginBloc loginBloc) {
-    var outletDetails = loginBloc.outletList;
-    var terminalDetails = loginBloc.terminalList;
-    var allowedPosDetails = loginBloc.allowedPos;
+    var availablePorts = loginBloc.availablePorts;
 
     return Card(
       shape: RoundedRectangleBorder(
@@ -447,108 +446,49 @@ class _LoginPageState extends State<LoginPage> {
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            DropdownSearch<String>(
-              key: dropDownKey,
-              items: (filter, infiniteScrollProps) => outletDetails,
-              decoratorProps: DropDownDecoratorProps(
-                  decoration: textFieldDecoration(
-                      isFocused: dropDownKey.currentState?.isFocused == true,
-                      label: 'Enter Store Id')),
-              onChanged: (value) {
-                if (value != null) {
-                  Future.delayed(Duration(milliseconds: 200), () {
-                    loginBloc.add(
-                      GetOutletDetails(value),
-                    );
-                  });
-                }
-              },
-              suffixProps: DropdownSuffixProps(
-                  dropdownButtonProps: DropdownButtonProps(
-                    iconOpened: Icon(Icons.keyboard_arrow_up),
-                    iconClosed: Icon(Icons.keyboard_arrow_down),
-                  )),
-              selectedItem: outletDetails.first,
-              popupProps: PopupProps.bottomSheet(
-                showSearchBox: true,
-                fit: FlexFit.loose,
-                showSelectedItems: true,
-                searchFieldProps: TextFieldProps(
-                  controller: storeIdController,
-                  focusNode: storeIdFocusNode,
-                  decoration: textFieldDecoration(
-                      isFocused: storeIdFocusNode.hasFocus,
-                      filled: true,
-                      label: '"Search Store Id',
-                      prefixIcon: Icon(Icons.search)),
-                ),
-              ),
-              //dropdownBuilder: (ctx, selectedItem) => Text(selectedItem!.name),
-            ),
-
-            SizedBox(height: 20),
-
-            // Store Mode Selection
-            Wrap(
-              crossAxisAlignment: WrapCrossAlignment.start,
-              alignment: WrapAlignment.start,
-              children: allowedPosDetails
-                  .where((modeKey) =>
-                  loginBloc.allowedPosData.containsKey(modeKey))
-                  .map((modeKey) => storeModeWidget(
-                imagePath:
-                loginBloc.allowedPosData[modeKey]!['imagePath']!,
-                label: loginBloc.allowedPosData[modeKey]!['label']!,
-                context: context,
-                mode: loginBloc.allowedPosData[modeKey]!['mode']!,
-              ))
-                  .toList(),
-            ),
-            SizedBox(height: 20),
-            terminalDetails.isNotEmpty
+            availablePorts.isNotEmpty
                 ? DropdownSearch<String>(
-              key: terminalDropDownKey,
-              items: (filter, infiniteScrollProps) => terminalDetails,
-              decoratorProps: DropDownDecoratorProps(
-                  decoration: textFieldDecoration(
-                      isFocused:
-                      terminalDropDownKey.currentState?.isFocused ==
-                          true,
-                      label: 'Enter Terminal Id')),
-              onChanged: (value) {
-                if (value != null) {
-                  Future.delayed(Duration(milliseconds: 200), () {
-                    loginBloc.add(
-                      SelectTerminal(value),
-                    );
-                  });
-                }
-              },
-              suffixProps: DropdownSuffixProps(
-                  dropdownButtonProps: DropdownButtonProps(
-                    iconOpened: Icon(Icons.keyboard_arrow_up),
-                    iconClosed: Icon(Icons.keyboard_arrow_down),
-                  )),
-              selectedItem: terminalDetails.first,
-              popupProps: PopupProps.bottomSheet(
-                showSearchBox: true,
-                fit: FlexFit.loose,
-                showSelectedItems: true,
-                searchFieldProps: TextFieldProps(
-                  controller: terminalIdController,
-                  focusNode: terminalIdFocusNode,
-                  decoration: textFieldDecoration(
-                      isFocused: terminalIdFocusNode.hasFocus,
-                      filled: true,
-                      label: '"Search Terminal Id',
-                      prefixIcon: Icon(Icons.search)),
-                ),
-              ),
-              //dropdownBuilder: (ctx, selectedItem) => Text(selectedItem!.name),
-            )
+                    key: dropDownKey,
+                    items: (filter, infiniteScrollProps) => availablePorts,
+                    decoratorProps: DropDownDecoratorProps(
+                        decoration: textFieldDecoration(
+                            isFocused:
+                                dropDownKey.currentState?.isFocused == true,
+                            label: 'Select port Id')),
+                    onChanged: (value) {
+                      if (value != null) {
+                        Future.delayed(Duration(milliseconds: 200), () {
+                          loginBloc.add(
+                            SelectPort(value),
+                          );
+                        });
+                      }
+                    },
+                    suffixProps: DropdownSuffixProps(
+                        dropdownButtonProps: DropdownButtonProps(
+                      iconOpened: Icon(Icons.keyboard_arrow_up),
+                      iconClosed: Icon(Icons.keyboard_arrow_down),
+                    )),
+                    selectedItem: availablePorts.first,
+                    popupProps: PopupProps.bottomSheet(
+                      showSearchBox: true,
+                      fit: FlexFit.loose,
+                      showSelectedItems: true,
+                      searchFieldProps: TextFieldProps(
+                        controller: storeIdController,
+                        focusNode: storeIdFocusNode,
+                        decoration: textFieldDecoration(
+                            isFocused: storeIdFocusNode.hasFocus,
+                            filled: true,
+                            label: 'Select Port Id',
+                            prefixIcon: Icon(Icons.search)),
+                      ),
+                    ),
+                    //dropdownBuilder: (ctx, selectedItem) => Text(selectedItem!.name),
+                  )
                 : SizedBox(),
-            SizedBox(height: 20),
 
+            SizedBox(height: 20),
             // Sign in button
             SizedBox(
               width: double.infinity,
@@ -557,10 +497,10 @@ class _LoginPageState extends State<LoginPage> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Theme.of(context).colorScheme.secondary,
                   textStyle: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.w500,
-                  ),
+                        fontWeight: FontWeight.w500,
+                      ),
                   padding:
-                  const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(14),
                   ),
@@ -584,7 +524,6 @@ class _LoginPageState extends State<LoginPage> {
       ),
     );
   }
-
 
   Widget storeModeWidget(
       {required String imagePath,

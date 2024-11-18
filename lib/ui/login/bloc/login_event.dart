@@ -1,5 +1,12 @@
 abstract class LoginEvent {}
 
+class LoginInitialEvent extends LoginEvent {}
+
+class SelectPort extends LoginEvent {
+  final String port;
+  SelectPort(this.port);
+}
+
 class LoginButtonPressed extends LoginEvent {
   final String loginId;
   final String password;

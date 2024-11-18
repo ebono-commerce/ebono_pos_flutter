@@ -11,6 +11,7 @@ import 'package:kpn_pos_application/ui/login/model/logout_response.dart';
 import 'package:kpn_pos_application/ui/login/model/outlet_details_response.dart';
 import 'package:kpn_pos_application/ui/login/model/terminal_details_response.dart';
 import 'package:kpn_pos_application/ui/login/repository/login_repository.dart';
+import 'package:libserialport/libserialport.dart';
 import 'package:uuid/uuid.dart';
 
 class LoginBloc extends Bloc<LoginEvent, LoginState> {
@@ -25,7 +26,6 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
   String selectedPosMode = 'POS';
   List<String> allowedPos = [];
   List<String> availablePorts= [];
-  List<String> availablePortDetails= [];
 
   Map<String, Map<String, String>> allowedPosData = {
     'POS': {
@@ -52,7 +52,8 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
 
   LoginBloc(this._loginRepository, this._sharedPreferenceHelper)
       : super(LoginInitial()) {
-    on<LoginInitial>(_onLoginInitial);
+    on<LoginInitialEvent>(_onLoginInitial);
+    on<SelectPort>(_onPortSelection);
     on<LoginButtonPressed>(_onLoginButtonPressed);
     on<LogoutButtonPressed>(_onLogoutButtonPressed);
     on<GetOutletDetails>(_getOutletDetails);
@@ -62,8 +63,14 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
   }
 
   Future<void> _onLoginInitial(
-      LoginInitial event, Emitter<LoginState> emit) async {
+      LoginInitialEvent event, Emitter<LoginState> emit) async {
+     availablePorts = SerialPort.availablePorts;
+  }
 
+  Future<void> _onPortSelection(
+      SelectPort event, Emitter<LoginState> emit) async {
+    availablePorts = SerialPort.availablePorts;
+    emit(PortSelectionSuccess());
   }
 
   Future<void> _onLoginButtonPressed(
