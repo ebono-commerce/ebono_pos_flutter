@@ -1,6 +1,7 @@
 import 'dart:convert';
 
-LoginResponse loginResponseFromJson(dynamic str) => LoginResponse.fromJson(json.decode(str));
+LoginResponse loginResponseFromJson(dynamic str) =>
+    LoginResponse.fromJson(json.decode(str));
 
 String loginResponseToJson(LoginResponse data) => json.encode(data.toJson());
 
@@ -16,16 +17,18 @@ class LoginResponse {
   });
 
   factory LoginResponse.fromJson(Map<String, dynamic> json) => LoginResponse(
-    token: json["token"],
-    userDetails: UserDetails.fromJson(json["user_details"]),
-    outletDetails: List<OutletDetail>.from(json["outlet_details"].map((x) => OutletDetail.fromJson(x))),
-  );
+        token: json["token"],
+        userDetails: UserDetails.fromJson(json["user_details"]),
+        outletDetails: List<OutletDetail>.from(
+            json["outlet_details"].map((x) => OutletDetail.fromJson(x))),
+      );
 
   Map<String, dynamic> toJson() => {
-    "token": token,
-    "user_details": userDetails.toJson(),
-    "outlet_details": List<dynamic>.from(outletDetails.map((x) => x.toJson())),
-  };
+        "token": token,
+        "user_details": userDetails.toJson(),
+        "outlet_details":
+            List<dynamic>.from(outletDetails.map((x) => x.toJson())),
+      };
 }
 
 class OutletDetail {
@@ -38,32 +41,33 @@ class OutletDetail {
   });
 
   factory OutletDetail.fromJson(Map<String, dynamic> json) => OutletDetail(
-    outletId: json["outlet_id"],
-    name: json["name"],
-  );
+        outletId: json["outlet_id"],
+        name: json["name"],
+      );
 
   Map<String, dynamic> toJson() => {
-    "outlet_id": outletId,
-    "name": name,
-  };
+        "outlet_id": outletId,
+        "name": name,
+      };
 }
 
 class UserDetails {
   String fullName;
   String userType;
+  String userId;
 
-  UserDetails({
-    required this.fullName,
-    required this.userType,
-  });
+  UserDetails(
+      {required this.fullName, required this.userType, required this.userId});
 
   factory UserDetails.fromJson(Map<String, dynamic> json) => UserDetails(
-    fullName: json["full_name"],
-    userType: json["user_type"],
-  );
+        fullName: json["full_name"],
+        userType: json["user_type"],
+        userId: json["user_id"],
+      );
 
   Map<String, dynamic> toJson() => {
-    "full_name": fullName,
-    "user_type": userType,
-  };
+        "full_name": fullName,
+        "user_type": userType,
+        "user_id": userId,
+      };
 }

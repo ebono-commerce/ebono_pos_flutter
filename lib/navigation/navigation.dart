@@ -6,10 +6,14 @@ import 'package:kpn_pos_application/ui/login/login_page.dart';
 import 'package:kpn_pos_application/ui/payment_summary/route/payment_summary_page.dart';
 import 'package:kpn_pos_application/ui/payment_summary/route/print_receipt.dart';
 import 'package:kpn_pos_application/ui/payment_summary/route/weight_display_page.dart';
+import 'package:kpn_pos_application/ui/splash_screen/splash_screen.dart';
 import 'package:kpn_pos_application/vm/home_vm.dart';
 
 List<GetPage> getPages(){
   return  [
+    GetPage(
+        name: PageRoutes.splashScreen,
+        page: () => SplashScreen()),
     GetPage(
         name: PageRoutes.login,
         page: () => LoginPage()),

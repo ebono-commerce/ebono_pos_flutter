@@ -1,8 +1,8 @@
 import 'package:dropdown_search/dropdown_search.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:kpn_pos_application/constants/custom_colors.dart';
 import 'package:kpn_pos_application/navigation/page_routes.dart';
 import 'package:kpn_pos_application/ui/common_text_field.dart';
@@ -59,7 +59,7 @@ class _LoginPageState extends State<LoginPage> {
 
     return Scaffold(
       body: BlocProvider(
-        create: (_) => loginBloc,
+        create: (context) => loginBloc,
         child: BlocListener<LoginBloc, LoginState>(
           listener: (context, state) {
             if (state is LoginSuccess) {
@@ -122,7 +122,7 @@ class _LoginPageState extends State<LoginPage> {
           children: [
             SvgPicture.asset(
               'assets/images/pos_logo.svg',
-              semanticsLabel: 'cash icon,',
+              semanticsLabel: 'logo,',
               width: 175,
               height: 175,
             ),
@@ -212,7 +212,6 @@ class _LoginPageState extends State<LoginPage> {
                     elevation: 6,
                   ),
                   onPressed: () {
-                    Get.toNamed(PageRoutes.home);
                     if (_formKey.currentState!.validate()) {
                       loginBloc.add(
                         LoginButtonPressed(

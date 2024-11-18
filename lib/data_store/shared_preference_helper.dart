@@ -74,4 +74,40 @@ class SharedPreferenceHelper {
     await prefs.remove(SharedPreferenceConstants.selectedOutlet);
   }
 
+  // Store the isLoggedIn
+  Future<void> storeLoginStatus(bool selectedOutlet) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(SharedPreferenceConstants.isLoggedIn, selectedOutlet);
+  }
+
+  // Retrieve the isLoggedIn
+  Future<bool?> getLoginStatus() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(SharedPreferenceConstants.isLoggedIn);
+  }
+
+  // Clear the isLoggedIn
+  Future<void> clearLoginStatus() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(SharedPreferenceConstants.isLoggedIn);
+  }
+
+  // Store the appUUID
+  Future<void> storeUserID(String appUUID) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(SharedPreferenceConstants.userID, appUUID);
+  }
+
+  // Retrieve the appUUID
+  Future<String?> getUserID() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(SharedPreferenceConstants.userID);
+  }
+
+  // Clear the appUUID
+  Future<void> clearUserID() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(SharedPreferenceConstants.userID);
+  }
+
 }

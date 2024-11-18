@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import 'package:kpn_pos_application/api/api_constants.dart';
 import 'package:kpn_pos_application/api/api_helper.dart';
+import 'package:kpn_pos_application/data_store/get_storage_helper.dart';
 import 'package:kpn_pos_application/data_store/shared_preference_helper.dart';
 import 'package:kpn_pos_application/ui/home/home_controller.dart';
 import 'package:kpn_pos_application/ui/home/repository/home_repository.dart';
@@ -12,6 +13,8 @@ class InitialBinding extends Bindings {
   void dependencies() {
     // Register SharedPreferenceHelper as a singleton
     Get.put<SharedPreferenceHelper>(SharedPreferenceHelper());
+    Get.put<GetStorageHelper>(GetStorageHelper());
+
 
     // Register ApiHelper as a singleton
     Get.put<ApiHelper>(
