@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:kpn_pos_application/api/api_helper.dart';
+import 'package:kpn_pos_application/data_store/shared_preference_helper.dart';
 import 'package:kpn_pos_application/models/cart_response.dart';
 import 'package:kpn_pos_application/models/customer_response.dart';
 import 'package:kpn_pos_application/models/scan_products_response.dart';
@@ -13,8 +14,10 @@ import 'package:kpn_pos_application/ui/home/repository/home_repository.dart';
 class HomeController extends GetxController {
   late final HomeRepository _homeRepository;
   late final ApiHelper _apiHelper;
+  final SharedPreferenceHelper sharedPreferenceHelper;
 
-  HomeController(this._homeRepository, this._apiHelper);
+  HomeController(
+      this._homeRepository, this._apiHelper, this.sharedPreferenceHelper);
 
   var isLoading = false.obs;
 
@@ -23,7 +26,7 @@ class HomeController extends GetxController {
   var scanCode = ''.obs;
   var cartId = ''.obs;
   var isDisplayAddCustomerView = true.obs;
-
+  late String portName;
   var cartLines = <CartLine>[].obs;
 
   var scanProductsResponse = ScanProductsResponse().obs;
@@ -31,8 +34,9 @@ class HomeController extends GetxController {
   var cartResponse = CartResponse().obs;
 
   @override
-  void onInit() {
+  void onInit() async {
     super.onInit();
+    portName = await sharedPreferenceHelper.getPortName() ?? '';
     initialResponse();
   }
 
@@ -197,8 +201,8 @@ class HomeController extends GetxController {
     }
   }
 
-  Future<void> updateCartItemApiCall(String? cartLineId, String? qUom,
-      double? qty) async {
+  Future<void> updateCartItemApiCall(
+      String? cartLineId, String? qUom, double? qty) async {
     print("API updateCartItemApiCall: $qty | $cartLineId");
     try {
       var response = await _homeRepository.updateCartItem(

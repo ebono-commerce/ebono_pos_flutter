@@ -5,4 +5,5 @@ class SharedPreferenceConstants {
   static final isLoggedIn = 'isLoggedIn';
   static final userID = 'userID';
   static final userDetails = 'userDetails';
+  static final portName = 'portName';
 }

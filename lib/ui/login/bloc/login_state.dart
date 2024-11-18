@@ -2,6 +2,8 @@ abstract class LoginState {}
 
 class LoginInitial extends LoginState {}
 
+class ReadPortSuccess extends LoginState {}
+
 class PortSelectionSuccess extends LoginState {}
 
 class LoginLoading extends LoginState {}

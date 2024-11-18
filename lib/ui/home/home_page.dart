@@ -20,7 +20,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int _selectedButton = 2;
   bool isOnline = false;
-  final String port = '/dev/ttyUSB0'; // Replace with actual port
+  late String port;
 
   final String model = 'alfa';
   final int rate = 9600;
@@ -33,8 +33,9 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     if (mounted == true) {
-      weightController = Get.put(WeightController(port, model, rate, timeout));
       homeController = Get.find<HomeController>();
+      print('home page init'+homeController.portName);
+      weightController = Get.put(WeightController(homeController.portName, model, rate, timeout));
     }
   }
 

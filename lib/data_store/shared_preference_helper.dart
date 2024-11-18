@@ -92,22 +92,40 @@ class SharedPreferenceHelper {
     await prefs.remove(SharedPreferenceConstants.isLoggedIn);
   }
 
-  // Store the appUUID
+  // Store the userID
   Future<void> storeUserID(String appUUID) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(SharedPreferenceConstants.userID, appUUID);
   }
 
-  // Retrieve the appUUID
+  // Retrieve the userID
   Future<String?> getUserID() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(SharedPreferenceConstants.userID);
   }
 
-  // Clear the appUUID
+  // Clear the userID
   Future<void> clearUserID() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(SharedPreferenceConstants.userID);
+  }
+
+  // Store the PortName
+  Future<void> storePortName(String portName) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(SharedPreferenceConstants.portName, portName);
+  }
+
+  // Retrieve the PortName
+  Future<String?> getPortName() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(SharedPreferenceConstants.portName);
+  }
+
+  // Clear the PortName
+  Future<void> clearPortName() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(SharedPreferenceConstants.portName);
   }
 
 }
