@@ -12,6 +12,7 @@ import 'package:kpn_pos_application/ui/home/model/delete_cart.dart';
 import 'package:kpn_pos_application/ui/home/model/update_cart.dart';
 import 'package:kpn_pos_application/ui/home/repository/home_repository.dart';
 import 'package:kpn_pos_application/ui/login/model/login_response.dart';
+import 'package:kpn_pos_application/utils/digital_weighing_scale.dart';
 
 class HomeController extends GetxController {
   late final HomeRepository _homeRepository;
@@ -26,27 +27,54 @@ class HomeController extends GetxController {
   var scanCode = ''.obs;
   var cartId = ''.obs;
   var isDisplayAddCustomerView = true.obs;
-  late String portName;
+  RxString portName = ''.obs;
   var cartLines = <CartLine>[].obs;
 
   var scanProductsResponse = ScanProductsResponse().obs;
   var customerResponse = CustomerResponse().obs;
   var cartResponse = CartResponse().obs;
-  UserDetails userDetails = UserDetails(fullName: '', userType: '', userId: '');
-  String selectedOutlet = '';
-  String selectedTerminal = '';
+  Rx<UserDetails> userDetails = UserDetails(fullName: '', userType: '', userId: '').obs;
+  RxString selectedOutlet = ''.obs;
+  RxString selectedTerminal = ''.obs;
+
+  RxDouble weight = 0.0.obs; // Observable weight value
+  late DigitalWeighingScale digitalWeighingScale;
+  final String model = 'alfa';
+  final int rate = 9600;
+  final int timeout = 1000;
+
 
   @override
   void onInit() async {
-    portName = await sharedPreferenceHelper.getPortName() ?? '';
-    userDetails = UserDetails.fromJson(
-        GetStorageHelper.read(SharedPreferenceConstants.userDetails));
-    selectedOutlet =
+    portName.value = await sharedPreferenceHelper.getPortName() ?? '';
+    selectedOutlet.value =
         GetStorageHelper.read(SharedPreferenceConstants.selectedOutletName);
-    selectedTerminal =
+    selectedTerminal.value =
         GetStorageHelper.read(SharedPreferenceConstants.selectedTerminalName);
     print('selectedTerminal  $selectedTerminal');
     print('selectedOutlet  $selectedOutlet');
+    final userDetailsData = GetStorageHelper.read(SharedPreferenceConstants.userDetails);
+    if (userDetailsData != null && userDetailsData is Map<String, dynamic>) {
+      userDetails.value = UserDetails.fromJson(userDetailsData);
+      print(userDetails.value.toJson());
+    } else {
+      userDetails.value = userDetailsData;
+      print(userDetails.value.toJson());
+    }
+
+
+    try {
+      digitalWeighingScale = DigitalWeighingScale(
+        digitalScalePort: portName.value,
+        digitalScaleModel: model,
+        digitalScaleRate: rate,
+        digitalScaleTimeout: timeout,
+        weightController: weight,
+      );
+      digitalWeighingScale.getWeight();
+    } on Exception catch (e) {
+      print(e);
+    }
     initialResponse();
     super.onInit();
   }

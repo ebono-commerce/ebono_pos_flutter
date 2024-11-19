@@ -13,10 +13,9 @@ import 'package:kpn_pos_application/utils/common_methods.dart';
 import 'package:kpn_pos_application/utils/dash_line.dart';
 
 class OrdersSection extends StatefulWidget {
-  final WeightController weightController;
   final HomeController homeController;
 
-  const OrdersSection(this.weightController, this.homeController, {super.key});
+  const OrdersSection(this.homeController, {super.key});
 
   @override
   State<OrdersSection> createState() => _OrdersSectionState();
@@ -31,13 +30,11 @@ class _OrdersSectionState extends State<OrdersSection>
   final TextEditingController _controllerPhoneNumber = TextEditingController();
   final TextEditingController _controllerCustomerName = TextEditingController();
 
-  late WeightController weightController;
   late HomeController homeController;
 
   @override
   void initState() {
     if (mounted == true) {
-      weightController = widget.weightController;
       homeController = widget.homeController;
       homeController.initialResponse();
     }
@@ -270,8 +267,8 @@ class _OrdersSectionState extends State<OrdersSection>
                 if (itemData.focusNode != null) {
                   if (itemData.focusNode?.hasFocus == true) {
                     itemData.controller?.text =
-                        weightController.weight.value.toString();
-                    weightController.weight.value = 0.0;
+                        homeController.weight.value.toString();
+                    homeController.weight.value = 0.0;
                   }
                 }
                 return TableRow(
