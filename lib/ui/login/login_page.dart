@@ -291,7 +291,7 @@ class _LoginPageState extends State<LoginPage> {
                       label: 'Enter Store Id')),
               onChanged: (value) {
                 if (value != null) {
-                  Future.delayed(Duration(milliseconds: 200), () {
+                  Future.delayed(Duration(milliseconds: 400), () {
                     loginBloc.add(
                       GetOutletDetails(value),
                     );
@@ -352,7 +352,7 @@ class _LoginPageState extends State<LoginPage> {
                             label: 'Enter Terminal Id')),
                     onChanged: (value) {
                       if (value != null) {
-                        Future.delayed(Duration(milliseconds: 200), () {
+                        Future.delayed(Duration(milliseconds: 400), () {
                           loginBloc.add(
                             SelectTerminal(value),
                           );
@@ -402,7 +402,7 @@ class _LoginPageState extends State<LoginPage> {
                   elevation: 6,
                 ),
                 onPressed: () {
-                  Future.delayed(Duration(milliseconds: 200), () {
+                  Future.delayed(Duration(milliseconds: 400), () {
                     loginBloc.add(
                       SubmitTerminalDetails(),
                     );
@@ -446,7 +446,7 @@ class _LoginPageState extends State<LoginPage> {
                             label: 'Select weighing scale port')),
                     onChanged: (value) {
                       if (value != null) {
-                        Future.delayed(Duration(milliseconds: 200), () {
+                        Future.delayed(Duration(milliseconds: 400), () {
                           loginBloc.add(
                             SelectPort(value),
                           );
@@ -497,7 +497,7 @@ class _LoginPageState extends State<LoginPage> {
                   elevation: 6,
                 ),
                 onPressed: () {
-                  Future.delayed(Duration(milliseconds: 200), () {
+                  Future.delayed(Duration(milliseconds: 400), () {
                     loginBloc.add(
                       SubmitTerminalDetails(),
                     );
