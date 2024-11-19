@@ -8,11 +8,11 @@ import 'package:kpn_pos_application/ui/home/home_controller.dart';
 import 'package:kpn_pos_application/ui/home/order_on_hold.dart';
 import 'package:kpn_pos_application/ui/home/orders_section.dart';
 import 'package:kpn_pos_application/ui/home/register_section.dart';
+import 'package:kpn_pos_application/ui/home/repository/home_repository.dart';
 import 'package:kpn_pos_application/ui/login/bloc/login_bloc.dart';
 import 'package:kpn_pos_application/ui/login/bloc/login_event.dart';
 import 'package:kpn_pos_application/ui/login/bloc/login_state.dart';
 import 'package:kpn_pos_application/ui/login/repository/login_repository.dart';
-import 'package:kpn_pos_application/ui/payment_summary/weight_controller.dart';
 import 'package:kpn_pos_application/vm/home_vm.dart';
 
 class HomePage extends StatefulWidget {
@@ -28,26 +28,11 @@ class _HomePageState extends State<HomePage> {
   int _selectedButton = 2;
   bool isOnline = false;
   late String port;
-
-  final String model = 'alfa';
-  final int rate = 9600;
-  final int timeout = 1000;
-  late WeightController weightController;
-
-  late HomeController homeController;
+  HomeController homeController = Get.put<HomeController>(HomeController(
+      Get.find<HomeRepository>(), Get.find<SharedPreferenceHelper>()));
   late ThemeData theme;
   final loginBloc = LoginBloc(
       Get.find<LoginRepository>(), Get.find<SharedPreferenceHelper>());
-
-  @override
-  void initState() {
-    super.initState();
-    if (mounted == true) {
-      homeController = Get.find<HomeController>();
-      weightController = Get.put(
-          WeightController(homeController.portName, model, rate, timeout));
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -191,72 +176,74 @@ class _HomePageState extends State<HomePage> {
             ),
             Spacer(),
             Flexible(
-              child: GetBuilder<HomeController>(
-                  builder: (controller) => Column(
-                    mainAxisSize: MainAxisSize.min,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Obx(
+                    () => Text(
+                      '${homeController.userDetails.value.fullName}| ${homeController.selectedOutlet.value}',
+                      style: Theme.of(context)
+                          .textTheme
+                          .labelMedium
+                          ?.copyWith(color: CustomColors.black),
+                      // style: TextStyle(color: Colors.black, fontSize: 13),
+                    ),
+                  ),
+                  SizedBox(height: 5),
+                  Row(
+                    mainAxisSize: MainAxisSize.max,
                     mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        '${controller.userDetails.fullName}| ${controller.selectedOutlet}',
-                        style: Theme.of(context)
-                            .textTheme
-                            .labelMedium
-                            ?.copyWith(color: CustomColors.black),
-                        // style: TextStyle(color: Colors.black, fontSize: 13),
-                      ),
-                      SizedBox(height: 5),
-                      Row(
-                        mainAxisSize: MainAxisSize.max,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          InkWell(
-                            onTap: () {
-                              setState(() {
-                                isOnline = !isOnline;
-                              });
-                            },
-                            child: Row(
-                              children: [
-                                ImageIcon(
-                                  size: 20,
-                                  color: isOnline == true
-                                      ? CustomColors.green
-                                      : CustomColors.red,
-                                  isOnline == true
-                                      ? AssetImage('assets/images/ic_online.png')
-                                      : AssetImage('assets/images/ic_offline.png'),
-                                ),
-                                SizedBox(width: 5),
-                                Text(
-                                  isOnline == true ? 'ONLINE' : "OFFLINE",
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .labelMedium
-                                      ?.copyWith(
+                      InkWell(
+                        onTap: () {
+                          setState(() {
+                            isOnline = !isOnline;
+                          });
+                        },
+                        child: Row(
+                          children: [
+                            ImageIcon(
+                              size: 20,
+                              color: isOnline == true
+                                  ? CustomColors.green
+                                  : CustomColors.red,
+                              isOnline == true
+                                  ? AssetImage('assets/images/ic_online.png')
+                                  : AssetImage('assets/images/ic_offline.png'),
+                            ),
+                            SizedBox(width: 5),
+                            Text(
+                              isOnline == true ? 'ONLINE' : "OFFLINE",
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .labelMedium
+                                  ?.copyWith(
                                       color: isOnline == true
                                           ? CustomColors.green
                                           : CustomColors.red),
-                                  //  style: TextStyle(color: Colors.green, fontSize: 11),
-                                ),
-                              ],
+                              //  style: TextStyle(color: Colors.green, fontSize: 11),
                             ),
-                          ),
-                          SizedBox(width: 5),
-                          Text(
-                            controller.selectedTerminal,
-                            style: Theme.of(context)
-                                .textTheme
-                                .labelMedium
-                                ?.copyWith(color: CustomColors.black),
-                            //  style: TextStyle(color: Colors.black, fontSize: 12),
-                          ),
-                        ],
+                          ],
+                        ),
+                      ),
+                      SizedBox(width: 5),
+                      Obx(
+                        () => Text(
+                          homeController.selectedTerminal.value,
+                          style: Theme.of(context)
+                              .textTheme
+                              .labelMedium
+                              ?.copyWith(color: CustomColors.black),
+                          //  style: TextStyle(color: Colors.black, fontSize: 12),
+                        ),
                       ),
                     ],
-                  ),),
+                  ),
+                ],
+              ),
             ),
-
             BlocProvider(
               create: (context) => loginBloc,
               child: BlocListener<LoginBloc, LoginState>(
@@ -285,7 +272,7 @@ class _HomePageState extends State<HomePage> {
         child: _selectedButton == 1
             ? RegisterSection()
             : _selectedButton == 2
-                ? OrdersSection(weightController, homeController)
+                ? OrdersSection(homeController)
                 : _selectedButton == 3
                     ? OrderOnHold()
                     : Container(),

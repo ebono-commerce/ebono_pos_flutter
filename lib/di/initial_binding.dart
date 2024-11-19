@@ -28,7 +28,7 @@ class InitialBinding extends Bindings {
     Get.put<LoginBloc>(LoginBloc(
         Get.find<LoginRepository>(), Get.find<SharedPreferenceHelper>()));*/
     // Register HomeController as a singleton
-    Get.put<HomeController>(
-        HomeController(Get.find<HomeRepository>(), Get.find<SharedPreferenceHelper>()));
+    /*Get.put<HomeController>(
+        HomeController(Get.find<HomeRepository>(), Get.find<SharedPreferenceHelper>()));*/
   }
 }
