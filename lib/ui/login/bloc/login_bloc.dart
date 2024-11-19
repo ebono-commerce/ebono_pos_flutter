@@ -147,6 +147,8 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
           await _loginRepository.getOutletDetails(selectedOutletId);
 
       _sharedPreferenceHelper.storeSelectedOutlet(response.outletId ?? "");
+      /*GetStorageHelper.save(
+          SharedPreferenceConstants.userDetails, response.userDetails);*/
       terminalDetails = response.terminals ?? [];
       terminalList.clear();
       if (terminalDetails.isNotEmpty) {

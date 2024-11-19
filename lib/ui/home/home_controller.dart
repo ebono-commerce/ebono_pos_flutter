@@ -1,5 +1,7 @@
 import 'package:get/get.dart';
 import 'package:kpn_pos_application/api/api_helper.dart';
+import 'package:kpn_pos_application/constants/shared_preference_constants.dart';
+import 'package:kpn_pos_application/data_store/get_storage_helper.dart';
 import 'package:kpn_pos_application/data_store/shared_preference_helper.dart';
 import 'package:kpn_pos_application/models/cart_response.dart';
 import 'package:kpn_pos_application/models/customer_response.dart';
@@ -10,6 +12,7 @@ import 'package:kpn_pos_application/ui/home/model/customer_request.dart';
 import 'package:kpn_pos_application/ui/home/model/delete_cart.dart';
 import 'package:kpn_pos_application/ui/home/model/update_cart.dart';
 import 'package:kpn_pos_application/ui/home/repository/home_repository.dart';
+import 'package:kpn_pos_application/ui/login/model/login_response.dart';
 
 class HomeController extends GetxController {
   late final HomeRepository _homeRepository;
@@ -32,10 +35,13 @@ class HomeController extends GetxController {
   var scanProductsResponse = ScanProductsResponse().obs;
   var customerResponse = CustomerResponse().obs;
   var cartResponse = CartResponse().obs;
+  late UserDetails userDetails;
 
   @override
   void onInit() async {
     super.onInit();
+    userDetails = UserDetails.fromJson(
+        GetStorageHelper.read(SharedPreferenceConstants.userDetails));
     portName = await sharedPreferenceHelper.getPortName() ?? '';
     initialResponse();
   }
