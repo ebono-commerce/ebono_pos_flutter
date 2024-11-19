@@ -1,4 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:kpn_pos_application/constants/shared_preference_constants.dart';
+import 'package:kpn_pos_application/data_store/get_storage_helper.dart';
 import 'package:kpn_pos_application/data_store/shared_preference_helper.dart';
 import 'package:kpn_pos_application/ui/login/bloc/login_event.dart';
 import 'package:kpn_pos_application/ui/login/bloc/login_state.dart';
@@ -9,6 +11,7 @@ import 'package:kpn_pos_application/ui/login/model/logout_response.dart';
 import 'package:kpn_pos_application/ui/login/model/outlet_details_response.dart';
 import 'package:kpn_pos_application/ui/login/model/terminal_details_response.dart';
 import 'package:kpn_pos_application/ui/login/repository/login_repository.dart';
+import 'package:libserialport/libserialport.dart';
 import 'package:uuid/uuid.dart';
 
 class LoginBloc extends Bloc<LoginEvent, LoginState> {
@@ -22,6 +25,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
   late String selectedOutletId;
   String selectedPosMode = 'POS';
   List<String> allowedPos = [];
+  List<String> availablePorts = [];
 
   Map<String, Map<String, String>> allowedPosData = {
     'POS': {
@@ -48,12 +52,39 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
 
   LoginBloc(this._loginRepository, this._sharedPreferenceHelper)
       : super(LoginInitial()) {
+    on<LoginInitialEvent>(_onLoginInitial);
+    on<SelectPort>(_onPortSelection);
     on<LoginButtonPressed>(_onLoginButtonPressed);
     on<LogoutButtonPressed>(_onLogoutButtonPressed);
     on<GetOutletDetails>(_getOutletDetails);
     on<SelectTerminal>(_selectTerminal);
     on<SubmitTerminalDetails>(_submitTerminalDetails);
     on<SelectPosMode>(_selectPosMode);
+  }
+
+  Future<void> _onLoginInitial(
+      LoginInitialEvent event, Emitter<LoginState> emit) async {
+    availablePorts = SerialPort.availablePorts;
+    print('Available ports:');
+    var i = 0;
+    for (final name in availablePorts) {
+      final sp = SerialPort(name);
+      print('${++i}) $name');
+      print('\tDescription: ${sp.description}');
+      print('\tManufacturer: ${sp.manufacturer}');
+      print('\tSerial Number: ${sp.serialNumber}');
+      //print('\tProduct ID: 0x${sp.productId}');
+      //print('\tVendor ID: 0x${sp.vendorId}');
+      sp.dispose();
+    }
+    emit(ReadPortSuccess());
+  }
+
+  Future<void> _onPortSelection(
+      SelectPort event, Emitter<LoginState> emit) async {
+    _sharedPreferenceHelper.storePortName(event.port);
+
+    emit(PortSelectionSuccess());
   }
 
   Future<void> _onLoginButtonPressed(
@@ -71,11 +102,17 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
           LoginRequest(userName: event.loginId, password: event.password));
 
       _sharedPreferenceHelper.storeAuthToken(response.token);
+      _sharedPreferenceHelper.storeUserID(response.userDetails.userId);
+      GetStorageHelper.save(
+          SharedPreferenceConstants.userDetails, response.userDetails);
+
       outletDetails = response.outletDetails;
       for (var i in outletDetails) {
         outletList.add(i.name);
       }
       selectedOutletId = response.outletDetails.first.outletId;
+      GetStorageHelper.save(
+          SharedPreferenceConstants.selectedOutletName, response.outletDetails.first.name);
       emit(LoginSuccess());
     } catch (error) {
       emit(LoginFailure(error.toString()));
@@ -86,10 +123,12 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       LogoutButtonPressed event, Emitter<LoginState> emit) async {
     emit(LoginLoading());
     try {
+      var token = await _sharedPreferenceHelper.getAuthToken() ?? '';
       final LogoutResponse response =
-          await _loginRepository.logout(token: event.token);
+          await _loginRepository.logout(token: token);
 
       _sharedPreferenceHelper.clearAll();
+      GetStorageHelper.clear();
       emit(LogoutSuccess());
     } catch (error) {
       emit(LogoutFailure(error.toString()));
@@ -110,21 +149,24 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
           await _loginRepository.getOutletDetails(selectedOutletId);
 
       _sharedPreferenceHelper.storeSelectedOutlet(response.outletId ?? "");
+      GetStorageHelper.save(
+          SharedPreferenceConstants.selectedOutletName, event.outletName);
       terminalDetails = response.terminals ?? [];
       terminalList.clear();
-      if(terminalDetails.isNotEmpty) {
+      if (terminalDetails.isNotEmpty) {
         for (var i in terminalDetails) {
-          if(i.terminalName != null){
+          if (i.terminalName != null) {
             terminalList.add(i.terminalName!);
           }
         }
         selectedTerminalId = response.terminals?.first.terminalId ?? '';
+        GetStorageHelper.save(
+            SharedPreferenceConstants.selectedTerminalName, response.terminals?.first.terminalName);
       }
-      if(response.allowedPosModes != null){
+      if (response.allowedPosModes != null) {
         allowedPos.clear();
         allowedPos.addAll(response.allowedPosModes!);
       }
-
       emit(GetOutletDetailsSuccess());
     } catch (error) {
       emit(GetOutletDetailsFailure(error.toString()));
@@ -136,29 +178,31 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
   }
 
   _selectTerminal(SelectTerminal event, Emitter<LoginState> emit) {
-
     for (var i in terminalDetails) {
       if (event.terminalName == i.terminalName) {
         selectedTerminalId = i.terminalId ?? '';
       }
     }
+    print('selected terminal ${event.terminalName}');
+    GetStorageHelper.save(
+          SharedPreferenceConstants.selectedTerminalName, event.terminalName);
   }
 
   Future<void> _submitTerminalDetails(
       SubmitTerminalDetails event, Emitter<LoginState> emit) async {
     emit(SubmitTerminalDetailsLoading());
     try {
-
+      var userId = await _sharedPreferenceHelper.getUserID();
       final TerminalDetailsResponse response =
           await _loginRepository.getTerminalDetails(GetTerminalDetailsRequest(
               outletId: selectedOutletId,
               terminalId: selectedTerminalId,
-              userId: 'c301a076-21c4-458c-a575-a602f02bc5f1',
+              userId: userId ?? '',
               posMode: selectedPosMode));
-
-       emit(SubmitTerminalDetailsSuccess());
+      _sharedPreferenceHelper.storeLoginStatus(true);
+      emit(SubmitTerminalDetailsSuccess());
     } catch (error) {
-        emit(SubmitTerminalDetailsFailure(error.toString()));
+      emit(SubmitTerminalDetailsFailure(error.toString()));
     }
   }
 }

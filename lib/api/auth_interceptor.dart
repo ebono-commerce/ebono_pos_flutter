@@ -9,7 +9,8 @@ class AuthInterceptor extends Interceptor {
   AuthInterceptor(this._sharedPreferenceHelper);
 
   @override
-  Future<void> onRequest(RequestOptions options, RequestInterceptorHandler handler) async {
+  Future<void> onRequest(
+      RequestOptions options, RequestInterceptorHandler handler) async {
     String? token = await _sharedPreferenceHelper.getAuthToken();
     String? appUUID = await _sharedPreferenceHelper.getAppUUID();
 
@@ -20,7 +21,7 @@ class AuthInterceptor extends Interceptor {
     if (appUUID != null) {
       options.headers['x-app-id'] = appUUID;
     }
-print('app id : ${appUUID}');
+    print('app id : $appUUID');
     print('token $token');
     // Continue with the request
     return handler.next(options);
@@ -28,16 +29,10 @@ print('app id : ${appUUID}');
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
-    // Handle errors like token expiry
     if (err.response?.statusCode == 401) {
-      // Token expired or unauthorized
       print('Token expired or unauthorized');
-
-      // Clear the token on error (optional)
       _sharedPreferenceHelper.clearAuthToken();
-
-      // You can also redirect the user to the login page here if necessary
-       Get.offAllNamed(PageRoutes.login);
+      Get.offAllNamed(PageRoutes.login);
     }
 
     // Forward the error to the next handler

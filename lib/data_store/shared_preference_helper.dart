@@ -74,4 +74,58 @@ class SharedPreferenceHelper {
     await prefs.remove(SharedPreferenceConstants.selectedOutlet);
   }
 
+  // Store the isLoggedIn
+  Future<void> storeLoginStatus(bool selectedOutlet) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(SharedPreferenceConstants.isLoggedIn, selectedOutlet);
+  }
+
+  // Retrieve the isLoggedIn
+  Future<bool?> getLoginStatus() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(SharedPreferenceConstants.isLoggedIn);
+  }
+
+  // Clear the isLoggedIn
+  Future<void> clearLoginStatus() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(SharedPreferenceConstants.isLoggedIn);
+  }
+
+  // Store the userID
+  Future<void> storeUserID(String appUUID) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(SharedPreferenceConstants.userID, appUUID);
+  }
+
+  // Retrieve the userID
+  Future<String?> getUserID() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(SharedPreferenceConstants.userID);
+  }
+
+  // Clear the userID
+  Future<void> clearUserID() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(SharedPreferenceConstants.userID);
+  }
+
+  // Store the PortName
+  Future<void> storePortName(String portName) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(SharedPreferenceConstants.portName, portName);
+  }
+
+  // Retrieve the PortName
+  Future<String?> getPortName() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(SharedPreferenceConstants.portName);
+  }
+
+  // Clear the PortName
+  Future<void> clearPortName() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(SharedPreferenceConstants.portName);
+  }
+
 }

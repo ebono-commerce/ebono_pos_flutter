@@ -1,5 +1,7 @@
 import 'package:get/get.dart';
-import 'package:kpn_pos_application/api/api_helper.dart';
+import 'package:kpn_pos_application/constants/shared_preference_constants.dart';
+import 'package:kpn_pos_application/data_store/get_storage_helper.dart';
+import 'package:kpn_pos_application/data_store/shared_preference_helper.dart';
 import 'package:kpn_pos_application/models/cart_response.dart';
 import 'package:kpn_pos_application/models/customer_response.dart';
 import 'package:kpn_pos_application/models/scan_products_response.dart';
@@ -9,12 +11,13 @@ import 'package:kpn_pos_application/ui/home/model/customer_request.dart';
 import 'package:kpn_pos_application/ui/home/model/delete_cart.dart';
 import 'package:kpn_pos_application/ui/home/model/update_cart.dart';
 import 'package:kpn_pos_application/ui/home/repository/home_repository.dart';
+import 'package:kpn_pos_application/ui/login/model/login_response.dart';
 
 class HomeController extends GetxController {
   late final HomeRepository _homeRepository;
-  late final ApiHelper _apiHelper;
+  final SharedPreferenceHelper sharedPreferenceHelper;
 
-  HomeController(this._homeRepository, this._apiHelper);
+  HomeController(this._homeRepository, this.sharedPreferenceHelper);
 
   var isLoading = false.obs;
 
@@ -23,17 +26,29 @@ class HomeController extends GetxController {
   var scanCode = ''.obs;
   var cartId = ''.obs;
   var isDisplayAddCustomerView = true.obs;
-
+  late String portName;
   var cartLines = <CartLine>[].obs;
 
   var scanProductsResponse = ScanProductsResponse().obs;
   var customerResponse = CustomerResponse().obs;
   var cartResponse = CartResponse().obs;
+  UserDetails userDetails = UserDetails(fullName: '', userType: '', userId: '');
+  String selectedOutlet = '';
+  String selectedTerminal = '';
 
   @override
-  void onInit() {
-    super.onInit();
+  void onInit() async {
+    portName = await sharedPreferenceHelper.getPortName() ?? '';
+    userDetails = UserDetails.fromJson(
+        GetStorageHelper.read(SharedPreferenceConstants.userDetails));
+    selectedOutlet =
+        GetStorageHelper.read(SharedPreferenceConstants.selectedOutletName);
+    selectedTerminal =
+        GetStorageHelper.read(SharedPreferenceConstants.selectedTerminalName);
+    print('selectedTerminal  $selectedTerminal');
+    print('selectedOutlet  $selectedOutlet');
     initialResponse();
+    super.onInit();
   }
 
   void addCartLine(CartLine cartLine) {
@@ -89,15 +104,13 @@ class HomeController extends GetxController {
     try {
       var response = await _homeRepository.getScanProduct(code);
       scanProductsResponse.value = response;
-      if (response != null) {
-        if (cartId.value != "") {
-          addToCartApiCall(
-              scanProductsResponse.value.esin,
-              1,
-              scanProductsResponse.value.priceList!.first.mrpId,
-              scanProductsResponse.value.salesUom,
-              cartId.value);
-        }
+      if (cartId.value != "") {
+        addToCartApiCall(
+            scanProductsResponse.value.esin,
+            1,
+            scanProductsResponse.value.priceList!.first.mrpId,
+            scanProductsResponse.value.salesUom,
+            cartId.value);
       }
     } catch (e) {
       print("Error $e");
@@ -114,12 +127,10 @@ class HomeController extends GetxController {
           customerName: customerName.value,
           cartType: 'POS',
           outletId: "OCHNMYL01"));
-      if (response != null) {
-        customerResponse.value = response;
-        cartId.value = customerResponse.value.cartId.toString();
-        customerName.value = customerResponse.value.customerName.toString();
-        fetchCartCall();
-      }
+      customerResponse.value = response;
+      cartId.value = customerResponse.value.cartId.toString();
+      customerName.value = customerResponse.value.customerName.toString();
+      fetchCartCall();
     } catch (e) {
       print("Error $e");
     } finally {
@@ -130,17 +141,15 @@ class HomeController extends GetxController {
   Future<void> fetchCartCall() async {
     print("API fetchCartCall: ${cartId.value}");
 
-    cartLines.value.clear();
+    cartLines.clear();
     try {
       clearCart();
       var response =
           await _homeRepository.getCart(CartRequest(cartId: cartId.value));
-      if (response != null) {
-        cartResponse.value = response;
-        if (cartResponse.value.cartLines != null) {
-          for (var element in cartResponse.value.cartLines!) {
-            addCartLine(element);
-          }
+      cartResponse.value = response;
+      if (cartResponse.value.cartLines != null) {
+        for (var element in cartResponse.value.cartLines!) {
+          addCartLine(element);
         }
       }
     } catch (e) {
@@ -169,11 +178,9 @@ class HomeController extends GetxController {
                 mrpId: mrpId)
           ]),
           cartId);
-      if (response != null) {
-        cartResponse.value = response;
-        fetchCartCall();
-      }
-    } catch (e) {
+      cartResponse.value = response;
+      fetchCartCall();
+        } catch (e) {
       print("Error $e");
     } finally {
       print("Error");
@@ -186,19 +193,17 @@ class HomeController extends GetxController {
     try {
       var response = await _homeRepository.deleteCartItem(
           DeleteCartRequest(), cartId.value, cartLineId!);
-      if (response != null) {
-        cartResponse.value = response;
-        fetchCartCall();
-      }
-    } catch (e) {
+      cartResponse.value = response;
+      fetchCartCall();
+        } catch (e) {
       print("Error $e");
     } finally {
       print("Error");
     }
   }
 
-  Future<void> updateCartItemApiCall(String? cartLineId, String? qUom,
-      double? qty) async {
+  Future<void> updateCartItemApiCall(
+      String? cartLineId, String? qUom, double? qty) async {
     print("API updateCartItemApiCall: $qty | $cartLineId");
     try {
       var response = await _homeRepository.updateCartItem(
@@ -206,11 +211,9 @@ class HomeController extends GetxController {
               quantity: UpdateQuantity(quantityNumber: qty, quantityUom: qUom)),
           cartId.value,
           cartLineId!);
-      if (response != null) {
-        cartResponse.value = response;
-        fetchCartCall();
-      }
-    } catch (e) {
+      cartResponse.value = response;
+      fetchCartCall();
+        } catch (e) {
       print("Error $e");
     } finally {
       print("Error");

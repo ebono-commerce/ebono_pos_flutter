@@ -1,14 +1,17 @@
 import 'package:dropdown_search/dropdown_search.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:kpn_pos_application/constants/custom_colors.dart';
+import 'package:kpn_pos_application/data_store/shared_preference_helper.dart';
 import 'package:kpn_pos_application/navigation/page_routes.dart';
 import 'package:kpn_pos_application/ui/common_text_field.dart';
 import 'package:kpn_pos_application/ui/login/bloc/login_bloc.dart';
 import 'package:kpn_pos_application/ui/login/bloc/login_event.dart';
 import 'package:kpn_pos_application/ui/login/bloc/login_state.dart';
+import 'package:kpn_pos_application/ui/login/repository/login_repository.dart';
+import 'package:libserialport/libserialport.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -28,7 +31,8 @@ class _LoginPageState extends State<LoginPage> {
   TextEditingController passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
-  final loginBloc = Get.find<LoginBloc>();
+  final loginBloc = LoginBloc(
+      Get.find<LoginRepository>(), Get.find<SharedPreferenceHelper>());
 
   final GlobalKey<DropdownSearchState> dropDownKey =
       GlobalKey<DropdownSearchState>();
@@ -39,6 +43,8 @@ class _LoginPageState extends State<LoginPage> {
   @override
   void initState() {
     super.initState();
+    loginBloc.add(LoginInitialEvent());
+
     storeIdFocusNode.addListener(() {
       setState(() {});
     });
@@ -59,7 +65,7 @@ class _LoginPageState extends State<LoginPage> {
 
     return Scaffold(
       body: BlocProvider(
-        create: (_) => loginBloc,
+        create: (context) => loginBloc,
         child: BlocListener<LoginBloc, LoginState>(
           listener: (context, state) {
             if (state is LoginSuccess) {
@@ -94,7 +100,7 @@ class _LoginPageState extends State<LoginPage> {
                           ? Flexible(
                               flex: 2,
                               child: storeDetailsWidget(context, loginBloc))
-                          : Flexible(flex: 2, child: loginWidget(context)),
+                          : state is LoginInitial || state is ReadPortSuccess ? Flexible(flex: 2, child: portSelectionWidget(context, loginBloc)):  Flexible(flex: 2, child: loginWidget(context)),
                       Flexible(flex: 1, child: SizedBox())
                     ],
                   ),
@@ -122,7 +128,7 @@ class _LoginPageState extends State<LoginPage> {
           children: [
             SvgPicture.asset(
               'assets/images/pos_logo.svg',
-              semanticsLabel: 'cash icon,',
+              semanticsLabel: 'logo,',
               width: 175,
               height: 175,
             ),
@@ -212,7 +218,6 @@ class _LoginPageState extends State<LoginPage> {
                     elevation: 6,
                   ),
                   onPressed: () {
-                    Get.toNamed(PageRoutes.home);
                     if (_formKey.currentState!.validate()) {
                       loginBloc.add(
                         LoginButtonPressed(
@@ -286,7 +291,7 @@ class _LoginPageState extends State<LoginPage> {
                       label: 'Enter Store Id')),
               onChanged: (value) {
                 if (value != null) {
-                  Future.delayed(Duration(milliseconds: 200), () {
+                  Future.delayed(Duration(milliseconds: 400), () {
                     loginBloc.add(
                       GetOutletDetails(value),
                     );
@@ -347,7 +352,7 @@ class _LoginPageState extends State<LoginPage> {
                             label: 'Enter Terminal Id')),
                     onChanged: (value) {
                       if (value != null) {
-                        Future.delayed(Duration(milliseconds: 200), () {
+                        Future.delayed(Duration(milliseconds: 400), () {
                           loginBloc.add(
                             SelectTerminal(value),
                           );
@@ -397,7 +402,102 @@ class _LoginPageState extends State<LoginPage> {
                   elevation: 6,
                 ),
                 onPressed: () {
-                  Future.delayed(Duration(milliseconds: 200), () {
+                  Future.delayed(Duration(milliseconds: 400), () {
+                    loginBloc.add(
+                      SubmitTerminalDetails(),
+                    );
+                  });
+                },
+                child: Text(
+                  'Continue',
+                ),
+              ),
+            ),
+            SizedBox(height: 10),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget portSelectionWidget(BuildContext context, LoginBloc loginBloc) {
+    var availablePorts = loginBloc.availablePorts;
+
+    return Card(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(15.0),
+      ),
+      color: Colors.white,
+      elevation: 10,
+      child: Container(
+        padding: EdgeInsets.all(40),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            availablePorts.isNotEmpty
+                ? DropdownSearch<String>(
+                    key: dropDownKey,
+                    items: (filter, infiniteScrollProps) => availablePorts,
+                    decoratorProps: DropDownDecoratorProps(
+                        decoration: textFieldDecoration(
+                            isFocused:
+                                dropDownKey.currentState?.isFocused == true,
+                            label: 'Select weighing scale port')),
+                    onChanged: (value) {
+                      if (value != null) {
+                        Future.delayed(Duration(milliseconds: 400), () {
+                          loginBloc.add(
+                            SelectPort(value),
+                          );
+                        });
+                      }
+                    },
+                    suffixProps: DropdownSuffixProps(
+                        dropdownButtonProps: DropdownButtonProps(
+                      iconOpened: Icon(Icons.keyboard_arrow_up),
+                      iconClosed: Icon(Icons.keyboard_arrow_down),
+                    )),
+                    selectedItem: availablePorts.first,
+                    popupProps: PopupProps.bottomSheet(
+                      showSearchBox: true,
+                      fit: FlexFit.loose,
+                      showSelectedItems: true,
+                      searchFieldProps: TextFieldProps(
+                        controller: storeIdController,
+                        focusNode: storeIdFocusNode,
+                        decoration: textFieldDecoration(
+                            isFocused: storeIdFocusNode.hasFocus,
+                            filled: true,
+                            label: 'Select Port Id',
+                            prefixIcon: Icon(Icons.search)),
+                      ),
+                    ),
+                    //dropdownBuilder: (ctx, selectedItem) => Text(selectedItem!.name),
+                  )
+                : Text('No port found',  style: theme.textTheme.bodyLarge
+                ?.copyWith(color: Colors.black45)),
+
+            SizedBox(height: 20),
+            // Sign in button
+            SizedBox(
+              width: double.infinity,
+              height: 60,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).colorScheme.secondary,
+                  textStyle: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.w500,
+                      ),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  elevation: 6,
+                ),
+                onPressed: () {
+                  Future.delayed(Duration(milliseconds: 400), () {
                     loginBloc.add(
                       SubmitTerminalDetails(),
                     );
