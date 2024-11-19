@@ -6,13 +6,17 @@ class WeightController extends GetxController {
   late DigitalWeighingScale digitalWeighingScale;
 
   WeightController(String port, String model, int rate, int timeout) {
-    digitalWeighingScale = DigitalWeighingScale(
-      digitalScalePort: port,
-      digitalScaleModel: model,
-      digitalScaleRate: rate,
-      digitalScaleTimeout: timeout,
-      weightController: weight,
-    );
-    digitalWeighingScale.getWeight();
+    try {
+      digitalWeighingScale = DigitalWeighingScale(
+        digitalScalePort: port,
+        digitalScaleModel: model,
+        digitalScaleRate: rate,
+        digitalScaleTimeout: timeout,
+        weightController: weight,
+      );
+      digitalWeighingScale.getWeight();
+    } on Exception catch (e) {
+      print(e);
+    }
   }
 }
