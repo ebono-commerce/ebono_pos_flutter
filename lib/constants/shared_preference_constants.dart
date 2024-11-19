@@ -6,4 +6,6 @@ class SharedPreferenceConstants {
   static final userID = 'userID';
   static final userDetails = 'userDetails';
   static final portName = 'portName';
+  static final selectedOutletName = 'selectedOutletName';
+  static final selectedTerminalName = 'selectedTerminalName';
 }

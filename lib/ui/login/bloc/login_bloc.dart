@@ -25,7 +25,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
   late String selectedOutletId;
   String selectedPosMode = 'POS';
   List<String> allowedPos = [];
-  List<String> availablePorts= [];
+  List<String> availablePorts = [];
 
   Map<String, Map<String, String>> allowedPosData = {
     'POS': {
@@ -64,20 +64,20 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
 
   Future<void> _onLoginInitial(
       LoginInitialEvent event, Emitter<LoginState> emit) async {
-     availablePorts = SerialPort.availablePorts;
-     print('Available ports:');
-     var i = 0;
-     for (final name in availablePorts) {
-       final sp = SerialPort(name);
-       print('${++i}) $name');
-       print('\tDescription: ${sp.description}');
-       print('\tManufacturer: ${sp.manufacturer}');
-       print('\tSerial Number: ${sp.serialNumber}');
-       //print('\tProduct ID: 0x${sp.productId}');
-       //print('\tVendor ID: 0x${sp.vendorId}');
-       sp.dispose();
-     }
-     emit(ReadPortSuccess());
+    availablePorts = SerialPort.availablePorts;
+    print('Available ports:');
+    var i = 0;
+    for (final name in availablePorts) {
+      final sp = SerialPort(name);
+      print('${++i}) $name');
+      print('\tDescription: ${sp.description}');
+      print('\tManufacturer: ${sp.manufacturer}');
+      print('\tSerial Number: ${sp.serialNumber}');
+      //print('\tProduct ID: 0x${sp.productId}');
+      //print('\tVendor ID: 0x${sp.vendorId}');
+      sp.dispose();
+    }
+    emit(ReadPortSuccess());
   }
 
   Future<void> _onPortSelection(
@@ -121,7 +121,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       LogoutButtonPressed event, Emitter<LoginState> emit) async {
     emit(LoginLoading());
     try {
-     var token =  await _sharedPreferenceHelper.getAuthToken() ?? '';
+      var token = await _sharedPreferenceHelper.getAuthToken() ?? '';
       final LogoutResponse response =
           await _loginRepository.logout(token: token);
 
@@ -147,8 +147,8 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
           await _loginRepository.getOutletDetails(selectedOutletId);
 
       _sharedPreferenceHelper.storeSelectedOutlet(response.outletId ?? "");
-      /*GetStorageHelper.save(
-          SharedPreferenceConstants.userDetails, response.userDetails);*/
+      GetStorageHelper.save(
+          SharedPreferenceConstants.selectedOutletName, event.outletName);
       terminalDetails = response.terminals ?? [];
       terminalList.clear();
       if (terminalDetails.isNotEmpty) {
@@ -179,6 +179,8 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
         selectedTerminalId = i.terminalId ?? '';
       }
     }
+    GetStorageHelper.save(
+          SharedPreferenceConstants.selectedTerminalName, event.terminalName);
   }
 
   Future<void> _submitTerminalDetails(

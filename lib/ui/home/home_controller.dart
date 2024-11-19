@@ -35,14 +35,18 @@ class HomeController extends GetxController {
   var scanProductsResponse = ScanProductsResponse().obs;
   var customerResponse = CustomerResponse().obs;
   var cartResponse = CartResponse().obs;
-  late UserDetails userDetails;
+  UserDetails userDetails = UserDetails(fullName: '', userType: '', userId: '');
+  String selectedOutlet = '';
+  String selectedTerminal = '';
 
   @override
   void onInit() async {
     super.onInit();
+    portName = await sharedPreferenceHelper.getPortName() ?? '';
     userDetails = UserDetails.fromJson(
         GetStorageHelper.read(SharedPreferenceConstants.userDetails));
-    portName = await sharedPreferenceHelper.getPortName() ?? '';
+    selectedOutlet = GetStorageHelper.read(SharedPreferenceConstants.selectedOutletName);
+    selectedTerminal = GetStorageHelper.read(SharedPreferenceConstants.selectedTerminalName);
     initialResponse();
   }
 

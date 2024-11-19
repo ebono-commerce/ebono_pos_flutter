@@ -44,7 +44,6 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     if (mounted == true) {
       homeController = Get.find<HomeController>();
-      print('home page init${homeController.portName}');
       weightController = Get.put(
           WeightController(homeController.portName, model, rate, timeout));
     }
@@ -199,7 +198,7 @@ class _HomePageState extends State<HomePage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        '${controller.userDetails.fullName}| ${controller.userDetails.userType}',
+                        '${controller.userDetails.fullName}| ${controller.selectedOutlet}',
                         style: Theme.of(context)
                             .textTheme
                             .labelMedium
@@ -207,47 +206,52 @@ class _HomePageState extends State<HomePage> {
                         // style: TextStyle(color: Colors.black, fontSize: 13),
                       ),
                       SizedBox(height: 5),
-                      InkWell(
-                        onTap: () {
-                          setState(() {
-                            isOnline = !isOnline;
-                          });
-                        },
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            ImageIcon(
-                              size: 20,
-                              color: isOnline == true
-                                  ? CustomColors.green
-                                  : CustomColors.red,
-                              isOnline == true
-                                  ? AssetImage('assets/images/ic_online.png')
-                                  : AssetImage('assets/images/ic_offline.png'),
-                            ),
-                            SizedBox(width: 5),
-                            Text(
-                              isOnline == true ? 'ONLINE' : "OFFLINE",
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .labelMedium
-                                  ?.copyWith(
+                      Row(
+                        mainAxisSize: MainAxisSize.max,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          InkWell(
+                            onTap: () {
+                              setState(() {
+                                isOnline = !isOnline;
+                              });
+                            },
+                            child: Row(
+                              children: [
+                                ImageIcon(
+                                  size: 20,
                                   color: isOnline == true
                                       ? CustomColors.green
-                                      : CustomColors.red),
-                              //  style: TextStyle(color: Colors.green, fontSize: 11),
+                                      : CustomColors.red,
+                                  isOnline == true
+                                      ? AssetImage('assets/images/ic_online.png')
+                                      : AssetImage('assets/images/ic_offline.png'),
+                                ),
+                                SizedBox(width: 5),
+                                Text(
+                                  isOnline == true ? 'ONLINE' : "OFFLINE",
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .labelMedium
+                                      ?.copyWith(
+                                      color: isOnline == true
+                                          ? CustomColors.green
+                                          : CustomColors.red),
+                                  //  style: TextStyle(color: Colors.green, fontSize: 11),
+                                ),
+                              ],
                             ),
-                            SizedBox(width: 5),
-                            Text(
-                              'Counter 12',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .labelMedium
-                                  ?.copyWith(color: CustomColors.black),
-                              //  style: TextStyle(color: Colors.black, fontSize: 12),
-                            ),
-                          ],
-                        ),
+                          ),
+                          SizedBox(width: 5),
+                          Text(
+                            controller.selectedTerminal,
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelMedium
+                                ?.copyWith(color: CustomColors.black),
+                            //  style: TextStyle(color: Colors.black, fontSize: 12),
+                          ),
+                        ],
                       ),
                     ],
                   ),),
@@ -266,7 +270,6 @@ class _HomePageState extends State<HomePage> {
                 },
                 child: BlocBuilder<LoginBloc, LoginState>(
                   builder: (context, state) {
-                    print("Current State: $state");
                     return logoutButton(context, () {
                       loginBloc.add(LogoutButtonPressed(''));
                     });
