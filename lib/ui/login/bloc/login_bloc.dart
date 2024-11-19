@@ -111,6 +111,8 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
         outletList.add(i.name);
       }
       selectedOutletId = response.outletDetails.first.outletId;
+      GetStorageHelper.save(
+          SharedPreferenceConstants.selectedOutletName, response.outletDetails.first.name);
       emit(LoginSuccess());
     } catch (error) {
       emit(LoginFailure(error.toString()));
@@ -158,6 +160,8 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
           }
         }
         selectedTerminalId = response.terminals?.first.terminalId ?? '';
+        GetStorageHelper.save(
+            SharedPreferenceConstants.selectedTerminalName, response.terminals?.first.terminalName);
       }
       if (response.allowedPosModes != null) {
         allowedPos.clear();
@@ -179,6 +183,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
         selectedTerminalId = i.terminalId ?? '';
       }
     }
+    print('selected terminal ${event.terminalName}');
     GetStorageHelper.save(
           SharedPreferenceConstants.selectedTerminalName, event.terminalName);
   }

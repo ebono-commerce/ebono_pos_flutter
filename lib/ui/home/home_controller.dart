@@ -41,13 +41,17 @@ class HomeController extends GetxController {
 
   @override
   void onInit() async {
-    super.onInit();
     portName = await sharedPreferenceHelper.getPortName() ?? '';
     userDetails = UserDetails.fromJson(
         GetStorageHelper.read(SharedPreferenceConstants.userDetails));
-    selectedOutlet = GetStorageHelper.read(SharedPreferenceConstants.selectedOutletName);
-    selectedTerminal = GetStorageHelper.read(SharedPreferenceConstants.selectedTerminalName);
+    selectedOutlet =
+        GetStorageHelper.read(SharedPreferenceConstants.selectedOutletName);
+    selectedTerminal =
+        GetStorageHelper.read(SharedPreferenceConstants.selectedTerminalName);
+    print('selectedTerminal  $selectedTerminal');
+    print('selectedOutlet  $selectedOutlet');
     initialResponse();
+    super.onInit();
   }
 
   void addCartLine(CartLine cartLine) {
