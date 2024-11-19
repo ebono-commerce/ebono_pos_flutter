@@ -121,10 +121,12 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       LogoutButtonPressed event, Emitter<LoginState> emit) async {
     emit(LoginLoading());
     try {
+     var token =  await _sharedPreferenceHelper.getAuthToken() ?? '';
       final LogoutResponse response =
-          await _loginRepository.logout(token: event.token);
+          await _loginRepository.logout(token: token);
 
       _sharedPreferenceHelper.clearAll();
+      GetStorageHelper.clear();
       emit(LogoutSuccess());
     } catch (error) {
       emit(LogoutFailure(error.toString()));

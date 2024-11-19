@@ -1,10 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:kpn_pos_application/constants/custom_colors.dart';
+import 'package:kpn_pos_application/data_store/shared_preference_helper.dart';
+import 'package:kpn_pos_application/navigation/page_routes.dart';
 import 'package:kpn_pos_application/ui/home/home_controller.dart';
 import 'package:kpn_pos_application/ui/home/order_on_hold.dart';
 import 'package:kpn_pos_application/ui/home/orders_section.dart';
 import 'package:kpn_pos_application/ui/home/register_section.dart';
+import 'package:kpn_pos_application/ui/login/bloc/login_bloc.dart';
+import 'package:kpn_pos_application/ui/login/bloc/login_event.dart';
+import 'package:kpn_pos_application/ui/login/bloc/login_state.dart';
+import 'package:kpn_pos_application/ui/login/repository/login_repository.dart';
 import 'package:kpn_pos_application/ui/payment_summary/weight_controller.dart';
 import 'package:kpn_pos_application/vm/home_vm.dart';
 
@@ -28,19 +35,24 @@ class _HomePageState extends State<HomePage> {
   late WeightController weightController;
 
   late HomeController homeController;
+  late ThemeData theme;
+  final loginBloc = LoginBloc(
+      Get.find<LoginRepository>(), Get.find<SharedPreferenceHelper>());
 
   @override
   void initState() {
     super.initState();
     if (mounted == true) {
       homeController = Get.find<HomeController>();
-      print('home page init'+homeController.portName);
-      weightController = Get.put(WeightController(homeController.portName, model, rate, timeout));
+      print('home page init${homeController.portName}');
+      weightController = Get.put(
+          WeightController(homeController.portName, model, rate, timeout));
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -238,7 +250,28 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ],
               ),
-            )
+            ),
+            BlocProvider(
+              create: (context) => loginBloc,
+              child: BlocListener<LoginBloc, LoginState>(
+                listener: (context, state) {
+                  Get.snackbar("Logout", 'Success');
+                  if (state is LogoutSuccess) {
+                    Get.offAllNamed(PageRoutes.login);
+                  } else if (state is LogoutFailure) {
+                    Get.snackbar("Logout Error", state.error);
+                  }
+                },
+                child: BlocBuilder<LoginBloc, LoginState>(
+                  builder: (context, state) {
+                    print("Current State: $state");
+                    return logoutButton(context, () {
+                      loginBloc.add(LogoutButtonPressed(''));
+                    });
+                  },
+                ),
+              ),
+            ),
           ],
         ),
         toolbarHeight: kToolbarHeight,
@@ -251,6 +284,37 @@ class _HomePageState extends State<HomePage> {
                 : _selectedButton == 3
                     ? OrderOnHold()
                     : Container(),
+      ),
+    );
+  }
+
+  Widget logoutButton(BuildContext context, VoidCallback onLogoutPressed) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 5.0, vertical: 10),
+      child: TextButton.icon(
+        onPressed: onLogoutPressed,
+        style: ElevatedButton.styleFrom(
+          elevation: 1,
+          padding: EdgeInsets.symmetric(horizontal: 1, vertical: 20),
+          shape: RoundedRectangleBorder(
+            side: BorderSide(color: CustomColors.red, width: 1.5),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          backgroundColor: Colors.white,
+        ),
+        icon: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+          child: Icon(
+            Icons.logout,
+            color: CustomColors.red,
+          ),
+        ),
+        label: Padding(
+          padding: const EdgeInsets.only(right: 8.0),
+          child: Text('LOGOUT',
+              style: theme.textTheme.labelLarge
+                  ?.copyWith(color: CustomColors.red)),
+        ),
       ),
     );
   }

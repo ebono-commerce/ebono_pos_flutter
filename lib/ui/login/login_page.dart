@@ -443,7 +443,7 @@ class _LoginPageState extends State<LoginPage> {
                         decoration: textFieldDecoration(
                             isFocused:
                                 dropDownKey.currentState?.isFocused == true,
-                            label: 'Select port Id')),
+                            label: 'Select weighing scale port')),
                     onChanged: (value) {
                       if (value != null) {
                         Future.delayed(Duration(milliseconds: 200), () {
@@ -475,7 +475,8 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     //dropdownBuilder: (ctx, selectedItem) => Text(selectedItem!.name),
                   )
-                : SizedBox(),
+                : Text('No port found',  style: theme.textTheme.bodyLarge
+                ?.copyWith(color: Colors.black45)),
 
             SizedBox(height: 20),
             // Sign in button
