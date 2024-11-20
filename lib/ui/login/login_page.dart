@@ -537,7 +537,7 @@ class _LoginPageState extends State<LoginPage> {
         elevation: 5,
         child: ConstrainedBox(
           constraints: BoxConstraints(
-              maxWidth: 110, minWidth: 110, maxHeight: 160, minHeight: 160),
+              maxWidth: 100, minWidth: 100, maxHeight: 120, minHeight: 120),
           child: Container(
             decoration: BoxDecoration(
               color: isSelected ? CustomColors.accentColor : Colors.white,
@@ -546,14 +546,14 @@ class _LoginPageState extends State<LoginPage> {
                   color: isSelected ? Colors.black : Colors.black45,
                   width: isSelected ? 2 : 1),
             ),
-            padding: EdgeInsets.all(10),
+            padding: EdgeInsets.all(6),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,
               children: [
                 ConstrainedBox(
                   constraints: BoxConstraints(
-                    maxHeight: 60,
+                    maxHeight: 50,
                   ),
                   child: Image.asset(
                     imagePath,
@@ -565,7 +565,7 @@ class _LoginPageState extends State<LoginPage> {
                 Text(
                   label,
                   textAlign: TextAlign.center,
-                  style: theme.textTheme.labelLarge?.copyWith(
+                  style: theme.textTheme.labelMedium?.copyWith(
                       color: isSelected ? Colors.black : Colors.black45),
                 ),
               ],

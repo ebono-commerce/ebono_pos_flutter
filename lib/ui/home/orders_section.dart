@@ -8,7 +8,6 @@ import 'package:kpn_pos_application/ui/common_text_field.dart';
 import 'package:kpn_pos_application/ui/custom_keyboard/custom_num_pad.dart';
 import 'package:kpn_pos_application/ui/home/home_controller.dart';
 import 'package:kpn_pos_application/ui/home/widgets/add_customer.dart';
-import 'package:kpn_pos_application/ui/payment_summary/weight_controller.dart';
 import 'package:kpn_pos_application/utils/common_methods.dart';
 import 'package:kpn_pos_application/utils/dash_line.dart';
 
@@ -23,7 +22,6 @@ class OrdersSection extends StatefulWidget {
 
 class _OrdersSectionState extends State<OrdersSection>
     with WidgetsBindingObserver {
-  // String _selectedWidget = 'ADD_CUSTOMER';
   final FocusNode _numPadFocusNode = FocusNode();
   final TextEditingController _numPadTextController = TextEditingController();
 
@@ -41,29 +39,6 @@ class _OrdersSectionState extends State<OrdersSection>
     super.initState();
   }
 
-  // void _onWidgetNameUpdatePressed(String value) {
-  //   setState(() {
-  //     _selectedWidget = value;
-  //     print(" Widget Name: $_selectedWidget");
-  //   });
-  // }
-
-  // void _StaleButtonPressed(String value) {
-  //   if (homeController.phoneNumber.value != '') {
-  //     setState(() {
-  //       _selectedWidget = value;
-  //       print(" Widget Name: $_selectedWidget");
-  //       //add fetch call data
-  //       homeController.fetchCustomer();
-  //     });
-  //   } else {
-  //     showToast('Please enter phone number',
-  //         context: context,
-  //         axis: Axis.horizontal,
-  //         alignment: Alignment.center,
-  //         position: StyledToastPosition.center);
-  //   }
-  // }
 
   @override
   void dispose() {
@@ -79,7 +54,7 @@ class _OrdersSectionState extends State<OrdersSection>
       child: Row(
         children: [
           Expanded(
-            flex: 6, // 0.6 ratio
+            flex: 5, // 0.6 ratio
             child: Container(
                 color: Colors.white,
                 child: Column(
@@ -90,36 +65,20 @@ class _OrdersSectionState extends State<OrdersSection>
                     Expanded(
                       child: Obx(() {
                         return Center(
-                          child: homeController.cartId.value != ''
+                          child: homeController.cartId.value == ''
                               ? AddCustomer(homeController)
                               : Obx(() {
                                   return _buildTableView2();
                                 }),
                         );
                       }),
-                      // Center(
-                      //     child: _selectedWidget == 'ADD_CUSTOMER'
-                      //         ? _buildAddCustomer(
-                      //             context,
-                      //             "START_SALE",
-                      //             onPressed: () =>
-                      //                 _StaleButtonPressed("START_SALE"),
-                      //           )
-                      //         : _selectedWidget == 'START_SALE'
-                      //             ? Obx(() {
-                      //                 return _buildTableView2();
-                      //               })
-                      //             : Container()),
                     )
                   ],
                 )),
           ),
           Expanded(
             flex: 2, // 0.2 ratio
-            child: Container(
-              margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
-              child: Center(child: _buildNumberPadSection(homeController)),
-            ),
+            child: Center(child: _buildNumberPadSection(homeController)),
           ),
           Expanded(
             flex: 1, // 0.1 ratio
@@ -662,6 +621,11 @@ class _OrdersSectionState extends State<OrdersSection>
                           onEnterPressed: (text) {
                             print("Enter pressed with text: $text");
                             _numPadFocusNode.unfocus();
+                            if (isValidOfferId(text)) {
+                              homeController.scanApiCall(text);
+                            }else{
+                              Get.snackbar("Invalid Offer Id", 'Please enter valid offer id');
+                            }
                           },
                           onValueChanged: (text) {
                             print("onTextListener text: $text");

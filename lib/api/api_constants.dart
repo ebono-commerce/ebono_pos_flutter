@@ -1,5 +1,6 @@
 class ApiConstants {
   static final baseUrl = 'https://services-staging.kpnfresh.com/store/';
+  //static final baseUrl = 'https://192.168.0.187:80/';
   static final login = 'authn/v1/login';
   static final logout = 'authn/v1/logout';
   static final outletDetails = 'pos/v1/outlets/';
