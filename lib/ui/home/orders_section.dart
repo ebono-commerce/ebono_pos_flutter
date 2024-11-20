@@ -317,9 +317,11 @@ class _OrdersSectionState extends State<OrdersSection>
                             : Container(
                                 decoration: BoxDecoration(
                                     // color: Colors.grey.shade300,
-                                  borderRadius: BorderRadius.circular(10),
+                                    borderRadius: BorderRadius.circular(10),
                                     border: Border.all(
-                                        color: Colors.grey.shade300, width: 1,)),
+                                      color: Colors.grey.shade300,
+                                      width: 1,
+                                    )),
                                 //padding: const EdgeInsets.all(8.0),
                                 child: Padding(
                                     padding: const EdgeInsets.all(10.0),
@@ -338,33 +340,54 @@ class _OrdersSectionState extends State<OrdersSection>
                               ),
                       ),
                     ),
-                    InkWell(
-                      onTap: itemData.isWeighedItem == true
-                          ? () {
-                              itemData.focusNode?.requestFocus();
-                            }
-                          : null,
-                      child: Container(
-                        color: Colors.white,
-                        padding: const EdgeInsets.only(
-                            top: 8.0, bottom: 8.0, right: 8.0, left: 0.0),
-                        child: Padding(
-                            padding: const EdgeInsets.all(10.0),
-                            child: Text(
-                              itemData.quantity?.quantityUom ?? '',
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              softWrap: true,
-                              textAlign: TextAlign.left,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .labelMedium
-                                  ?.copyWith(
-                                      fontWeight: FontWeight.w500,
-                                      color: CustomColors.black),
-                            )),
-                      ),
-                    ),
+                    itemData.isWeighedItem == true
+                        ? InkWell(
+                            onTap: itemData.isWeighedItem == true
+                                ? () {
+                                    itemData.focusNode?.requestFocus();
+                                  }
+                                : null,
+                            child: Container(
+                              color: Colors.white,
+                              padding: const EdgeInsets.only(
+                                  top: 8.0, bottom: 8.0, right: 8.0, left: 0.0),
+                              child: Padding(
+                                  padding: const EdgeInsets.all(10.0),
+                                  child: Text(
+                                    itemData.quantity?.quantityUom ?? '',
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    softWrap: true,
+                                    textAlign: TextAlign.left,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .labelMedium
+                                        ?.copyWith(
+                                            fontWeight: FontWeight.w500,
+                                            color: CustomColors.black),
+                                  )),
+                            ),
+                          )
+                        : Container(
+                            color: Colors.white,
+                            padding: const EdgeInsets.only(
+                                top: 8.0, bottom: 8.0, right: 8.0, left: 0.0),
+                            child: Padding(
+                                padding: const EdgeInsets.all(10.0),
+                                child: Text(
+                                  '',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  softWrap: true,
+                                  textAlign: TextAlign.left,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .labelMedium
+                                      ?.copyWith(
+                                          fontWeight: FontWeight.w500,
+                                          color: CustomColors.black),
+                                )),
+                          ),
                     Container(
                       color: Colors.white,
                       padding: const EdgeInsets.all(8.0),
@@ -539,7 +562,11 @@ class _OrdersSectionState extends State<OrdersSection>
                                                     .salesUom
                                                     ?.isNotEmpty ==
                                                 true
-                                            ? '(${homeController.scanProductsResponse.value.salesUom})'
+                                            ? homeController
+                                            .scanProductsResponse
+                                            .value
+                                            .isWeighedItem ==
+                                            true ? '(${homeController.scanProductsResponse.value.salesUom})' : ''
                                             : " - ",
                                         style: TextStyle(
                                             color: Colors.black,

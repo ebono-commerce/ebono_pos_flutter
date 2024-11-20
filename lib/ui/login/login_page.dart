@@ -497,11 +497,20 @@ class _LoginPageState extends State<LoginPage> {
                   elevation: 6,
                 ),
                 onPressed: () {
-                  Future.delayed(Duration(milliseconds: 400), () {
-                    loginBloc.add(
-                      SubmitTerminalDetails(),
-                    );
-                  });
+                  if (availablePorts.isNotEmpty) {
+                    Future.delayed(Duration(milliseconds: 400), () {
+                      loginBloc.add(
+                        SelectPort(availablePorts.first),
+                      );
+                    });
+                  }
+                  else{
+                    Future.delayed(Duration(milliseconds: 400), () {
+                      loginBloc.add(
+                        SelectPort(''),
+                      );
+                    });
+                  }
                 },
                 child: Text(
                   'Continue',
