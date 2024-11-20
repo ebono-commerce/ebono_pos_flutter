@@ -20,11 +20,13 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     SDP.init(context);
 
-    return GetMaterialApp(
-      initialRoute: PageRoutes.splashScreen,
-      theme: themeData(context),
-      initialBinding: InitialBinding(),
-      getPages: getPages(),
+    return SafeArea(
+      child: GetMaterialApp(
+        initialRoute: PageRoutes.splashScreen,
+        theme: themeData(context),
+        initialBinding: InitialBinding(),
+        getPages: getPages(),
+      ),
     );
   }
 }
