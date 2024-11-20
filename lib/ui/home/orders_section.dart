@@ -39,7 +39,6 @@ class _OrdersSectionState extends State<OrdersSection>
     super.initState();
   }
 
-
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
@@ -230,6 +229,10 @@ class _OrdersSectionState extends State<OrdersSection>
                     homeController.weight.value = 0.0;
                   }
                 }
+                if (itemData.isWeighedItem != true) {
+                  itemData.controller?.text =
+                      itemData.quantity?.quantityNumber.toString() ?? '';
+                }
                 return TableRow(
                   decoration: BoxDecoration(
                       // color: Colors.grey.shade300,
@@ -280,36 +283,59 @@ class _OrdersSectionState extends State<OrdersSection>
                       padding: const EdgeInsets.all(2.0),
                       child: Padding(
                         padding: const EdgeInsets.all(2.0),
-                        child: commonTextField(
-                            label: '',
-                            focusNode: itemData.focusNode ?? FocusNode(),
-                            readOnly: true,
-                            controller:
-                                itemData.controller ?? TextEditingController(),
-                            onValueChanged: (value) {
-                              print('on value change');
-                            },
-                            suffixLabel: null,
-                            suffixWidget: InkWell(
-                              onTap: itemData.isWeighedItem == true
-                                  ? () {
-                                      print('on tap');
-                                      itemData.focusNode?.requestFocus();
-                                    }
-                                  : null,
-                              child: Text(
-                                '',
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                softWrap: true,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .labelLarge
-                                    ?.copyWith(
-                                        fontWeight: FontWeight.w500,
-                                        color: CustomColors.black),
+                        child: itemData.isWeighedItem == true
+                            ? commonTextField(
+                                label: '',
+                                focusNode: itemData.focusNode ?? FocusNode(),
+                                readOnly: true,
+                                controller: itemData.controller ??
+                                    TextEditingController(),
+                                onValueChanged: (value) {
+                                  print('on value change');
+                                },
+                                suffixLabel: null,
+                                suffixWidget: InkWell(
+                                  onTap: itemData.isWeighedItem == true
+                                      ? () {
+                                          print('on tap');
+                                          itemData.focusNode?.requestFocus();
+                                        }
+                                      : null,
+                                  child: Text(
+                                    '',
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    softWrap: true,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .labelLarge
+                                        ?.copyWith(
+                                            fontWeight: FontWeight.w500,
+                                            color: CustomColors.black),
+                                  ),
+                                ))
+                            : Container(
+                                decoration: BoxDecoration(
+                                    // color: Colors.grey.shade300,
+                                  borderRadius: BorderRadius.circular(10),
+                                    border: Border.all(
+                                        color: Colors.grey.shade300, width: 1,)),
+                                //padding: const EdgeInsets.all(8.0),
+                                child: Padding(
+                                    padding: const EdgeInsets.all(10.0),
+                                    child: Text(
+                                      '${itemData.quantity?.quantityNumber}',
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      softWrap: true,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .labelLarge
+                                          ?.copyWith(
+                                              fontWeight: FontWeight.w500,
+                                              color: CustomColors.black),
+                                    )),
                               ),
-                            )),
                       ),
                     ),
                     InkWell(
@@ -623,8 +649,9 @@ class _OrdersSectionState extends State<OrdersSection>
                             _numPadFocusNode.unfocus();
                             if (isValidOfferId(text)) {
                               homeController.scanApiCall(text);
-                            }else{
-                              Get.snackbar("Invalid Offer Id", 'Please enter valid offer id');
+                            } else {
+                              Get.snackbar("Invalid Offer Id",
+                                  'Please enter valid offer id');
                             }
                           },
                           onValueChanged: (text) {
