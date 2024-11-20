@@ -784,7 +784,7 @@ class _OrdersSectionState extends State<OrdersSection>
                           style: ElevatedButton.styleFrom(
                               elevation: 1,
                               padding: EdgeInsets.symmetric(
-                                  horizontal: 1, vertical: 20),
+                                  horizontal: 1, vertical: 10),
                               shape: RoundedRectangleBorder(
                                 side: BorderSide.none,
                                 borderRadius: BorderRadius.circular(10),
