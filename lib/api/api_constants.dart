@@ -7,5 +7,6 @@ class ApiConstants {
   static final terminalDetails = '/pos/v1/terminal-selection?';
   static final fetchCart = 'checkout/v1/cart/fetch?schema=DETAIL';
   static final fetchCustomer = 'account/v1/customer/fetch';
+  static final getCustomerDetails = 'account/v1/customer';
   static final scanProducts = 'catalog/v1/products/scan';
 }

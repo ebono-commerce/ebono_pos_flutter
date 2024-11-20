@@ -154,9 +154,12 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
         GetStorageHelper.save(
             SharedPreferenceConstants.selectedTerminalName, response.terminals?.first.terminalName);
       }
-      if (response.allowedPosModes != null) {
+      final allowedPosModes = response.allowedPosModes;
+      if (allowedPosModes != null) {
         allowedPos.clear();
-        allowedPos.addAll(response.allowedPosModes!);
+        allowedPos.addAll(allowedPosModes);
+        GetStorageHelper.save(
+            SharedPreferenceConstants.selectedPosMode, allowedPosModes.first);
       }
       emit(GetOutletDetailsSuccess());
     } catch (error) {
@@ -166,6 +169,8 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
 
   _selectPosMode(SelectPosMode event, Emitter<LoginState> emit) {
     selectedPosMode = event.posMode;
+    GetStorageHelper.save(
+        SharedPreferenceConstants.selectedPosMode, event.posMode);
   }
 
   _selectTerminal(SelectTerminal event, Emitter<LoginState> emit) {

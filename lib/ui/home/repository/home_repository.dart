@@ -7,6 +7,7 @@ import 'package:kpn_pos_application/models/customer_response.dart';
 import 'package:kpn_pos_application/models/scan_products_response.dart';
 import 'package:kpn_pos_application/ui/home/model/add_to_cart.dart';
 import 'package:kpn_pos_application/ui/home/model/cart_request.dart';
+import 'package:kpn_pos_application/ui/home/model/customer_details_response.dart';
 import 'package:kpn_pos_application/ui/home/model/customer_request.dart';
 import 'package:kpn_pos_application/ui/home/model/delete_cart.dart';
 import 'package:kpn_pos_application/ui/home/model/update_cart.dart';
@@ -15,6 +16,21 @@ class HomeRepository {
   final ApiHelper _apiHelper;
 
   HomeRepository(this._apiHelper);
+
+  Future<CustomerDetailsResponse> getCustomerDetails(String phoneNumber) async {
+    try {
+      final response = await _apiHelper.get(
+        ApiConstants.getCustomerDetails,
+        queryParameters: {
+          'phone_number': phoneNumber,
+        },
+      );
+      final customerDetailsResponse = customerDetailsResponseFromJson(jsonEncode(response));
+      return customerDetailsResponse;
+    } catch (e) {
+      throw Exception('$e');
+    }
+  }
 
   Future<CustomerResponse> fetchCustomer(CustomerRequest request) async {
     try {

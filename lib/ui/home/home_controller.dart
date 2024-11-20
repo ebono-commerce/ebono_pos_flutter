@@ -7,6 +7,7 @@ import 'package:kpn_pos_application/models/customer_response.dart';
 import 'package:kpn_pos_application/models/scan_products_response.dart';
 import 'package:kpn_pos_application/ui/home/model/add_to_cart.dart';
 import 'package:kpn_pos_application/ui/home/model/cart_request.dart';
+import 'package:kpn_pos_application/ui/home/model/customer_details_response.dart';
 import 'package:kpn_pos_application/ui/home/model/customer_request.dart';
 import 'package:kpn_pos_application/ui/home/model/delete_cart.dart';
 import 'package:kpn_pos_application/ui/home/model/update_cart.dart';
@@ -32,8 +33,10 @@ class HomeController extends GetxController {
 
   var scanProductsResponse = ScanProductsResponse().obs;
   var customerResponse = CustomerResponse().obs;
+  var getCustomerDetailsResponse = CustomerDetailsResponse().obs;
   var cartResponse = CartResponse().obs;
-  Rx<UserDetails> userDetails = UserDetails(fullName: '', userType: '', userId: '').obs;
+  Rx<UserDetails> userDetails =
+      UserDetails(fullName: '', userType: '', userId: '').obs;
   RxString selectedOutlet = ''.obs;
   RxString selectedTerminal = ''.obs;
   RxString selectedPosMode = ''.obs;
@@ -43,7 +46,6 @@ class HomeController extends GetxController {
   final int rate = 9600;
   final int timeout = 1000;
 
-
   @override
   void onInit() async {
     portName.value = await sharedPreferenceHelper.getPortName() ?? '';
@@ -51,11 +53,12 @@ class HomeController extends GetxController {
         GetStorageHelper.read(SharedPreferenceConstants.selectedOutletName);
     selectedTerminal.value =
         GetStorageHelper.read(SharedPreferenceConstants.selectedTerminalName);
-   /* selectedPosMode.value =
-        GetStorageHelper.read(SharedPreferenceConstants.selectedOutlet);*/
+     selectedPosMode.value =
+        GetStorageHelper.read(SharedPreferenceConstants.selectedPosMode);
     print('selectedTerminal  $selectedTerminal');
     print('selectedOutlet  $selectedOutlet');
-    final userDetailsData = GetStorageHelper.read(SharedPreferenceConstants.userDetails);
+    final userDetailsData =
+        GetStorageHelper.read(SharedPreferenceConstants.userDetails);
     if (userDetailsData != null && userDetailsData is Map<String, dynamic>) {
       userDetails.value = UserDetails.fromJson(userDetailsData);
       print(userDetails.value.toJson());
@@ -63,7 +66,6 @@ class HomeController extends GetxController {
       userDetails.value = userDetailsData;
       print(userDetails.value.toJson());
     }
-
 
     try {
       digitalWeighingScale = DigitalWeighingScale(
@@ -148,18 +150,14 @@ class HomeController extends GetxController {
     }
   }
 
-  Future<void> fetchCustomer() async {
-    print("API fetchCustomer: ${phoneNumber.value}");
+  getCustomerDetails() async {
     try {
-      var response = await _homeRepository.fetchCustomer(CustomerRequest(
-          phoneNumber: phoneNumber.value,
-          customerName: customerName.value,
-          cartType: 'POS',
-          outletId: selectedOutlet.value));
-      customerResponse.value = response;
-      cartId.value = customerResponse.value.cartId.toString();
-      customerName.value = customerResponse.value.customerName.toString();
-      fetchCartCall();
+      var response = await _homeRepository.getCustomerDetails(phoneNumber.value);
+      getCustomerDetailsResponse.value = response;
+      if(getCustomerDetailsResponse.value.customerName?.isNotEmpty == true){
+        customerName.value = getCustomerDetailsResponse.value.customerName.toString();
+      }
+     // fetchCartDetails();
     } catch (e) {
       print("Error $e");
     } finally {
@@ -167,7 +165,26 @@ class HomeController extends GetxController {
     }
   }
 
-  Future<void> fetchCartCall() async {
+   fetchCustomer() async {
+    print("API fetchCustomer: ${phoneNumber.value}");
+    try {
+      var response = await _homeRepository.fetchCustomer(CustomerRequest(
+          phoneNumber: phoneNumber.value,
+          customerName: customerName.value,
+          cartType: selectedPosMode.value.isNotEmpty == true ? selectedPosMode.value : 'POS',
+          terminalId: selectedTerminal.value,
+          outletId: selectedOutlet.value));
+      customerResponse.value = response;
+      cartId.value = customerResponse.value.cartId.toString();
+      fetchCartDetails();
+    } catch (e) {
+      print("Error $e");
+    } finally {
+      print("Error");
+    }
+  }
+
+  Future<void> fetchCartDetails() async {
     print("API fetchCartCall: ${cartId.value}");
 
     cartLines.clear();
@@ -208,8 +225,8 @@ class HomeController extends GetxController {
           ]),
           cartId);
       cartResponse.value = response;
-      fetchCartCall();
-        } catch (e) {
+      fetchCartDetails();
+    } catch (e) {
       print("Error $e");
     } finally {
       print("Error");
@@ -223,8 +240,8 @@ class HomeController extends GetxController {
       var response = await _homeRepository.deleteCartItem(
           DeleteCartRequest(), cartId.value, cartLineId!);
       cartResponse.value = response;
-      fetchCartCall();
-        } catch (e) {
+      fetchCartDetails();
+    } catch (e) {
       print("Error $e");
     } finally {
       print("Error");
@@ -241,8 +258,8 @@ class HomeController extends GetxController {
           cartId.value,
           cartLineId!);
       cartResponse.value = response;
-      fetchCartCall();
-        } catch (e) {
+      fetchCartDetails();
+    } catch (e) {
       print("Error $e");
     } finally {
       print("Error");
