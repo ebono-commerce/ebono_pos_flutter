@@ -36,10 +36,10 @@ class HomeController extends GetxController {
   Rx<UserDetails> userDetails = UserDetails(fullName: '', userType: '', userId: '').obs;
   RxString selectedOutlet = ''.obs;
   RxString selectedTerminal = ''.obs;
+  RxString selectedPosMode = ''.obs;
 
   RxDouble weight = 0.0.obs; // Observable weight value
   late DigitalWeighingScale digitalWeighingScale;
-  final String model = 'alfa';
   final int rate = 9600;
   final int timeout = 1000;
 
@@ -51,6 +51,8 @@ class HomeController extends GetxController {
         GetStorageHelper.read(SharedPreferenceConstants.selectedOutletName);
     selectedTerminal.value =
         GetStorageHelper.read(SharedPreferenceConstants.selectedTerminalName);
+   /* selectedPosMode.value =
+        GetStorageHelper.read(SharedPreferenceConstants.selectedOutlet);*/
     print('selectedTerminal  $selectedTerminal');
     print('selectedOutlet  $selectedOutlet');
     final userDetailsData = GetStorageHelper.read(SharedPreferenceConstants.userDetails);
@@ -66,7 +68,6 @@ class HomeController extends GetxController {
     try {
       digitalWeighingScale = DigitalWeighingScale(
         digitalScalePort: portName.value,
-        digitalScaleModel: model,
         digitalScaleRate: rate,
         digitalScaleTimeout: timeout,
         weightController: weight,
@@ -154,7 +155,7 @@ class HomeController extends GetxController {
           phoneNumber: phoneNumber.value,
           customerName: customerName.value,
           cartType: 'POS',
-          outletId: "OCHNMYL01"));
+          outletId: selectedOutlet.value));
       customerResponse.value = response;
       cartId.value = customerResponse.value.cartId.toString();
       customerName.value = customerResponse.value.customerName.toString();
