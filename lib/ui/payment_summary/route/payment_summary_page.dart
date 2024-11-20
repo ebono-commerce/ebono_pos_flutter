@@ -261,6 +261,7 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
           selectRedemptionWidget(),
           SizedBox(height: 20),
           selectPaymentWidget(),
+          SizedBox(height: 20),
           balanceAmountSection(),
           /*Padding(
             padding: const EdgeInsets.all(16.0),
