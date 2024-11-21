@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
+import 'package:kpn_pos_application/data_store/get_storage_helper.dart';
 import 'package:kpn_pos_application/data_store/shared_preference_helper.dart';
 import 'package:kpn_pos_application/navigation/page_routes.dart';
 
@@ -28,11 +29,16 @@ class AuthInterceptor extends Interceptor {
   }
 
   @override
-  void onError(DioException err, ErrorInterceptorHandler handler) {
+  Future<void> onError(
+      DioException err, ErrorInterceptorHandler handler) async {
     if (err.response?.statusCode == 401) {
       print('Token expired or unauthorized');
-      _sharedPreferenceHelper.clearAuthToken();
-      Get.offAllNamed(PageRoutes.login);
+      bool isLoggedIn = await _sharedPreferenceHelper.getLoginStatus() ?? false;
+      if (isLoggedIn) {
+        _sharedPreferenceHelper.clearAll();
+        GetStorageHelper.clear();
+        Get.offAllNamed(PageRoutes.login);
+      }
     }
 
     // Forward the error to the next handler
