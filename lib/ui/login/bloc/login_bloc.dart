@@ -210,6 +210,8 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
               userId: userId ?? '',
               posMode: selectedPosMode));
       _sharedPreferenceHelper.storeLoginStatus(true);
+      GetStorageHelper.save(
+          SharedPreferenceConstants.customerProxyNumber, response.outletDetails?.outletCustomerProxyPhoneNumber);
       emit(SubmitTerminalDetailsSuccess());
     } catch (error) {
       emit(SubmitTerminalDetailsFailure(error.toString()));

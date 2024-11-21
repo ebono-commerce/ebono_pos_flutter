@@ -7,7 +7,6 @@ import 'package:kpn_pos_application/ui/payment_summary/route/payment_summary_pag
 import 'package:kpn_pos_application/ui/payment_summary/route/print_receipt.dart';
 import 'package:kpn_pos_application/ui/payment_summary/route/weight_display_page.dart';
 import 'package:kpn_pos_application/ui/splash_screen/splash_screen.dart';
-import 'package:kpn_pos_application/vm/home_vm.dart';
 
 List<GetPage> getPages(){
   return  [
@@ -19,7 +18,7 @@ List<GetPage> getPages(){
         page: () => LoginPage()),
     GetPage(
         name: PageRoutes.home,
-        page: () => HomePage(homeViewModel: HomeViewModel())),
+        page: () => HomePage()),
     GetPage(
         name: PageRoutes.paymentSummary,
         page: () => PaymentSummaryScreen()),

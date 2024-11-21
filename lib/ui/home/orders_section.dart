@@ -8,6 +8,7 @@ import 'package:kpn_pos_application/ui/common_text_field.dart';
 import 'package:kpn_pos_application/ui/custom_keyboard/custom_num_pad.dart';
 import 'package:kpn_pos_application/ui/home/home_controller.dart';
 import 'package:kpn_pos_application/ui/home/widgets/add_customer_static_widget.dart';
+import 'package:kpn_pos_application/ui/home/widgets/add_customer_widget.dart';
 import 'package:kpn_pos_application/utils/common_methods.dart';
 import 'package:kpn_pos_application/utils/dash_line.dart';
 
@@ -33,6 +34,17 @@ class _OrdersSectionState extends State<OrdersSection>
       homeController = widget.homeController;
       homeController.initialResponse();
     }
+    ever(homeController.customerResponse, (value) {
+      if(value.phoneNumber != null){
+        _numPadFocusNode.requestFocus();
+      }
+    });
+    ever(homeController.scanProductsResponse, (value) {
+      if(value.esin != null){
+        _numPadTextController.clear();
+      }
+    });
+
     super.initState();
   }
 
@@ -876,16 +888,28 @@ class _OrdersSectionState extends State<OrdersSection>
               Expanded(
                 child: Column(
                   children: [
-                    _buildButton("Customer", context),
-                    _buildButton("Search items", context),
-                    _buildButton("Inventory inquiry", context),
-                    _buildButton("Coupons", context),
-                    _buildButton("Sales Associate", context)
+                    _buildButton("Customer", context, (){
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return Dialog(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20.0),
+                              ),
+                              child: AddCustomerWidget(homeController),
+                            );
+                          },
+                        );
+                    }),
+                    _buildButton("Search items", context, (){}),
+                    _buildButton("Inventory inquiry", context, (){}),
+                    _buildButton("Coupons", context, (){}),
+                    _buildButton("Sales Associate", context, (){})
                   ],
                 ),
               ),
-              _buildButton("Clear cart", context),
-              _buildButton("Hold cart", context)
+              _buildButton("Clear cart", context, (){}),
+              _buildButton("Hold cart", context, (){})
             ],
           )),
     );
@@ -1098,15 +1122,13 @@ class _OrdersSectionState extends State<OrdersSection>
     );
   }
 
-  Widget _buildButton(String label, BuildContext context) {
+  Widget _buildButton(String label, BuildContext context, VoidCallback onLogoutPressed) {
     return Container(
       width: 220,
       height: 80,
       padding: EdgeInsets.symmetric(horizontal: 5.0, vertical: 10),
       child: ElevatedButton(
-        onPressed: () {
-          // Respond to button press
-        },
+        onPressed: onLogoutPressed,
         style: ElevatedButton.styleFrom(
           elevation: 1,
           padding: EdgeInsets.symmetric(horizontal: 1, vertical: 20),
