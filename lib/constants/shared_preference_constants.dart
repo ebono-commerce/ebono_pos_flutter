@@ -10,4 +10,5 @@ class SharedPreferenceConstants {
   static final selectedOutletName = 'selectedOutletName';
   static final selectedTerminalName = 'selectedTerminalName';
   static final selectedPosMode = 'selectedPosName';
+  static final customerProxyNumber = 'customerProxyNumber';
 }

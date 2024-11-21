@@ -42,6 +42,7 @@ class HomeController extends GetxController {
   RxString selectedTerminal = ''.obs;
   RxString selectedPosMode = ''.obs;
   String selectedOutletId = '';
+  RxString customerProxyNumber = ''.obs;
   RxDouble weight = 0.0.obs; // Observable weight value
   late DigitalWeighingScale digitalWeighingScale;
   final int rate = 9600;
@@ -58,6 +59,8 @@ class HomeController extends GetxController {
         GetStorageHelper.read(SharedPreferenceConstants.selectedTerminalName);
     selectedPosMode.value =
         GetStorageHelper.read(SharedPreferenceConstants.selectedPosMode);
+    customerProxyNumber.value =
+        GetStorageHelper.read(SharedPreferenceConstants.customerProxyNumber);
     print('selectedTerminal  $selectedTerminal');
     print('selectedOutlet  $selectedOutlet');
     final userDetailsData =

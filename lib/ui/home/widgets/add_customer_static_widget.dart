@@ -340,7 +340,7 @@ class _AddCustomerStaticWidgetState extends State<AddCustomerStaticWidget>
               padding: EdgeInsets.symmetric(horizontal: 5.0, vertical: 5),
               child: ElevatedButton(
                 onPressed: () {
-                  homeController.phoneNumber.value = '9999999999';
+                  homeController.phoneNumber.value = homeController.customerProxyNumber.value;
                   homeController.customerName.value = 'Admin';
 
                   homeController.fetchCustomer();

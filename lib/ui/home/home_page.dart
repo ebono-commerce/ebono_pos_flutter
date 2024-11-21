@@ -13,12 +13,10 @@ import 'package:kpn_pos_application/ui/login/bloc/login_bloc.dart';
 import 'package:kpn_pos_application/ui/login/bloc/login_event.dart';
 import 'package:kpn_pos_application/ui/login/bloc/login_state.dart';
 import 'package:kpn_pos_application/ui/login/repository/login_repository.dart';
-import 'package:kpn_pos_application/vm/home_vm.dart';
 
 class HomePage extends StatefulWidget {
-  final HomeViewModel homeViewModel;
 
-  const HomePage({super.key, required this.homeViewModel});
+  const HomePage({super.key});
 
   @override
   State<HomePage> createState() => _HomePageState();
