@@ -248,8 +248,8 @@ class _HomePageState extends State<HomePage> {
               create: (context) => loginBloc,
               child: BlocListener<LoginBloc, LoginState>(
                 listener: (context, state) {
-                  Get.snackbar("Logout", 'Success');
                   if (state is LogoutSuccess) {
+                    Get.snackbar("Logout", 'Success');
                     Get.offAllNamed(PageRoutes.login);
                   } else if (state is LogoutFailure) {
                     Get.snackbar("Logout Error", state.error);

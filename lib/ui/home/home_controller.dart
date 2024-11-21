@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:kpn_pos_application/constants/shared_preference_constants.dart';
 import 'package:kpn_pos_application/data_store/get_storage_helper.dart';
@@ -40,7 +41,7 @@ class HomeController extends GetxController {
   RxString selectedOutlet = ''.obs;
   RxString selectedTerminal = ''.obs;
   RxString selectedPosMode = ''.obs;
-
+  String selectedOutletId = '';
   RxDouble weight = 0.0.obs; // Observable weight value
   late DigitalWeighingScale digitalWeighingScale;
   final int rate = 9600;
@@ -51,9 +52,11 @@ class HomeController extends GetxController {
     portName.value = await sharedPreferenceHelper.getPortName() ?? '';
     selectedOutlet.value =
         GetStorageHelper.read(SharedPreferenceConstants.selectedOutletName);
+    selectedOutletId =
+        GetStorageHelper.read(SharedPreferenceConstants.selectedOutletId);
     selectedTerminal.value =
         GetStorageHelper.read(SharedPreferenceConstants.selectedTerminalName);
-     selectedPosMode.value =
+    selectedPosMode.value =
         GetStorageHelper.read(SharedPreferenceConstants.selectedPosMode);
     print('selectedTerminal  $selectedTerminal');
     print('selectedOutlet  $selectedOutlet');
@@ -83,7 +86,20 @@ class HomeController extends GetxController {
   }
 
   void addCartLine(CartLine cartLine) {
-    cartLines.add(cartLine);
+    var cart = CartLine(
+        cartLineId: cartLine.cartLineId,
+        item: cartLine.item,
+        quantity: cartLine.quantity,
+        unitPrice: cartLine.unitPrice,
+        isWeighedItem: cartLine.isWeighedItem,
+        mrp: cartLine.mrp,
+        lineTotal: cartLine.lineTotal,
+        applicableCartAdjustments: cartLine.applicableCartAdjustments,
+        audit: cartLine.audit,
+        controller: TextEditingController(
+            text: cartLine.quantity?.quantityNumber.toString()),
+        focusNode: FocusNode());
+    cartLines.add(cart);
   }
 
   void removeCartLine(CartLine cartLine) {
@@ -133,7 +149,8 @@ class HomeController extends GetxController {
   Future<void> scanApiCall(String code) async {
     print("API scanApiCall: $code");
     try {
-      var response = await _homeRepository.getScanProduct(code);
+      var response = await _homeRepository.getScanProduct(
+          code: code, outletId: selectedOutletId);
       scanProductsResponse.value = response;
       if (cartId.value != "") {
         addToCartApiCall(
@@ -152,12 +169,14 @@ class HomeController extends GetxController {
 
   getCustomerDetails() async {
     try {
-      var response = await _homeRepository.getCustomerDetails(phoneNumber.value);
+      var response =
+          await _homeRepository.getCustomerDetails(phoneNumber.value);
       getCustomerDetailsResponse.value = response;
-      if(getCustomerDetailsResponse.value.customerName?.isNotEmpty == true){
-        customerName.value = getCustomerDetailsResponse.value.customerName.toString();
+      if (getCustomerDetailsResponse.value.customerName?.isNotEmpty == true) {
+        customerName.value =
+            getCustomerDetailsResponse.value.customerName.toString();
       }
-     // fetchCartDetails();
+      // fetchCartDetails();
     } catch (e) {
       print("Error $e");
     } finally {
@@ -165,13 +184,15 @@ class HomeController extends GetxController {
     }
   }
 
-   fetchCustomer() async {
+  fetchCustomer() async {
     print("API fetchCustomer: ${phoneNumber.value}");
     try {
       var response = await _homeRepository.fetchCustomer(CustomerRequest(
           phoneNumber: phoneNumber.value,
           customerName: customerName.value,
-          cartType: selectedPosMode.value.isNotEmpty == true ? selectedPosMode.value : 'POS',
+          cartType: selectedPosMode.value.isNotEmpty == true
+              ? selectedPosMode.value
+              : 'POS',
           terminalId: selectedTerminal.value,
           outletId: selectedOutlet.value));
       customerResponse.value = response;

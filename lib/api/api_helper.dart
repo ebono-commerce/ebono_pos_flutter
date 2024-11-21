@@ -83,6 +83,27 @@ class ApiHelper {
     }
   }
 
+
+  // Delete request
+  Future<T> delete<T>(String endpoint, {
+    Map<String, dynamic>? data,
+    Map<String, dynamic>? headers,
+    T Function(dynamic json)? parser,
+    dio.CancelToken? cancelToken,
+  }) async {
+    try {
+      dio.Response response = await _dio.delete(
+        endpoint,
+        data: data,
+        options: dio.Options(headers: headers),
+        cancelToken: cancelToken,
+      );
+      return _handleResponse(response, parser);
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   T _handleResponse<T>(dio.Response response, T Function(dynamic)? parser) {
     if (response.statusCode != null &&
         response.statusCode! >= 200 &&

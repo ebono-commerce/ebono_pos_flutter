@@ -55,7 +55,7 @@ class AddToCartCartLine {
   Map<String, dynamic> toJson() => {
         "esin": esin,
         "quantity": quantity?.toJson(),
-        "mrp_id": mrpId,
+        if (mrpId != null) "mrp_id": mrpId,
       };
 }
 
