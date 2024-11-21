@@ -8,7 +8,6 @@ import 'package:kpn_pos_application/ui/common_text_field.dart';
 import 'package:kpn_pos_application/ui/custom_keyboard/custom_num_pad.dart';
 import 'package:kpn_pos_application/ui/home/home_controller.dart';
 import 'package:kpn_pos_application/ui/home/widgets/add_customer_static_widget.dart';
-import 'package:kpn_pos_application/ui/home/widgets/add_customer_widget.dart';
 import 'package:kpn_pos_application/utils/common_methods.dart';
 import 'package:kpn_pos_application/utils/dash_line.dart';
 
@@ -25,9 +24,6 @@ class _OrdersSectionState extends State<OrdersSection>
     with WidgetsBindingObserver {
   final FocusNode _numPadFocusNode = FocusNode();
   final TextEditingController _numPadTextController = TextEditingController();
-
-  final TextEditingController _controllerPhoneNumber = TextEditingController();
-  final TextEditingController _controllerCustomerName = TextEditingController();
 
   late HomeController homeController;
 
@@ -197,15 +193,10 @@ class _OrdersSectionState extends State<OrdersSection>
                 ],
               ),
               ...homeController.cartLines.map((itemData) {
-                /*itemData.controller?.text =
-                    weightController.weight.value.toString();*/
-                // var focus =  itemData.focusNode ?? FocusNode();
                 itemData.focusNode?.addListener(() {
                   setState(() {});
                 });
                 itemData.controller?.addListener(() {
-                  print('on listener');
-                  print(itemData.controller?.text);
                   try {
                     if (itemData.controller?.text != '0.0' &&
                         itemData.controller?.text.isBlank != true &&
@@ -236,12 +227,8 @@ class _OrdersSectionState extends State<OrdersSection>
                 }
                 return TableRow(
                   decoration: BoxDecoration(
-                      // color: Colors.grey.shade300,
                       border:
                           Border.all(color: Colors.grey.shade300, width: 1)),
-                  // decoration: BoxDecoration(
-                  //   color: Colors.white,
-                  // ),
                   children: [
                     Container(
                       color: Colors.white,
@@ -284,7 +271,7 @@ class _OrdersSectionState extends State<OrdersSection>
                       padding: const EdgeInsets.all(2.0),
                       child: Padding(
                         padding: const EdgeInsets.all(2.0),
-                        child: itemData.isWeighedItem == true
+                        child: itemData.item?.isWeighedItem == true
                             ? commonTextField(
                                 label: '',
                                 focusNode: itemData.focusNode ?? FocusNode(),
@@ -296,12 +283,10 @@ class _OrdersSectionState extends State<OrdersSection>
                                 },
                                 suffixLabel: null,
                                 suffixWidget: InkWell(
-                                  onTap: itemData.isWeighedItem == true
-                                      ? () {
-                                          print('on tap');
-                                          itemData.focusNode?.requestFocus();
-                                        }
-                                      : null,
+                                  onTap: () {
+                                    print('on tap');
+                                    itemData.focusNode?.requestFocus();
+                                  },
                                   child: Text(
                                     '',
                                     maxLines: 1,
@@ -341,13 +326,11 @@ class _OrdersSectionState extends State<OrdersSection>
                               ),
                       ),
                     ),
-                    itemData.isWeighedItem == true
+                    itemData.item?.isWeighedItem == true
                         ? InkWell(
-                            onTap: itemData.isWeighedItem == true
-                                ? () {
-                                    itemData.focusNode?.requestFocus();
-                                  }
-                                : null,
+                            onTap: () {
+                              itemData.focusNode?.requestFocus();
+                            },
                             child: Container(
                               color: Colors.white,
                               padding: const EdgeInsets.only(
@@ -564,10 +547,12 @@ class _OrdersSectionState extends State<OrdersSection>
                                                     ?.isNotEmpty ==
                                                 true
                                             ? homeController
-                                            .scanProductsResponse
-                                            .value
-                                            .isWeighedItem ==
-                                            true ? '(${homeController.scanProductsResponse.value.salesUom})' : ''
+                                                        .scanProductsResponse
+                                                        .value
+                                                        .isWeighedItem ==
+                                                    true
+                                                ? '(${homeController.scanProductsResponse.value.salesUom})'
+                                                : ''
                                             : " - ",
                                         style: TextStyle(
                                             color: Colors.black,
@@ -891,91 +876,18 @@ class _OrdersSectionState extends State<OrdersSection>
               Expanded(
                 child: Column(
                   children: [
-                    _buidButton("Customer", context),
-                    _buidButton("Search items", context),
-                    _buidButton("Inventory inquiry", context),
-                    _buidButton("Coupons", context),
-                    _buidButton("Sales Associate", context)
+                    _buildButton("Customer", context),
+                    _buildButton("Search items", context),
+                    _buildButton("Inventory inquiry", context),
+                    _buildButton("Coupons", context),
+                    _buildButton("Sales Associate", context)
                   ],
                 ),
               ),
-              _buidButton("Clear cart", context),
-              _buidButton("Hold cart", context)
+              _buildButton("Clear cart", context),
+              _buildButton("Hold cart", context)
             ],
           )),
-    );
-  }
-
-  Widget _buildRegisterClosed(BuildContext context, String widgetName,
-      {VoidCallback? onPressed}) {
-    return Container(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisSize: MainAxisSize.max,
-        children: [
-          Center(
-            child: Text(
-              "Register is closed!",
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold, color: CustomColors.black),
-              // style: TextStyle(
-              //     color: Color(0xFF000000),
-              //     fontSize: 16,
-              //     fontWeight: FontWeight.bold),
-            ),
-          ),
-          SizedBox(
-            height: 10,
-          ),
-          Center(
-            child: Text(
-              "Set an opening float to start the sale",
-              style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.normal, color: CustomColors.black),
-              // style: TextStyle(
-              //     color: Color(0xFF000000),
-              //     fontSize: 14,
-              //     fontWeight: FontWeight.normal),
-            ),
-          ),
-          SizedBox(
-            height: 5,
-          ),
-          Container(
-            width: 150,
-            // height: 50,
-            padding: EdgeInsets.symmetric(horizontal: 5.0, vertical: 10),
-            child: ElevatedButton(
-              onPressed: onPressed,
-              style: ElevatedButton.styleFrom(
-                elevation: 1,
-                padding: EdgeInsets.symmetric(horizontal: 1, vertical: 20),
-                shape: RoundedRectangleBorder(
-                  side: BorderSide(color: CustomColors.secondaryColor),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                backgroundColor: CustomColors.secondaryColor,
-              ),
-              child: Center(
-                child: Text(
-                  "Open register",
-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.bold, color: CustomColors.black),
-                  // style: TextStyle(
-                  //     color: Colors.black,
-                  //     fontSize: 14,
-                  //     fontWeight: FontWeight.bold),
-                ),
-              ),
-              //  onPressed: () { pdfController.printPdf();  },
-            ),
-          ),
-          SizedBox(
-            height: 20,
-          ),
-        ],
-      ),
     );
   }
 
@@ -1186,7 +1098,7 @@ class _OrdersSectionState extends State<OrdersSection>
     );
   }
 
-  Widget _buidButton(String label, BuildContext context) {
+  Widget _buildButton(String label, BuildContext context) {
     return Container(
       width: 220,
       height: 80,

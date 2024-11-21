@@ -7,6 +7,7 @@ import 'package:kpn_pos_application/ui/login/bloc/login_state.dart';
 import 'package:kpn_pos_application/ui/login/model/get_terminal_details_request.dart';
 import 'package:kpn_pos_application/ui/login/model/login_request.dart';
 import 'package:kpn_pos_application/ui/login/model/login_response.dart';
+import 'package:kpn_pos_application/ui/login/model/logout_request.dart';
 import 'package:kpn_pos_application/ui/login/model/logout_response.dart';
 import 'package:kpn_pos_application/ui/login/model/outlet_details_response.dart';
 import 'package:kpn_pos_application/ui/login/model/terminal_details_response.dart';
@@ -103,6 +104,8 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       }
       selectedOutletId = response.outletDetails.first.outletId;
       GetStorageHelper.save(
+          SharedPreferenceConstants.selectedOutletId, response.outletDetails.first.outletId);
+      GetStorageHelper.save(
           SharedPreferenceConstants.selectedOutletName, response.outletDetails.first.name);
       emit(LoginSuccess());
     } catch (error) {
@@ -114,9 +117,14 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       LogoutButtonPressed event, Emitter<LoginState> emit) async {
     emit(LoginLoading());
     try {
-      var token = await _sharedPreferenceHelper.getAuthToken() ?? '';
+     var selectedOutlet =
+          GetStorageHelper.read(SharedPreferenceConstants.selectedOutletId);
+      var selectedTerminal =
+          GetStorageHelper.read(SharedPreferenceConstants.selectedTerminalId);
+      var selectedPosMode =
+          GetStorageHelper.read(SharedPreferenceConstants.selectedPosMode);
       final LogoutResponse response =
-          await _loginRepository.logout(token: token);
+          await _loginRepository.logout(request: LogoutRequest(outletId: selectedOutlet, terminalId: selectedTerminal, posMode: selectedPosMode));
 
       _sharedPreferenceHelper.clearAll();
       GetStorageHelper.clear();
@@ -142,6 +150,8 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       _sharedPreferenceHelper.storeSelectedOutlet(response.outletId ?? "");
       GetStorageHelper.save(
           SharedPreferenceConstants.selectedOutletName, event.outletName);
+      GetStorageHelper.save(
+          SharedPreferenceConstants.selectedOutletId, response.outletId);
       terminalDetails = response.terminals ?? [];
       terminalList.clear();
       if (terminalDetails.isNotEmpty) {
@@ -151,6 +161,8 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
           }
         }
         selectedTerminalId = response.terminals?.first.terminalId ?? '';
+        GetStorageHelper.save(
+            SharedPreferenceConstants.selectedTerminalId, response.terminals?.first.terminalId);
         GetStorageHelper.save(
             SharedPreferenceConstants.selectedTerminalName, response.terminals?.first.terminalName);
       }
@@ -182,6 +194,8 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     print('selected terminal ${event.terminalName}');
     GetStorageHelper.save(
           SharedPreferenceConstants.selectedTerminalName, event.terminalName);
+    GetStorageHelper.save(
+        SharedPreferenceConstants.selectedTerminalId, selectedTerminalId);
   }
 
   Future<void> _submitTerminalDetails(

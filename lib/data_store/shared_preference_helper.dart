@@ -59,19 +59,19 @@ class SharedPreferenceHelper {
   // Store the selectedOutlet
   Future<void> storeSelectedOutlet(String selectedOutlet) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(SharedPreferenceConstants.selectedOutlet, selectedOutlet);
+    await prefs.setString(SharedPreferenceConstants.selectedOutletId, selectedOutlet);
   }
 
   // Retrieve the selectedOutlet
   Future<String?> getSelectedOutlet() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(SharedPreferenceConstants.selectedOutlet);
+    return prefs.getString(SharedPreferenceConstants.selectedOutletId);
   }
 
   // Clear the selectedOutlet
   Future<void> clearSelectedOutlet() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(SharedPreferenceConstants.selectedOutlet);
+    await prefs.remove(SharedPreferenceConstants.selectedOutletId);
   }
 
   // Store the isLoggedIn

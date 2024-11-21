@@ -5,6 +5,7 @@ import 'package:kpn_pos_application/api/api_helper.dart';
 import 'package:kpn_pos_application/ui/login/model/get_terminal_details_request.dart';
 import 'package:kpn_pos_application/ui/login/model/login_request.dart';
 import 'package:kpn_pos_application/ui/login/model/login_response.dart';
+import 'package:kpn_pos_application/ui/login/model/logout_request.dart';
 import 'package:kpn_pos_application/ui/login/model/logout_response.dart';
 import 'package:kpn_pos_application/ui/login/model/outlet_details_response.dart';
 import 'package:kpn_pos_application/ui/login/model/terminal_details_response.dart';
@@ -27,22 +28,22 @@ class LoginRepository {
       // return data;
       return loginResponse;
     } catch (e) {
-      throw Exception('Failed to parse data');
+      throw Exception(e);
     }
   }
 
 
-  Future<LogoutResponse> logout({required String token}) async {
+  Future<LogoutResponse> logout({required LogoutRequest request}) async {
     try {
       final response = await _apiHelper.post(
         ApiConstants.logout,
-        data: {'token':token},
+        data: request.toJson(),
       );
       final logoutResponse = logoutResponseFromJson(jsonEncode(response));
 
       return logoutResponse;
     } catch (e) {
-      throw Exception('Failed to parse data');
+      throw Exception(e);
     }
   }
 
@@ -55,7 +56,7 @@ class LoginRepository {
       final outletDetailsResponse = outletDetailsResponseFromJson(jsonEncode(response));
       return outletDetailsResponse;
     } catch (e) {
-      throw Exception('Failed to parse data');
+      throw Exception(e);
     }
   }
 
@@ -68,7 +69,7 @@ class LoginRepository {
       final terminalDetailsResponse = terminalDetailsResponseFromJson(jsonEncode(response));
       return terminalDetailsResponse;
     } catch (e) {
-      throw Exception('Failed to parse data');
+      throw Exception(e);
     }
   }
 }

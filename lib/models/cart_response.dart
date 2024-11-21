@@ -178,7 +178,6 @@ class CartLine {
   String? cartLineId;
   Item? item;
   bool? isWeighedItem;
-
   Quantity? quantity;
   AmountPayable? unitPrice;
   AmountPayable? mrp;
@@ -273,6 +272,7 @@ class Item {
   String? ebonoTitle;
   String? primaryImageUrl;
   String? productType;
+  bool? isWeighedItem;
 
   Item({
     this.esin,
@@ -280,6 +280,7 @@ class Item {
     this.ebonoTitle,
     this.primaryImageUrl,
     this.productType,
+    this.isWeighedItem,
   });
 
   factory Item.fromJson(Map<String, dynamic> json) => Item(
@@ -288,6 +289,7 @@ class Item {
         ebonoTitle: json["ebono_title"],
         primaryImageUrl: json["primary_image_url"],
         productType: json["product_type"],
+        isWeighedItem: json["is_weighed_item"],
       );
 
   Map<String, dynamic> toJson() => {
@@ -296,6 +298,7 @@ class Item {
         "ebono_title": ebonoTitle,
         "primary_image_url": primaryImageUrl,
         "product_type": productType,
+        "is_weighed_item": isWeighedItem,
       };
 }
 

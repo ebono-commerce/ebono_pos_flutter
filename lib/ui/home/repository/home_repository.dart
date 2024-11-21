@@ -25,7 +25,8 @@ class HomeRepository {
           'phone_number': phoneNumber,
         },
       );
-      final customerDetailsResponse = customerDetailsResponseFromJson(jsonEncode(response));
+      final customerDetailsResponse =
+          customerDetailsResponseFromJson(jsonEncode(response));
       return customerDetailsResponse;
     } catch (e) {
       throw Exception('$e');
@@ -45,11 +46,13 @@ class HomeRepository {
     }
   }
 
-  Future<ScanProductsResponse> getScanProduct(String code) async {
+  Future<ScanProductsResponse> getScanProduct(
+      {required String code, required String outletId}) async {
     try {
       final response = await _apiHelper.get(
         queryParameters: {
           'code': code,
+          'outlet_id': outletId,
         },
         ApiConstants.scanProducts,
       );
@@ -74,11 +77,11 @@ class HomeRepository {
     }
   }
 
-  Future<CartResponse> addToCart(AddToCartRequest request,
-      String? cartId) async {
+  Future<CartResponse> addToCart(
+      AddToCartRequest request, String? cartId) async {
     try {
       final response = await _apiHelper.post(
-        '${ApiConstants.baseUrl}checkout/v1/cart/$cartId/items',
+        '${ApiConstants.addToCart}$cartId/items',
         data: request.toJson(),
       );
       final cartResponse = cartResponseFromJson(jsonEncode(response));
@@ -91,9 +94,9 @@ class HomeRepository {
   Future<CartResponse> deleteCartItem(
       DeleteCartRequest request, String cartId, String cartLineId) async {
     try {
-      final response = await _apiHelper.post(
-        '${ApiConstants.baseUrl}checkout/v1/cart/$cartId/cart-line/$cartLineId',
-        data: request.toJson(),
+      final response = await _apiHelper.delete(
+        '${ApiConstants.deleteFromCart}$cartId/cart-line/$cartLineId',
+        data: {},
       );
       final cartResponse = cartResponseFromJson(jsonEncode(response));
       return cartResponse;
@@ -106,7 +109,7 @@ class HomeRepository {
       UpdateCartRequest request, String cartId, String cartLineId) async {
     try {
       final response = await _apiHelper.post(
-        '${ApiConstants.baseUrl}checkout/v1/cart/$cartId/cart-line/$cartLineId',
+        '${ApiConstants.updateCart}$cartId/cart-line/$cartLineId',
         data: request.toJson(),
       );
       final cartResponse = cartResponseFromJson(jsonEncode(response));
