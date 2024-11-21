@@ -82,12 +82,12 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
             ),
             SizedBox(width: 16),
             Expanded(
-              flex: 4,
+              flex: 5,
               child: paymentModeSection(),
             ),
             SizedBox(width: 5),
             Expanded(
-              flex: 2, // 0.2 ratio
+              flex: 3, // 0.2 ratio
               child: Container(
                 margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 30),
                 child: Center(
@@ -261,8 +261,9 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
           selectRedemptionWidget(),
           SizedBox(height: 20),
           selectPaymentWidget(),
-          //balanceAmountSection(),
-          Padding(
+          SizedBox(height: 20),
+          balanceAmountSection(),
+          /*Padding(
             padding: const EdgeInsets.all(16.0),
             child: ConstrainedBox(
               constraints: BoxConstraints(
@@ -274,8 +275,8 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                 controller: qwertyTextController,
               ),
             ),
-          ),
-          CustomQwertyPad(textController: qwertyTextController)
+          ),*/
+          //CustomQwertyPad(textController: qwertyTextController)
         ],
       ),
     );

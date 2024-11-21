@@ -8,4 +8,5 @@ class SharedPreferenceConstants {
   static final portName = 'portName';
   static final selectedOutletName = 'selectedOutletName';
   static final selectedTerminalName = 'selectedTerminalName';
+  static final selectedPosMode = 'selectedPosName';
 }

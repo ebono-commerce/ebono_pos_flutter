@@ -1,48 +1,76 @@
 import 'package:flutter/material.dart';
 
-class CustomQwertyPad extends StatelessWidget {
+class CustomQwertyPad extends StatefulWidget {
   final TextEditingController textController;
-  final FocusNode focusNode = FocusNode();
+  final FocusNode focusNode;
+  final void Function(String)? onEnterPressed;
+  final void Function(String)? onValueChanged;
+  final void Function(String)? onClearAll;
 
-  CustomQwertyPad({super.key, required this.textController});
+  const CustomQwertyPad(
+      {super.key,
+      required this.textController,
+      required this.focusNode,
+      this.onEnterPressed,
+      this.onValueChanged,
+      this.onClearAll});
 
+  @override
+  State<CustomQwertyPad> createState() => _CustomQwertyPadState();
+}
+
+class _CustomQwertyPadState extends State<CustomQwertyPad> {
   void _onKeyPressed(String value) {
-    textController.text += value;
+    if (!widget.focusNode.hasFocus) {
+      widget.focusNode.requestFocus();
+    }
+    widget.textController.text += value;
   }
 
   void _onBackspace() {
-    if (textController.text.isNotEmpty) {
-      textController.text =
-          textController.text.substring(0, textController.text.length - 1);
+    if (!widget.focusNode.hasFocus) {
+      widget.focusNode.requestFocus();
+    }
+    if (widget.textController.text.isNotEmpty) {
+      widget.textController.text = widget.textController.text
+          .substring(0, widget.textController.text.length - 1);
     }
   }
 
-  void _onEnter() {
-    textController.clear();
+  void _onEnterPressed(String value) {
+    if (!widget.focusNode.hasFocus) {
+      widget.focusNode.requestFocus();
+    }
+    widget.onEnterPressed!(value);
   }
 
   void _onSpace() {
-    textController.text += ' ';
+    if (!widget.focusNode.hasFocus) {
+      widget.focusNode.requestFocus();
+    }
+    widget.textController.text += ' ';
+  }
+
+  void _handleValueChanged() {
+    if (widget.onValueChanged != null) {
+      widget.onValueChanged!(widget.textController.text);
+    }
+  }
+
+  @override
+  void initState() {
+    widget.focusNode.addListener(() {
+      setState(() {});
+    });
+    widget.textController.addListener(_handleValueChanged);
+
+    super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    focusNode.addListener(() {});
     return Column(
       children: [
-        /* Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: ConstrainedBox(
-            constraints: BoxConstraints(
-                maxWidth: 780, minWidth: 100),
-            child:  commonTextField(
-              label: ' Enter value ',
-              focusNode: focusNode,
-              readOnly: true,
-              controller: textController,
-            ),
-          ),
-        ),*/
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -208,7 +236,9 @@ class CustomQwertyPad extends StatelessWidget {
   // Function to build an enter key icon
   Widget _buildKeyEnterIcon(String img) {
     return InkWell(
-      onTap: _onEnter,
+      onTap: () {
+        _onEnterPressed(widget.textController.text);
+      },
       borderRadius: BorderRadius.circular(10.0),
       child: Container(
         padding: EdgeInsets.all(20.0),

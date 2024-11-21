@@ -9,7 +9,6 @@ class WeightController extends GetxController {
     try {
       digitalWeighingScale = DigitalWeighingScale(
         digitalScalePort: port,
-        digitalScaleModel: model,
         digitalScaleRate: rate,
         digitalScaleTimeout: timeout,
         weightController: weight,

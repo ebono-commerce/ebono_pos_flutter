@@ -66,17 +66,8 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       LoginInitialEvent event, Emitter<LoginState> emit) async {
     availablePorts = SerialPort.availablePorts;
     print('Available ports:');
-    var i = 0;
-    for (final name in availablePorts) {
-      final sp = SerialPort(name);
-      print('${++i}) $name');
-      print('\tDescription: ${sp.description}');
-      print('\tManufacturer: ${sp.manufacturer}');
-      print('\tSerial Number: ${sp.serialNumber}');
-      //print('\tProduct ID: 0x${sp.productId}');
-      //print('\tVendor ID: 0x${sp.vendorId}');
-      sp.dispose();
-    }
+    _sharedPreferenceHelper.storePortName(availablePorts.first);
+
     emit(ReadPortSuccess());
   }
 
@@ -163,9 +154,12 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
         GetStorageHelper.save(
             SharedPreferenceConstants.selectedTerminalName, response.terminals?.first.terminalName);
       }
-      if (response.allowedPosModes != null) {
+      final allowedPosModes = response.allowedPosModes;
+      if (allowedPosModes != null) {
         allowedPos.clear();
-        allowedPos.addAll(response.allowedPosModes!);
+        allowedPos.addAll(allowedPosModes);
+        GetStorageHelper.save(
+            SharedPreferenceConstants.selectedPosMode, allowedPosModes.first);
       }
       emit(GetOutletDetailsSuccess());
     } catch (error) {
@@ -175,6 +169,8 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
 
   _selectPosMode(SelectPosMode event, Emitter<LoginState> emit) {
     selectedPosMode = event.posMode;
+    GetStorageHelper.save(
+        SharedPreferenceConstants.selectedPosMode, event.posMode);
   }
 
   _selectTerminal(SelectTerminal event, Emitter<LoginState> emit) {

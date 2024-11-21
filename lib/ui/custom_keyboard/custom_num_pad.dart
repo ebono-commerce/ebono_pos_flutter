@@ -60,7 +60,7 @@ class _CustomNumPadState extends State<CustomNumPad> {
   @override
   void dispose() {
     focusNode.dispose();
-    widget.textController.dispose();
+    //widget.textController.dispose();
     super.dispose();
   }
 

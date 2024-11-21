@@ -7,8 +7,8 @@ import 'package:kpn_pos_application/navigation/page_routes.dart';
 import 'package:kpn_pos_application/ui/common_text_field.dart';
 import 'package:kpn_pos_application/ui/custom_keyboard/custom_num_pad.dart';
 import 'package:kpn_pos_application/ui/home/home_controller.dart';
-import 'package:kpn_pos_application/ui/home/widgets/add_customer.dart';
-import 'package:kpn_pos_application/ui/payment_summary/weight_controller.dart';
+import 'package:kpn_pos_application/ui/home/widgets/add_customer_static_widget.dart';
+import 'package:kpn_pos_application/ui/home/widgets/add_customer_widget.dart';
 import 'package:kpn_pos_application/utils/common_methods.dart';
 import 'package:kpn_pos_application/utils/dash_line.dart';
 
@@ -23,7 +23,6 @@ class OrdersSection extends StatefulWidget {
 
 class _OrdersSectionState extends State<OrdersSection>
     with WidgetsBindingObserver {
-  // String _selectedWidget = 'ADD_CUSTOMER';
   final FocusNode _numPadFocusNode = FocusNode();
   final TextEditingController _numPadTextController = TextEditingController();
 
@@ -41,30 +40,6 @@ class _OrdersSectionState extends State<OrdersSection>
     super.initState();
   }
 
-  // void _onWidgetNameUpdatePressed(String value) {
-  //   setState(() {
-  //     _selectedWidget = value;
-  //     print(" Widget Name: $_selectedWidget");
-  //   });
-  // }
-
-  // void _StaleButtonPressed(String value) {
-  //   if (homeController.phoneNumber.value != '') {
-  //     setState(() {
-  //       _selectedWidget = value;
-  //       print(" Widget Name: $_selectedWidget");
-  //       //add fetch call data
-  //       homeController.fetchCustomer();
-  //     });
-  //   } else {
-  //     showToast('Please enter phone number',
-  //         context: context,
-  //         axis: Axis.horizontal,
-  //         alignment: Alignment.center,
-  //         position: StyledToastPosition.center);
-  //   }
-  // }
-
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
@@ -79,7 +54,7 @@ class _OrdersSectionState extends State<OrdersSection>
       child: Row(
         children: [
           Expanded(
-            flex: 6, // 0.6 ratio
+            flex: 5, // 0.6 ratio
             child: Container(
                 color: Colors.white,
                 child: Column(
@@ -90,36 +65,20 @@ class _OrdersSectionState extends State<OrdersSection>
                     Expanded(
                       child: Obx(() {
                         return Center(
-                          child: homeController.cartId.value != ''
-                              ? AddCustomer(homeController)
+                          child: homeController.cartId.value == ''
+                              ? AddCustomerStaticWidget(homeController)
                               : Obx(() {
                                   return _buildTableView2();
                                 }),
                         );
                       }),
-                      // Center(
-                      //     child: _selectedWidget == 'ADD_CUSTOMER'
-                      //         ? _buildAddCustomer(
-                      //             context,
-                      //             "START_SALE",
-                      //             onPressed: () =>
-                      //                 _StaleButtonPressed("START_SALE"),
-                      //           )
-                      //         : _selectedWidget == 'START_SALE'
-                      //             ? Obx(() {
-                      //                 return _buildTableView2();
-                      //               })
-                      //             : Container()),
                     )
                   ],
                 )),
           ),
           Expanded(
             flex: 2, // 0.2 ratio
-            child: Container(
-              margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
-              child: Center(child: _buildNumberPadSection(homeController)),
-            ),
+            child: Center(child: _buildNumberPadSection(homeController)),
           ),
           Expanded(
             flex: 1, // 0.1 ratio
@@ -271,6 +230,10 @@ class _OrdersSectionState extends State<OrdersSection>
                     homeController.weight.value = 0.0;
                   }
                 }
+                if (itemData.isWeighedItem != true) {
+                  itemData.controller?.text =
+                      itemData.quantity?.quantityNumber.toString() ?? '';
+                }
                 return TableRow(
                   decoration: BoxDecoration(
                       // color: Colors.grey.shade300,
@@ -321,65 +284,111 @@ class _OrdersSectionState extends State<OrdersSection>
                       padding: const EdgeInsets.all(2.0),
                       child: Padding(
                         padding: const EdgeInsets.all(2.0),
-                        child: commonTextField(
-                            label: '',
-                            focusNode: itemData.focusNode ?? FocusNode(),
-                            readOnly: true,
-                            controller:
-                                itemData.controller ?? TextEditingController(),
-                            onValueChanged: (value) {
-                              print('on value change');
-                            },
-                            suffixLabel: null,
-                            suffixWidget: InkWell(
-                              onTap: itemData.isWeighedItem == true
-                                  ? () {
-                                      print('on tap');
-                                      itemData.focusNode?.requestFocus();
-                                    }
-                                  : null,
-                              child: Text(
-                                '',
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                softWrap: true,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .labelLarge
-                                    ?.copyWith(
-                                        fontWeight: FontWeight.w500,
-                                        color: CustomColors.black),
+                        child: itemData.isWeighedItem == true
+                            ? commonTextField(
+                                label: '',
+                                focusNode: itemData.focusNode ?? FocusNode(),
+                                readOnly: true,
+                                controller: itemData.controller ??
+                                    TextEditingController(),
+                                onValueChanged: (value) {
+                                  print('on value change');
+                                },
+                                suffixLabel: null,
+                                suffixWidget: InkWell(
+                                  onTap: itemData.isWeighedItem == true
+                                      ? () {
+                                          print('on tap');
+                                          itemData.focusNode?.requestFocus();
+                                        }
+                                      : null,
+                                  child: Text(
+                                    '',
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    softWrap: true,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .labelLarge
+                                        ?.copyWith(
+                                            fontWeight: FontWeight.w500,
+                                            color: CustomColors.black),
+                                  ),
+                                ))
+                            : Container(
+                                decoration: BoxDecoration(
+                                    // color: Colors.grey.shade300,
+                                    borderRadius: BorderRadius.circular(10),
+                                    border: Border.all(
+                                      color: Colors.grey.shade300,
+                                      width: 1,
+                                    )),
+                                //padding: const EdgeInsets.all(8.0),
+                                child: Padding(
+                                    padding: const EdgeInsets.all(10.0),
+                                    child: Text(
+                                      '${itemData.quantity?.quantityNumber}',
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      softWrap: true,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .labelLarge
+                                          ?.copyWith(
+                                              fontWeight: FontWeight.w500,
+                                              color: CustomColors.black),
+                                    )),
                               ),
-                            )),
                       ),
                     ),
-                    InkWell(
-                      onTap: itemData.isWeighedItem == true
-                          ? () {
-                              itemData.focusNode?.requestFocus();
-                            }
-                          : null,
-                      child: Container(
-                        color: Colors.white,
-                        padding: const EdgeInsets.only(
-                            top: 8.0, bottom: 8.0, right: 8.0, left: 0.0),
-                        child: Padding(
-                            padding: const EdgeInsets.all(10.0),
-                            child: Text(
-                              itemData.quantity?.quantityUom ?? '',
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              softWrap: true,
-                              textAlign: TextAlign.left,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .labelMedium
-                                  ?.copyWith(
-                                      fontWeight: FontWeight.w500,
-                                      color: CustomColors.black),
-                            )),
-                      ),
-                    ),
+                    itemData.isWeighedItem == true
+                        ? InkWell(
+                            onTap: itemData.isWeighedItem == true
+                                ? () {
+                                    itemData.focusNode?.requestFocus();
+                                  }
+                                : null,
+                            child: Container(
+                              color: Colors.white,
+                              padding: const EdgeInsets.only(
+                                  top: 8.0, bottom: 8.0, right: 8.0, left: 0.0),
+                              child: Padding(
+                                  padding: const EdgeInsets.all(10.0),
+                                  child: Text(
+                                    itemData.quantity?.quantityUom ?? '',
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    softWrap: true,
+                                    textAlign: TextAlign.left,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .labelMedium
+                                        ?.copyWith(
+                                            fontWeight: FontWeight.w500,
+                                            color: CustomColors.black),
+                                  )),
+                            ),
+                          )
+                        : Container(
+                            color: Colors.white,
+                            padding: const EdgeInsets.only(
+                                top: 8.0, bottom: 8.0, right: 8.0, left: 0.0),
+                            child: Padding(
+                                padding: const EdgeInsets.all(10.0),
+                                child: Text(
+                                  '',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  softWrap: true,
+                                  textAlign: TextAlign.left,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .labelMedium
+                                      ?.copyWith(
+                                          fontWeight: FontWeight.w500,
+                                          color: CustomColors.black),
+                                )),
+                          ),
                     Container(
                       color: Colors.white,
                       padding: const EdgeInsets.all(8.0),
@@ -554,7 +563,11 @@ class _OrdersSectionState extends State<OrdersSection>
                                                     .salesUom
                                                     ?.isNotEmpty ==
                                                 true
-                                            ? '(${homeController.scanProductsResponse.value.salesUom})'
+                                            ? homeController
+                                            .scanProductsResponse
+                                            .value
+                                            .isWeighedItem ==
+                                            true ? '(${homeController.scanProductsResponse.value.salesUom})' : ''
                                             : " - ",
                                         style: TextStyle(
                                             color: Colors.black,
@@ -662,6 +675,12 @@ class _OrdersSectionState extends State<OrdersSection>
                           onEnterPressed: (text) {
                             print("Enter pressed with text: $text");
                             _numPadFocusNode.unfocus();
+                            if (isValidOfferId(text)) {
+                              homeController.scanApiCall(text);
+                            } else {
+                              Get.snackbar("Invalid Offer Id",
+                                  'Please enter valid offer id');
+                            }
                           },
                           onValueChanged: (text) {
                             print("onTextListener text: $text");
@@ -793,7 +812,7 @@ class _OrdersSectionState extends State<OrdersSection>
                           style: ElevatedButton.styleFrom(
                               elevation: 1,
                               padding: EdgeInsets.symmetric(
-                                  horizontal: 1, vertical: 20),
+                                  horizontal: 1, vertical: 10),
                               shape: RoundedRectangleBorder(
                                 side: BorderSide.none,
                                 borderRadius: BorderRadius.circular(10),
@@ -958,327 +977,6 @@ class _OrdersSectionState extends State<OrdersSection>
         ],
       ),
     );
-  }
-
-  Widget _buildAddCustomer(BuildContext context, String widgetName,
-      {VoidCallback? onPressed}) {
-    return Obx(() {
-      return SizedBox(
-        width: 400,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisSize: MainAxisSize.max,
-          children: [
-            Center(
-              child: Text(
-                "Add customer details",
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold, color: CustomColors.black),
-                // style: TextStyle(
-                //     color: Color(0xFF000000),
-                //     fontSize: 16,
-                //     fontWeight: FontWeight.bold),
-              ),
-            ),
-            SizedBox(
-              height: 10,
-            ),
-            Center(
-              child: Text(
-                "Add customer details before starting the sale",
-                style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.normal, color: CustomColors.black),
-                // style: TextStyle(
-                //     color: Color(0xFF000000),
-                //     fontSize: 14,
-                //     fontWeight: FontWeight.normal),
-              ),
-            ),
-            SizedBox(
-              height: 30,
-            ),
-            Container(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10),
-                child: TextField(
-                  controller: _controllerPhoneNumber,
-                  onChanged: (value) {
-                    homeController.phoneNumber.value = value;
-                  },
-                  decoration: InputDecoration(
-                      fillColor: Colors.white,
-                      focusColor: Colors.white,
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide(
-                          color: Colors.grey.shade300, // Normal border color
-                          width: 1,
-                        ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide(
-                          color: Colors.grey.shade300, // Focused border color
-                          width: 1,
-                        ),
-                      ),
-                      errorBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide(
-                          color: Colors.red, // Error border color
-                          width: 1,
-                        ),
-                      ),
-                      focusedErrorBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide(
-                          color: Colors.red, // Focused error border color
-                          width: 1,
-                        ),
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide(
-                          color: Colors.grey.shade300,
-                          width: 1,
-                        ),
-                      ),
-                      label: RichText(
-                        text: TextSpan(
-                          children: [
-                            TextSpan(
-                              text: ' Enter Customer Mobile Number ',
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.normal,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      suffixIcon: Container(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 5, vertical: 1),
-                        width: 100,
-                        child: ElevatedButton(
-                          onPressed: homeController.phoneNumber.isNotEmpty
-                              ? onPressed
-                              : null,
-                          style: ElevatedButton.styleFrom(
-                            elevation: 1,
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 1, vertical: 1),
-                            shape: RoundedRectangleBorder(
-                              side: BorderSide(
-                                  color: homeController.phoneNumber.isNotEmpty
-                                      ? CustomColors.secondaryColor
-                                      : CustomColors.cardBackground),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            disabledBackgroundColor:
-                                CustomColors.cardBackground,
-                            backgroundColor: CustomColors.secondaryColor,
-                          ),
-                          child: Center(
-                            child: Text(
-                              "Search",
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleSmall
-                                  ?.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                      color: CustomColors.black),
-                              // style: TextStyle(
-                              //     color: Colors.black,
-                              //     fontSize: 14,
-                              //     fontWeight: FontWeight.bold),
-                            ),
-                          ),
-                        ),
-                      )),
-                )),
-            Container(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10),
-                child: TextField(
-                  controller: _controllerCustomerName,
-                  onChanged: (value) {
-                    homeController.customerName.value = value;
-                  },
-                  decoration: InputDecoration(
-                      fillColor: Colors.white,
-                      focusColor: Colors.white,
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide(
-                          color: Colors.grey.shade300, // Normal border color
-                          width: 1,
-                        ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide(
-                          color: Colors.grey.shade300, // Focused border color
-                          width: 1,
-                        ),
-                      ),
-                      errorBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide(
-                          color: Colors.red, // Error border color
-                          width: 1,
-                        ),
-                      ),
-                      focusedErrorBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide(
-                          color: Colors.red, // Focused error border color
-                          width: 1,
-                        ),
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide(
-                          color: Colors.grey.shade300,
-                          width: 1,
-                        ),
-                      ),
-                      label: RichText(
-                        text: TextSpan(
-                          children: [
-                            TextSpan(
-                              text: ' Customer Name ',
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.normal,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      suffixIcon: Container(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 5, vertical: 1),
-                        width: 100,
-                        child: ElevatedButton(
-                          onPressed: homeController.phoneNumber.isNotEmpty
-                              ? onPressed
-                              : null,
-                          style: ElevatedButton.styleFrom(
-                            elevation: 1,
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 1, vertical: 1),
-                            shape: RoundedRectangleBorder(
-                              side: BorderSide(
-                                  color: homeController.phoneNumber.isNotEmpty
-                                      ? CustomColors.secondaryColor
-                                      : CustomColors.cardBackground),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            disabledBackgroundColor:
-                                CustomColors.cardBackground,
-                            backgroundColor: CustomColors.secondaryColor,
-                          ),
-                          child: Center(
-                            child: Text(
-                              "Select",
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleSmall
-                                  ?.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                      color: CustomColors.black),
-                              // style: TextStyle(
-                              //     color: Colors.black,
-                              //     fontSize: 14,
-                              //     fontWeight: FontWeight.bold),
-                            ),
-                          ),
-                        ),
-                      )),
-                )),
-            SizedBox(
-              height: 20,
-            ),
-
-            /*
-          Container(
-            width: double.infinity,
-            height: 60,
-            padding: EdgeInsets.symmetric(horizontal: 5.0, vertical: 10),
-            child: ElevatedButton(
-              onPressed: onPressed,
-              style: ElevatedButton.styleFrom(
-                elevation: 1,
-                padding: EdgeInsets.symmetric(horizontal: 1, vertical: 20),
-                shape: RoundedRectangleBorder(
-                  side: BorderSide(color: CustomColors.secondaryColor),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                disabledBackgroundColor: Colors.grey,
-                backgroundColor: CustomColors.secondaryColor,
-              ),
-              child: Center(
-                child: Text(
-                  "Start Sale",
-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.bold, color: CustomColors.black),
-                  // style: TextStyle(
-                  //     color: Colors.black,
-                  //     fontSize: 14,
-                  //     fontWeight: FontWeight.bold),
-                ),
-              ),
-            ),
-          ),
-
-         */
-            Container(
-              // width: 200,
-              height: 60,
-              padding: EdgeInsets.symmetric(horizontal: 5.0, vertical: 5),
-              child: ElevatedButton(
-                onPressed: onPressed,
-                style: ElevatedButton.styleFrom(
-                  elevation: 1,
-                  padding: EdgeInsets.symmetric(horizontal: 1, vertical: 20),
-                  shape: RoundedRectangleBorder(
-                    side: BorderSide(color: Color(0xFF066A69)),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  backgroundColor: Color(0xFFF0F4F4),
-                ),
-                child: Center(
-                  child: Text(
-                    "Continue Without Customer Number",
-                    style: TextStyle(
-                        color: Color(0xFF066A69),
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ),
-            ),
-            SizedBox(
-              height: 5,
-            ),
-            Center(
-              child: Text(
-                "Select above if the customer denies his/her number",
-                style: TextStyle(
-                    color: Color(0xFF000000),
-                    fontSize: 14,
-                    fontWeight: FontWeight.normal),
-              ),
-            ),
-            SizedBox(
-              height: 20,
-            ),
-          ],
-        ),
-      );
-    });
   }
 
   Widget _buildRemoveDialog2(CartLine? itemData, {VoidCallback? onPressed}) {

@@ -6,7 +6,6 @@ import 'package:libserialport/libserialport.dart';
 
 class DigitalWeighingScale implements DigitalWeighingScaleImplementation {
   final String digitalScalePort;
-  final String digitalScaleModel;
   final int digitalScaleRate;
   final int digitalScaleTimeout;
   static late SerialPort serialPort;
@@ -18,7 +17,6 @@ class DigitalWeighingScale implements DigitalWeighingScaleImplementation {
   /// initialize the serial port and call methods
   DigitalWeighingScale({
     required this.digitalScalePort,
-    required this.digitalScaleModel,
     required this.digitalScaleRate,
     required this.digitalScaleTimeout,
     required this.weightController,
