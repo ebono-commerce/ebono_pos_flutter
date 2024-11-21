@@ -27,26 +27,16 @@ class _AddCustomerStaticWidgetState extends State<AddCustomerStaticWidget>
     if (mounted == true) {
       homeController = widget.homeController;
     }
-    customerNameFocusNode.addListener(() {
-      setState(() {});
+
+    ever(homeController.phoneNumber, (value) {
+      _controllerPhoneNumber.text = value.toString();
     });
-    phoneNumberFocusNode.addListener(() {
-      setState(() {});
-    });
-    _controllerCustomerName.text = homeController.customerName.value.toString();
-    _controllerCustomerName.addListener(() {
-      setState(() {});
+    ever(homeController.customerName, (value) {
+      _controllerCustomerName.text = value.toString();
     });
     super.initState();
   }
 
-  @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    _controllerPhoneNumber.dispose();
-    _controllerCustomerName.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -350,9 +340,11 @@ class _AddCustomerStaticWidgetState extends State<AddCustomerStaticWidget>
               padding: EdgeInsets.symmetric(horizontal: 5.0, vertical: 5),
               child: ElevatedButton(
                 onPressed: () {
-                  // need to call api through default number
-                  // first set the default to _controllerPhoneNumber then call api through controller
-                },
+                  homeController.phoneNumber.value = '9999999999';
+                  homeController.customerName.value = 'Admin';
+
+                  homeController.fetchCustomer();
+                  },
                 style: ElevatedButton.styleFrom(
                   elevation: 1,
                   padding: EdgeInsets.symmetric(horizontal: 1, vertical: 20),

@@ -326,7 +326,12 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
       height: 60,
       padding: EdgeInsets.symmetric(horizontal: 5.0, vertical: 5),
       child: ElevatedButton(
-        onPressed: () {},
+        onPressed: () {
+          homeController.phoneNumber.value = '9999999999';
+          homeController.customerName.value = 'Admin';
+
+          homeController.fetchCustomer();
+        },
         style: ElevatedButton.styleFrom(
           elevation: 1,
           padding: EdgeInsets.symmetric(horizontal: 1, vertical: 20),
