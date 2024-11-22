@@ -20,4 +20,7 @@ class ApiConstants {
   static final paymentApiInitiate = '/api/3.0/p2p/start';
   static final paymentApiStatus = '/api/3.0/p2p/status';
   static final paymentApiCancel = '/api/3.0/p2p/cancel';
+
+  static final holdCart = 'checkout/api/v1/pos/cart/';
+  static final clearFullCart = 'checkout/api/v1/pos/cart/';
 }

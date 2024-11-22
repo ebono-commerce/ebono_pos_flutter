@@ -93,7 +93,9 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
       "customerMobileNumber":
           "${GetStorageHelper.read(SharedPreferenceConstants.sessionCustomerNumber)}",
       "is_emi": false,
-      "terminal_id": "10120",
+      //"terminal_id": "10120",demo account
+      "terminal_id":
+          "${GetStorageHelper.read(SharedPreferenceConstants.selectedTerminalId)}",
       "username": "2211202100",
       "appKey": "eaa762ba-08ac-41d6-b6d3-38f754ed1572",
       "pushTo": {"deviceId": "0821387918|ezetap_android"}

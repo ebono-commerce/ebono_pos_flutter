@@ -11,6 +11,8 @@ import 'package:kpn_pos_application/ui/home/model/cart_request.dart';
 import 'package:kpn_pos_application/ui/home/model/customer_details_response.dart';
 import 'package:kpn_pos_application/ui/home/model/customer_request.dart';
 import 'package:kpn_pos_application/ui/home/model/delete_cart.dart';
+import 'package:kpn_pos_application/ui/home/model/general_success_response.dart';
+import 'package:kpn_pos_application/ui/home/model/phone_number_request.dart';
 import 'package:kpn_pos_application/ui/home/model/update_cart.dart';
 import 'package:kpn_pos_application/ui/home/repository/home_repository.dart';
 import 'package:kpn_pos_application/ui/login/model/login_response.dart';
@@ -47,6 +49,7 @@ class HomeController extends GetxController {
   late DigitalWeighingScale digitalWeighingScale;
   final int rate = 9600;
   final int timeout = 1000;
+  var generalSuccessResponse = GeneralSuccessResponse().obs;
 
   @override
   void onInit() async {
@@ -133,6 +136,8 @@ class HomeController extends GetxController {
     cartResponse.value = CartResponse(cartId: '', cartType: '');
     phoneNumber.value = '';
     cartId.value = '';
+
+    generalSuccessResponse.value = GeneralSuccessResponse(success: false);
   }
 
   Future<void> clearScanData() async {
@@ -291,6 +296,46 @@ class HomeController extends GetxController {
           cartLineId!);
       cartResponse.value = response;
       fetchCartDetails();
+    } catch (e) {
+      print("Error $e");
+    } finally {
+      print("Error");
+    }
+  }
+
+  Future<void> clearFullCart() async {
+    print("API clearFullCart: ${cartId.value} ");
+    try {
+      var response = await _homeRepository.clearFullCart(cartId.value);
+      cartResponse.value = response;
+      fetchCartDetails();
+    } catch (e) {
+      print("Error $e");
+    } finally {
+      print("Error");
+    }
+  }
+
+  Future<void> holdCartApiCall() async {
+    print("API holdCartApiCall: ");
+    try {
+      var response = await _homeRepository.holdCart(
+          cartId.value, PhoneNumberRequest(phoneNumber: phoneNumber.value));
+      generalSuccessResponse.value = response;
+      fetchCartDetails();
+    } catch (e) {
+      print("Error $e");
+    } finally {
+      print("Error");
+    }
+  }
+
+  Future<void> resumeHoldCartApiCall() async {
+    print("API resumeHoldCartApiCall: ");
+    try {
+      var response = await _homeRepository.resumeHoldCart(
+          cartId.value, ResumeHoldCartRequest(terminalId: "", holdCartId: ""));
+      generalSuccessResponse.value = response;
     } catch (e) {
       print("Error $e");
     } finally {
