@@ -595,7 +595,7 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
     var totalPayable =
         (paymentBloc.paymentSummaryResponse.amountPayable?.centAmount ?? 0) /
             (paymentBloc.paymentSummaryResponse.amountPayable?.fraction ?? 1);
-    return givenAmount - totalPayable;
+    return totalPayable - givenAmount;
   }
 
 // Widget for Balance Amount Section
@@ -618,15 +618,15 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    'Balance amount',
+                 Text(
+                   balanceAmount > 0 ? 'Balance amount' : 'Balance amount return to customer',
                     style: theme.textTheme.titleSmall
                         ?.copyWith(fontWeight: FontWeight.normal),
                   ),
                   Text(
                     '₹$balanceAmount',
                     style: theme.textTheme.titleMedium
-                        ?.copyWith(fontWeight: FontWeight.bold),
+                        ?.copyWith(fontWeight: FontWeight.bold, color: balanceAmount > 0 ? Colors.black : CustomColors.red),
                   ),
                 ],
               ),
@@ -643,8 +643,6 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                       padding: EdgeInsets.all(12)),
                   onPressed: () {
                     printReceipt();
-
-                    /// Get.offAndToNamed(PageRoutes.weightDisplay);
                   },
                   child: Text(
                     "Place Order",
