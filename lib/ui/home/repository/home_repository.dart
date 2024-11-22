@@ -10,6 +10,8 @@ import 'package:kpn_pos_application/ui/home/model/cart_request.dart';
 import 'package:kpn_pos_application/ui/home/model/customer_details_response.dart';
 import 'package:kpn_pos_application/ui/home/model/customer_request.dart';
 import 'package:kpn_pos_application/ui/home/model/delete_cart.dart';
+import 'package:kpn_pos_application/ui/home/model/general_success_response.dart';
+import 'package:kpn_pos_application/ui/home/model/phone_number_request.dart';
 import 'package:kpn_pos_application/ui/home/model/update_cart.dart';
 
 class HomeRepository {
@@ -114,6 +116,34 @@ class HomeRepository {
       );
       final cartResponse = cartResponseFromJson(jsonEncode(response));
       return cartResponse;
+    } catch (e) {
+      throw Exception('Failed to parse data');
+    }
+  }
+
+  Future<CartResponse> clearFullCart(String cartId) async {
+    try {
+      final response = await _apiHelper.delete(
+        '${ApiConstants.clearFullCart}$cartId/clear',
+        data: {},
+      );
+      final cartResponse = cartResponseFromJson(jsonEncode(response));
+      return cartResponse;
+    } catch (e) {
+      throw Exception('Failed to parse data');
+    }
+  }
+
+  Future<GeneralSuccessResponse> holdCart(
+      String cartId, PhoneNumberRequest phoneNumber) async {
+    try {
+      final response = await _apiHelper.post(
+        '${ApiConstants.holdCart}$cartId/hold',
+        data: phoneNumber.toJson(),
+      );
+      final generalResponse =
+          generalSuccessResponseFromJson(jsonEncode(response));
+      return generalResponse;
     } catch (e) {
       throw Exception('Failed to parse data');
     }

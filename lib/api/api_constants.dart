@@ -12,4 +12,7 @@ class ApiConstants {
   static final addToCart = 'checkout/api/v1/pos/cart/';
   static final deleteFromCart = 'checkout/api/v1/pos/cart/';
   static final updateCart = 'checkout/api/v1/pos/cart/';
+
+  static final holdCart = 'checkout/api/v1/pos/cart/';
+  static final clearFullCart = 'checkout/api/v1/pos/cart/';
 }
