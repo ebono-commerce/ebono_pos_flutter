@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:get/get_core/src/get_main.dart';
-import 'package:get/get_instance/get_instance.dart';
+import 'package:get/get.dart';
 import 'package:kpn_pos_application/constants/custom_colors.dart';
 import 'package:kpn_pos_application/ui/Common_button.dart';
 import 'package:kpn_pos_application/ui/common_text_field.dart';
 import 'package:kpn_pos_application/ui/custom_keyboard/custom_num_pad.dart';
-import 'package:kpn_pos_application/ui/custom_keyboard/custom_querty_pad.dart';
 import 'package:kpn_pos_application/ui/home/home_controller.dart';
-import 'package:kpn_pos_application/ui/payment_summary/route/print_receipt.dart';
 
 class PaymentSummaryScreen extends StatefulWidget {
   const PaymentSummaryScreen({super.key});
@@ -23,7 +20,6 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
   late HomeController homeController;
   final FocusNode numpadFocusNode = FocusNode();
   final FocusNode qwertyFocusNode = FocusNode();
-
   final TextEditingController numPadTextController = TextEditingController();
   final TextEditingController qwertyTextController = TextEditingController();
 
@@ -46,92 +42,92 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
     theme = Theme.of(context);
 
     return Scaffold(
-      appBar: AppBar(
-        centerTitle: false,
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(height: 10),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Text(
-                  'Payment summary',
-                ),
-              ],
-            ),
-            SizedBox(height: 10),
-            Divider(
-              color: CustomColors.borderColor,
-              height: 2,
-            ),
-          ],
-        ),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Expanded(
-              flex: 2,
-              child: billSummaryWidget(),
-            ),
-            SizedBox(width: 16),
-            Expanded(
-              flex: 5,
-              child: paymentModeSection(),
-            ),
-            SizedBox(width: 5),
-            Expanded(
-              flex: 3, // 0.2 ratio
-              child: Container(
-                margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 30),
-                child: Center(
-                    child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Spacer(),
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        border: Border.all(color: Colors.grey),
-                        borderRadius: BorderRadius.all(
-                          Radius.circular(10),
-                        ),
-                        shape: BoxShape.rectangle,
-                      ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: commonTextField(
-                              label: ' Enter Code, Quantity ',
-                              focusNode: FocusNode(),
-                              readOnly: false,
-                              controller: numPadTextController,
-                            ),
-                          ),
-                          CustomNumPad(
-                            textController: numPadTextController,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                )),
+        appBar: AppBar(
+          centerTitle: false,
+          title: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(height: 10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(
+                    'Payment summary',
+                  ),
+                ],
               ),
-            ),
-          ],
+              SizedBox(height: 10),
+              Divider(
+                color: CustomColors.borderColor,
+                height: 2,
+              ),
+            ],
+          ),
         ),
-      ),
-    );
+        body: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Expanded(
+                flex: 2,
+                child: billSummaryWidget(),
+              ),
+              SizedBox(width: 16),
+              Expanded(
+                flex: 5,
+                child: paymentModeSection(),
+              ),
+              SizedBox(width: 5),
+              Expanded(
+                flex: 3, // 0.2 ratio
+                child: Container(
+                  margin:
+                      const EdgeInsets.symmetric(vertical: 5, horizontal: 30),
+                  child: Center(
+                      child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Spacer(),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          border: Border.all(color: Colors.grey),
+                          borderRadius: BorderRadius.all(
+                            Radius.circular(10),
+                          ),
+                          shape: BoxShape.rectangle,
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: commonTextField(
+                                label: ' Enter Code, Quantity ',
+                                focusNode: FocusNode(),
+                                readOnly: false,
+                                controller: numPadTextController,
+                              ),
+                            ),
+                            CustomNumPad(
+                              textController: numPadTextController,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  )),
+                ),
+              ),
+            ],
+          ),
+        ));
   }
 
 // Widget for Bill Summary Section
@@ -467,6 +463,7 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
 
 // Widget for Balance Amount Section
   Widget balanceAmountSection() {
+    homeController = Get.find<HomeController>();
     return Card(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(15.0),
@@ -506,7 +503,9 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                             textStyle: theme.textTheme.bodyMedium,
                             padding: EdgeInsets.all(12)),
                         onPressed: () {
-                          printReceipt();
+                          //  printReceipt();
+                          // homeController.paymentInitiateCall();
+                          _showPaymentDialog();
 
                           /// Get.offAndToNamed(PageRoutes.weightDisplay);
                         },
@@ -521,5 +520,62 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                     ),
                   ],
                 ))));
+  }
+
+  void _showPaymentDialog() {
+    Get.dialog(
+      AlertDialog(
+        title: Text(
+          'Please wait....',
+        ),
+        content: Text(
+          'Online payment is in processing',
+          style: theme.textTheme.titleSmall
+              ?.copyWith(fontWeight: FontWeight.normal, color: Colors.black87),
+        ),
+        actions: [
+          TextButton(
+            style: TextButton.styleFrom(
+              backgroundColor: CustomColors.red,
+              side: BorderSide(color: CustomColors.red, width: 1),
+            ),
+            onPressed: () {
+              // Get.back();
+              homeController.paymentCancelCall();
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(4.0),
+              child: Text(
+                'Cancel Payment',
+                style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.normal, color: Colors.white),
+              ),
+            ),
+          ),
+          TextButton(
+            style: TextButton.styleFrom(
+              backgroundColor: CustomColors.secondaryColor,
+              disabledBackgroundColor: CustomColors.enabledBorderColor,
+              disabledForegroundColor: CustomColors.enabledBorderColor,
+              side: BorderSide(color: CustomColors.secondaryColor, width: 1),
+            ),
+            isSemanticButton: true,
+            onPressed: () {
+              homeController.paymentStatusCheckCall(false);
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(4.0),
+              child: Text(
+                'Check Payment Status',
+                style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.normal, color: Colors.black87),
+              ),
+            ),
+          ),
+        ],
+      ),
+      barrierDismissible: false,
+      // Prevents the dialog from closing on outside tap
+    );
   }
 }

@@ -1,5 +1,10 @@
+import 'dart:async';
+import 'dart:convert';
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
 import 'package:kpn_pos_application/constants/shared_preference_constants.dart';
 import 'package:kpn_pos_application/data_store/get_storage_helper.dart';
 import 'package:kpn_pos_application/data_store/shared_preference_helper.dart';
@@ -14,6 +19,8 @@ import 'package:kpn_pos_application/ui/home/model/delete_cart.dart';
 import 'package:kpn_pos_application/ui/home/model/update_cart.dart';
 import 'package:kpn_pos_application/ui/home/repository/home_repository.dart';
 import 'package:kpn_pos_application/ui/login/model/login_response.dart';
+import 'package:kpn_pos_application/ui/payment_summary/model/payment_initiate_response.dart';
+import 'package:kpn_pos_application/ui/payment_summary/model/payment_status_response.dart';
 import 'package:kpn_pos_application/utils/digital_weighing_scale.dart';
 
 class HomeController extends GetxController {
@@ -22,17 +29,23 @@ class HomeController extends GetxController {
 
   HomeController(this._homeRepository, this.sharedPreferenceHelper);
 
-  var isLoading = false.obs;
-
+  var showPaymentDialog = false.obs;
+  Timer? _statusCheckTimer;
   var phoneNumber = ''.obs;
   var customerName = ''.obs;
   var scanCode = ''.obs;
   var cartId = ''.obs;
+
   var isDisplayAddCustomerView = true.obs;
   RxString portName = ''.obs;
   var cartLines = <CartLine>[].obs;
 
   var scanProductsResponse = ScanProductsResponse().obs;
+
+  var paymentInitiateResponse = PaymentInitiateResponse().obs;
+  var p2pRequestId = ''.obs;
+  var paymentStatusResponse = PaymentStatusResponse().obs;
+
   var customerResponse = CustomerResponse().obs;
   var getCustomerDetailsResponse = CustomerDetailsResponse().obs;
   var cartResponse = CartResponse().obs;
@@ -86,6 +99,12 @@ class HomeController extends GetxController {
     }
     initialResponse();
     super.onInit();
+  }
+
+  @override
+  void onClose() {
+    _statusCheckTimer?.cancel();
+    super.onClose();
   }
 
   void addCartLine(CartLine cartLine) {
@@ -287,6 +306,182 @@ class HomeController extends GetxController {
       print("Error $e");
     } finally {
       print("Error");
+    }
+  }
+
+// For Payment
+
+  Future<void> paymentStatusCheckCall(bool fromPopup) async {
+    if (fromPopup == true) {
+      _statusCheckTimer?.cancel();
+    }
+    _statusCheckTimer = Timer.periodic(Duration(seconds: 10), (timer) async {
+      try {
+        final reqBody = {
+          "username": "2211202100",
+          "appKey": "eaa762ba-08ac-41d6-b6d3-38f754ed1572",
+          "origP2pRequestId": p2pRequestId.value
+          //"origP2pRequestId": "241122060944906E020075684",
+        };
+
+        var response = await http.post(
+          Uri.parse('https://demo.ezetap.com/api/3.0/p2p/status'),
+          body: jsonEncode(reqBody),
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json, text/plain, */*',
+          },
+        );
+        if (response.statusCode == 200) {
+          paymentStatusResponse.value =
+              PaymentStatusResponse.fromJson(json.decode(response.body));
+          print("Success payment --> : ${response.body}");
+          print(
+              "Success payment status --> : ${paymentStatusResponse.value.abstractPaymentStatus}");
+          switch (paymentStatusResponse.value.messageCode) {
+            case "P2P_DEVICE_RECEIVED":
+              break;
+            case "P2P_STATUS_QUEUED":
+              break;
+            case "P2P_STATUS_IN_EXPIRED":
+              break;
+            case "P2P_DEVICE_TXN_DONE":
+              p2pRequestId.value = '';
+              timer.cancel();
+              Get.back();
+              break;
+            case "P2P_STATUS_UNKNOWN":
+              break;
+            case "P2P_DEVICE_CANCELED":
+              p2pRequestId.value = '';
+              timer.cancel();
+              Get.back();
+              break;
+            //"P2P_ORIGINAL_P2P_REQUEST_IS_MISSING"
+            case "P2P_STATUS_IN_CANCELED_FROM_EXTERNAL_SYSTEM":
+              p2pRequestId.value = '';
+              timer.cancel();
+              Get.back();
+              break;
+            case "P2P_ORIGINAL_P2P_REQUEST_IS_MISSING":
+              p2pRequestId.value = '';
+              timer.cancel();
+              Get.back();
+              break;
+            default:
+              timer.cancel();
+              Get.back();
+              break;
+          }
+          Get.snackbar('Message', '${paymentStatusResponse.value.message}');
+        } else {
+          timer.cancel();
+          Get.snackbar('Error', 'Failed to check payment status');
+        }
+      } catch (e) {
+        print("Error $e");
+        Get.snackbar(
+            'Error', 'An error occurred while checking payment status');
+      } finally {
+        print("Error $e");
+      }
+    });
+  }
+
+  Future<void> paymentInitiateCall() async {
+    final random = Random();
+    final reqBody = {
+      "amount": "1",
+      "externalRefNumber": "${random.nextInt(10)}",
+      "customerName": "Shankar Lonare",
+      "customerEmail": "",
+      "customerMobileNumber": "8871722186",
+      "is_emi": false,
+      "terminal_id": "10120",
+      "username": "2211202100",
+      "appKey": "eaa762ba-08ac-41d6-b6d3-38f754ed1572",
+      "pushTo": {"deviceId": "0821387918|ezetap_android"}
+    };
+    try {
+      final response = await http.post(
+        Uri.parse('https://demo.ezetap.com/api/3.0/p2p/start'),
+        body: jsonEncode(reqBody),
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json, text/plain, */*',
+        },
+      );
+      if (response.statusCode == 200) {
+        paymentInitiateResponse.value =
+            PaymentInitiateResponse.fromJson(json.decode(response.body));
+        print("Success payment --> : ${response.body}");
+        if (paymentInitiateResponse.value.success == true) {
+          print(
+              "Success p2pRequestId --> : ${paymentInitiateResponse.value.p2PRequestId}");
+          if (paymentInitiateResponse.value.p2PRequestId != "") {
+            paymentStatusCheckCall(false);
+            p2pRequestId.value =
+                "${paymentInitiateResponse.value.p2PRequestId}";
+          } else {
+            p2pRequestId.value = '';
+          }
+        } else {
+          Get.snackbar('Error', '${paymentInitiateResponse.value.message}');
+        }
+      } else {
+        Get.snackbar('Error', 'An error occurred while initiating payment');
+        print("Error");
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'An error occurred while initiating payment');
+
+      print("Error $e");
+    } finally {
+      print("Error $e");
+    }
+  }
+
+  Future<void> paymentCancelCall() async {
+    try {
+      final reqBody = {
+        "username": "2211202100",
+        "appKey": "eaa762ba-08ac-41d6-b6d3-38f754ed1572",
+        //"origP2pRequestId": "241122060944906E020075684",
+        "origP2pRequestId": p2pRequestId.value,
+        "pushTo": {"deviceId": "0821387918|ezetap_android"}
+      };
+      final response = await http.post(
+        Uri.parse('https://demo.ezetap.com/api/3.0/p2p/cancel'),
+        body: jsonEncode(reqBody),
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json, text/plain, */*',
+        },
+      );
+      if (response.statusCode == 200) {
+        paymentInitiateResponse.value =
+            PaymentInitiateResponse.fromJson(json.decode(response.body));
+        print("Success payment --> : ${response.body}");
+        if (paymentInitiateResponse.value.success == true) {
+          Get.back();
+          print(
+              "Success p2pRequestId --> : ${paymentInitiateResponse.value.p2PRequestId}");
+        } else {
+          if (paymentInitiateResponse.value.realCode ==
+              "P2P_DUPLICATE_CANCEL_REQUEST") {
+            Get.back();
+          }
+          Get.snackbar('Error', '${paymentInitiateResponse.value.message}');
+        }
+      } else {
+        Get.snackbar('Error', 'An error occurred');
+        print("Error");
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'An error occurred');
+      print("Error $e");
+    } finally {
+      print("Error $e");
     }
   }
 
