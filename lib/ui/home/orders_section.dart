@@ -9,7 +9,10 @@ import 'package:kpn_pos_application/ui/custom_keyboard/custom_num_pad.dart';
 import 'package:kpn_pos_application/ui/home/home_controller.dart';
 import 'package:kpn_pos_application/ui/home/widgets/add_customer_static_widget.dart';
 import 'package:kpn_pos_application/ui/home/widgets/add_customer_widget.dart';
+import 'package:kpn_pos_application/ui/home/widgets/quick_action_buttons.dart';
+import 'package:kpn_pos_application/ui/payment_summary/model/payment_summary_request.dart';
 import 'package:kpn_pos_application/utils/common_methods.dart';
+import 'package:kpn_pos_application/utils/price.dart';
 import 'package:kpn_pos_application/utils/dash_line.dart';
 
 class OrdersSection extends StatefulWidget {
@@ -35,13 +38,14 @@ class _OrdersSectionState extends State<OrdersSection>
       homeController.initialResponse();
     }
     ever(homeController.customerResponse, (value) {
-      if(value.phoneNumber != null){
+      if (value.phoneNumber != null) {
         _numPadFocusNode.requestFocus();
       }
     });
     ever(homeController.scanProductsResponse, (value) {
-      if(value.esin != null){
+      if (value.esin != null) {
         _numPadTextController.clear();
+        _numPadFocusNode.requestFocus();
       }
     });
 
@@ -89,8 +93,23 @@ class _OrdersSectionState extends State<OrdersSection>
             child: Center(child: _buildNumberPadSection(homeController)),
           ),
           Expanded(
-            flex: 1, // 0.1 ratio
-            child: _buildRightActionButtons(context),
+            flex: 1,
+            child: QuickActionButtons(
+              color: Colors.white,
+              onCustomerPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return Dialog(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20.0),
+                      ),
+                      child: AddCustomerWidget(homeController),
+                    );
+                  },
+                );
+              },
+            ),
           ),
         ],
       ),
@@ -390,7 +409,7 @@ class _OrdersSectionState extends State<OrdersSection>
                       child: Padding(
                           padding: const EdgeInsets.all(10.0),
                           child: Text(
-                            convertedPrice(itemData.mrp?.centAmount,
+                            getActualPrice(itemData.mrp?.centAmount,
                                 itemData.mrp?.fraction),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -409,7 +428,7 @@ class _OrdersSectionState extends State<OrdersSection>
                         child: Padding(
                             padding: const EdgeInsets.all(10.0),
                             child: Text(
-                              convertedPrice(itemData.unitPrice?.centAmount,
+                              getActualPrice(itemData.unitPrice?.centAmount,
                                   itemData.unitPrice?.fraction),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -593,7 +612,7 @@ class _OrdersSectionState extends State<OrdersSection>
                                                     .priceList?[0]
                                                     .mrp !=
                                                 null
-                                            ? convertedPrice(
+                                            ? getActualPrice(
                                                 homeController
                                                     .scanProductsResponse
                                                     .value
@@ -668,6 +687,7 @@ class _OrdersSectionState extends State<OrdersSection>
                           ),
                         ),
                         CustomNumPad(
+                          focusNode: _numPadFocusNode,
                           textController: _numPadTextController,
                           onEnterPressed: (text) {
                             print("Enter pressed with text: $text");
@@ -769,7 +789,7 @@ class _OrdersSectionState extends State<OrdersSection>
                                 Text(
                                   homeController.cartResponse.value.mrpSavings !=
                                           null
-                                      ? convertedPrice(
+                                      ? getActualPrice(
                                                   homeController
                                                       .cartResponse
                                                       .value
@@ -781,7 +801,7 @@ class _OrdersSectionState extends State<OrdersSection>
                                                       .mrpSavings!
                                                       .fraction) !=
                                               "₹0.00"
-                                          ? convertedPrice(
+                                          ? getActualPrice(
                                               homeController.cartResponse.value
                                                   .mrpSavings!.centAmount,
                                               homeController.cartResponse.value
@@ -804,7 +824,16 @@ class _OrdersSectionState extends State<OrdersSection>
                             left: 4, right: 4, top: 10, bottom: 4),
                         child: ElevatedButton(
                           onPressed: () {
-                            Get.toNamed(PageRoutes.paymentSummary);
+                            PaymentSummaryRequest request =
+                                PaymentSummaryRequest(
+                                    phoneNumber:
+                                        homeController.phoneNumber.value,
+                                    cartId: homeController.cartId.value,
+                                    customer: Customer(customerId: '1000021'),
+                                    cartType:
+                                        homeController.selectedPosMode.value);
+                            Get.toNamed(PageRoutes.paymentSummary,
+                                arguments: request);
                           },
                           style: ElevatedButton.styleFrom(
                               elevation: 1,
@@ -817,7 +846,7 @@ class _OrdersSectionState extends State<OrdersSection>
                               backgroundColor: homeController
                                           .cartResponse.value.amountPayable !=
                                       null
-                                  ? convertedPrice(
+                                  ? getActualPrice(
                                               homeController.cartResponse.value
                                                   .amountPayable!.centAmount,
                                               homeController.cartResponse.value
@@ -849,7 +878,7 @@ class _OrdersSectionState extends State<OrdersSection>
                                   homeController.cartResponse.value
                                               .amountPayable !=
                                           null
-                                      ? convertedPrice(
+                                      ? getActualPrice(
                                           homeController.cartResponse.value
                                               .amountPayable!.centAmount,
                                           homeController.cartResponse.value
@@ -875,44 +904,6 @@ class _OrdersSectionState extends State<OrdersSection>
         ),
       );
     });
-  }
-
-  Widget _buildRightActionButtons(BuildContext context) {
-    return Center(
-      child: Container(
-          padding: EdgeInsets.symmetric(vertical: 10, horizontal: 5),
-          color: Colors.white,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Column(
-                  children: [
-                    _buildButton("Customer", context, (){
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return Dialog(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20.0),
-                              ),
-                              child: AddCustomerWidget(homeController),
-                            );
-                          },
-                        );
-                    }),
-                    _buildButton("Search items", context, (){}),
-                    _buildButton("Inventory inquiry", context, (){}),
-                    _buildButton("Coupons", context, (){}),
-                    _buildButton("Sales Associate", context, (){})
-                  ],
-                ),
-              ),
-              _buildButton("Clear cart", context, (){}),
-              _buildButton("Hold cart", context, (){})
-            ],
-          )),
-    );
   }
 
   Widget _buildRemoveDialog2(CartLine? itemData, {VoidCallback? onPressed}) {
@@ -1030,7 +1021,7 @@ class _OrdersSectionState extends State<OrdersSection>
                                   fontWeight: FontWeight.w400),
                             ),
                             TextSpan(
-                              text: convertedPrice(
+                              text: getActualPrice(
                                   itemData.unitPrice?.centAmount,
                                   itemData.unitPrice?.fraction),
                               style: TextStyle(
@@ -1118,36 +1109,6 @@ class _OrdersSectionState extends State<OrdersSection>
             ],
           )
         ],
-      ),
-    );
-  }
-
-  Widget _buildButton(String label, BuildContext context, VoidCallback onLogoutPressed) {
-    return Container(
-      width: 220,
-      height: 80,
-      padding: EdgeInsets.symmetric(horizontal: 5.0, vertical: 10),
-      child: ElevatedButton(
-        onPressed: onLogoutPressed,
-        style: ElevatedButton.styleFrom(
-          elevation: 1,
-          padding: EdgeInsets.symmetric(horizontal: 1, vertical: 20),
-          shape: RoundedRectangleBorder(
-            side: BorderSide(color: CustomColors.primaryColor, width: 1.5),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          backgroundColor: Color(0xFFF0F4F4),
-        ),
-        child: Center(
-          child: Text(label,
-              style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                  fontWeight: FontWeight.w600, color: CustomColors.primaryColor)
-              // style: TextStyle(
-              //     color: Color(0xFF066A69),
-              //     fontSize: 14,
-              //     fontWeight: FontWeight.normal),
-              ),
-        ),
       ),
     );
   }
@@ -1324,16 +1285,6 @@ class _OrdersSectionState extends State<OrdersSection>
       ),
     );
   }
-}
-
-String convertedPrice(int? centAmount, int? fraction) {
-  if (centAmount == null) {
-    return '₹0.00'; // Handle null values gracefully
-  }
-
-  double amount = (centAmount / fraction!);
-
-  return '₹${amount.toStringAsFixed(2)}';
 }
 
 class StringController extends GetxController {

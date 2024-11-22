@@ -11,4 +11,5 @@ class SharedPreferenceConstants {
   static final selectedTerminalName = 'selectedTerminalName';
   static final selectedPosMode = 'selectedPosName';
   static final customerProxyNumber = 'customerProxyNumber';
+  static final cartId = 'cartId';
 }

@@ -1,14 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:get/get_core/src/get_main.dart';
-import 'package:get/get_instance/get_instance.dart';
+import 'package:get/get.dart';
 import 'package:kpn_pos_application/constants/custom_colors.dart';
+import 'package:kpn_pos_application/data_store/shared_preference_helper.dart';
 import 'package:kpn_pos_application/ui/Common_button.dart';
 import 'package:kpn_pos_application/ui/common_text_field.dart';
 import 'package:kpn_pos_application/ui/custom_keyboard/custom_num_pad.dart';
-import 'package:kpn_pos_application/ui/custom_keyboard/custom_querty_pad.dart';
 import 'package:kpn_pos_application/ui/home/home_controller.dart';
+import 'package:kpn_pos_application/ui/home/widgets/home_app_bar.dart';
+import 'package:kpn_pos_application/ui/home/widgets/quick_action_buttons.dart';
+import 'package:kpn_pos_application/ui/payment_summary/bloc/payment_bloc.dart';
+import 'package:kpn_pos_application/ui/payment_summary/bloc/payment_event.dart';
+import 'package:kpn_pos_application/ui/payment_summary/bloc/payment_state.dart';
+import 'package:kpn_pos_application/ui/payment_summary/model/payment_summary_request.dart';
+import 'package:kpn_pos_application/ui/payment_summary/model/payment_summary_response.dart';
+import 'package:kpn_pos_application/ui/payment_summary/repository/PaymentRepository.dart';
 import 'package:kpn_pos_application/ui/payment_summary/route/print_receipt.dart';
+import 'package:kpn_pos_application/utils/dash_line.dart';
+import 'package:kpn_pos_application/utils/price.dart';
 
 class PaymentSummaryScreen extends StatefulWidget {
   const PaymentSummaryScreen({super.key});
@@ -18,25 +28,85 @@ class PaymentSummaryScreen extends StatefulWidget {
 }
 
 class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
+  final paymentBloc = PaymentBloc(
+      Get.find<PaymentRepository>(), Get.find<SharedPreferenceHelper>());
   late ThemeData theme;
   String input = '';
-  late HomeController homeController;
-  final FocusNode numpadFocusNode = FocusNode();
-  final FocusNode qwertyFocusNode = FocusNode();
+  HomeController homeController = Get.find<HomeController>();
+  bool isOnline = false;
+
+  final FocusNode cashPaymentFocusNode = FocusNode();
+  final FocusNode onlinePaymentFocusNode = FocusNode();
+  final FocusNode loyaltyPaymentFocusNode = FocusNode();
+  final FocusNode walletPaymentFocusNode = FocusNode();
+  FocusNode? activeFocusNode;
 
   final TextEditingController numPadTextController = TextEditingController();
-  final TextEditingController qwertyTextController = TextEditingController();
+  final TextEditingController cashPaymentTextController =
+      TextEditingController();
+  final TextEditingController onlinePaymentTextController =
+      TextEditingController();
+  final TextEditingController loyaltyTextController = TextEditingController();
+  final TextEditingController walletTextController = TextEditingController();
 
   @override
   void initState() {
+    PaymentSummaryRequest paymentSummaryRequest = Get.arguments;
     if (mounted == true) {
-      homeController = Get.find<HomeController>();
+      paymentBloc.add(PaymentInitialEvent(paymentSummaryRequest));
     }
-    numpadFocusNode.addListener(() {
-      setState(() {});
+     if (!cashPaymentFocusNode.hasFocus) {
+      cashPaymentFocusNode.requestFocus();
+    }
+    activeFocusNode = cashPaymentFocusNode;
+
+    cashPaymentFocusNode.addListener(() {
+      setState(() {
+        if (cashPaymentFocusNode.hasFocus) {
+          activeFocusNode = cashPaymentFocusNode;
+        }
+        numPadTextController.text = cashPaymentTextController.text;
+      });
     });
-    qwertyFocusNode.addListener(() {
-      setState(() {});
+    onlinePaymentFocusNode.addListener(() {
+      setState(() {
+        if (onlinePaymentFocusNode.hasFocus) {
+          activeFocusNode = onlinePaymentFocusNode;
+        }
+        numPadTextController.text = onlinePaymentTextController.text;
+      });
+    });
+    loyaltyPaymentFocusNode.addListener(() {
+      setState(() {
+        if (loyaltyPaymentFocusNode.hasFocus) {
+          activeFocusNode = loyaltyPaymentFocusNode;
+        }
+        numPadTextController.text = loyaltyTextController.text;
+      });
+    });
+    walletPaymentFocusNode.addListener(() {
+      setState(() {
+        if (walletPaymentFocusNode.hasFocus) {
+          activeFocusNode = walletPaymentFocusNode;
+        }
+        numPadTextController.text = walletTextController.text;
+      });
+    });
+
+    numPadTextController.addListener(() {
+      setState(() {
+        if (numPadTextController.text.isNotEmpty) {
+          if (activeFocusNode == cashPaymentFocusNode) {
+            cashPaymentTextController.text = numPadTextController.text;
+          } else if (activeFocusNode == onlinePaymentFocusNode) {
+            onlinePaymentTextController.text = numPadTextController.text;
+          } else if (activeFocusNode == loyaltyPaymentFocusNode) {
+            loyaltyTextController.text = numPadTextController.text;
+          } else if (activeFocusNode == walletPaymentFocusNode) {
+            walletTextController.text = numPadTextController.text;
+          }
+        }
+      });
     });
     super.initState();
   }
@@ -46,96 +116,70 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
     theme = Theme.of(context);
 
     return Scaffold(
-      appBar: AppBar(
-        centerTitle: false,
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(height: 10),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Text(
-                  'Payment summary',
-                ),
-              ],
-            ),
-            SizedBox(height: 10),
-            Divider(
-              color: CustomColors.borderColor,
-              height: 2,
-            ),
-          ],
-        ),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Expanded(
-              flex: 2,
-              child: billSummaryWidget(),
-            ),
-            SizedBox(width: 16),
-            Expanded(
-              flex: 5,
-              child: paymentModeSection(),
-            ),
-            SizedBox(width: 5),
-            Expanded(
-              flex: 3, // 0.2 ratio
-              child: Container(
-                margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 30),
-                child: Center(
-                    child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Spacer(),
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        border: Border.all(color: Colors.grey),
-                        borderRadius: BorderRadius.all(
-                          Radius.circular(10),
-                        ),
-                        shape: BoxShape.rectangle,
-                      ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: commonTextField(
-                              label: ' Enter Code, Quantity ',
-                              focusNode: FocusNode(),
-                              readOnly: false,
-                              controller: numPadTextController,
-                            ),
-                          ),
-                          CustomNumPad(
-                            textController: numPadTextController,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                )),
+      backgroundColor: Colors.grey.shade100,
+      appBar: PreferredSize(
+          preferredSize: Size.fromHeight(kToolbarHeight),
+          child: HomeAppBar(
+              showBackButton: true,
+              titleWidget: Text(
+                'Payment summary',
+                style: theme.textTheme.titleMedium,
               ),
-            ),
-          ],
+              homeController: homeController)),
+      body: BlocProvider(
+        create: (context) => paymentBloc,
+        child: BlocListener<PaymentBloc, PaymentState>(
+          listener: (BuildContext context, PaymentState state) {},
+          child:
+              BlocBuilder<PaymentBloc, PaymentState>(builder: (context, state) {
+            return Stack(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Expanded(
+                        flex: 2,
+                        child: state.isPaymentSummarySuccess
+                            ? billSummaryWidget(
+                                paymentBloc.paymentSummaryResponse)
+                            : SizedBox(),
+                      ),
+                      Expanded(
+                        flex: 4,
+                        child: paymentModeSection(),
+                      ),
+                      Expanded(
+                        flex: 3,
+                        child: state.isPaymentSummarySuccess
+                            ? numpadSection()
+                            : SizedBox(),
+                      ),
+                      Expanded(
+                        flex: 1,
+                        child: QuickActionButtons(
+                          color: Colors.grey.shade100,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                state.isLoading
+                    ? Center(child: CircularProgressIndicator())
+                    : SizedBox(),
+              ],
+            );
+          }),
         ),
       ),
     );
   }
 
 // Widget for Bill Summary Section
-  Widget billSummaryWidget() {
+  Widget billSummaryWidget(PaymentSummaryResponse? data) {
     return Card(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(15.0),
@@ -170,45 +214,22 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // billDetailRow(label: 'Invoice no.', value: '#123456789'),
-                  billDetailRow(label: 'Total items', value: "-"),
-                  billDetailRow(label: 'Price', value: ""
-                      // convertedPrice(
-                      //     homeController.cartResponse.value.cartTotals
-                      //         ?.firstWhere((item) => item.type == 'ITEM_TOTAL')
-                      //         .amount
-                      //         ?.centAmount,
-                      //     homeController.cartResponse.value.cartTotals
-                      //         ?.firstWhere((item) => item.type == 'ITEM_TOTAL')
-                      //         .amount
-                      //         ?.fraction)
-                      ),
-                  billDetailRow(label: 'GST', value: "-"
-                      // convertedPrice(
-                      //     homeController.cartResponse.value.cartTotals
-                      //         ?.firstWhere((item) => item.type == 'TAX_TOTAL')
-                      //         .amount
-                      //         ?.centAmount,
-                      //     homeController.cartResponse.value.cartTotals
-                      //         ?.firstWhere((item) => item.type == 'TAX_TOTAL')
-                      //         .amount
-                      //         ?.fraction)
-                      ),
+                  billDetailRow(label: 'Invoice no.', value: '#123456789'),
+                  billDetailRow(
+                      label: 'Total items',
+                      value: data?.totalItems.toString() ?? ''),
+                  billDetailRow(
+                      label: 'Price',
+                      value: getActualPrice(data?.mrpSavings?.centAmount,
+                          data?.mrpSavings?.fraction)),
+                  billDetailRow(
+                      label: 'GST',
+                      value: getActualPrice(data?.taxTotal?.centAmount,
+                          data?.taxTotal?.fraction)),
                   billDetailRow(
                       label: 'Discount',
-                      value: "-"
-                      // convertedPrice(
-                      //     homeController.cartResponse.value.cartTotals
-                      //         ?.firstWhere(
-                      //             (item) => item.type == 'DISCOUNT_TOTAL')
-                      //         .amount
-                      //         ?.centAmount,
-                      //     homeController.cartResponse.value.cartTotals
-                      //         ?.firstWhere(
-                      //             (item) => item.type == 'DISCOUNT_TOTAL')
-                      //         .amount
-                      //         ?.fraction)
-                      ,
+                      value:
+                          '-${getActualPrice(data?.discountTotal?.centAmount, data?.discountTotal?.fraction)}',
                       isNegative: true),
                   billDetailRow(
                       label: 'Loyalty points', value: '-100', isNegative: true),
@@ -220,16 +241,8 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
               padding: EdgeInsets.all(16),
               child: billDetailRow(
                   label: 'Total payable',
-                  value: "-",
-                  // convertedPrice(
-                  //     homeController.cartResponse.value.cartTotals
-                  //         ?.firstWhere((item) => item.type == 'GRAND_TOTAL')
-                  //         .amount
-                  //         ?.centAmount,
-                  //     homeController.cartResponse.value.cartTotals
-                  //         ?.firstWhere((item) => item.type == 'GRAND_TOTAL')
-                  //         .amount
-                  //         ?.fraction),
+                  value: getActualPrice(data?.amountPayable?.centAmount,
+                      data?.amountPayable?.fraction),
                   isBold: true),
             ),
             SizedBox(height: 16),
@@ -239,8 +252,10 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text('Tender Details', style: TextStyle(fontSize: 16)),
-                  tenderDetailRow(label: 'Cash', value: '-'),
-                  tenderDetailRow(label: 'UPI', value: '-'),
+                  tenderDetailRow(
+                      label: 'Cash', value: cashPaymentTextController.text),
+                  tenderDetailRow(
+                      label: 'UPI', value: onlinePaymentTextController.text),
                   tenderDetailRow(label: 'Card', value: '-'),
                 ],
               ),
@@ -261,22 +276,108 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
           selectRedemptionWidget(),
           SizedBox(height: 20),
           selectPaymentWidget(),
-          SizedBox(height: 20),
-          balanceAmountSection(),
-          /*Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: ConstrainedBox(
-              constraints: BoxConstraints(
-                  maxWidth: 780, minWidth: 100),
-              child:  commonTextField(
-                label: ' Enter value ',
-                focusNode: qwertyFocusNode,
-                readOnly: false,
-                controller: qwertyTextController,
+        ],
+      ),
+    );
+  }
+
+  Widget numpadSection() {
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 20),
+      child: Column(
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              border: Border.all(color: Colors.grey),
+              borderRadius: BorderRadius.all(
+                Radius.circular(10),
               ),
+              shape: BoxShape.rectangle,
             ),
-          ),*/
-          //CustomQwertyPad(textController: qwertyTextController)
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                ListTile(
+                  leading: SvgPicture.asset(
+                    'assets/images/ic_coupon.svg',
+                    semanticsLabel: 'cash icon,',
+                    width: 20,
+                    height: 20,
+                  ),
+                  title: Text(
+                    'Select Payment Mode',
+                    style: theme.textTheme.titleSmall
+                        ?.copyWith(fontWeight: FontWeight.bold),
+                  ),
+                ),
+                Padding(
+                  padding:
+                      const EdgeInsets.only(bottom: 10, left: 10, right: 10),
+                  child: DashedLine(
+                    height: 0.4,
+                    dashWidth: 4,
+                    color: Colors.grey,
+                  ),
+                ),
+                Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 20.0),
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    // color: Colors.grey.shade300,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(
+                        color: Colors.grey.shade300,
+                        width: 1,
+                      )),
+                  //padding: const EdgeInsets.all(8.0),
+                  child: Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: Text(
+                        numPadTextController.text,
+                        style: Theme.of(context)
+                            .textTheme
+                            .labelLarge
+                            ?.copyWith(
+                            fontWeight: FontWeight.w500,
+                            color: CustomColors.black),
+                      )),
+                ),
+                CustomNumPad(
+                  focusNode: activeFocusNode!,
+                  textController: numPadTextController,
+                  onValueChanged: (value) {
+                    if (activeFocusNode == cashPaymentFocusNode) {
+                      paymentBloc.cashPayment = value;
+                    } else if (activeFocusNode == onlinePaymentFocusNode) {
+                      paymentBloc.onlinePayment = value;
+                    } else if (activeFocusNode == loyaltyPaymentFocusNode) {
+                      paymentBloc.loyaltyValue = value;
+                    } else if (activeFocusNode == walletPaymentFocusNode) {
+                      paymentBloc.walletValue = value;
+                    }
+                  },
+                  onEnterPressed: (value) {
+                    if (activeFocusNode == cashPaymentFocusNode) {
+                      cashPaymentFocusNode.unfocus();
+                    } else if (activeFocusNode == onlinePaymentFocusNode) {
+                      onlinePaymentFocusNode.unfocus();
+                    } else if (activeFocusNode == loyaltyPaymentFocusNode) {
+                      loyaltyPaymentFocusNode.unfocus();
+                    } else if (activeFocusNode == walletPaymentFocusNode) {
+                      walletPaymentFocusNode.unfocus();
+                    }
+                  },
+                ),
+              ],
+            ),
+          ),
+          SizedBox(
+            height: 10,
+          ),
+          balanceAmountSection(),
         ],
       ),
     );
@@ -325,7 +426,9 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
       {required String label,
       required String iconPath,
       required String inputHint,
-      required String buttonLabel}) {
+      required String buttonLabel,
+      required TextEditingController controller,
+      required FocusNode focusNode}) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -351,8 +454,11 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
               width: 140,
               child: commonTextField(
                   label: inputHint,
-                  focusNode: FocusNode(),
-                  controller: TextEditingController()),
+                  focusNode: focusNode,
+                  controller: controller,
+                  onValueChanged: (value) {
+                    print('commonTextField $value');
+                  }),
             ),
             SizedBox(width: 14),
             SizedBox(
@@ -409,13 +515,17 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                     label: 'Cash payment  ',
                     iconPath: 'assets/images/ic_cash.svg',
                     inputHint: 'Enter Amount',
-                    buttonLabel: 'Received'),
+                    buttonLabel: 'Received',
+                    controller: cashPaymentTextController,
+                    focusNode: cashPaymentFocusNode),
                 SizedBox(height: 16),
                 paymentModeOption(
                     label: 'Online payment',
                     iconPath: 'assets/images/ic_cash.svg',
                     inputHint: 'Enter Amount',
-                    buttonLabel: 'Generate link'),
+                    buttonLabel: 'Generate link',
+                    controller: onlinePaymentTextController,
+                    focusNode: onlinePaymentFocusNode),
               ],
             ),
           ),
@@ -447,17 +557,22 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                 ),
                 SizedBox(height: 16),
                 paymentModeOption(
-                    label: 'Enter coupon code',
-                    iconPath: 'assets/images/ic_coupon.svg',
-                    inputHint: 'Enter Code',
-                    buttonLabel: 'Apply'),
-                //redemptionOption(),
-                SizedBox(height: 16),
-                paymentModeOption(
                     label: 'Loyalty Points   ',
                     iconPath: 'assets/images/ic_loyalty.svg',
                     inputHint: 'Available points',
-                    buttonLabel: 'Redeem'),
+                    buttonLabel: 'Redeem',
+                    controller: loyaltyTextController,
+                    focusNode: loyaltyPaymentFocusNode),
+                //redemptionOption(),
+                SizedBox(height: 16),
+                paymentModeOption(
+                    label: 'Wallet',
+                    iconPath: 'assets/images/ic_coupon.svg',
+                    inputHint: 'Available',
+                    buttonLabel: 'Apply',
+                    controller: walletTextController,
+                    focusNode: walletPaymentFocusNode),
+
                 //loyaltyPointsRedemption(),
               ],
             ),
@@ -465,61 +580,79 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
         ));
   }
 
+  double getPayableAmount() {
+    var cash = cashPaymentTextController.text.isNotEmpty
+        ? cashPaymentTextController.text
+        : '0';
+    var online = onlinePaymentTextController.text.isNotEmpty
+        ? onlinePaymentTextController.text
+        : '0';
+    var wallet =
+        walletTextController.text.isNotEmpty ? walletTextController.text : '0';
+
+    var givenAmount =
+        double.parse(cash) + double.parse(online) + double.parse(wallet);
+    var totalPayable =
+        (paymentBloc.paymentSummaryResponse.amountPayable?.centAmount ?? 0) /
+            (paymentBloc.paymentSummaryResponse.amountPayable?.fraction ?? 1);
+    return totalPayable - givenAmount;
+  }
+
 // Widget for Balance Amount Section
   Widget balanceAmountSection() {
-    return Card(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15.0),
+    var balanceAmount = getPayableAmount();
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border.all(color: Colors.grey),
+        borderRadius: BorderRadius.all(
+          Radius.circular(10),
         ),
-        child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(15.0),
-              border: Border.all(color: CustomColors.borderColor, width: 1),
-            ),
-            child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Balance amount',
-                          style: theme.textTheme.titleSmall
-                              ?.copyWith(fontWeight: FontWeight.normal),
-                        ),
-                        Text(
-                          '₹4,900',
-                          style: theme.textTheme.titleLarge
-                              ?.copyWith(fontWeight: FontWeight.bold),
-                        ),
-                      ],
-                    ),
-                    SizedBox(
-                      width: 300,
-                      height: 100,
-                      child: ElevatedButton(
-                        style: elevatedButtonStyle(
-                            theme: theme,
-                            textStyle: theme.textTheme.bodyMedium,
-                            padding: EdgeInsets.all(12)),
-                        onPressed: () {
-                          printReceipt();
-
-                          /// Get.offAndToNamed(PageRoutes.weightDisplay);
-                        },
-                        child: Text(
-                          "Mark Complete",
-                          style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                    ),
-                  ],
-                ))));
+        shape: BoxShape.rectangle,
+      ),
+      child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                 Text(
+                   balanceAmount > 0 ? 'Balance amount' : 'Balance amount return to customer',
+                    style: theme.textTheme.titleSmall
+                        ?.copyWith(fontWeight: FontWeight.normal),
+                  ),
+                  Text(
+                    '₹$balanceAmount',
+                    style: theme.textTheme.titleMedium
+                        ?.copyWith(fontWeight: FontWeight.bold, color: balanceAmount > 0 ? Colors.black : CustomColors.red),
+                  ),
+                ],
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              SizedBox(
+                width: 300,
+                height: 60,
+                child: ElevatedButton(
+                  style: elevatedButtonStyle(
+                      theme: theme,
+                      textStyle: theme.textTheme.bodyMedium,
+                      padding: EdgeInsets.all(12)),
+                  onPressed: () {
+                    printReceipt();
+                  },
+                  child: Text(
+                    "Place Order",
+                    style: theme.textTheme.titleMedium?.copyWith(
+                        color: Colors.black, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+            ],
+          )),
+    );
   }
 }

@@ -7,6 +7,7 @@ import 'package:kpn_pos_application/ui/home/home_controller.dart';
 import 'package:kpn_pos_application/ui/home/repository/home_repository.dart';
 import 'package:kpn_pos_application/ui/login/bloc/login_bloc.dart';
 import 'package:kpn_pos_application/ui/login/repository/login_repository.dart';
+import 'package:kpn_pos_application/ui/payment_summary/repository/PaymentRepository.dart';
 
 class InitialBinding extends Bindings {
   @override
@@ -23,6 +24,7 @@ class InitialBinding extends Bindings {
     //repo
     Get.put<LoginRepository>(LoginRepository(Get.find<ApiHelper>()));
     Get.put<HomeRepository>(HomeRepository(Get.find<ApiHelper>()));
+    Get.put<PaymentRepository>(PaymentRepository(Get.find<ApiHelper>()));
 
     /*// Register LoginBloc as a singleton
     Get.put<LoginBloc>(LoginBloc(

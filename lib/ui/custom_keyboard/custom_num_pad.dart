@@ -2,33 +2,42 @@ import 'package:flutter/material.dart';
 
 class CustomNumPad extends StatefulWidget {
   final TextEditingController textController;
+  final FocusNode focusNode;
   final void Function(String)? onEnterPressed;
   final void Function(String)? onValueChanged;
   final void Function(String)? onClearAll;
-
   const CustomNumPad(
       {super.key,
       required this.textController,
       this.onEnterPressed,
       this.onValueChanged,
-      this.onClearAll});
+      this.onClearAll,
+      required this.focusNode});
 
   @override
   State<CustomNumPad> createState() => _CustomNumPadState();
 }
 
 class _CustomNumPadState extends State<CustomNumPad> {
-  final FocusNode focusNode = FocusNode();
 
   void _onKeyPressed(String value) {
+    if (!widget.focusNode.hasFocus) {
+      widget.focusNode.requestFocus();
+    }
     widget.textController.text += value;
   }
 
   void _onEnterPressed(String value) {
+    if (!widget.focusNode.hasFocus) {
+      widget.focusNode.requestFocus();
+    }
     widget.onEnterPressed!(value);
   }
 
   void _onClear() {
+    if (!widget.focusNode.hasFocus) {
+      widget.focusNode.requestFocus();
+    }
     if (widget.textController.text.isNotEmpty) {
       widget.textController.text = widget.textController.text
           .substring(0, widget.textController.text.length - 1);
@@ -36,6 +45,9 @@ class _CustomNumPadState extends State<CustomNumPad> {
   }
 
   void _onClearAll() {
+    if (!widget.focusNode.hasFocus) {
+      widget.focusNode.requestFocus();
+    }
     widget.textController.clear();
     widget.onClearAll!(widget.textController.text);
 
@@ -49,7 +61,7 @@ class _CustomNumPadState extends State<CustomNumPad> {
 
   @override
   void initState() {
-    focusNode.addListener(() {
+    widget.focusNode.addListener(() {
       setState(() {});
     });
     widget.textController.addListener(_handleValueChanged);
@@ -57,12 +69,12 @@ class _CustomNumPadState extends State<CustomNumPad> {
     super.initState();
   }
 
-  @override
+  /*@override
   void dispose() {
     focusNode.dispose();
     //widget.textController.dispose();
     super.dispose();
-  }
+  }*/
 
   @override
   Widget build(BuildContext context) {

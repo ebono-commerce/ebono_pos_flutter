@@ -200,6 +200,7 @@ class HomeController extends GetxController {
           outletId: selectedOutlet.value));
       customerResponse.value = response;
       cartId.value = customerResponse.value.cartId.toString();
+      GetStorageHelper.save(SharedPreferenceConstants.cartId, cartId.value);
       fetchCartDetails();
     } catch (e) {
       print("Error $e");

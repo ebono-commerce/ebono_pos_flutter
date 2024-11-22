@@ -38,11 +38,9 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
       }
     });
 
-  /*  if (!phoneNumberFocusNode.hasFocus) {
-      print('phoneNumberFocusNode not focused ${!phoneNumberFocusNode.hasFocus}');
-
+    if (!phoneNumberFocusNode.hasFocus) {
       phoneNumberFocusNode.requestFocus();
-    }*/
+    }
     activeFocusNode = phoneNumberFocusNode;
     phoneNumberFocusNode.addListener(() {
       setState(() {
