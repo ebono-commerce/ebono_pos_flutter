@@ -468,7 +468,9 @@ class HomeController extends GetxController {
               "Success p2pRequestId --> : ${paymentInitiateResponse.value.p2PRequestId}");
         } else {
           if (paymentInitiateResponse.value.realCode ==
-              "P2P_DUPLICATE_CANCEL_REQUEST") {
+                  "P2P_DUPLICATE_CANCEL_REQUEST" ||
+              paymentInitiateResponse.value.realCode ==
+                  "P2P_ORIGINAL_P2P_REQUEST_IS_MISSING") {
             Get.back();
           }
           Get.snackbar('Error', '${paymentInitiateResponse.value.message}');
