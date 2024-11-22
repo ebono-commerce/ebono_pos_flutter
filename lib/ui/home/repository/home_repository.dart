@@ -14,6 +14,7 @@ import 'package:kpn_pos_application/ui/home/model/general_success_response.dart'
 import 'package:kpn_pos_application/ui/home/model/phone_number_request.dart';
 import 'package:kpn_pos_application/ui/home/model/resume_hold_cart_request.dart';
 import 'package:kpn_pos_application/ui/home/model/update_cart.dart';
+import 'package:kpn_pos_application/ui/payment_summary/model/health_check_response.dart';
 
 class HomeRepository {
   final ApiHelper _apiHelper;
@@ -160,6 +161,17 @@ class HomeRepository {
       final generalResponse =
           generalSuccessResponseFromJson(jsonEncode(response));
       return generalResponse;
+    } catch (e) {
+      throw Exception('Failed to parse data');
+    }
+  }
+
+  Future<HealthCheckResponse> healthCheckApiCall() async {
+    try {
+      final response = await _apiHelper.get(ApiConstants.healthCheck);
+      final healthCheckResponse =
+          healthCheckResponseFromJson(jsonEncode(response));
+      return healthCheckResponse;
     } catch (e) {
       throw Exception('Failed to parse data');
     }

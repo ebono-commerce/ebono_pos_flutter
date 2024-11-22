@@ -23,4 +23,6 @@ class ApiConstants {
 
   static final holdCart = 'checkout/api/v1/pos/cart/';
   static final clearFullCart = 'checkout/api/v1/pos/cart/';
+  static final resumeHoldCart = 'checkout/api/v1/pos/cart/resume';
+  static final healthCheck = 'health';
 }

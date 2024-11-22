@@ -22,16 +22,24 @@ class HomeAppBar extends StatefulWidget {
 
 class _HomeAppBarState extends State<HomeAppBar> {
   late HomeController homeController;
-  bool isOnline = false;
+
+  //bool isOnline = false;
 
   @override
   void initState() {
     super.initState();
-    homeController = widget.homeController;
+    if (mounted == true) {
+      homeController = widget.homeController;
+      homeController.healthCheckApiCall();
+    }
+    print(
+        "API healthCheckApiCall initState:  ${homeController.isOnline.value}");
   }
 
   @override
   Widget build(BuildContext context) {
+    print(
+        "API healthCheckApiCall initState:  ${homeController.isOnline.value}");
     return AppBar(
       automaticallyImplyLeading: false,
       backgroundColor: Colors.grey.shade100,
@@ -64,55 +72,60 @@ class _HomeAppBarState extends State<HomeAppBar> {
                   ),
                 ),
                 SizedBox(height: 5),
-                Row(
-                  mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    InkWell(
-                      onTap: () {
-                        setState(() {
-                          isOnline = !isOnline;
-                        });
-                      },
-                      child: Row(
-                        children: [
-                          ImageIcon(
-                            size: 20,
-                            color: isOnline == true
-                                ? CustomColors.green
-                                : CustomColors.red,
-                            isOnline == true
-                                ? AssetImage('assets/images/ic_online.png')
-                                : AssetImage('assets/images/ic_offline.png'),
+                Obx(() => Row(
+                      mainAxisSize: MainAxisSize.max,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        InkWell(
+                          onTap: () {},
+                          // onTap: () {
+                          //   setState(() {
+                          //     isOnline = !isOnline;
+                          //   });
+                          // },
+                          child: Row(
+                            children: [
+                              ImageIcon(
+                                size: 20,
+                                color: homeController.isOnline.value == true
+                                    ? CustomColors.green
+                                    : CustomColors.red,
+                                homeController.isOnline.value == true
+                                    ? AssetImage('assets/images/ic_online.png')
+                                    : AssetImage(
+                                        'assets/images/ic_offline.png'),
+                              ),
+                              SizedBox(width: 5),
+                              Text(
+                                homeController.isOnline.value == true
+                                    ? 'ONLINE'
+                                    : "OFFLINE",
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .labelMedium
+                                    ?.copyWith(
+                                        color: homeController.isOnline.value ==
+                                                true
+                                            ? CustomColors.green
+                                            : CustomColors.red),
+                                //  style: TextStyle(color: Colors.green, fontSize: 11),
+                              ),
+                            ],
                           ),
-                          SizedBox(width: 5),
-                          Text(
-                            isOnline == true ? 'ONLINE' : "OFFLINE",
+                        ),
+                        SizedBox(width: 5),
+                        Obx(
+                          () => Text(
+                            homeController.selectedTerminal.value,
                             style: Theme.of(context)
                                 .textTheme
                                 .labelMedium
-                                ?.copyWith(
-                                    color: isOnline == true
-                                        ? CustomColors.green
-                                        : CustomColors.red),
-                            //  style: TextStyle(color: Colors.green, fontSize: 11),
+                                ?.copyWith(color: CustomColors.black),
+                            //  style: TextStyle(color: Colors.black, fontSize: 12),
                           ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(width: 5),
-                    Obx(
-                      () => Text(
-                        homeController.selectedTerminal.value,
-                        style: Theme.of(context)
-                            .textTheme
-                            .labelMedium
-                            ?.copyWith(color: CustomColors.black),
-                        //  style: TextStyle(color: Colors.black, fontSize: 12),
-                      ),
-                    ),
-                  ],
-                ),
+                        ),
+                      ],
+                    )),
               ],
             ),
           ),

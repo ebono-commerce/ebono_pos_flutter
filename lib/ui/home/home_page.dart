@@ -19,7 +19,8 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _selectedButton = 2;
-  bool isOnline = false;
+
+  // bool isOnline = false;
   late String port;
   HomeController homeController = Get.put<HomeController>(HomeController(
       Get.find<HomeRepository>(), Get.find<SharedPreferenceHelper>()));

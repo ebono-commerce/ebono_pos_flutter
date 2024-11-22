@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:kpn_pos_application/constants/shared_preference_constants.dart';
@@ -13,9 +16,11 @@ import 'package:kpn_pos_application/ui/home/model/customer_request.dart';
 import 'package:kpn_pos_application/ui/home/model/delete_cart.dart';
 import 'package:kpn_pos_application/ui/home/model/general_success_response.dart';
 import 'package:kpn_pos_application/ui/home/model/phone_number_request.dart';
+import 'package:kpn_pos_application/ui/home/model/resume_hold_cart_request.dart';
 import 'package:kpn_pos_application/ui/home/model/update_cart.dart';
 import 'package:kpn_pos_application/ui/home/repository/home_repository.dart';
 import 'package:kpn_pos_application/ui/login/model/login_response.dart';
+import 'package:kpn_pos_application/ui/payment_summary/model/health_check_response.dart';
 import 'package:kpn_pos_application/utils/digital_weighing_scale.dart';
 
 class HomeController extends GetxController {
@@ -23,6 +28,8 @@ class HomeController extends GetxController {
   final SharedPreferenceHelper sharedPreferenceHelper;
 
   HomeController(this._homeRepository, this.sharedPreferenceHelper);
+
+  Timer? _statusCheckTimer;
 
   var isLoading = false.obs;
 
@@ -50,9 +57,16 @@ class HomeController extends GetxController {
   final int rate = 9600;
   final int timeout = 1000;
   var generalSuccessResponse = GeneralSuccessResponse().obs;
+  var healthCheckResponse = HealthCheckResponse().obs;
+
+  RxString _connectionStatus = 'Unknown'.obs;
+  var isOnline = false.obs;
+
+  final Connectivity _connectivity = Connectivity();
 
   @override
   void onInit() async {
+    _checkConnectivity();
     portName.value = await sharedPreferenceHelper.getPortName() ?? '';
     selectedOutlet.value =
         GetStorageHelper.read(SharedPreferenceConstants.selectedOutletName);
@@ -89,6 +103,45 @@ class HomeController extends GetxController {
     }
     initialResponse();
     super.onInit();
+  }
+
+  Future<void> _checkConnectivity() async {
+    print('_checkConnectivity  ${isOnline.value}');
+    ConnectivityResult result;
+    try {
+      result = await _connectivity.checkConnectivity();
+      _updateConnectionStatus(result);
+    } catch (e) {
+      _statusCheckTimer?.cancel();
+      isOnline.value = false;
+      _connectionStatus.value = 'Failed to get connectivity.';
+    }
+  }
+
+  void _updateConnectionStatus(ConnectivityResult result) {
+    switch (result) {
+      case ConnectivityResult.wifi:
+        print('ConnectivityResult.wifi  ${isOnline.value}');
+        healthCheckApiCall();
+        _connectionStatus.value = 'Connected to WiFi';
+        break;
+      case ConnectivityResult.ethernet:
+        print('ConnectivityResult.ethernet  ${isOnline.value}');
+
+        healthCheckApiCall();
+
+        _connectionStatus.value = 'Connected to Ethernet';
+        break;
+      case ConnectivityResult.mobile:
+        _connectionStatus.value = 'Connected to Mobile Network';
+        break;
+      case ConnectivityResult.none:
+        _connectionStatus.value = 'No Network Connection';
+        break;
+      default:
+        _connectionStatus.value = 'Unknown Network Connection';
+        break;
+    }
   }
 
   void addCartLine(CartLine cartLine) {
@@ -343,6 +396,41 @@ class HomeController extends GetxController {
     }
   }
 
+  Future<void> healthCheckApiCall() async {
+    print("API healthCheckApiCall: ");
+    _statusCheckTimer = Timer.periodic(Duration(seconds: 5), (timer) async {
+      try {
+        var response = await _homeRepository.healthCheckApiCall();
+        healthCheckResponse.value = response;
+        if (healthCheckResponse.value.statusCode != 200) {
+          timer.cancel();
+          isOnline.value = false;
+          print("API healthCheckApiCall:  ${isOnline.value}");
+        } else {
+          print(
+              "API healthCheckApiCall: ${healthCheckResponse.value.statusCode}");
+          isOnline.value = true;
+          print("API healthCheckApiCall:  ${isOnline.value}");
+
+          healthCheckApiCall();
+        }
+      } catch (e) {
+        print("Error $e");
+        isOnline.value = false;
+        timer.cancel();
+      } finally {
+        timer.cancel();
+        isOnline.value = false;
+        print("Error");
+      }
+    });
+  }
+
+  @override
+  void onClose() {
+    _statusCheckTimer?.cancel();
+    super.onClose();
+  }
 /*
   Login:
 9999912343
