@@ -200,7 +200,14 @@ class HomeController extends GetxController {
           outletId: selectedOutlet.value));
       customerResponse.value = response;
       cartId.value = customerResponse.value.cartId.toString();
+
+      // Note Please clear when order success
       GetStorageHelper.save(SharedPreferenceConstants.cartId, cartId.value);
+      GetStorageHelper.save(SharedPreferenceConstants.sessionCustomerNumber,
+          "${customerResponse.value.phoneNumber?.countryCode}${customerResponse.value.phoneNumber?.number}");
+      GetStorageHelper.save(SharedPreferenceConstants.sessionCustomerName,
+          customerResponse.value.customerName);
+
       fetchCartDetails();
     } catch (e) {
       print("Error $e");

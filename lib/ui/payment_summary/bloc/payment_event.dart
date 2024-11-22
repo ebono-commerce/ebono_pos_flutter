@@ -7,4 +7,13 @@ class PaymentInitialEvent extends PaymentEvent {
   PaymentInitialEvent(this.request);
 }
 
-class FetchPaymentSummary extends PaymentEvent{}
+class FetchPaymentSummary extends PaymentEvent {}
+
+// For Payment EDC api
+class PaymentStartEvent extends PaymentEvent {}
+
+class PaymentStatusEvent extends PaymentEvent {}
+
+class PaymentCancelEvent extends PaymentEvent {}
+
+class CheckPaymentStatusBasedOnTimer extends PaymentEvent {}

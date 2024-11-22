@@ -12,6 +12,12 @@ class ApiConstants {
   static final addToCart = 'checkout/api/v1/pos/cart/';
   static final deleteFromCart = 'checkout/api/v1/pos/cart/';
   static final updateCart = 'checkout/api/v1/pos/cart/';
-  static final fetchPaymentSummary = 'checkout/api/v1/pos/cart/payment-summary/fetch';
-  static final s = 'eastap/resume';
+  static final fetchPaymentSummary =
+      'checkout/api/v1/pos/cart/payment-summary/fetch';
+
+  static final paymentBaseUrl = 'https://demo.ezetap.com';
+
+  static final paymentApiInitiate = '/api/3.0/p2p/start';
+  static final paymentApiStatus = '/api/3.0/p2p/status';
+  static final paymentApiCancel = '/api/3.0/p2p/cancel';
 }

@@ -12,4 +12,6 @@ class SharedPreferenceConstants {
   static final selectedPosMode = 'selectedPosName';
   static final customerProxyNumber = 'customerProxyNumber';
   static final cartId = 'cartId';
+  static final sessionCustomerNumber = 'sessionCustomerNumber';
+  static final sessionCustomerName = 'sessionCustomerName';
 }
