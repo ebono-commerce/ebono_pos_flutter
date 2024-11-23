@@ -10,7 +10,11 @@ import 'package:kpn_pos_application/ui/home/model/cart_request.dart';
 import 'package:kpn_pos_application/ui/home/model/customer_details_response.dart';
 import 'package:kpn_pos_application/ui/home/model/customer_request.dart';
 import 'package:kpn_pos_application/ui/home/model/delete_cart.dart';
+import 'package:kpn_pos_application/ui/home/model/general_success_response.dart';
+import 'package:kpn_pos_application/ui/home/model/phone_number_request.dart';
+import 'package:kpn_pos_application/ui/home/model/resume_hold_cart_request.dart';
 import 'package:kpn_pos_application/ui/home/model/update_cart.dart';
+import 'package:kpn_pos_application/ui/payment_summary/model/health_check_response.dart';
 
 class HomeRepository {
   final ApiHelper _apiHelper;
@@ -114,6 +118,60 @@ class HomeRepository {
       );
       final cartResponse = cartResponseFromJson(jsonEncode(response));
       return cartResponse;
+    } catch (e) {
+      throw Exception('Failed to parse data');
+    }
+  }
+
+  Future<CartResponse> clearFullCart(String cartId) async {
+    try {
+      final response = await _apiHelper.delete(
+        '${ApiConstants.clearFullCart}$cartId/clear',
+        data: {},
+      );
+      final cartResponse = cartResponseFromJson(jsonEncode(response));
+      return cartResponse;
+    } catch (e) {
+      throw Exception('Failed to parse data');
+    }
+  }
+
+  Future<GeneralSuccessResponse> holdCart(
+      String cartId, PhoneNumberRequest phoneNumber) async {
+    try {
+      final response = await _apiHelper.post(
+        '${ApiConstants.holdCart}$cartId/hold',
+        data: phoneNumber.toJson(),
+      );
+      final generalResponse =
+          generalSuccessResponseFromJson(jsonEncode(response));
+      return generalResponse;
+    } catch (e) {
+      throw Exception('Failed to parse data');
+    }
+  }
+
+  Future<GeneralSuccessResponse> resumeHoldCart(
+      String cartId, ResumeHoldCartRequest request) async {
+    try {
+      final response = await _apiHelper.post(
+        ApiConstants.resumeHoldCart,
+        data: request.toJson(),
+      );
+      final generalResponse =
+          generalSuccessResponseFromJson(jsonEncode(response));
+      return generalResponse;
+    } catch (e) {
+      throw Exception('Failed to parse data');
+    }
+  }
+
+  Future<HealthCheckResponse> healthCheckApiCall() async {
+    try {
+      final response = await _apiHelper.get(ApiConstants.healthCheck);
+      final healthCheckResponse =
+          healthCheckResponseFromJson(jsonEncode(response));
+      return healthCheckResponse;
     } catch (e) {
       throw Exception('Failed to parse data');
     }
