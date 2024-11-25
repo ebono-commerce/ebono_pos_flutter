@@ -85,7 +85,7 @@ class _AddCustomerStaticWidgetState extends State<AddCustomerStaticWidget>
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(20.0),
                               ),
-                              child: AddCustomerWidget(homeController),
+                              child: AddCustomerWidget(homeController, context),
                             );
                           },
                         );
@@ -202,7 +202,7 @@ class _AddCustomerStaticWidgetState extends State<AddCustomerStaticWidget>
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(20.0),
                               ),
-                              child: AddCustomerWidget(homeController),
+                              child: AddCustomerWidget(homeController, context),
                             );
                           },
                         );
@@ -349,16 +349,16 @@ class _AddCustomerStaticWidgetState extends State<AddCustomerStaticWidget>
                   elevation: 1,
                   padding: EdgeInsets.symmetric(horizontal: 1, vertical: 20),
                   shape: RoundedRectangleBorder(
-                    side: BorderSide(color: Color(0xFF066A69)),
+                    side: BorderSide(color: CustomColors.primaryColor),
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  backgroundColor: Color(0xFFF0F4F4),
+                  backgroundColor: CustomColors.keyBoardBgColor,
                 ),
                 child: Center(
                   child: Text(
                     "Continue Without Customer Number",
                     style: TextStyle(
-                        color: Color(0xFF066A69),
+                        color: CustomColors.primaryColor,
                         fontSize: 14,
                         fontWeight: FontWeight.bold),
                   ),

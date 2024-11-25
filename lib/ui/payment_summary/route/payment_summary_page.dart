@@ -94,17 +94,18 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
 
     numPadTextController.addListener(() {
       setState(() {
-        if (numPadTextController.text.isNotEmpty) {
-          if (activeFocusNode == cashPaymentFocusNode) {
-            cashPaymentTextController.text = numPadTextController.text;
-          } else if (activeFocusNode == onlinePaymentFocusNode) {
-            onlinePaymentTextController.text = numPadTextController.text;
-          } else if (activeFocusNode == loyaltyPaymentFocusNode) {
-            loyaltyTextController.text = numPadTextController.text;
-          } else if (activeFocusNode == walletPaymentFocusNode) {
-            walletTextController.text = numPadTextController.text;
-          }
+        //if (numPadTextController.text.isNotEmpty) {
+        if (activeFocusNode == cashPaymentFocusNode) {
+          cashPaymentTextController.text = numPadTextController.text;
+        } else if (activeFocusNode == onlinePaymentFocusNode) {
+          onlinePaymentTextController.text = numPadTextController.text;
+        } else if (activeFocusNode == loyaltyPaymentFocusNode) {
+          loyaltyTextController.text = numPadTextController.text;
+        } else if (activeFocusNode == walletPaymentFocusNode) {
+          walletTextController.text = numPadTextController.text;
         }
+       // }
+
       });
     });
     super.initState();
@@ -465,7 +466,7 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                 width: 140,
                 height: 50,
                 child: ElevatedButton(
-                  style: elevatedButtonStyle(
+                  style: commonElevatedButtonStyle(
                       theme: theme,
                       textStyle: theme.textTheme.bodyMedium,
                       padding: EdgeInsets.all(12)),
@@ -642,7 +643,7 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                 width: 300,
                 height: 60,
                 child: ElevatedButton(
-                  style: elevatedButtonStyle(
+                  style: commonElevatedButtonStyle(
                       theme: theme,
                       textStyle: theme.textTheme.bodyMedium,
                       padding: EdgeInsets.all(12)),

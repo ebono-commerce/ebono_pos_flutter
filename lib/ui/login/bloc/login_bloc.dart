@@ -212,6 +212,16 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       _sharedPreferenceHelper.storeLoginStatus(true);
       GetStorageHelper.save(
           SharedPreferenceConstants.customerProxyNumber, response.outletDetails?.outletCustomerProxyPhoneNumber);
+      GetStorageHelper.save(
+          SharedPreferenceConstants.isQuantityEditEnabled, response.outletDetails?.quantityEditMode);
+      GetStorageHelper.save(
+          SharedPreferenceConstants.isLineDeleteEnabled, response.outletDetails?.lineDeleteMode);
+      GetStorageHelper.save(
+          SharedPreferenceConstants.isEnableHoldCartEnabled, response.outletDetails?.enableHoldCartMode);
+      GetStorageHelper.save(
+          SharedPreferenceConstants.isPriceEditEnabled, response.outletDetails?.priceEditMode);
+      GetStorageHelper.save(
+          SharedPreferenceConstants.isSalesAssociateLinkEnabled, response.outletDetails?.salesAssociateLink);
       emit(SubmitTerminalDetailsSuccess());
     } catch (error) {
       emit(SubmitTerminalDetailsFailure(error.toString()));

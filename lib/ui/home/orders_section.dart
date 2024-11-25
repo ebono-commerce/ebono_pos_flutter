@@ -9,8 +9,12 @@ import 'package:kpn_pos_application/ui/custom_keyboard/custom_num_pad.dart';
 import 'package:kpn_pos_application/ui/home/home_controller.dart';
 import 'package:kpn_pos_application/ui/home/widgets/add_customer_static_widget.dart';
 import 'package:kpn_pos_application/ui/home/widgets/add_customer_widget.dart';
+import 'package:kpn_pos_application/ui/home/widgets/authorisation_required_widget.dart';
+import 'package:kpn_pos_application/ui/home/widgets/coupon_code_widget.dart';
+import 'package:kpn_pos_application/ui/home/widgets/multiple_mrp_widget.dart';
 import 'package:kpn_pos_application/ui/home/widgets/quick_action_buttons.dart';
 import 'package:kpn_pos_application/ui/payment_summary/model/payment_summary_request.dart';
+import 'package:kpn_pos_application/utils/auth_modes.dart';
 import 'package:kpn_pos_application/utils/common_methods.dart';
 import 'package:kpn_pos_application/utils/price.dart';
 import 'package:kpn_pos_application/utils/dash_line.dart';
@@ -42,11 +46,26 @@ class _OrdersSectionState extends State<OrdersSection>
         _numPadFocusNode.requestFocus();
       }
     });
-    ever(homeController.scanProductsResponse, (value) {
-      if (value.esin != null) {
-        _numPadTextController.clear();
-        _numPadFocusNode.requestFocus();
-      }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ever(homeController.scanProductsResponse, (value) {
+        if (value.esin != null) {
+          _numPadTextController.clear();
+          _numPadFocusNode.requestFocus();
+        }
+        if ((value.priceList?.length ?? 0) > 1) {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return Dialog(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20.0),
+                ),
+                child: MultipleMrpWidget(homeController, context),
+              );
+            },
+          );
+        }
+      });
     });
 
     super.initState();
@@ -104,7 +123,91 @@ class _OrdersSectionState extends State<OrdersSection>
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20.0),
                       ),
-                      child: AddCustomerWidget(homeController),
+                      child: AddCustomerWidget(homeController, context),
+                    );
+                  },
+                );
+              },
+              onHoldCartPressed: () {
+                AuthModes enableHoldCartMode = AuthModeExtension.fromString(
+                    homeController.isEnableHoldCartEnabled.value);
+                if (enableHoldCartMode == AuthModes.enabled) {
+                  homeController.holdCartApiCall();
+                } else if (enableHoldCartMode == AuthModes.authorised) {
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return Dialog(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20.0),
+                        ),
+                        child: AuthorisationRequiredWidget(
+                            homeController, context),
+                      );
+                    },
+                  );
+                } else {
+                  Get.snackbar('Need Permission', 'Please contact support');
+                }
+              },
+              onSalesAssociatePressed: (){
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return Dialog(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20.0),
+                      ),
+                      child: AuthorisationRequiredWidget(
+                          homeController, context),
+                    );
+                  },
+                );
+              },
+              onCouponsPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return Dialog(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20.0),
+                      ),
+                      child: CouponCodeWidget(homeController, context),
+                    );
+                  },
+                );
+              },
+              onClearCartPressed: () {
+                AuthModes enableHoldCartMode = AuthModeExtension.fromString(
+                    homeController.isEnableHoldCartEnabled.value);
+                if (enableHoldCartMode == AuthModes.enabled) {
+                  homeController.clearFullCart();
+                } else if (enableHoldCartMode == AuthModes.authorised) {
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return Dialog(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20.0),
+                        ),
+                        child: AuthorisationRequiredWidget(
+                            homeController, context),
+                      );
+                    },
+                  );
+                } else {
+                  Get.snackbar('Need Permission', 'Please contact support');
+                }
+              },
+              onSearchItemsPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return Dialog(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20.0),
+                      ),
+                      child: MultipleMrpWidget(homeController, context),
                     );
                   },
                 );
@@ -447,7 +550,7 @@ class _OrdersSectionState extends State<OrdersSection>
                         width: 50,
                         decoration: BoxDecoration(
                           border: Border.all(
-                            color: Color(0xFFE56363),
+                            color: CustomColors.red,
                             width: 1,
                           ),
                           borderRadius: BorderRadius.circular(10),
@@ -455,7 +558,7 @@ class _OrdersSectionState extends State<OrdersSection>
                         child: IconButton(
                           icon: ImageIcon(
                             size: 20,
-                            color: Color(0xFFE56363),
+                            color: CustomColors.red,
                             AssetImage('assets/images/ic_remove.png'),
                           ),
                           onPressed: () {
@@ -471,9 +574,34 @@ class _OrdersSectionState extends State<OrdersSection>
                                 backgroundColor: Colors.white,
                                 content: _buildRemoveDialog2(itemData,
                                     onPressed: () {
-                                  homeController.deleteCartItemApiCall(
-                                      itemData.cartLineId);
-                                  Get.back();
+                                  AuthModes enableLineDeleteMode =
+                                      AuthModeExtension.fromString(
+                                          homeController
+                                              .isLineDeleteEnabled.value);
+                                  if (enableLineDeleteMode ==
+                                      AuthModes.enabled) {
+                                    homeController.deleteCartItemApiCall(
+                                        itemData.cartLineId);
+                                    Get.back();
+                                  } else if (enableLineDeleteMode ==
+                                      AuthModes.authorised) {
+                                    showDialog(
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return Dialog(
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(20.0),
+                                          ),
+                                          child: AuthorisationRequiredWidget(
+                                              homeController, context),
+                                        );
+                                      },
+                                    );
+                                  } else {
+                                    Get.snackbar('Need Permission',
+                                        'Please contact support');
+                                  }
                                 }));
                           },
                         ),
