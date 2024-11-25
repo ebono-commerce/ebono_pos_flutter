@@ -30,7 +30,7 @@ class _HomeAppBarState extends State<HomeAppBar> {
     super.initState();
     if (mounted == true) {
       homeController = widget.homeController;
-      homeController.healthCheckApiCall();
+      // homeController.healthCheckApiCall();
     }
     print(
         "API healthCheckApiCall initState:  ${homeController.isOnline.value}");

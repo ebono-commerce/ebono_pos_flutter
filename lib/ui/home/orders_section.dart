@@ -12,8 +12,8 @@ import 'package:kpn_pos_application/ui/home/widgets/add_customer_widget.dart';
 import 'package:kpn_pos_application/ui/home/widgets/quick_action_buttons.dart';
 import 'package:kpn_pos_application/ui/payment_summary/model/payment_summary_request.dart';
 import 'package:kpn_pos_application/utils/common_methods.dart';
-import 'package:kpn_pos_application/utils/price.dart';
 import 'package:kpn_pos_application/utils/dash_line.dart';
+import 'package:kpn_pos_application/utils/price.dart';
 
 class OrdersSection extends StatefulWidget {
   final HomeController homeController;
@@ -35,7 +35,7 @@ class _OrdersSectionState extends State<OrdersSection>
   void initState() {
     if (mounted == true) {
       homeController = widget.homeController;
-      homeController.initialResponse();
+      //homeController.initialResponse();
     }
     ever(homeController.customerResponse, (value) {
       if (value.phoneNumber != null) {
@@ -76,13 +76,21 @@ class _OrdersSectionState extends State<OrdersSection>
                     }),
                     Expanded(
                       child: Obx(() {
-                        return Center(
-                          child: homeController.cartId.value == ''
+                        if (homeController.registerId.value.isNotEmpty) {
+                          return homeController.cartId.value.isEmpty
                               ? AddCustomerStaticWidget(homeController)
-                              : Obx(() {
-                                  return _buildTableView2();
-                                }),
-                        );
+                              : _buildTableView2();
+                        } else {
+                          return _buildRegisterClosed(context,
+                              onPressed: () async {
+                            setState(() {
+                              homeController.selectedTabButton.value = 1;
+
+                              print(
+                                  "selectedTabButton: ${homeController.selectedTabButton.value}");
+                            });
+                          });
+                        }
                       }),
                     )
                   ],
@@ -1282,6 +1290,64 @@ class _OrdersSectionState extends State<OrdersSection>
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildRegisterClosed(BuildContext context, {VoidCallback? onPressed}) {
+    return Container(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisSize: MainAxisSize.max,
+        children: [
+          Center(
+            child: Text(
+              "Register is closed!",
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold, color: CustomColors.black),
+            ),
+          ),
+          SizedBox(
+            height: 10,
+          ),
+          Center(
+            child: Text(
+              "Set an opening float to start the sale",
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.normal, color: CustomColors.black),
+            ),
+          ),
+          SizedBox(
+            height: 5,
+          ),
+          Container(
+            width: 150,
+            padding: EdgeInsets.symmetric(horizontal: 5.0, vertical: 10),
+            child: ElevatedButton(
+              onPressed: onPressed,
+              style: ElevatedButton.styleFrom(
+                elevation: 1,
+                padding: EdgeInsets.symmetric(horizontal: 1, vertical: 20),
+                shape: RoundedRectangleBorder(
+                  side: BorderSide(color: CustomColors.secondaryColor),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                backgroundColor: CustomColors.secondaryColor,
+              ),
+              child: Center(
+                child: Text(
+                  "Open register",
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.bold, color: CustomColors.black),
+                ),
+              ),
+            ),
+          ),
+          SizedBox(
+            height: 20,
+          ),
+        ],
       ),
     );
   }

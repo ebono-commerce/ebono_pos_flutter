@@ -9,13 +9,17 @@ import 'package:kpn_pos_application/data_store/shared_preference_helper.dart';
 import 'package:kpn_pos_application/models/cart_response.dart';
 import 'package:kpn_pos_application/models/customer_response.dart';
 import 'package:kpn_pos_application/models/scan_products_response.dart';
+import 'package:kpn_pos_application/navigation/page_routes.dart';
 import 'package:kpn_pos_application/ui/home/model/add_to_cart.dart';
 import 'package:kpn_pos_application/ui/home/model/cart_request.dart';
 import 'package:kpn_pos_application/ui/home/model/customer_details_response.dart';
 import 'package:kpn_pos_application/ui/home/model/customer_request.dart';
 import 'package:kpn_pos_application/ui/home/model/delete_cart.dart';
 import 'package:kpn_pos_application/ui/home/model/general_success_response.dart';
+import 'package:kpn_pos_application/ui/home/model/open_register_response.dart';
 import 'package:kpn_pos_application/ui/home/model/phone_number_request.dart';
+import 'package:kpn_pos_application/ui/home/model/register_close_request.dart';
+import 'package:kpn_pos_application/ui/home/model/register_open_request.dart';
 import 'package:kpn_pos_application/ui/home/model/resume_hold_cart_request.dart';
 import 'package:kpn_pos_application/ui/home/model/update_cart.dart';
 import 'package:kpn_pos_application/ui/home/repository/home_repository.dart';
@@ -33,10 +37,22 @@ class HomeController extends GetxController {
 
   var isLoading = false.obs;
 
+  // for register || Orders || Orders on hold
+  RxInt selectedTabButton = 2.obs;
   var phoneNumber = ''.obs;
   var customerName = ''.obs;
   var scanCode = ''.obs;
   var cartId = ''.obs;
+  var registerId = ''.obs;
+
+  // for register section
+  var cashPayment = ''.obs;
+  var openFloatPayment = ''.obs;
+  var upiPayment = ''.obs;
+  var cardPayment = ''.obs;
+  var cardPaymentCount = ''.obs;
+  var upiPaymentCount = ''.obs;
+
   var isDisplayAddCustomerView = true.obs;
   RxString portName = ''.obs;
   var cartLines = <CartLine>[].obs;
@@ -58,6 +74,8 @@ class HomeController extends GetxController {
   final int timeout = 1000;
   var generalSuccessResponse = GeneralSuccessResponse().obs;
   var healthCheckResponse = HealthCheckResponse().obs;
+  var openRegisterResponse = OpenRegisterResponse().obs;
+  var closeRegisterResponse = GeneralSuccessResponse().obs;
 
   RxString _connectionStatus = 'Unknown'.obs;
   var isOnline = false.obs;
@@ -66,7 +84,7 @@ class HomeController extends GetxController {
 
   @override
   void onInit() async {
-    _checkConnectivity();
+    // _checkConnectivity();
     portName.value = await sharedPreferenceHelper.getPortName() ?? '';
     selectedOutlet.value =
         GetStorageHelper.read(SharedPreferenceConstants.selectedOutletName);
@@ -78,6 +96,10 @@ class HomeController extends GetxController {
         GetStorageHelper.read(SharedPreferenceConstants.selectedPosMode);
     customerProxyNumber.value =
         GetStorageHelper.read(SharedPreferenceConstants.customerProxyNumber);
+
+    registerId.value =
+        GetStorageHelper.read(SharedPreferenceConstants.registerId);
+
     print('selectedTerminal  $selectedTerminal');
     print('selectedOutlet  $selectedOutlet');
     final userDetailsData =
@@ -122,14 +144,12 @@ class HomeController extends GetxController {
     switch (result) {
       case ConnectivityResult.wifi:
         print('ConnectivityResult.wifi  ${isOnline.value}');
-        healthCheckApiCall();
+        // healthCheckApiCall();
         _connectionStatus.value = 'Connected to WiFi';
         break;
       case ConnectivityResult.ethernet:
         print('ConnectivityResult.ethernet  ${isOnline.value}');
-
-        healthCheckApiCall();
-
+        // healthCheckApiCall();
         _connectionStatus.value = 'Connected to Ethernet';
         break;
       case ConnectivityResult.mobile:
@@ -412,7 +432,7 @@ class HomeController extends GetxController {
           isOnline.value = true;
           print("API healthCheckApiCall:  ${isOnline.value}");
 
-          healthCheckApiCall();
+          // healthCheckApiCall();
         }
       } catch (e) {
         print("Error $e");
@@ -426,11 +446,92 @@ class HomeController extends GetxController {
     });
   }
 
+  Future<void> openRegisterApiCall() async {
+    print("API openRegisterApiCall: ");
+    var userId = await sharedPreferenceHelper.getUserID();
+
+    isLoading.value = true;
+    try {
+      var response = await _homeRepository.openRegister(RegisterOpenRequest(
+          outletId:
+              "${GetStorageHelper.read(SharedPreferenceConstants.selectedOutletId)}",
+          terminalId:
+              "${GetStorageHelper.read(SharedPreferenceConstants.selectedTerminalId)}",
+          userId: userId,
+          floatCash: int.tryParse(openFloatPayment.value)));
+      openRegisterResponse.value = response;
+      GetStorageHelper.save(SharedPreferenceConstants.registerId,
+          openRegisterResponse.value.registerId ?? "");
+      openFloatPayment.value = '';
+      Get.offAllNamed(PageRoutes.home);
+      isLoading.value = false;
+    } catch (e) {
+      print("Error $e");
+      isLoading.value = false;
+    } finally {
+      print("Error");
+      isLoading.value = false;
+    }
+  }
+
+  Future<void> closeRegisterApiCall() async {
+    print("API closeRegisterApiCall: ");
+    var userId = await sharedPreferenceHelper.getUserID();
+
+    isLoading.value = true;
+    try {
+      var response = await _homeRepository.closeRegister(RegisterCloseRequest(
+        outletId:
+            "${GetStorageHelper.read(SharedPreferenceConstants.selectedOutletId)}",
+        registerId:
+            "${GetStorageHelper.read(SharedPreferenceConstants.registerId)}",
+        terminalId:
+            "${GetStorageHelper.read(SharedPreferenceConstants.selectedTerminalId)}",
+        userId: userId,
+        cardTransactionSummary: TransactionSummary(
+            chargeSlipCount: int.tryParse(cardPaymentCount.value),
+            amount: Amount(
+                centAmount: int.tryParse(cardPayment.value),
+                fraction: 1000,
+                currency: "INR")),
+        cashTransactionSummary: CashTransactionSummary(
+            amount: Amount(
+                centAmount: int.tryParse(cashPayment.value),
+                fraction: 1000,
+                currency: "INR")),
+        upiTransactionSummary: TransactionSummary(
+            chargeSlipCount: int.tryParse(upiPaymentCount.value),
+            amount: Amount(
+                centAmount: int.tryParse(upiPayment.value),
+                fraction: 1000,
+                currency: "INR")),
+      ));
+      closeRegisterResponse.value = response;
+      if (closeRegisterResponse.value.success == true) {
+        GetStorageHelper.save(SharedPreferenceConstants.registerId, "");
+        upiPayment.value = '';
+        upiPaymentCount.value = '';
+        cardPayment.value = '';
+        cardPaymentCount.value = '';
+        cashPayment.value = '';
+        Get.offAllNamed(PageRoutes.home);
+      }
+      isLoading.value = false;
+    } catch (e) {
+      isLoading.value = false;
+      print("Error $e");
+    } finally {
+      isLoading.value = false;
+      print("Error");
+    }
+  }
+
   @override
   void onClose() {
     _statusCheckTimer?.cancel();
     super.onClose();
   }
+
 /*
   Login:
 9999912343

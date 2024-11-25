@@ -1,21 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:kpn_pos_application/constants/custom_colors.dart';
 import 'package:kpn_pos_application/ui/Common_button.dart';
 import 'package:kpn_pos_application/ui/common_text_field.dart';
 import 'package:kpn_pos_application/ui/custom_keyboard/custom_num_pad.dart';
+import 'package:kpn_pos_application/ui/home/home_controller.dart';
 import 'package:kpn_pos_application/ui/home/widgets/quick_action_buttons.dart';
 import 'package:kpn_pos_application/utils/dash_line.dart';
 
 class RegisterSection extends StatefulWidget {
-  const RegisterSection({super.key});
+  final HomeController homeController;
+
+  const RegisterSection(this.homeController, {super.key});
 
   @override
   State<RegisterSection> createState() => _RegisterSectionState();
 }
 
-class _RegisterSectionState extends State<RegisterSection> {
+class _RegisterSectionState extends State<RegisterSection>
+    with WidgetsBindingObserver {
   late ThemeData theme;
 
   final FocusNode cashPaymentFocusNode = FocusNode();
@@ -49,8 +54,13 @@ class _RegisterSectionState extends State<RegisterSection> {
   final TextEditingController openCommentTextController =
       TextEditingController();
 
+  late HomeController homeController;
+
   @override
   void initState() {
+    if (mounted == true) {
+      homeController = widget.homeController;
+    }
     if (!openingFloatPaymentFocusNode.hasFocus) {
       openingFloatPaymentFocusNode.requestFocus();
     }
@@ -155,42 +165,45 @@ class _RegisterSectionState extends State<RegisterSection> {
     return Scaffold(
       // backgroundColor: Colors.grey.shade100,
       backgroundColor: Colors.white,
-
       body: Stack(
         children: [
           Padding(
             padding: const EdgeInsets.all(16.0),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Expanded(
-                  flex: 7,
-                  child: Column(
-                    children: [
-                      _buildRegisterInfo("OPEN_Register", context),
-                      // _buildCloseRegister(),
-                      _buildOpenRegister()
-                    ],
-                  ),
-                ),
-                Expanded(
-                  flex: 3,
-                  child: numpadSection(),
-                ),
-                Expanded(
-                  flex: 1,
-                  child: QuickActionButtons(
-                    color: Colors.grey.shade100,
-                  ),
-                ),
-              ],
-            ),
+            child: Obx(() => Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Expanded(
+                      flex: 7,
+                      child: Column(
+                        children: [
+                          _buildRegisterInfo(
+                              homeController.registerId.value, context),
+                          (homeController.registerId.value != "" &&
+                                  homeController.registerId.value != null)
+                              ? _buildCloseRegister()
+                              : _buildOpenRegister(),
+                        ],
+                      ),
+                    ),
+                    Expanded(
+                      flex: 3,
+                      child: numpadSection(),
+                    ),
+                    Expanded(
+                      flex: 1,
+                      child: QuickActionButtons(
+                        // color: Colors.grey.shade100,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
+                )),
           ),
-          // state.isLoading
-          //     ? Center(child: CircularProgressIndicator())
-          //     : SizedBox(),
+          homeController.isLoading.value
+              ? Center(child: CircularProgressIndicator())
+              : SizedBox(),
         ],
       ),
     );
@@ -225,7 +238,9 @@ class _RegisterSectionState extends State<RegisterSection> {
                     height: 40,
                   ),
                   title: Text(
-                    'Opening Float',
+                    homeController.registerId.value == ""
+                        ? 'Opening Float'
+                        : 'Cash Payments',
                     style: theme.textTheme.titleSmall
                         ?.copyWith(fontWeight: FontWeight.bold),
                   ),
@@ -264,14 +279,18 @@ class _RegisterSectionState extends State<RegisterSection> {
                   textController: numPadTextController,
                   onValueChanged: (value) {
                     if (activeFocusNode == cashPaymentFocusNode) {
-                      //paymentBloc.cashPayment = value;
+                      homeController.cashPayment.value = value;
                     } else if (activeFocusNode ==
                         openingFloatPaymentFocusNode) {
-                      //paymentBloc.onlinePayment = value;
+                      homeController.openFloatPayment.value = value;
                     } else if (activeFocusNode == cardsPaymentFocusNode) {
-                      //paymentBloc.loyaltyValue = value;
+                      homeController.cardPayment.value = value;
                     } else if (activeFocusNode == upiPaymentFocusNode) {
-                      //paymentBloc.walletValue = value;
+                      homeController.upiPayment.value = value;
+                    } else if (activeFocusNode == upiSlipCountFocusNode) {
+                      homeController.upiPaymentCount.value = value;
+                    } else if (activeFocusNode == cardSlipCountFocusNode) {
+                      homeController.cardPaymentCount.value = value;
                     }
                   },
                   onEnterPressed: (value) {
@@ -284,6 +303,10 @@ class _RegisterSectionState extends State<RegisterSection> {
                       cardsPaymentFocusNode.unfocus();
                     } else if (activeFocusNode == upiPaymentFocusNode) {
                       upiPaymentFocusNode.unfocus();
+                    } else if (activeFocusNode == upiSlipCountFocusNode) {
+                      upiSlipCountFocusNode.unfocus();
+                    } else if (activeFocusNode == cardSlipCountFocusNode) {
+                      cardSlipCountFocusNode.unfocus();
                     }
                   },
                 ),
@@ -394,9 +417,19 @@ class _RegisterSectionState extends State<RegisterSection> {
                       theme: theme,
                       textStyle: theme.textTheme.bodyMedium,
                       padding: EdgeInsets.all(12)),
-                  onPressed: () {},
+                  onPressed: () {
+                    if (homeController.registerId.value == "") {
+                      // OPEN
+                      homeController.openRegisterApiCall();
+                    } else {
+                      // CLOSE
+                      homeController.closeRegisterApiCall();
+                    }
+                  },
                   child: Text(
-                    "Close Register",
+                    homeController.registerId.value != ""
+                        ? "Close Register"
+                        : "Open Register",
                     style: theme.textTheme.titleMedium?.copyWith(
                         color: Colors.black, fontWeight: FontWeight.bold),
                   ),
@@ -437,7 +470,10 @@ class _RegisterSectionState extends State<RegisterSection> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Register is closed!',
+                    Text(
+                        label == ""
+                            ? 'Register is closed!'
+                            : 'Register is open!',
                         maxLines: 1,
                         textAlign: TextAlign.center,
                         style: Theme.of(context)
@@ -481,7 +517,7 @@ class _RegisterSectionState extends State<RegisterSection> {
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Opening',
+                          Text(label == "" ? 'Opening' : 'Closing',
                               maxLines: 1,
                               textAlign: TextAlign.center,
                               style: Theme.of(context)
@@ -490,7 +526,7 @@ class _RegisterSectionState extends State<RegisterSection> {
                                   ?.copyWith(
                                       fontWeight: FontWeight.normal,
                                       color: CustomColors.greyFont)),
-                          Text("#2",
+                          Text("# ---",
                               maxLines: 1,
                               textAlign: TextAlign.center,
                               style: Theme.of(context)
@@ -801,8 +837,9 @@ class _RegisterSectionState extends State<RegisterSection> {
                           width: 140,
                           child: commonTextField(
                               label: "Enter Amount",
-                              focusNode: openingFloatPaymentFocusNode,
-                              controller: openingFloatPaymentTextController,
+                              readOnly: true,
+                              focusNode: cashPaymentFocusNode,
+                              controller: cashPaymentTextController,
                               onValueChanged: (value) {
                                 print('commonTextField $value');
                               }),
@@ -834,8 +871,9 @@ class _RegisterSectionState extends State<RegisterSection> {
                           width: 140,
                           child: commonTextField(
                               label: "Enter Amount",
-                              focusNode: openingFloatPaymentFocusNode,
-                              controller: openingFloatPaymentTextController,
+                              readOnly: true,
+                              focusNode: cardsPaymentFocusNode,
+                              controller: cardsPaymentTextController,
                               onValueChanged: (value) {
                                 print('commonTextField $value');
                               }),
@@ -844,9 +882,10 @@ class _RegisterSectionState extends State<RegisterSection> {
                         SizedBox(
                           width: 140,
                           child: commonTextField(
-                              label: "Enter Amount",
-                              focusNode: openingFloatPaymentFocusNode,
-                              controller: openingFloatPaymentTextController,
+                              label: "Enter Count",
+                              readOnly: true,
+                              focusNode: cardSlipCountFocusNode,
+                              controller: cardSlipCountTextController,
                               onValueChanged: (value) {
                                 print('commonTextField $value');
                               }),
@@ -876,6 +915,7 @@ class _RegisterSectionState extends State<RegisterSection> {
                           width: 140,
                           child: commonTextField(
                               label: "Enter Amount",
+                              readOnly: true,
                               focusNode: upiPaymentFocusNode,
                               controller: upiPaymentTextController,
                               onValueChanged: (value) {
@@ -886,9 +926,10 @@ class _RegisterSectionState extends State<RegisterSection> {
                         SizedBox(
                           width: 140,
                           child: commonTextField(
-                              label: "Enter Amount",
-                              focusNode: openingFloatPaymentFocusNode,
-                              controller: openingFloatPaymentTextController,
+                              label: "Enter Count",
+                              readOnly: true,
+                              focusNode: upiSlipCountFocusNode,
+                              controller: upiSlipCountTextController,
                               onValueChanged: (value) {
                                 print('commonTextField $value');
                               }),

@@ -14,4 +14,5 @@ class SharedPreferenceConstants {
   static final cartId = 'cartId';
   static final sessionCustomerNumber = 'sessionCustomerNumber';
   static final sessionCustomerName = 'sessionCustomerName';
+  static final registerId = 'registerId';
 }

@@ -103,10 +103,10 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
         outletList.add(i.name);
       }
       selectedOutletId = response.outletDetails.first.outletId;
-      GetStorageHelper.save(
-          SharedPreferenceConstants.selectedOutletId, response.outletDetails.first.outletId);
-      GetStorageHelper.save(
-          SharedPreferenceConstants.selectedOutletName, response.outletDetails.first.name);
+      GetStorageHelper.save(SharedPreferenceConstants.selectedOutletId,
+          response.outletDetails.first.outletId);
+      GetStorageHelper.save(SharedPreferenceConstants.selectedOutletName,
+          response.outletDetails.first.name);
       emit(LoginSuccess());
     } catch (error) {
       emit(LoginFailure(error.toString()));
@@ -117,14 +117,17 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       LogoutButtonPressed event, Emitter<LoginState> emit) async {
     emit(LoginLoading());
     try {
-     var selectedOutlet =
+      var selectedOutlet =
           GetStorageHelper.read(SharedPreferenceConstants.selectedOutletId);
       var selectedTerminal =
           GetStorageHelper.read(SharedPreferenceConstants.selectedTerminalId);
       var selectedPosMode =
           GetStorageHelper.read(SharedPreferenceConstants.selectedPosMode);
-      final LogoutResponse response =
-          await _loginRepository.logout(request: LogoutRequest(outletId: selectedOutlet, terminalId: selectedTerminal, posMode: selectedPosMode));
+      final LogoutResponse response = await _loginRepository.logout(
+          request: LogoutRequest(
+              outletId: selectedOutlet,
+              terminalId: selectedTerminal,
+              posMode: selectedPosMode));
 
       _sharedPreferenceHelper.clearAll();
       GetStorageHelper.clear();
@@ -161,10 +164,10 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
           }
         }
         selectedTerminalId = response.terminals?.first.terminalId ?? '';
-        GetStorageHelper.save(
-            SharedPreferenceConstants.selectedTerminalId, response.terminals?.first.terminalId);
-        GetStorageHelper.save(
-            SharedPreferenceConstants.selectedTerminalName, response.terminals?.first.terminalName);
+        GetStorageHelper.save(SharedPreferenceConstants.selectedTerminalId,
+            response.terminals?.first.terminalId);
+        GetStorageHelper.save(SharedPreferenceConstants.selectedTerminalName,
+            response.terminals?.first.terminalName);
       }
       final allowedPosModes = response.allowedPosModes;
       if (allowedPosModes != null) {
@@ -193,7 +196,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     }
     print('selected terminal ${event.terminalName}');
     GetStorageHelper.save(
-          SharedPreferenceConstants.selectedTerminalName, event.terminalName);
+        SharedPreferenceConstants.selectedTerminalName, event.terminalName);
     GetStorageHelper.save(
         SharedPreferenceConstants.selectedTerminalId, selectedTerminalId);
   }
@@ -210,8 +213,10 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
               userId: userId ?? '',
               posMode: selectedPosMode));
       _sharedPreferenceHelper.storeLoginStatus(true);
-      GetStorageHelper.save(
-          SharedPreferenceConstants.customerProxyNumber, response.outletDetails?.outletCustomerProxyPhoneNumber);
+      GetStorageHelper.save(SharedPreferenceConstants.customerProxyNumber,
+          response.outletDetails?.outletCustomerProxyPhoneNumber);
+      GetStorageHelper.save(SharedPreferenceConstants.registerId,
+          response.registerDetails?.registerId ?? "");
       emit(SubmitTerminalDetailsSuccess());
     } catch (error) {
       emit(SubmitTerminalDetailsFailure(error.toString()));

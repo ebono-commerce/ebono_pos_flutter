@@ -18,7 +18,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  int _selectedButton = 2;
+  //int _selectedButton = 2;
 
   // bool isOnline = false;
   late String port;
@@ -44,9 +44,10 @@ class _HomePageState extends State<HomePage> {
                   TextButton(
                     style: TextButton.styleFrom(
                       padding: EdgeInsets.only(left: 10, right: 5),
-                      backgroundColor: _selectedButton == 1
-                          ? Colors.white
-                          : Colors.grey.shade100,
+                      backgroundColor:
+                          homeController.selectedTabButton.value == 1
+                              ? Colors.white
+                              : Colors.grey.shade100,
                       foregroundColor: Colors.black,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
@@ -54,7 +55,9 @@ class _HomePageState extends State<HomePage> {
                     ),
                     onPressed: () {
                       setState(() {
-                        _selectedButton = 1;
+                        homeController.selectedTabButton.value = 1;
+                        print(
+                            "selectedTabButton H: ${homeController.selectedTabButton.value}");
                       });
                     },
                     child: Row(
@@ -67,7 +70,7 @@ class _HomePageState extends State<HomePage> {
                               ?.copyWith(),
                           //   style: TextStyle(color: Colors.black),
                         ),
-                        _selectedButton == 1
+                        homeController.selectedTabButton.value == 1
                             ? Container(
                                 margin: EdgeInsets.only(left: 5),
                                 decoration: BoxDecoration(
@@ -87,9 +90,10 @@ class _HomePageState extends State<HomePage> {
                   TextButton(
                     style: TextButton.styleFrom(
                       padding: EdgeInsets.only(left: 10, right: 5),
-                      backgroundColor: _selectedButton == 2
-                          ? Colors.white
-                          : Colors.grey.shade100,
+                      backgroundColor:
+                          homeController.selectedTabButton.value == 2
+                              ? Colors.white
+                              : Colors.grey.shade100,
                       foregroundColor: Colors.black,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
@@ -97,7 +101,7 @@ class _HomePageState extends State<HomePage> {
                     ),
                     onPressed: () {
                       setState(() {
-                        _selectedButton = 2;
+                        homeController.selectedTabButton.value = 2;
                       });
                     },
                     child: Row(
@@ -110,7 +114,7 @@ class _HomePageState extends State<HomePage> {
                               ?.copyWith(),
                           // style: TextStyle(color: Colors.black),
                         ),
-                        _selectedButton == 2
+                        homeController.selectedTabButton.value == 2
                             ? Container(
                                 margin: EdgeInsets.only(left: 5),
                                 decoration: BoxDecoration(
@@ -130,9 +134,10 @@ class _HomePageState extends State<HomePage> {
                   TextButton(
                     style: TextButton.styleFrom(
                       padding: EdgeInsets.only(left: 10, right: 5),
-                      backgroundColor: _selectedButton == 3
-                          ? Colors.white
-                          : Colors.grey.shade100,
+                      backgroundColor:
+                          homeController.selectedTabButton.value == 3
+                              ? Colors.white
+                              : Colors.grey.shade100,
                       foregroundColor: Colors.black,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
@@ -140,7 +145,7 @@ class _HomePageState extends State<HomePage> {
                     ),
                     onPressed: () {
                       setState(() {
-                        _selectedButton = 3;
+                        homeController.selectedTabButton.value = 3;
                       });
                     },
                     child: Row(
@@ -153,7 +158,7 @@ class _HomePageState extends State<HomePage> {
                               ?.copyWith(),
                           //  style: TextStyle(color: Colors.black),
                         ),
-                        _selectedButton == 3
+                        homeController.selectedTabButton.value == 3
                             ? Container(
                                 margin: EdgeInsets.only(left: 5),
                                 decoration: BoxDecoration(
@@ -174,11 +179,11 @@ class _HomePageState extends State<HomePage> {
               ),
               homeController: homeController)),
       body: Center(
-        child: _selectedButton == 1
-            ? RegisterSection()
-            : _selectedButton == 2
+        child: homeController.selectedTabButton.value == 1
+            ? RegisterSection(homeController)
+            : homeController.selectedTabButton.value == 2
                 ? OrdersSection(homeController)
-                : _selectedButton == 3
+                : homeController.selectedTabButton.value == 3
                     ? OrderOnHold()
                     : Container(),
       ),

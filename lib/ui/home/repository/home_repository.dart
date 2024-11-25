@@ -11,7 +11,10 @@ import 'package:kpn_pos_application/ui/home/model/customer_details_response.dart
 import 'package:kpn_pos_application/ui/home/model/customer_request.dart';
 import 'package:kpn_pos_application/ui/home/model/delete_cart.dart';
 import 'package:kpn_pos_application/ui/home/model/general_success_response.dart';
+import 'package:kpn_pos_application/ui/home/model/open_register_response.dart';
 import 'package:kpn_pos_application/ui/home/model/phone_number_request.dart';
+import 'package:kpn_pos_application/ui/home/model/register_close_request.dart';
+import 'package:kpn_pos_application/ui/home/model/register_open_request.dart';
 import 'package:kpn_pos_application/ui/home/model/resume_hold_cart_request.dart';
 import 'package:kpn_pos_application/ui/home/model/update_cart.dart';
 import 'package:kpn_pos_application/ui/payment_summary/model/health_check_response.dart';
@@ -172,6 +175,35 @@ class HomeRepository {
       final healthCheckResponse =
           healthCheckResponseFromJson(jsonEncode(response));
       return healthCheckResponse;
+    } catch (e) {
+      throw Exception('Failed to parse data');
+    }
+  }
+
+  Future<OpenRegisterResponse> openRegister(RegisterOpenRequest request) async {
+    try {
+      final response = await _apiHelper.post(
+        ApiConstants.openRegister,
+        data: request.toJson(),
+      );
+      final openRegisterResponse =
+          openRegisterResponseFromJson(jsonEncode(response));
+      return openRegisterResponse;
+    } catch (e) {
+      throw Exception('Failed to parse data');
+    }
+  }
+
+  Future<GeneralSuccessResponse> closeRegister(
+      RegisterCloseRequest request) async {
+    try {
+      final response = await _apiHelper.post(
+        ApiConstants.closeRegister,
+        data: request.toJson(),
+      );
+      final generalResponse =
+          generalSuccessResponseFromJson(jsonEncode(response));
+      return generalResponse;
     } catch (e) {
       throw Exception('Failed to parse data');
     }
