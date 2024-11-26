@@ -84,7 +84,7 @@ class HomeController extends GetxController {
 
   @override
   void onInit() async {
-    // _checkConnectivity();
+    _checkConnectivity();
     portName.value = await sharedPreferenceHelper.getPortName() ?? '';
     selectedOutlet.value =
         GetStorageHelper.read(SharedPreferenceConstants.selectedOutletName);
@@ -144,12 +144,12 @@ class HomeController extends GetxController {
     switch (result) {
       case ConnectivityResult.wifi:
         print('ConnectivityResult.wifi  ${isOnline.value}');
-        // healthCheckApiCall();
+        healthCheckApiCall();
         _connectionStatus.value = 'Connected to WiFi';
         break;
       case ConnectivityResult.ethernet:
         print('ConnectivityResult.ethernet  ${isOnline.value}');
-        // healthCheckApiCall();
+        healthCheckApiCall();
         _connectionStatus.value = 'Connected to Ethernet';
         break;
       case ConnectivityResult.mobile:
@@ -418,21 +418,24 @@ class HomeController extends GetxController {
 
   Future<void> healthCheckApiCall() async {
     print("API healthCheckApiCall: ");
+
     _statusCheckTimer = Timer.periodic(Duration(seconds: 5), (timer) async {
       try {
-        var response = await _homeRepository.healthCheckApiCall();
-        healthCheckResponse.value = response;
-        if (healthCheckResponse.value.statusCode != 200) {
-          timer.cancel();
-          isOnline.value = false;
-          print("API healthCheckApiCall:  ${isOnline.value}");
-        } else {
-          print(
-              "API healthCheckApiCall: ${healthCheckResponse.value.statusCode}");
-          isOnline.value = true;
-          print("API healthCheckApiCall:  ${isOnline.value}");
-
-          // healthCheckApiCall();
+        var loginStatus = await sharedPreferenceHelper.getLoginStatus();
+        if (loginStatus == true) {
+          var response = await _homeRepository.healthCheckApiCall();
+          healthCheckResponse.value = response;
+          if (healthCheckResponse.value.statusCode != 200) {
+            timer.cancel();
+            isOnline.value = false;
+            print("API healthCheckApiCall:  ${isOnline.value}");
+          } else {
+            print(
+                "API healthCheckApiCall: ${healthCheckResponse.value.statusCode}");
+            healthCheckApiCall();
+            isOnline.value = true;
+            print("API healthCheckApiCall:  ${isOnline.value}");
+          }
         }
       } catch (e) {
         print("Error $e");
