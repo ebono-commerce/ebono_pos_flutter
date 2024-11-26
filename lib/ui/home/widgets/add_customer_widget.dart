@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:kpn_pos_application/constants/custom_colors.dart';
 import 'package:kpn_pos_application/ui/custom_keyboard/custom_querty_pad.dart';
@@ -6,8 +7,9 @@ import 'package:kpn_pos_application/ui/home/home_controller.dart';
 
 class AddCustomerWidget extends StatefulWidget {
   final HomeController homeController;
+  final BuildContext dialogContext;
 
-  const AddCustomerWidget(this.homeController, {super.key});
+  const AddCustomerWidget(this.homeController, this.dialogContext, {super.key});
 
   @override
   State<AddCustomerWidget> createState() => _AddCustomerWidgetState();
@@ -33,8 +35,10 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
     });
 
     ever(homeController.customerResponse, (value) {
-      if(value.phoneNumber != null){
-        Navigator.pop(context);
+      if (value.phoneNumber != null) {
+        if (widget.dialogContext.mounted) {
+          Navigator.pop(widget.dialogContext);
+        }
       }
     });
 
@@ -48,7 +52,6 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
           activeFocusNode = phoneNumberFocusNode;
         }
         _qwertyPadController.text = _controllerPhoneNumber.text;
-
       });
     });
 
@@ -58,23 +61,21 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
           activeFocusNode = customerNameFocusNode;
         }
         _qwertyPadController.text = _controllerCustomerName.text;
-
       });
     });
 
     _qwertyPadController.addListener(() {
       setState(() {
-        if (_qwertyPadController.text.isNotEmpty) {
-          if (activeFocusNode == phoneNumberFocusNode) {
-            _controllerPhoneNumber.text = _qwertyPadController.text;
-          } else if (activeFocusNode == customerNameFocusNode) {
-            _controllerCustomerName.text = _qwertyPadController.text;
-          }
+        //if (_qwertyPadController.text.isNotEmpty) {
+        if (activeFocusNode == phoneNumberFocusNode) {
+          _controllerPhoneNumber.text = _qwertyPadController.text;
+        } else if (activeFocusNode == customerNameFocusNode) {
+          _controllerCustomerName.text = _qwertyPadController.text;
         }
+        //}
       });
     });
   }
-
 
   /*@override
   void dispose() {
@@ -138,12 +139,32 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
     return Obx(() {
       return Column(
         children: [
+          SizedBox(width: 900,
+          child:  Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            mainAxisSize: MainAxisSize.max,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(right: 18.0, top: 18),
+                child: InkWell(
+                  onTap: () {
+                    Navigator.pop(widget.dialogContext);
+                  },
+                  child: SvgPicture.asset(
+                    'assets/images/ic_close.svg',
+                    semanticsLabel: 'cash icon,',
+                    width: 30,
+                    height: 30,
+                  ),
+                ),
+              ),
+            ],
+          ),),
           SizedBox(
             width: 400,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                const SizedBox(height: 30),
                 Text(
                   "Add customer details",
                   style: theme.textTheme.titleLarge?.copyWith(
@@ -216,7 +237,7 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
                   homeController.customerName.value = value;
                 }
               },
-              onEnterPressed: (value){
+              onEnterPressed: (value) {
                 if (activeFocusNode == phoneNumberFocusNode) {
                   customerNameFocusNode.requestFocus();
                 } else if (activeFocusNode == customerNameFocusNode) {
@@ -325,7 +346,8 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
       padding: EdgeInsets.symmetric(horizontal: 5.0, vertical: 5),
       child: ElevatedButton(
         onPressed: () {
-          homeController.phoneNumber.value = homeController.customerProxyNumber.value;
+          homeController.phoneNumber.value =
+              homeController.customerProxyNumber.value;
           homeController.customerName.value = 'Admin';
 
           homeController.fetchCustomer();
@@ -334,16 +356,16 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
           elevation: 1,
           padding: EdgeInsets.symmetric(horizontal: 1, vertical: 20),
           shape: RoundedRectangleBorder(
-            side: BorderSide(color: Color(0xFF066A69)),
+            side: BorderSide(color: CustomColors.primaryColor),
             borderRadius: BorderRadius.circular(10),
           ),
-          backgroundColor: Color(0xFFF0F4F4),
+          backgroundColor: CustomColors.keyBoardBgColor,
         ),
         child: Center(
           child: Text(
             "Continue Without Customer Number",
             style: TextStyle(
-                color: Color(0xFF066A69),
+                color: CustomColors.primaryColor,
                 fontSize: 14,
                 fontWeight: FontWeight.bold),
           ),

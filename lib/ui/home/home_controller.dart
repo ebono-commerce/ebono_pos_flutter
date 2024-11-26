@@ -74,13 +74,17 @@ class HomeController extends GetxController {
   final int timeout = 1000;
   var generalSuccessResponse = GeneralSuccessResponse().obs;
   var healthCheckResponse = HealthCheckResponse().obs;
+
   var openRegisterResponse = OpenRegisterResponse().obs;
   var closeRegisterResponse = GeneralSuccessResponse().obs;
-
   RxString _connectionStatus = 'Unknown'.obs;
   var isOnline = false.obs;
-
   final Connectivity _connectivity = Connectivity();
+  var isQuantityEditEnabled = ''.obs;
+  var isLineDeleteEnabled = ''.obs;
+  var isEnableHoldCartEnabled = ''.obs;
+  var isPriceEditEnabled = ''.obs;
+  var isSalesAssociateLinkEnabled = ''.obs;
 
   @override
   void onInit() async {
@@ -102,6 +106,17 @@ class HomeController extends GetxController {
 
     print('selectedTerminal  $selectedTerminal');
     print('selectedOutlet  $selectedOutlet');
+
+    isQuantityEditEnabled.value =
+        GetStorageHelper.read(SharedPreferenceConstants.isQuantityEditEnabled);
+    isLineDeleteEnabled.value =
+        GetStorageHelper.read(SharedPreferenceConstants.isLineDeleteEnabled);
+    isEnableHoldCartEnabled.value = GetStorageHelper.read(
+        SharedPreferenceConstants.isEnableHoldCartEnabled);
+    isPriceEditEnabled.value =
+        GetStorageHelper.read(SharedPreferenceConstants.isPriceEditEnabled);
+    isSalesAssociateLinkEnabled.value = GetStorageHelper.read(
+        SharedPreferenceConstants.isSalesAssociateLinkEnabled);
     final userDetailsData =
         GetStorageHelper.read(SharedPreferenceConstants.userDetails);
     if (userDetailsData != null && userDetailsData is Map<String, dynamic>) {
@@ -381,7 +396,12 @@ class HomeController extends GetxController {
     try {
       var response = await _homeRepository.clearFullCart(cartId.value);
       cartResponse.value = response;
-      fetchCartDetails();
+      cartId.value = '';
+      getCustomerDetailsResponse.value = CustomerDetailsResponse();
+      customerName.value = '';
+      phoneNumber.value = '';
+      cartLines.value = [];
+      Get.snackbar('Cart cleared successfully', 'All items removed');
     } catch (e) {
       print("Error $e");
     } finally {
@@ -390,12 +410,17 @@ class HomeController extends GetxController {
   }
 
   Future<void> holdCartApiCall() async {
-    print("API holdCartApiCall: ");
     try {
       var response = await _homeRepository.holdCart(
           cartId.value, PhoneNumberRequest(phoneNumber: phoneNumber.value));
       generalSuccessResponse.value = response;
-      fetchCartDetails();
+      cartId.value = '';
+      getCustomerDetailsResponse.value = CustomerDetailsResponse();
+      customerName.value = '';
+      phoneNumber.value = '';
+      cartLines.value = [];
+      cartResponse.value = CartResponse();
+      Get.snackbar('Cart held successfully', 'Cart saved for later!');
     } catch (e) {
       print("Error $e");
     } finally {
@@ -404,7 +429,6 @@ class HomeController extends GetxController {
   }
 
   Future<void> resumeHoldCartApiCall() async {
-    print("API resumeHoldCartApiCall: ");
     try {
       var response = await _homeRepository.resumeHoldCart(
           cartId.value, ResumeHoldCartRequest(terminalId: "", holdCartId: ""));
@@ -418,8 +442,8 @@ class HomeController extends GetxController {
 
   Future<void> healthCheckApiCall() async {
     print("API healthCheckApiCall: ");
+    _statusCheckTimer = Timer.periodic(Duration(seconds: 60), (timer) async {
 
-    _statusCheckTimer = Timer.periodic(Duration(seconds: 5), (timer) async {
       try {
         var loginStatus = await sharedPreferenceHelper.getLoginStatus();
         if (loginStatus == true) {
@@ -534,7 +558,6 @@ class HomeController extends GetxController {
     _statusCheckTimer?.cancel();
     super.onClose();
   }
-
 /*
   Login:
 9999912343

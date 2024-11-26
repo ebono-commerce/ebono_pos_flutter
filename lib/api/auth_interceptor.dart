@@ -17,6 +17,10 @@ class AuthInterceptor extends Interceptor {
     String? appUUID = await _sharedPreferenceHelper.getAppUUID();
 
     if (options.uri.path.contains('/api/3.0/p2p/')) {
+      options.baseUrl = ApiConstants.paymentBaseUrl;
+      options.headers['Content-Type'] = 'application/json';
+      options.headers['Accept'] = 'application/json, text/plain, */*';
+
       if (options.uri.path.contains('/status')) {
         options.path = ApiConstants.paymentApiStatus;
       } else if (options.uri.path.contains('/start')) {
@@ -24,18 +28,15 @@ class AuthInterceptor extends Interceptor {
       } else if (options.uri.path.contains('/cancel')) {
         options.path = ApiConstants.paymentApiCancel;
       }
-      options.baseUrl = ApiConstants.paymentBaseUrl;
-      options.headers['Content-Type'] = 'application/json';
-      options.headers['Accept'] = 'application/json, text/plain, */*';
+
     } else {
-      if (token != null && !options.uri.path.contains('/login')) {
+     if (token != null && !options.uri.path.contains('/login')) {
         options.headers['Authorization'] = 'Bearer $token';
       }
       if (appUUID != null) {
         options.headers['x-app-id'] = appUUID;
       }
     }
-
     print('app id : $appUUID');
     print('token $token');
     // Continue with the request
