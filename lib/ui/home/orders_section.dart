@@ -104,9 +104,6 @@ class _OrdersSectionState extends State<OrdersSection>
                               onPressed: () async {
                             setState(() {
                               homeController.selectedTabButton.value = 1;
-
-                              print(
-                                  "selectedTabButton: ${homeController.selectedTabButton.value}");
                             });
                           });
                         }
@@ -817,16 +814,20 @@ class _OrdersSectionState extends State<OrdersSection>
                           padding: const EdgeInsets.symmetric(horizontal: 8.0),
                           child: commonTextField(
                             label: ' Enter Code, Quantity ',
-                            focusNode: (homeController.cartId.value.isNotEmpty &&
-                                homeController.registerId.isNotEmpty)
-                                ? _numPadFocusNode:FocusNode(),
+                            focusNode:
+                                (homeController.cartId.value.isNotEmpty &&
+                                        homeController.registerId.isNotEmpty)
+                                    ? _numPadFocusNode
+                                    : FocusNode(),
                             readOnly: (homeController.cartId.value.isNotEmpty &&
                                     homeController.registerId.isNotEmpty)
                                 ? false
                                 : true,
-                            controller: (homeController.cartId.value.isNotEmpty &&
-                                homeController.registerId.isNotEmpty)
-                                ? _numPadTextController:TextEditingController(),
+                            controller:
+                                (homeController.cartId.value.isNotEmpty &&
+                                        homeController.registerId.isNotEmpty)
+                                    ? _numPadTextController
+                                    : TextEditingController(),
                           ),
                         ),
                         CustomNumPad(

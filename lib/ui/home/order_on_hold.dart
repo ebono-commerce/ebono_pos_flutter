@@ -1,820 +1,666 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:kpn_pos_application/constants/custom_colors.dart';
+import 'package:kpn_pos_application/ui/common_text_field.dart';
+import 'package:kpn_pos_application/ui/custom_keyboard/custom_num_pad.dart';
+import 'package:kpn_pos_application/ui/home/home_controller.dart';
+import 'package:kpn_pos_application/ui/home/widgets/quick_action_buttons.dart';
+import 'package:kpn_pos_application/utils/dash_line.dart';
 
 class OrderOnHold extends StatefulWidget {
-  const OrderOnHold({super.key});
+  final HomeController homeController;
+
+  const OrderOnHold(this.homeController, {super.key});
 
   @override
   State<OrderOnHold> createState() => _OrderOnHoldState();
 }
 
-class _OrderOnHoldState extends State<OrderOnHold> {
+class _OrderOnHoldState extends State<OrderOnHold> with WidgetsBindingObserver {
+  final FocusNode _numPadFocusNode = FocusNode();
+  final TextEditingController _numPadTextController = TextEditingController();
+
+  late HomeController homeController;
+
+  @override
+  void initState() {
+    if (mounted == true) {
+      homeController = widget.homeController;
+      _numPadFocusNode.requestFocus();
+    }
+    homeController.ordersOnHoldApiCall();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {});
+
+    super.initState();
+  }
+
+  // @override
+  // void didChangeAppLifecycleState(AppLifecycleState state) {
+  //   if (state == AppLifecycleState.resumed) {
+  //     homeController.ordersOnHoldApiCall();
+  //   }
+  // }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _numPadFocusNode.dispose();
+    _numPadTextController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          flex: 9, // 0.6 ratio
-          child: Container(
-              color: Colors.white,
-              padding: EdgeInsets.all(20),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildTitle(),
-                  Expanded(child: _buildTableView1(context)),
-                ],
-              )),
-        ),
-        Expanded(
-          flex: 1, // 0.1 ratio
-          child: _buildRightActionButtons(context),
-        ),
-      ],
-    );
-  }
-}
-
-Widget _buildTitle() {
-  return Container(
-    child: Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SizedBox(
-          height: 10,
-        ),
-        Text(
-          "Total 12 orders are on hold!",
-          style: TextStyle(
-              fontSize: 26, fontWeight: FontWeight.bold, color: Colors.black),
-        ),
-        SizedBox(
-          height: 10,
-        ),
-        Text(
-          "Resume orders to complete the sale",
-          style: TextStyle(
-              fontSize: 18, fontWeight: FontWeight.normal, color: Colors.grey),
-        ),
-        SizedBox(
-          height: 10,
-        ),
-      ],
-    ),
-  );
-}
-
-Widget _buildTableView1(BuildContext context) {
-  return Container(
-    padding: EdgeInsets.only(bottom: 2),
-    decoration: BoxDecoration(
-        border: Border.all(
-          color: Colors.grey.shade300,
-        ),
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(10),
-          topRight: Radius.circular(10),
-          bottomLeft: Radius.circular(10),
-          bottomRight: Radius.circular(10),
-        )),
-    child: Column(
-      children: [
-        //Table header
-        Table(
-          columnWidths: {
-            0: FlexColumnWidth(1),
-            1: FlexColumnWidth(2),
-            2: FlexColumnWidth(2),
-            3: FlexColumnWidth(2),
-            4: FlexColumnWidth(1),
-            5: FlexColumnWidth(2),
-            6: FlexColumnWidth(1),
-            7: FlexColumnWidth(1),
-          },
-          children: [
-            TableRow(
-              decoration: BoxDecoration(
-                  color: Colors.grey.shade300,
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(10),
-                    topRight: Radius.circular(10),
-                    bottomLeft: Radius.circular(0),
-                    bottomRight: Radius.circular(0),
-                  )), // Header background color
-              children: [
-                Padding(
-                    padding: const EdgeInsets.all(10.0),
-                    child: Text(
-                      "Cart Id",
-                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                          fontWeight: FontWeight.w100,
-                          color: CustomColors.greyFont),
-                    )),
-                Padding(
-                    padding: const EdgeInsets.all(10.0),
-                    child: Text(
-                      "Reserved Order Id",
-                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                          fontWeight: FontWeight.w100,
-                          color: CustomColors.greyFont),
-                    )),
-                Padding(
-                    padding: const EdgeInsets.all(10.0),
-                    child: Text(
-                      "Customer Name",
-                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                          fontWeight: FontWeight.w100,
-                          color: CustomColors.greyFont),
-                    )),
-                Padding(
-                    padding: const EdgeInsets.all(10.0),
-                    child: Text(
-                      "Customer Number",
-                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                          fontWeight: FontWeight.w100,
-                          color: CustomColors.greyFont),
-                    )),
-                Padding(
-                    padding: const EdgeInsets.all(10.0),
-                    child: Text(
-                      "Cashier",
-                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                          fontWeight: FontWeight.w100,
-                          color: CustomColors.greyFont),
-                    )),
-                Padding(
-                    padding: const EdgeInsets.all(10.0),
-                    child: Text(
-                      "Hold Date",
-                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                          fontWeight: FontWeight.w100,
-                          color: CustomColors.greyFont),
-                    )),
-                Padding(padding: const EdgeInsets.all(10.0), child: Text("")),
-                Padding(padding: const EdgeInsets.all(10.0), child: Text("")),
-              ],
-            ),
-          ],
-        ),
-        //ROW
-        Table(
-          border: TableBorder.symmetric(
-              outside: BorderSide(width: 1, color: Color(0xFFF7F7F7))),
-          // Optional: to add borders to the table
-
-          columnWidths: {
-            0: FlexColumnWidth(1),
-            1: FlexColumnWidth(2),
-            2: FlexColumnWidth(2),
-            3: FlexColumnWidth(2),
-            4: FlexColumnWidth(1),
-            5: FlexColumnWidth(2),
-            6: FlexColumnWidth(1),
-            7: FlexColumnWidth(1),
-          },
-          children: [
-            TableRow(
-              decoration: BoxDecoration(
-                  // color: Colors.grey.shade300,
-                  border: Border.all(color: Colors.grey.shade300, width: 1)),
-              // decoration: BoxDecoration(
-              //   color: Colors.white,
-              // ),
-              children: [
-                Container(
+    return Scaffold(
+        backgroundColor: Colors.white,
+        body: Center(
+          child: Row(
+            children: [
+              Expanded(
+                flex: 5,
+                child: Container(
                   color: Colors.white,
-                  padding: const EdgeInsets.all(6.0),
-                  child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        "#11122",
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        softWrap: true,
-                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                            fontWeight: FontWeight.w500,
-                            color: CustomColors.black),
-                      )),
-                ),
-                Container(
-                  color: Colors.white,
-                  padding: const EdgeInsets.all(6.0),
-                  child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        "#1231313",
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        softWrap: true,
-                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                            fontWeight: FontWeight.w500,
-                            color: CustomColors.black),
-                      )),
-                ),
-                Container(
-                  color: Colors.white,
-                  padding: const EdgeInsets.all(6.0),
-                  child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        "Shankar Lonare",
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        softWrap: true,
-                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                            fontWeight: FontWeight.w500,
-                            color: CustomColors.black),
-                      )),
-                ),
-                Container(
-                  color: Colors.white,
-                  padding: const EdgeInsets.all(6.0),
-                  child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        "+91 8871722186",
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        softWrap: true,
-                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                            fontWeight: FontWeight.w500,
-                            color: CustomColors.black),
-                      )),
-                ),
-                Container(
-                    color: Colors.white,
-                    padding: const EdgeInsets.all(6.0),
-                    child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text(
-                          "Akshay",
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          softWrap: true,
-                          style: Theme.of(context)
-                              .textTheme
-                              .labelLarge
-                              ?.copyWith(
-                                  fontWeight: FontWeight.w500,
-                                  color: CustomColors.black),
-                        ))),
-                Container(
-                  color: Colors.white,
-                  padding: const EdgeInsets.all(6.0),
-                  child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        "18 September 2024",
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        softWrap: true,
-                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                            fontWeight: FontWeight.w500,
-                            color: CustomColors.black),
-                      )),
-                ),
-                Container(
-                  color: Colors.white,
-                  padding: const EdgeInsets.all(6.0),
-                  child: SizedBox(
-                    width: 80,
-                    height: 36,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        {
-                          Get.defaultDialog(
-                              contentPadding: EdgeInsets.only(
-                                left: 10,
-                                right: 10,
-                              ),
-                              // Custom padding
-
-                              // contentPadding: EdgeInsets.all(0),
-                              title: '',
-                              // Empty title to remove space
-                              middleText: '',
-                              titlePadding: EdgeInsets.all(0),
-                              barrierDismissible: false,
-                              backgroundColor: Colors.white,
-                              content: _buildRemoveDialog());
-                        }
-                      },
-                      style: ElevatedButton.styleFrom(
-                          elevation: 1,
-                          padding:
-                              EdgeInsets.symmetric(horizontal: 1, vertical: 4),
-                          shape: RoundedRectangleBorder(
-                            side: BorderSide.none,
-                            borderRadius: BorderRadius.circular(5),
-                          ),
-                          backgroundColor: Colors.green),
-                      child: Text(
-                        "    Resume    ",
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ),
-                ),
-                Container(
-                  color: Colors.white,
-                  padding: const EdgeInsets.all(6.0),
-                  child: SizedBox(
-                    width: 80,
-                    height: 36,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        {
-                          Get.defaultDialog(
-                              contentPadding: EdgeInsets.only(
-                                left: 10,
-                                right: 10,
-                              ),
-                              // Custom padding
-
-                              // contentPadding: EdgeInsets.all(0),
-                              title: '',
-                              // Empty title to remove space
-                              middleText: '',
-                              titlePadding: EdgeInsets.all(0),
-                              barrierDismissible: false,
-                              backgroundColor: Colors.white,
-                              content: _buildRemoveDialog());
-                        }
-                      },
-                      style: ElevatedButton.styleFrom(
-                          elevation: 1,
-                          padding:
-                              EdgeInsets.symmetric(horizontal: 1, vertical: 4),
-                          shape: RoundedRectangleBorder(
-                            side: BorderSide.none,
-                            borderRadius: BorderRadius.circular(5),
-                          ),
-                          backgroundColor: Colors.red),
-                      child: Text(
-                        "    Delete    ",
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-        Table(
-          border: TableBorder.symmetric(
-              outside: BorderSide(width: 1, color: Color(0xFFF7F7F7))),
-          // Optional: to add borders to the table
-
-          columnWidths: {
-            0: FlexColumnWidth(1),
-            1: FlexColumnWidth(2),
-            2: FlexColumnWidth(2),
-            3: FlexColumnWidth(2),
-            4: FlexColumnWidth(1),
-            5: FlexColumnWidth(2),
-            6: FlexColumnWidth(1),
-            7: FlexColumnWidth(1),
-          },
-          children: [
-            TableRow(
-              decoration: BoxDecoration(
-                  // color: Colors.grey.shade300,
-                  border: Border.all(color: Colors.grey.shade300, width: 1)),
-              // decoration: BoxDecoration(
-              //   color: Colors.white,
-              // ),
-              children: [
-                Container(
-                  color: Colors.white,
-                  padding: const EdgeInsets.all(6.0),
-                  child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        "#11122",
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        softWrap: true,
-                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                            fontWeight: FontWeight.w500,
-                            color: CustomColors.black),
-                      )),
-                ),
-                Container(
-                  color: Colors.white,
-                  padding: const EdgeInsets.all(6.0),
-                  child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        "#1231313",
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        softWrap: true,
-                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                            fontWeight: FontWeight.w500,
-                            color: CustomColors.black),
-                      )),
-                ),
-                Container(
-                  color: Colors.white,
-                  padding: const EdgeInsets.all(6.0),
-                  child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        "Shankar Lonare",
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        softWrap: true,
-                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                            fontWeight: FontWeight.w500,
-                            color: CustomColors.black),
-                      )),
-                ),
-                Container(
-                  color: Colors.white,
-                  padding: const EdgeInsets.all(6.0),
-                  child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        "+91 8871722186",
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        softWrap: true,
-                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                            fontWeight: FontWeight.w500,
-                            color: CustomColors.black),
-                      )),
-                ),
-                Container(
-                    color: Colors.white,
-                    padding: const EdgeInsets.all(6.0),
-                    child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text(
-                          "Akshay",
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          softWrap: true,
-                          style: Theme.of(context)
-                              .textTheme
-                              .labelLarge
-                              ?.copyWith(
-                                  fontWeight: FontWeight.w500,
-                                  color: CustomColors.black),
-                        ))),
-                Container(
-                  color: Colors.white,
-                  padding: const EdgeInsets.all(6.0),
-                  child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        "18 September 2024",
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        softWrap: true,
-                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                            fontWeight: FontWeight.w500,
-                            color: CustomColors.black),
-                      )),
-                ),
-                Container(
-                  color: Colors.white,
-                  padding: const EdgeInsets.all(6.0),
-                  child: SizedBox(
-                    width: 80,
-                    height: 36,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        {
-                          Get.defaultDialog(
-                              contentPadding: EdgeInsets.only(
-                                left: 10,
-                                right: 10,
-                              ),
-                              // Custom padding
-
-                              // contentPadding: EdgeInsets.all(0),
-                              title: '',
-                              // Empty title to remove space
-                              middleText: '',
-                              titlePadding: EdgeInsets.all(0),
-                              barrierDismissible: false,
-                              backgroundColor: Colors.white,
-                              content: _buildRemoveDialog());
-                        }
-                      },
-                      style: ElevatedButton.styleFrom(
-                          elevation: 1,
-                          padding:
-                              EdgeInsets.symmetric(horizontal: 1, vertical: 4),
-                          shape: RoundedRectangleBorder(
-                            side: BorderSide.none,
-                            borderRadius: BorderRadius.circular(5),
-                          ),
-                          backgroundColor: Colors.green),
-                      child: Text(
-                        "    Resume    ",
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ),
-                ),
-                Container(
-                  color: Colors.white,
-                  padding: const EdgeInsets.all(6.0),
-                  child: SizedBox(
-                    width: 80,
-                    height: 36,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        {
-                          Get.defaultDialog(
-                              contentPadding: EdgeInsets.only(
-                                left: 10,
-                                right: 10,
-                              ),
-                              // Custom padding
-
-                              // contentPadding: EdgeInsets.all(0),
-                              title: '',
-                              // Empty title to remove space
-                              middleText: '',
-                              titlePadding: EdgeInsets.all(0),
-                              barrierDismissible: false,
-                              backgroundColor: Colors.white,
-                              content: _buildRemoveDialog());
-                        }
-                      },
-                      style: ElevatedButton.styleFrom(
-                          elevation: 1,
-                          padding:
-                              EdgeInsets.symmetric(horizontal: 1, vertical: 4),
-                          shape: RoundedRectangleBorder(
-                            side: BorderSide.none,
-                            borderRadius: BorderRadius.circular(5),
-                          ),
-                          backgroundColor: Colors.red),
-                      child: Text(
-                        "    Delete    ",
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ],
-    ),
-  );
-}
-
-Widget _buildRightActionButtons(BuildContext context) {
-  return Center(
-    child: Container(
-        padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-        color: Colors.white,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Expanded(
-              child: Column(
-                children: [
-                  _buidButton("Customer", context),
-                  _buidButton("Search items", context),
-                  _buidButton("Inventory inquiry", context),
-                  _buidButton("Coupons", context),
-                  _buidButton("Sales Associate", context)
-                ],
-              ),
-            ),
-            _buidButton("Hold cart", context)
-          ],
-        )),
-  );
-}
-
-Widget _buidButton(String label, BuildContext context) {
-  return Container(
-    width: 200,
-    height: 80,
-    padding: EdgeInsets.symmetric(horizontal: 5.0, vertical: 10),
-    child: ElevatedButton(
-      onPressed: () {
-        // Respond to button press
-      },
-      style: ElevatedButton.styleFrom(
-        elevation: 1,
-        padding: EdgeInsets.symmetric(horizontal: 1, vertical: 20),
-        shape: RoundedRectangleBorder(
-          side: BorderSide(color: CustomColors.primaryColor, width: 1.5),
-          borderRadius: BorderRadius.circular(10),
-        ),
-        backgroundColor: Color(0xFFF0F4F4),
-      ),
-      child: Center(
-        child: Text(label,
-            style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                fontWeight: FontWeight.w600, color: CustomColors.primaryColor)
-            // style: TextStyle(
-            //     color: Color(0xFF066A69),
-            //     fontSize: 14,
-            //     fontWeight: FontWeight.normal),
-            ),
-      ),
-    ),
-  );
-}
-
-Widget _buildRemoveDialog() {
-  return Container(
-    child: Column(
-      children: [
-        Container(
-          // padding: EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            color: Color(0xFFF8F8F8),
-            border: Border.all(color: Colors.grey.shade300),
-            borderRadius: BorderRadius.circular(10),
-            shape: BoxShape.rectangle,
-          ),
-          //color: Color(0xFFF8F8F8),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
+                  padding: EdgeInsets.all(10),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      RichText(
-                        text: TextSpan(
-                          children: <TextSpan>[
-                            TextSpan(
-                              text: 'Order Id:  ',
-                              style: TextStyle(
-                                  color: Colors.black87,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w400),
-                            ),
-                            TextSpan(
-                              text: '#33444441',
-                              style: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold),
-                            ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(height: 5),
-                      RichText(
-                        text: TextSpan(
-                          children: <TextSpan>[
-                            TextSpan(
-                              text: 'Customer Number:  ',
-                              style: TextStyle(
-                                  color: Colors.black87,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w400),
-                            ),
-                            TextSpan(
-                              text: '+91 8871722186',
-                              style: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold),
-                            ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(height: 5),
-                      RichText(
-                        text: TextSpan(
-                          children: <TextSpan>[
-                            TextSpan(
-                              text: 'Customer Name:  ',
-                              style: TextStyle(
-                                  color: Colors.black87,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w400),
-                            ),
-                            TextSpan(
-                              text: 'Shankar Lonare',
-                              style: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold),
-                            ),
-                          ],
-                        ),
-                      ),
+                      _buildTitle(),
+                      Expanded(
+                          child: _buildTableView1(context, homeController)),
                     ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        SizedBox(
-          height: 20,
-        ),
-        Container(
-          padding: EdgeInsets.symmetric(horizontal: 20),
-          child: Text(
-            "Are you sure you want to Delete the order?",
-            softWrap: true,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(fontWeight: FontWeight.w600),
-          ),
-        ),
-        SizedBox(
-          height: 20,
-        ),
-        Container(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Expanded(
-                flex: 1,
-                child: Container(
-                  padding:
-                      EdgeInsets.only(left: 4, right: 4, top: 10, bottom: 4),
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Get.back();
-                    },
-                    style: ElevatedButton.styleFrom(
-                        elevation: 1,
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 1, vertical: 20),
-                        shape: RoundedRectangleBorder(
-                          side: BorderSide.none,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        backgroundColor: Colors.green),
-                    child: Text(
-                      "    Yes, Delete    ",
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold),
-                    ),
                   ),
                 ),
               ),
               Expanded(
+                flex: 2,
+                child: Center(child: _buildNumberPadSection(homeController)),
+              ),
+              Expanded(
                 flex: 1,
-                child: Container(
-                  padding:
-                      EdgeInsets.only(left: 4, right: 4, top: 10, bottom: 4),
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Get.back();
-                    },
-                    style: ElevatedButton.styleFrom(
-                        elevation: 1,
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 1, vertical: 20),
-                        shape: RoundedRectangleBorder(
-                          side: BorderSide.none,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        backgroundColor: Colors.red),
-                    child: Text(
-                      "    No, Cancel    ",
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold),
-                    ),
-                  ),
+                child: QuickActionButtons(
+                  color: Colors.white,
+                  onCustomerPressed: () {},
+                  onHoldCartPressed: () {},
+                  onSalesAssociatePressed: () {},
+                  onCouponsPressed: () {},
+                  onClearCartPressed: () {},
+                  onSearchItemsPressed: () {},
                 ),
               ),
             ],
           ),
-        )
-      ],
-    ),
-  );
+        ));
+  }
+
+  Widget _buildNumberPadSection(HomeController homeController) {
+    return Obx(() {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 5),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  border: Border.all(color: Colors.grey),
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(10),
+                    topRight: Radius.circular(10),
+                    bottomLeft: Radius.circular(10),
+                    bottomRight: Radius.circular(10),
+                  ),
+                  // borderRadius: BorderRadius.circular(
+                  //     10),
+                  shape: BoxShape.rectangle,
+                ),
+                child: Column(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(10.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Expanded(
+                            flex: 2,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Container(
+                                  padding: EdgeInsets.only(right: 2),
+                                  child: Text(" - ",
+                                      maxLines: 2,
+                                      softWrap: true,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                          overflow: TextOverflow.ellipsis,
+                                          color: Colors.black,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold)),
+                                ),
+                                SizedBox(height: 5),
+                                RichText(
+                                  text: TextSpan(
+                                    children: <TextSpan>[
+                                      TextSpan(
+                                        text: '- ',
+                                        style: TextStyle(
+                                            color: Colors.black87,
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w400),
+                                      ),
+                                      TextSpan(
+                                        text: homeController
+                                                    .scanProductsResponse
+                                                    .value
+                                                    .salesUom
+                                                    ?.isNotEmpty ==
+                                                true
+                                            ? '-'
+                                            : " - ",
+                                        style: TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                      TextSpan(
+                                        text: " - ",
+                                        style: TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.normal),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                SizedBox(height: 5),
+                                RichText(
+                                  text: TextSpan(
+                                    children: <TextSpan>[
+                                      TextSpan(
+                                        text: '-',
+                                        style: TextStyle(
+                                            color: Colors.black87,
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w400),
+                                      ),
+                                      TextSpan(
+                                        text: ' - ',
+                                        style: TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Container(
+                              padding: EdgeInsets.all(4),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                border: Border.all(color: Colors.grey.shade300),
+                                borderRadius: BorderRadius.circular(10),
+                                shape: BoxShape.rectangle,
+                              ),
+                              child: Image.network(
+                                '',
+                                cacheHeight: 50,
+                                cacheWidth: 50,
+                                errorBuilder: (BuildContext context,
+                                    Object error, StackTrace? stackTrace) {
+                                  return Center(
+                                    child: Container(
+                                      height: 50,
+                                      width: 50,
+                                      color: CustomColors.cardBackground,
+                                    ),
+                                  );
+                                },
+                              ))
+                        ],
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(
+                          bottom: 10, left: 10, right: 10),
+                      child: DashedLine(
+                        height: 0.4,
+                        dashWidth: 4,
+                        color: Colors.grey,
+                      ),
+                    ),
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                          child: commonTextField(
+                            label: ' Enter Code, Quantity ',
+                            focusNode:
+                                (homeController.cartId.value.isNotEmpty &&
+                                        homeController.registerId.isNotEmpty)
+                                    ? _numPadFocusNode
+                                    : FocusNode(),
+                            readOnly: (homeController.cartId.value.isNotEmpty &&
+                                    homeController.registerId.isNotEmpty)
+                                ? false
+                                : true,
+                            controller:
+                                (homeController.cartId.value.isNotEmpty &&
+                                        homeController.registerId.isNotEmpty)
+                                    ? _numPadTextController
+                                    : TextEditingController(),
+                          ),
+                        ),
+                        CustomNumPad(
+                          focusNode: _numPadFocusNode,
+                          textController: _numPadTextController,
+                          onEnterPressed: (text) {},
+                          onValueChanged: (text) {},
+                          onClearAll: (text) {
+                            print("onClearAll $text");
+
+                            homeController.clearScanData();
+                          },
+                        )
+                      ],
+                    ),
+                    SizedBox(
+                      height: 10,
+                    )
+                  ],
+                ),
+              ),
+            ),
+            Spacer(),
+            Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Container(
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    border: Border.all(color: Colors.grey),
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(10),
+                      topRight: Radius.circular(10),
+                      bottomLeft: Radius.circular(10),
+                      bottomRight: Radius.circular(10),
+                    ),
+                    // borderRadius: BorderRadius.circular(
+                    //     10),
+                    shape: BoxShape.rectangle,
+                  ),
+                  child: Column(
+                    children: [
+                      Container(
+                        padding: EdgeInsets.only(
+                            left: 10, right: 10, top: 5, bottom: 10),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  '-',
+                                  style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500),
+                                ),
+                                Text(
+                                  homeController.cartResponse.value.cartLines
+                                              ?.length !=
+                                          null
+                                      ? '${homeController.cartResponse.value.totalItems}'
+                                      : '-',
+                                  style: TextStyle(
+                                      color: Colors.black87,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600),
+                                ),
+                              ],
+                            ),
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  '-',
+                                  style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500),
+                                ),
+                                Text(
+                                  "-",
+                                  style: TextStyle(
+                                      color: Colors.black87,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        width: double.infinity,
+                        padding: EdgeInsets.only(
+                            left: 4, right: 4, top: 10, bottom: 4),
+                        child: ElevatedButton(
+                          onPressed: () {},
+                          style: ElevatedButton.styleFrom(
+                              elevation: 1,
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 1, vertical: 10),
+                              shape: RoundedRectangleBorder(
+                                side: BorderSide.none,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              backgroundColor: CustomColors.cardBackground),
+                          child: SizedBox(
+                            height: 56,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Text(
+                                  "-",
+                                  style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold),
+                                ),
+
+                                Text(
+                                  "-",
+                                  style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w400),
+                                ),
+                                // : Container(
+                                //     //height: 40,
+                                //     ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      )
+                    ],
+                  )),
+            ),
+          ],
+        ),
+      );
+    });
+  }
+
+  Widget _buildTitle() {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 10),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "Total ${homeController.ordersOnHold.length} ${homeController.ordersOnHold.length == 1 ? 'order is' : 'orders are'} on hold!",
+            style: TextStyle(
+                fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black),
+          ),
+          SizedBox(
+            height: 10,
+          ),
+          Text(
+            "Resume orders to complete the sale",
+            style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.normal,
+                color: Colors.grey),
+          ),
+          SizedBox(
+            height: 10,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTableView1(BuildContext context, HomeController homeController) {
+    return Container(
+      padding: EdgeInsets.only(bottom: 2),
+      margin: EdgeInsets.all(10),
+      decoration: BoxDecoration(
+          border: Border.all(
+            color: Colors.grey.shade300,
+          ),
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(10),
+            topRight: Radius.circular(10),
+            bottomLeft: Radius.circular(10),
+            bottomRight: Radius.circular(10),
+          )),
+      child: Column(
+        children: [
+          Table(
+            columnWidths: {
+              0: FlexColumnWidth(2),
+              1: FlexColumnWidth(2),
+              2: FlexColumnWidth(1),
+              3: FlexColumnWidth(2),
+              4: FlexColumnWidth(1),
+            },
+            children: [
+              TableRow(
+                decoration: BoxDecoration(
+                    color: Colors.grey.shade300,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(10),
+                      topRight: Radius.circular(10),
+                      bottomLeft: Radius.circular(0),
+                      bottomRight: Radius.circular(0),
+                    )), // Header background color
+                children: [
+                  Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: Text(
+                        "Customer Name",
+                        style: Theme.of(context)
+                            .textTheme
+                            .labelMedium
+                            ?.copyWith(
+                                fontWeight: FontWeight.w100,
+                                color: CustomColors.greyFont),
+                      )),
+                  Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: Text(
+                        "Customer Number",
+                        style: Theme.of(context)
+                            .textTheme
+                            .labelMedium
+                            ?.copyWith(
+                                fontWeight: FontWeight.w100,
+                                color: CustomColors.greyFont),
+                      )),
+                  Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: Text(
+                        "Cashier",
+                        style: Theme.of(context)
+                            .textTheme
+                            .labelMedium
+                            ?.copyWith(
+                                fontWeight: FontWeight.w100,
+                                color: CustomColors.greyFont),
+                      )),
+                  Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: Text(
+                        "Hold Date & Time",
+                        style: Theme.of(context)
+                            .textTheme
+                            .labelMedium
+                            ?.copyWith(
+                                fontWeight: FontWeight.w100,
+                                color: CustomColors.greyFont),
+                      )),
+                  Padding(padding: const EdgeInsets.all(10.0), child: Text("")),
+                ],
+              ),
+              ...homeController.ordersOnHold.map((itemData) {
+                return TableRow(
+                  decoration: BoxDecoration(
+                      border:
+                          Border.all(color: Colors.grey.shade300, width: 1)),
+                  children: [
+                    Container(
+                      color: Colors.white,
+                      padding: const EdgeInsets.all(8.0),
+                      child: Padding(
+                          padding: const EdgeInsets.all(10.0),
+                          child: Text(
+                            "${itemData.phoneNumber?.number}",
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            softWrap: true,
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelLarge
+                                ?.copyWith(
+                                    fontWeight: FontWeight.w500,
+                                    color: CustomColors.black),
+                          )),
+                    ),
+                    Container(
+                      color: Colors.white,
+                      padding: const EdgeInsets.all(8.0),
+                      child: Padding(
+                          padding: const EdgeInsets.all(10.0),
+                          child: Text(
+                            "${itemData.customer?.customerName}",
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            softWrap: true,
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelLarge
+                                ?.copyWith(
+                                    fontWeight: FontWeight.w500,
+                                    color: CustomColors.black),
+                          )),
+                    ),
+                    Container(
+                        color: Colors.white,
+                        padding: const EdgeInsets.all(8.0),
+                        child: Padding(
+                            padding: const EdgeInsets.all(10.0),
+                            child: Text(
+                              '${itemData.cashierDetails?.cashierName}',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              softWrap: true,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .labelLarge
+                                  ?.copyWith(
+                                      fontWeight: FontWeight.w500,
+                                      color: CustomColors.black),
+                            ))),
+                    Container(
+                      color: Colors.white,
+                      padding: const EdgeInsets.all(8.0),
+                      child: Padding(
+                          padding: const EdgeInsets.all(10.0),
+                          child: Text(
+                            "${formatDate(itemData.createdAt)}",
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            softWrap: true,
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelLarge
+                                ?.copyWith(
+                                    fontWeight: FontWeight.w500,
+                                    color: CustomColors.black),
+                          )),
+                    ),
+                    Container(
+                      width: 80,
+                      // decoration: BoxDecoration(
+                      //     color: Colors.white,
+                      //     borderRadius: BorderRadius.only(
+                      //       topLeft: Radius.circular(10),
+                      //       topRight: Radius.circular(10),
+                      //       bottomLeft: Radius.circular(10),
+                      //       bottomRight: Radius.circular(10),
+                      //     )),
+                      padding: const EdgeInsets.all(6.0),
+                      child: SizedBox(
+                        width: 80,
+                        height: 34,
+                        child: ElevatedButton(
+                          onPressed: itemData.holdCartId != ""
+                              ? () {
+                                  if (itemData.holdCartId != "") {
+                                    homeController.resumeHoldCartApiCall(
+                                        itemData.holdCartId);
+                                  }
+                                }
+                              : null,
+                          style: ElevatedButton.styleFrom(
+                              elevation: 1,
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 1, vertical: 4),
+                              shape: RoundedRectangleBorder(
+                                side: BorderSide.none,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              backgroundColor: CustomColors.secondaryColor),
+                          child: Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 2.0),
+                            child: Text(
+                              " Resume ",
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleSmall
+                                  ?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                      color: CustomColors.black),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              })
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+String formatDate(String? dateStr) {
+  DateTime date = DateTime.parse(dateStr!);
+  String formattedDate = DateFormat('dd MMM yyyy | hh:mm a').format(date);
+  return formattedDate;
 }

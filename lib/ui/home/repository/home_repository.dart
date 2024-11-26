@@ -12,6 +12,8 @@ import 'package:kpn_pos_application/ui/home/model/customer_request.dart';
 import 'package:kpn_pos_application/ui/home/model/delete_cart.dart';
 import 'package:kpn_pos_application/ui/home/model/general_success_response.dart';
 import 'package:kpn_pos_application/ui/home/model/open_register_response.dart';
+import 'package:kpn_pos_application/ui/home/model/orders_on_hold.dart';
+import 'package:kpn_pos_application/ui/home/model/orders_onhold_request.dart';
 import 'package:kpn_pos_application/ui/home/model/phone_number_request.dart';
 import 'package:kpn_pos_application/ui/home/model/register_close_request.dart';
 import 'package:kpn_pos_application/ui/home/model/register_open_request.dart';
@@ -204,6 +206,20 @@ class HomeRepository {
       final generalResponse =
           generalSuccessResponseFromJson(jsonEncode(response));
       return generalResponse;
+    } catch (e) {
+      throw Exception('Failed to parse data');
+    }
+  }
+
+  Future<OrdersOnHoldResponse> ordersOnHold(OrdersOnHoldRequest request) async {
+    try {
+      final response = await _apiHelper.post(
+        ApiConstants.ordersOnHold,
+        data: request.toJson(),
+      );
+      final ordersOnHoldResponse =
+          ordersOnHoldResponseFromJson(jsonEncode(response));
+      return ordersOnHoldResponse;
     } catch (e) {
       throw Exception('Failed to parse data');
     }
