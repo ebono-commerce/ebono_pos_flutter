@@ -17,6 +17,8 @@ import 'package:kpn_pos_application/ui/home/model/customer_request.dart';
 import 'package:kpn_pos_application/ui/home/model/delete_cart.dart';
 import 'package:kpn_pos_application/ui/home/model/general_success_response.dart';
 import 'package:kpn_pos_application/ui/home/model/open_register_response.dart';
+import 'package:kpn_pos_application/ui/home/model/orders_on_hold.dart';
+import 'package:kpn_pos_application/ui/home/model/orders_onhold_request.dart';
 import 'package:kpn_pos_application/ui/home/model/phone_number_request.dart';
 import 'package:kpn_pos_application/ui/home/model/register_close_request.dart';
 import 'package:kpn_pos_application/ui/home/model/register_open_request.dart';
@@ -56,6 +58,7 @@ class HomeController extends GetxController {
   var isDisplayAddCustomerView = true.obs;
   RxString portName = ''.obs;
   var cartLines = <CartLine>[].obs;
+  var ordersOnHold = <OnHoldItems>[].obs;
 
   var scanProductsResponse = ScanProductsResponse().obs;
   var customerResponse = CustomerResponse().obs;
@@ -78,6 +81,8 @@ class HomeController extends GetxController {
 
   var openRegisterResponse = OpenRegisterResponse().obs;
   var closeRegisterResponse = GeneralSuccessResponse().obs;
+  var ordersOnHoldResponse = OrdersOnHoldResponse().obs;
+
   RxString _connectionStatus = 'Unknown'.obs;
   var isOnline = false.obs;
   final Connectivity _connectivity = Connectivity();
@@ -143,7 +148,6 @@ class HomeController extends GetxController {
   }
 
   Future<void> _checkConnectivity() async {
-    print('_checkConnectivity  ${isOnline.value}');
     ConnectivityResult result;
     try {
       result = await _connectivity.checkConnectivity();
@@ -224,6 +228,7 @@ class HomeController extends GetxController {
     cartId.value = '';
 
     generalSuccessResponse.value = GeneralSuccessResponse(success: false);
+    ordersOnHoldResponse.value = OrdersOnHoldResponse(data: [], meta: null);
   }
 
   Future<void> clearScanData() async {
@@ -238,6 +243,10 @@ class HomeController extends GetxController {
 
   Future<void> clearCart() async {
     cartResponse.value = CartResponse(cartId: '', cartType: '');
+  }
+
+  Future<void> clearHoldCartOrders() async {
+    ordersOnHoldResponse.value = OrdersOnHoldResponse(data: [], meta: null);
   }
 
   Future<void> scanApiCall(String code) async {
@@ -301,8 +310,6 @@ class HomeController extends GetxController {
   }
 
   Future<void> fetchCartDetails() async {
-    print("API fetchCartCall: ${cartId.value}");
-
     cartLines.clear();
     try {
       clearCart();
@@ -326,8 +333,6 @@ class HomeController extends GetxController {
     String? qtyUom,
     String? cartId,
   ) async {
-    print("API addToCartApiCall: $esin | $mrpId | $qty | $cartId");
-
     try {
       var response = await _homeRepository.addToCart(
           AddToCartRequest(cartLines: [
@@ -346,8 +351,6 @@ class HomeController extends GetxController {
   }
 
   Future<void> deleteCartItemApiCall(String? cartLineId) async {
-    print("API deleteCartItemApiCall: $cartLineId");
-
     try {
       var response = await _homeRepository.deleteCartItem(
           DeleteCartRequest(), cartId.value, cartLineId!);
@@ -360,7 +363,6 @@ class HomeController extends GetxController {
 
   Future<void> updateCartItemApiCall(
       String? cartLineId, String? qUom, double? qty) async {
-    print("API updateCartItemApiCall: $qty | $cartLineId");
     try {
       var response = await _homeRepository.updateCartItem(
           UpdateCartRequest(
@@ -375,7 +377,6 @@ class HomeController extends GetxController {
   }
 
   Future<void> clearFullCart() async {
-    print("API clearFullCart: ${cartId.value} ");
     try {
       var response = await _homeRepository.clearFullCart(cartId.value);
       cartResponse.value = response;
@@ -407,11 +408,19 @@ class HomeController extends GetxController {
     }
   }
 
-  Future<void> resumeHoldCartApiCall() async {
+  Future<void> resumeHoldCartApiCall(String? id) async {
     try {
       var response = await _homeRepository.resumeHoldCart(
-          cartId.value, ResumeHoldCartRequest(terminalId: "", holdCartId: ""));
+          cartId.value,
+          ResumeHoldCartRequest(
+              terminalId:
+                  "${GetStorageHelper.read(SharedPreferenceConstants.selectedTerminalId)}",
+              holdCartId: id));
       generalSuccessResponse.value = response;
+      if (generalSuccessResponse.value == true) {
+        clearHoldCartOrders();
+        Get.offAllNamed(PageRoutes.home);
+      }
     } catch (e) {
       print("Error $e");
     }
@@ -472,7 +481,6 @@ class HomeController extends GetxController {
 
   Future<void> closeRegisterApiCall() async {
     var userId = await sharedPreferenceHelper.getUserID();
-
     isLoading.value = true;
     try {
       var response = await _homeRepository.closeRegister(RegisterCloseRequest(
@@ -510,6 +518,45 @@ class HomeController extends GetxController {
         cardPaymentCount.value = '';
         cashPayment.value = '';
         Get.offAllNamed(PageRoutes.home);
+      }
+      isLoading.value = false;
+    } catch (e) {
+      isLoading.value = false;
+      print("Error $e");
+    }
+  }
+
+  void addOrdersOnHoldItems(OnHoldItems onHoldItems) {
+    var item = OnHoldItems(
+        customer:
+            HoldOrderCustomer(customerName: onHoldItems.customer?.customerName),
+        holdCartId: onHoldItems.holdCartId,
+        createdAt: onHoldItems.createdAt,
+        cashierDetails: CashierDetails(
+            cashierId: onHoldItems.cashierDetails?.cashierId,
+            cashierName: onHoldItems.cashierDetails?.cashierName),
+        phoneNumber: HoldOrderPhoneNumber(
+            countryCode: onHoldItems.phoneNumber?.countryCode,
+            number: onHoldItems.phoneNumber?.number));
+    ordersOnHold.add(item);
+  }
+
+  void removeOrdersOnHoldItems(OnHoldItems onHoldItems) {
+    ordersOnHold.remove(onHoldItems);
+  }
+
+  Future<void> ordersOnHoldApiCall() async {
+    isLoading.value = true;
+    try {
+      var response = await _homeRepository.ordersOnHold(OrdersOnHoldRequest(
+          outletId:
+              "${GetStorageHelper.read(SharedPreferenceConstants.selectedOutletId)}"));
+      ordersOnHoldResponse.value = response;
+      if (ordersOnHoldResponse.value.data != null) {
+        ordersOnHold.clear();
+        for (var element in ordersOnHoldResponse.value.data!) {
+          addOrdersOnHoldItems(element);
+        }
       }
       isLoading.value = false;
     } catch (e) {
