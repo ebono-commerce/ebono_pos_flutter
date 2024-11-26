@@ -151,7 +151,9 @@ class _MultipleMrpWidgetState extends State<MultipleMrpWidget> {
                         scanData.priceList?[index].mrp?.fraction,
                       ),
                       (value) {
-                        Navigator.pop(widget.dialogContext);
+                        homeController.addToCartApiCall(scanData.esin, 1, scanData.priceList?[index].mrpId, scanData.salesUom, homeController.cartId.value).then((value){
+                          Navigator.pop(widget.dialogContext);
+                        });
                       },
                     ),
                   );

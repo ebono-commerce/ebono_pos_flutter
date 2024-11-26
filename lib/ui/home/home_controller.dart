@@ -248,7 +248,7 @@ class HomeController extends GetxController {
       var response = await _homeRepository.getScanProduct(
           code: code, outletId: selectedOutletId);
       scanProductsResponse.value = response;
-      if (cartId.value != "") {
+      if (cartId.value != "" && (response.priceList?.length ?? 0) <= 1) {
         addToCartApiCall(
             scanProductsResponse.value.esin,
             1,
