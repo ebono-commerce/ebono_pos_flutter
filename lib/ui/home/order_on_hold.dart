@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:kpn_pos_application/constants/custom_colors.dart';
+import 'package:ebono_pos/constants/custom_colors.dart';
 
 class OrderOnHold extends StatefulWidget {
   const OrderOnHold({super.key});

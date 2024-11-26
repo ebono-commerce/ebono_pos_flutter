@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:kpn_pos_application/constants/custom_colors.dart';
-import 'package:kpn_pos_application/ui/home/home_controller.dart';
-import 'package:kpn_pos_application/ui/home/widgets/add_customer_widget.dart';
+import 'package:ebono_pos/constants/custom_colors.dart';
+import 'package:ebono_pos/ui/home/home_controller.dart';
+import 'package:ebono_pos/ui/home/widgets/add_customer_widget.dart';
 
 class AddCustomerStaticWidget extends StatefulWidget {
   final HomeController homeController;

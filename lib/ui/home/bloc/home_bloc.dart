@@ -1,8 +1,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:kpn_pos_application/data_store/shared_preference_helper.dart';
-import 'package:kpn_pos_application/ui/home/bloc/home_event.dart';
-import 'package:kpn_pos_application/ui/home/bloc/home_state.dart';
-import 'package:kpn_pos_application/ui/home/repository/home_repository.dart';
+import 'package:ebono_pos/data_store/shared_preference_helper.dart';
+import 'package:ebono_pos/ui/home/bloc/home_event.dart';
+import 'package:ebono_pos/ui/home/bloc/home_state.dart';
+import 'package:ebono_pos/ui/home/repository/home_repository.dart';
 
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
   final HomeRepository _homeRepository;

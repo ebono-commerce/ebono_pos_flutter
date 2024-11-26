@@ -1,4 +1,4 @@
-package com.example.kpn_pos_application
+package com.ebono.ebonopos
 
 import io.flutter.embedding.android.FlutterActivity
 

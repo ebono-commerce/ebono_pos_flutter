@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
-import 'package:kpn_pos_application/data_store/shared_preference_helper.dart';
-import 'package:kpn_pos_application/navigation/page_routes.dart';
+import 'package:ebono_pos/data_store/shared_preference_helper.dart';
+import 'package:ebono_pos/navigation/page_routes.dart';
 import 'package:libserialport/libserialport.dart';
 
 class SplashScreen extends StatefulWidget {

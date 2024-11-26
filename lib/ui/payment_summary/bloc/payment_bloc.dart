@@ -3,19 +3,19 @@ import 'dart:math';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
-import 'package:kpn_pos_application/constants/shared_preference_constants.dart';
-import 'package:kpn_pos_application/data_store/get_storage_helper.dart';
-import 'package:kpn_pos_application/data_store/shared_preference_helper.dart';
-import 'package:kpn_pos_application/ui/payment_summary/bloc/payment_event.dart';
-import 'package:kpn_pos_application/ui/payment_summary/bloc/payment_state.dart';
-import 'package:kpn_pos_application/ui/payment_summary/model/payment_cancel_request.dart';
-import 'package:kpn_pos_application/ui/payment_summary/model/payment_initiate_request.dart';
-import 'package:kpn_pos_application/ui/payment_summary/model/payment_initiate_response.dart';
-import 'package:kpn_pos_application/ui/payment_summary/model/payment_status_request.dart';
-import 'package:kpn_pos_application/ui/payment_summary/model/payment_status_response.dart';
-import 'package:kpn_pos_application/ui/payment_summary/model/payment_summary_request.dart';
-import 'package:kpn_pos_application/ui/payment_summary/model/payment_summary_response.dart';
-import 'package:kpn_pos_application/ui/payment_summary/repository/PaymentRepository.dart';
+import 'package:ebono_pos/constants/shared_preference_constants.dart';
+import 'package:ebono_pos/data_store/get_storage_helper.dart';
+import 'package:ebono_pos/data_store/shared_preference_helper.dart';
+import 'package:ebono_pos/ui/payment_summary/bloc/payment_event.dart';
+import 'package:ebono_pos/ui/payment_summary/bloc/payment_state.dart';
+import 'package:ebono_pos/ui/payment_summary/model/payment_cancel_request.dart';
+import 'package:ebono_pos/ui/payment_summary/model/payment_initiate_request.dart';
+import 'package:ebono_pos/ui/payment_summary/model/payment_initiate_response.dart';
+import 'package:ebono_pos/ui/payment_summary/model/payment_status_request.dart';
+import 'package:ebono_pos/ui/payment_summary/model/payment_status_response.dart';
+import 'package:ebono_pos/ui/payment_summary/model/payment_summary_request.dart';
+import 'package:ebono_pos/ui/payment_summary/model/payment_summary_response.dart';
+import 'package:ebono_pos/ui/payment_summary/repository/PaymentRepository.dart';
 
 class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
   final PaymentRepository _paymentRepository;

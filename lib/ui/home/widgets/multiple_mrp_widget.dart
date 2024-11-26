@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:kpn_pos_application/constants/custom_colors.dart';
-import 'package:kpn_pos_application/models/cart_response.dart';
-import 'package:kpn_pos_application/models/scan_products_response.dart';
-import 'package:kpn_pos_application/ui/home/home_controller.dart';
-import 'package:kpn_pos_application/utils/price.dart';
+import 'package:ebono_pos/constants/custom_colors.dart';
+import 'package:ebono_pos/models/cart_response.dart';
+import 'package:ebono_pos/models/scan_products_response.dart';
+import 'package:ebono_pos/ui/home/home_controller.dart';
+import 'package:ebono_pos/utils/price.dart';
 
 class MultipleMrpWidget extends StatefulWidget {
   final HomeController homeController;

@@ -1,4 +1,4 @@
-import 'package:kpn_pos_application/ui/payment_summary/model/payment_summary_request.dart';
+import 'package:ebono_pos/ui/payment_summary/model/payment_summary_request.dart';
 
 abstract class PaymentEvent {}
 

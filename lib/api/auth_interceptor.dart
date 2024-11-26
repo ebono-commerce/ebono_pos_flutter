@@ -1,9 +1,9 @@
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
-import 'package:kpn_pos_application/api/api_constants.dart';
-import 'package:kpn_pos_application/data_store/get_storage_helper.dart';
-import 'package:kpn_pos_application/data_store/shared_preference_helper.dart';
-import 'package:kpn_pos_application/navigation/page_routes.dart';
+import 'package:ebono_pos/api/api_constants.dart';
+import 'package:ebono_pos/data_store/get_storage_helper.dart';
+import 'package:ebono_pos/data_store/shared_preference_helper.dart';
+import 'package:ebono_pos/navigation/page_routes.dart';
 
 class AuthInterceptor extends Interceptor {
   final SharedPreferenceHelper _sharedPreferenceHelper;

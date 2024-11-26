@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:kpn_pos_application/ui/payment_summary/weight_controller.dart';
+import 'package:ebono_pos/ui/payment_summary/weight_controller.dart';
 
 class WeightDisplayPage extends StatelessWidget {
   final String port = 'COM3'; // Replace with actual port

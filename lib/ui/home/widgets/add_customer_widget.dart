@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
-import 'package:kpn_pos_application/constants/custom_colors.dart';
-import 'package:kpn_pos_application/ui/custom_keyboard/custom_querty_pad.dart';
-import 'package:kpn_pos_application/ui/home/home_controller.dart';
+import 'package:ebono_pos/constants/custom_colors.dart';
+import 'package:ebono_pos/ui/custom_keyboard/custom_querty_pad.dart';
+import 'package:ebono_pos/ui/home/home_controller.dart';
 
 class AddCustomerWidget extends StatefulWidget {
   final HomeController homeController;

@@ -1,6 +1,6 @@
 {
-    "name": "kpn_pos_application",
-    "short_name": "kpn_pos_application",
+    "name": "ebono_pos",
+    "short_name": "ebono_pos",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

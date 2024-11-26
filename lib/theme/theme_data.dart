@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:kpn_pos_application/constants/custom_colors.dart';
-import 'package:kpn_pos_application/ui/Common_button.dart';
+import 'package:ebono_pos/constants/custom_colors.dart';
+import 'package:ebono_pos/ui/Common_button.dart';
 
 ThemeData themeData(BuildContext context) {
   return ThemeData(

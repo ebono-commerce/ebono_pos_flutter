@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
-import 'package:kpn_pos_application/constants/custom_colors.dart';
-import 'package:kpn_pos_application/data_store/shared_preference_helper.dart';
-import 'package:kpn_pos_application/navigation/page_routes.dart';
-import 'package:kpn_pos_application/ui/login/bloc/login_bloc.dart';
-import 'package:kpn_pos_application/ui/login/bloc/login_event.dart';
-import 'package:kpn_pos_application/ui/login/bloc/login_state.dart';
-import 'package:kpn_pos_application/ui/login/repository/login_repository.dart';
+import 'package:ebono_pos/constants/custom_colors.dart';
+import 'package:ebono_pos/data_store/shared_preference_helper.dart';
+import 'package:ebono_pos/navigation/page_routes.dart';
+import 'package:ebono_pos/ui/login/bloc/login_bloc.dart';
+import 'package:ebono_pos/ui/login/bloc/login_event.dart';
+import 'package:ebono_pos/ui/login/bloc/login_state.dart';
+import 'package:ebono_pos/ui/login/repository/login_repository.dart';
 
 class LogoutButton extends StatefulWidget {
    const LogoutButton({super.key});
