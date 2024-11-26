@@ -17,9 +17,10 @@ class ApiConstants {
   static final clearFullCart = 'checkout/api/v1/pos/cart/';
   static final resumeHoldCart = 'checkout/api/v1/pos/cart/resume';
   static final healthCheck = 'health';
-
   static final paymentBaseUrl = 'https://demo.ezetap.com';
   static final paymentApiInitiate = '/api/3.0/p2p/start';
   static final paymentApiStatus = '/api/3.0/p2p/status';
   static final paymentApiCancel = '/api/3.0/p2p/cancel';
+  static final openRegister = 'account/api/v1/pos/register-open';
+  static final closeRegister = 'account/api/v1/pos/register-close';
 }

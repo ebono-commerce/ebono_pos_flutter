@@ -30,7 +30,7 @@ class _HomeAppBarState extends State<HomeAppBar> {
     super.initState();
     if (mounted == true) {
       homeController = widget.homeController;
-      homeController.healthCheckApiCall();
+      // homeController.healthCheckApiCall();
     }
     print(
         "API healthCheckApiCall initState:  ${homeController.isOnline.value}");
@@ -72,20 +72,20 @@ class _HomeAppBarState extends State<HomeAppBar> {
                   ),
                 ),
                 SizedBox(height: 5),
-                Obx(() => Row(
-                      mainAxisSize: MainAxisSize.max,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        InkWell(
-                          onTap: () {},
-                          // onTap: () {
-                          //   setState(() {
-                          //     isOnline = !isOnline;
-                          //   });
-                          // },
-                          child: Row(
-                            children: [
-                              ImageIcon(
+                Row(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    InkWell(
+                      onTap: () {},
+                      // onTap: () {
+                      //   setState(() {
+                      //     isOnline = !isOnline;
+                      //   });
+                      // },
+                      child: Row(
+                        children: [
+                          Obx(() => ImageIcon(
                                 size: 20,
                                 color: homeController.isOnline.value == true
                                     ? CustomColors.green
@@ -94,9 +94,9 @@ class _HomeAppBarState extends State<HomeAppBar> {
                                     ? AssetImage('assets/images/ic_online.png')
                                     : AssetImage(
                                         'assets/images/ic_offline.png'),
-                              ),
-                              SizedBox(width: 5),
-                              Text(
+                              )),
+                          SizedBox(width: 5),
+                          Obx(() => Text(
                                 homeController.isOnline.value == true
                                     ? 'ONLINE'
                                     : "OFFLINE",
@@ -109,23 +109,23 @@ class _HomeAppBarState extends State<HomeAppBar> {
                                             ? CustomColors.green
                                             : CustomColors.red),
                                 //  style: TextStyle(color: Colors.green, fontSize: 11),
-                              ),
-                            ],
-                          ),
-                        ),
-                        SizedBox(width: 5),
-                        Obx(
-                          () => Text(
-                            homeController.selectedTerminal.value,
-                            style: Theme.of(context)
-                                .textTheme
-                                .labelMedium
-                                ?.copyWith(color: CustomColors.black),
-                            //  style: TextStyle(color: Colors.black, fontSize: 12),
-                          ),
-                        ),
-                      ],
-                    )),
+                              )),
+                        ],
+                      ),
+                    ),
+                    SizedBox(width: 5),
+                    Obx(
+                      () => Text(
+                        homeController.selectedTerminal.value,
+                        style: Theme.of(context)
+                            .textTheme
+                            .labelMedium
+                            ?.copyWith(color: CustomColors.black),
+                        //  style: TextStyle(color: Colors.black, fontSize: 12),
+                      ),
+                    ),
+                  ],
+                ),
               ],
             ),
           ),
