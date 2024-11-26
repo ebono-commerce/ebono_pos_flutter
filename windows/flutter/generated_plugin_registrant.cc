@@ -11,8 +11,8 @@
 #include <printing/printing_plugin.h>
 
 void RegisterPlugins(flutter::PluginRegistry* registry) {
-    ConnectivityPlusWindowsPluginRegisterWithRegistrar(
-            registry->GetRegistrarForPlugin("ConnectivityPlusWindowsPlugin"));
+  ConnectivityPlusWindowsPluginRegisterWithRegistrar(
+      registry->GetRegistrarForPlugin("ConnectivityPlusWindowsPlugin"));
   FlutterLibserialportPluginRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("FlutterLibserialportPlugin"));
   PrintingPluginRegisterWithRegistrar(

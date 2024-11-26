@@ -38,7 +38,7 @@ ThemeData themeData(BuildContext context) {
       ),
       buttonTheme: ButtonThemeData(buttonColor: Theme.of(context).primaryColor),
       elevatedButtonTheme: ElevatedButtonThemeData(
-        style: elevatedButtonStyle(
+        style: commonElevatedButtonStyle(
             theme: Theme.of(context),
             textStyle: Theme.of(context).textTheme.bodyMedium,
             padding: EdgeInsets.all(10)),

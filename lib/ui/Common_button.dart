@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-ButtonStyle elevatedButtonStyle(
+ButtonStyle commonElevatedButtonStyle(
     {required ThemeData theme,
       required TextStyle? textStyle,
       required EdgeInsets padding,
