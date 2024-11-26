@@ -104,9 +104,6 @@ class HomeController extends GetxController {
     registerId.value =
         GetStorageHelper.read(SharedPreferenceConstants.registerId);
 
-    print('selectedTerminal  $selectedTerminal');
-    print('selectedOutlet  $selectedOutlet');
-
     isQuantityEditEnabled.value =
         GetStorageHelper.read(SharedPreferenceConstants.isQuantityEditEnabled);
     isLineDeleteEnabled.value =
@@ -158,12 +155,10 @@ class HomeController extends GetxController {
   void _updateConnectionStatus(ConnectivityResult result) {
     switch (result) {
       case ConnectivityResult.wifi:
-        print('ConnectivityResult.wifi  ${isOnline.value}');
         healthCheckApiCall();
         _connectionStatus.value = 'Connected to WiFi';
         break;
       case ConnectivityResult.ethernet:
-        print('ConnectivityResult.ethernet  ${isOnline.value}');
         healthCheckApiCall();
         _connectionStatus.value = 'Connected to Ethernet';
         break;
@@ -421,36 +416,35 @@ class HomeController extends GetxController {
   }
 
   Future<void> healthCheckApiCall() async {
-    print("API healthCheckApiCall: ");
-    _statusCheckTimer = Timer.periodic(Duration(seconds: 60), (timer) async {
-
-      try {
-        var loginStatus = await sharedPreferenceHelper.getLoginStatus();
-        if (loginStatus == true) {
-          var response = await _homeRepository.healthCheckApiCall();
-          healthCheckResponse.value = response;
-          if (healthCheckResponse.value.statusCode != 200) {
-            timer.cancel();
+    _statusCheckTimer = Timer.periodic(
+      const Duration(seconds: 120),
+      (timer) async {
+        try {
+          final loginStatus = await sharedPreferenceHelper.getLoginStatus();
+          if (loginStatus != true) {
             isOnline.value = false;
-            print("API healthCheckApiCall:  ${isOnline.value}");
-          } else {
-            print(
-                "API healthCheckApiCall: ${healthCheckResponse.value.statusCode}");
-            healthCheckApiCall();
-            isOnline.value = true;
-            print("API healthCheckApiCall:  ${isOnline.value}");
+            timer.cancel();
+            return;
           }
+          final response = await _homeRepository.healthCheckApiCall();
+          healthCheckResponse.value = response;
+
+          if (response.statusCode == 200) {
+            isOnline.value = true;
+          } else {
+            isOnline.value = false;
+            timer.cancel();
+          }
+        } catch (e) {
+          print("Health check error: $e");
+          isOnline.value = false;
+          timer.cancel();
         }
-      } catch (e) {
-        print("Error $e");
-        isOnline.value = false;
-        timer.cancel();
-      }
-    });
+      },
+    );
   }
 
   Future<void> openRegisterApiCall() async {
-    print("API openRegisterApiCall: ");
     var userId = await sharedPreferenceHelper.getUserID();
 
     isLoading.value = true;
@@ -475,7 +469,6 @@ class HomeController extends GetxController {
   }
 
   Future<void> closeRegisterApiCall() async {
-    print("API closeRegisterApiCall: ");
     var userId = await sharedPreferenceHelper.getUserID();
 
     isLoading.value = true;
