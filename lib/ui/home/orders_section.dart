@@ -46,6 +46,11 @@ class _OrdersSectionState extends State<OrdersSection>
         _numPadFocusNode.requestFocus();
       }
     });
+    ever(homeController.validOfferId, (value) {
+      if (isValidOfferId(value)) {
+        homeController.scanApiCall(value);
+      }
+    });
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ever(homeController.scanProductsResponse, (value) {
         if (value.esin != null) {
@@ -838,7 +843,9 @@ class _OrdersSectionState extends State<OrdersSection>
                             if (homeController.cartId.value.isNotEmpty &&
                                 homeController.registerId.isNotEmpty) {
                               if (isValidOfferId(text)) {
-                                homeController.scanApiCall(text);
+                                if (isValidOfferId(text)) {
+                                  homeController.validOfferId.value = text;
+                                }
                               } else {
                                 Get.snackbar("Invalid Offer Id",
                                     'Please enter valid offer id');
@@ -850,7 +857,7 @@ class _OrdersSectionState extends State<OrdersSection>
                                 homeController.registerId.isNotEmpty) {
                               print("onTextListener text: $text");
                               if (isValidOfferId(text)) {
-                                homeController.scanApiCall(text);
+                                homeController.validOfferId.value = text;
                               }
                             }
                           },
@@ -978,7 +985,7 @@ class _OrdersSectionState extends State<OrdersSection>
                                     phoneNumber:
                                         homeController.phoneNumber.value,
                                     cartId: homeController.cartId.value,
-                                    customer: Customer(customerId: '1000021'),
+                                    customer: null,
                                     cartType:
                                         homeController.selectedPosMode.value);
                             Get.toNamed(PageRoutes.paymentSummary,

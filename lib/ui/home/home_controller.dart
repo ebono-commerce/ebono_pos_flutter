@@ -67,6 +67,7 @@ class HomeController extends GetxController {
   RxString selectedTerminal = ''.obs;
   RxString selectedPosMode = ''.obs;
   String selectedOutletId = '';
+  String selectedTerminalId = '';
   RxString customerProxyNumber = ''.obs;
   RxDouble weight = 0.0.obs; // Observable weight value
   late DigitalWeighingScale digitalWeighingScale;
@@ -85,7 +86,7 @@ class HomeController extends GetxController {
   var isEnableHoldCartEnabled = ''.obs;
   var isPriceEditEnabled = ''.obs;
   var isSalesAssociateLinkEnabled = ''.obs;
-
+  var validOfferId = ''.obs;
   @override
   void onInit() async {
     _checkConnectivity();
@@ -94,6 +95,8 @@ class HomeController extends GetxController {
         GetStorageHelper.read(SharedPreferenceConstants.selectedOutletName);
     selectedOutletId =
         GetStorageHelper.read(SharedPreferenceConstants.selectedOutletId);
+    selectedTerminalId =
+        GetStorageHelper.read(SharedPreferenceConstants.selectedTerminalId);
     selectedTerminal.value =
         GetStorageHelper.read(SharedPreferenceConstants.selectedTerminalName);
     selectedPosMode.value =
@@ -238,11 +241,11 @@ class HomeController extends GetxController {
   }
 
   Future<void> scanApiCall(String code) async {
-    print("API scanApiCall: $code");
     try {
       var response = await _homeRepository.getScanProduct(
           code: code, outletId: selectedOutletId);
       scanProductsResponse.value = response;
+      validOfferId.value = '';
       if (cartId.value != "" && (response.priceList?.length ?? 0) <= 1) {
         addToCartApiCall(
             scanProductsResponse.value.esin,
@@ -279,8 +282,8 @@ class HomeController extends GetxController {
           cartType: selectedPosMode.value.isNotEmpty == true
               ? selectedPosMode.value
               : 'POS',
-          terminalId: selectedTerminal.value,
-          outletId: selectedOutlet.value));
+          terminalId: selectedTerminalId,
+          outletId: selectedOutletId));
       customerResponse.value = response;
       cartId.value = customerResponse.value.cartId.toString();
 

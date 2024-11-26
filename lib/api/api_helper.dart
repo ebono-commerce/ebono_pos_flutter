@@ -22,6 +22,9 @@ class ApiHelper {
         'x-channel': 'POS',
         'x-app-id': '8521954d-6746-49c2-b50c-1593cf0adb42',
       },
+      queryParameters: {
+        'channel': 'POS',
+      },
     ));
 
     _dio.interceptors.add(AuthInterceptor(_sharedPreferenceHelper));
@@ -44,7 +47,8 @@ class ApiHelper {
   }
 
   // GET request
-  Future<T> get<T>(String endpoint, {
+  Future<T> get<T>(
+    String endpoint, {
     Map<String, dynamic>? queryParameters,
     Map<String, dynamic>? headers,
     T Function(dynamic json)? parser,
@@ -64,7 +68,8 @@ class ApiHelper {
   }
 
   // POST request
-  Future<T> post<T>(String endpoint, {
+  Future<T> post<T>(
+    String endpoint, {
     Map<String, dynamic>? data,
     Map<String, dynamic>? headers,
     T Function(dynamic json)? parser,
@@ -83,9 +88,9 @@ class ApiHelper {
     }
   }
 
-
   // Delete request
-  Future<T> delete<T>(String endpoint, {
+  Future<T> delete<T>(
+    String endpoint, {
     Map<String, dynamic>? data,
     Map<String, dynamic>? headers,
     T Function(dynamic json)? parser,
