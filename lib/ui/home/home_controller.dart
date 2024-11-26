@@ -272,7 +272,6 @@ class HomeController extends GetxController {
   }
 
   fetchCustomer() async {
-    print("API fetchCustomer: ${phoneNumber.value}");
     try {
       var response = await _homeRepository.fetchCustomer(CustomerRequest(
           phoneNumber: phoneNumber.value,

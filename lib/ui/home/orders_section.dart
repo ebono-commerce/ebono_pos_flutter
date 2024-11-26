@@ -158,7 +158,7 @@ class _OrdersSectionState extends State<OrdersSection>
                   Get.snackbar('Need Permission', 'Please contact support');
                 }
               },
-              onSalesAssociatePressed: (){
+              onSalesAssociatePressed: () {
                 showDialog(
                   context: context,
                   builder: (BuildContext context) {
@@ -166,8 +166,8 @@ class _OrdersSectionState extends State<OrdersSection>
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20.0),
                       ),
-                      child: AuthorisationRequiredWidget(
-                          homeController, context),
+                      child:
+                          AuthorisationRequiredWidget(homeController, context),
                     );
                   },
                 );
@@ -817,9 +817,16 @@ class _OrdersSectionState extends State<OrdersSection>
                           padding: const EdgeInsets.symmetric(horizontal: 8.0),
                           child: commonTextField(
                             label: ' Enter Code, Quantity ',
-                            focusNode: _numPadFocusNode,
-                            readOnly: false,
-                            controller: _numPadTextController,
+                            focusNode: (homeController.cartId.value.isNotEmpty &&
+                                homeController.registerId.isNotEmpty)
+                                ? _numPadFocusNode:FocusNode(),
+                            readOnly: (homeController.cartId.value.isNotEmpty &&
+                                    homeController.registerId.isNotEmpty)
+                                ? false
+                                : true,
+                            controller: (homeController.cartId.value.isNotEmpty &&
+                                homeController.registerId.isNotEmpty)
+                                ? _numPadTextController:TextEditingController(),
                           ),
                         ),
                         CustomNumPad(
@@ -828,17 +835,23 @@ class _OrdersSectionState extends State<OrdersSection>
                           onEnterPressed: (text) {
                             print("Enter pressed with text: $text");
                             _numPadFocusNode.unfocus();
-                            if (isValidOfferId(text)) {
-                              homeController.scanApiCall(text);
-                            } else {
-                              Get.snackbar("Invalid Offer Id",
-                                  'Please enter valid offer id');
+                            if (homeController.cartId.value.isNotEmpty &&
+                                homeController.registerId.isNotEmpty) {
+                              if (isValidOfferId(text)) {
+                                homeController.scanApiCall(text);
+                              } else {
+                                Get.snackbar("Invalid Offer Id",
+                                    'Please enter valid offer id');
+                              }
                             }
                           },
                           onValueChanged: (text) {
-                            print("onTextListener text: $text");
-                            if (isValidOfferId(text)) {
-                              homeController.scanApiCall(text);
+                            if (homeController.cartId.value.isNotEmpty &&
+                                homeController.registerId.isNotEmpty) {
+                              print("onTextListener text: $text");
+                              if (isValidOfferId(text)) {
+                                homeController.scanApiCall(text);
+                              }
                             }
                           },
                           onClearAll: (text) {
