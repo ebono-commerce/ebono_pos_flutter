@@ -258,8 +258,6 @@ class HomeController extends GetxController {
       }
     } catch (e) {
       print("Error $e");
-    } finally {
-      print("Error");
     }
   }
 
@@ -275,8 +273,6 @@ class HomeController extends GetxController {
       // fetchCartDetails();
     } catch (e) {
       print("Error $e");
-    } finally {
-      print("Error");
     }
   }
 
@@ -304,8 +300,6 @@ class HomeController extends GetxController {
       fetchCartDetails();
     } catch (e) {
       print("Error $e");
-    } finally {
-      print("Error");
     }
   }
 
@@ -325,8 +319,6 @@ class HomeController extends GetxController {
       }
     } catch (e) {
       print("Error $e");
-    } finally {
-      print("Error");
     }
   }
 
@@ -353,8 +345,6 @@ class HomeController extends GetxController {
       fetchCartDetails();
     } catch (e) {
       print("Error $e");
-    } finally {
-      print("Error");
     }
   }
 
@@ -368,8 +358,6 @@ class HomeController extends GetxController {
       fetchCartDetails();
     } catch (e) {
       print("Error $e");
-    } finally {
-      print("Error");
     }
   }
 
@@ -386,8 +374,6 @@ class HomeController extends GetxController {
       fetchCartDetails();
     } catch (e) {
       print("Error $e");
-    } finally {
-      print("Error");
     }
   }
 
@@ -404,8 +390,6 @@ class HomeController extends GetxController {
       Get.snackbar('Cart cleared successfully', 'All items removed');
     } catch (e) {
       print("Error $e");
-    } finally {
-      print("Error");
     }
   }
 
@@ -423,8 +407,6 @@ class HomeController extends GetxController {
       Get.snackbar('Cart held successfully', 'Cart saved for later!');
     } catch (e) {
       print("Error $e");
-    } finally {
-      print("Error");
     }
   }
 
@@ -435,8 +417,6 @@ class HomeController extends GetxController {
       generalSuccessResponse.value = response;
     } catch (e) {
       print("Error $e");
-    } finally {
-      print("Error");
     }
   }
 
@@ -465,10 +445,6 @@ class HomeController extends GetxController {
         print("Error $e");
         isOnline.value = false;
         timer.cancel();
-      } finally {
-        timer.cancel();
-        isOnline.value = false;
-        print("Error");
       }
     });
   }
@@ -494,9 +470,6 @@ class HomeController extends GetxController {
       isLoading.value = false;
     } catch (e) {
       print("Error $e");
-      isLoading.value = false;
-    } finally {
-      print("Error");
       isLoading.value = false;
     }
   }
@@ -547,9 +520,6 @@ class HomeController extends GetxController {
     } catch (e) {
       isLoading.value = false;
       print("Error $e");
-    } finally {
-      isLoading.value = false;
-      print("Error");
     }
   }
 

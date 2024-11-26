@@ -190,7 +190,7 @@ class HomeRepository {
           openRegisterResponseFromJson(jsonEncode(response));
       return openRegisterResponse;
     } catch (e) {
-      throw Exception('Failed to parse data');
+      throw Exception('$e');
     }
   }
 

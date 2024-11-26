@@ -413,7 +413,7 @@ class _RegisterSectionState extends State<RegisterSection>
                 width: 300,
                 height: 60,
                 child: ElevatedButton(
-                  style: elevatedButtonStyle(
+                  style: commonElevatedButtonStyle(
                       theme: theme,
                       textStyle: theme.textTheme.bodyMedium,
                       padding: EdgeInsets.all(12)),
@@ -594,126 +594,123 @@ class _RegisterSectionState extends State<RegisterSection>
   Widget _buildOpenRegister() {
     return Padding(
       padding: const EdgeInsets.all(20),
-      child: Expanded(
-        // flex: 1,
-        child: Container(
-          padding: EdgeInsets.symmetric(vertical: 20),
-          width: double.infinity,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            border: Border.all(color: Colors.grey),
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(10),
-              topRight: Radius.circular(10),
-              bottomLeft: Radius.circular(10),
-              bottomRight: Radius.circular(10),
-            ),
-            shape: BoxShape.rectangle,
+      child: Container(
+        padding: EdgeInsets.symmetric(vertical: 20),
+        width: double.infinity,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          border: Border.all(color: Colors.grey),
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(10),
+            topRight: Radius.circular(10),
+            bottomLeft: Radius.circular(10),
+            bottomRight: Radius.circular(10),
           ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(left: 10),
-                child: Text('Payment summary',
-                    maxLines: 1,
-                    textAlign: TextAlign.start,
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleMedium
-                        ?.copyWith(fontWeight: FontWeight.normal)),
-              ),
-              SizedBox(
-                height: 10,
-              ),
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 2.0, horizontal: 10),
-                decoration: BoxDecoration(
-                  color: CustomColors.enabledBorderColor,
-                  border: Border.all(color: CustomColors.borderColor),
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(0),
-                    topRight: Radius.circular(0),
-                    bottomLeft: Radius.circular(0),
-                    bottomRight: Radius.circular(0),
-                  ),
-                  shape: BoxShape.rectangle,
+          shape: BoxShape.rectangle,
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(left: 10),
+              child: Text('Payment summary',
+                  maxLines: 1,
+                  textAlign: TextAlign.start,
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleMedium
+                      ?.copyWith(fontWeight: FontWeight.normal)),
+            ),
+            SizedBox(
+              height: 10,
+            ),
+            Container(
+              padding:
+                  const EdgeInsets.symmetric(vertical: 2.0, horizontal: 10),
+              decoration: BoxDecoration(
+                color: CustomColors.enabledBorderColor,
+                border: Border.all(color: CustomColors.borderColor),
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(0),
+                  topRight: Radius.circular(0),
+                  bottomLeft: Radius.circular(0),
+                  bottomRight: Radius.circular(0),
                 ),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 10.0),
-                  child: Row(
-                    children: [
-                      SizedBox(
-                        width: 140,
-                        child: Text('Payment type',
-                            maxLines: 1,
-                            textAlign: TextAlign.start,
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleSmall
-                                ?.copyWith(fontWeight: FontWeight.normal)),
-                      ),
-                      Spacer(),
-                      SizedBox(
-                        width: 140,
-                        child: Text('Counted ₹',
-                            maxLines: 1,
-                            textAlign: TextAlign.start,
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleSmall
-                                ?.copyWith(fontWeight: FontWeight.normal)),
-                      ),
-                      Spacer(),
-                    ],
-                  ),
-                ),
+                shape: BoxShape.rectangle,
               ),
-              SizedBox(
-                height: 10,
-              ),
-              Container(
-                // color: Colors.amberAccent,
-                padding:
-                    const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 10.0),
                 child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     SizedBox(
                       width: 140,
-                      child: Text(
-                        "Opening Float",
-                        style: theme.textTheme.bodyMedium
-                            ?.copyWith(fontWeight: FontWeight.w500),
-                      ),
+                      child: Text('Payment type',
+                          maxLines: 1,
+                          textAlign: TextAlign.start,
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleSmall
+                              ?.copyWith(fontWeight: FontWeight.normal)),
                     ),
                     Spacer(),
                     SizedBox(
                       width: 140,
-                      child: commonTextField(
-                          label: "Enter Amount",
-                          focusNode: openingFloatPaymentFocusNode,
-                          controller: openingFloatPaymentTextController,
-                          onValueChanged: (value) {
-                            print('commonTextField $value');
-                          }),
+                      child: Text('Counted ₹',
+                          maxLines: 1,
+                          textAlign: TextAlign.start,
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleSmall
+                              ?.copyWith(fontWeight: FontWeight.normal)),
                     ),
                     Spacer(),
                   ],
                 ),
               ),
-              SizedBox(
-                height: 10,
+            ),
+            SizedBox(
+              height: 10,
+            ),
+            Container(
+              // color: Colors.amberAccent,
+              padding:
+                  const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  SizedBox(
+                    width: 140,
+                    child: Text(
+                      "Opening Float",
+                      style: theme.textTheme.bodyMedium
+                          ?.copyWith(fontWeight: FontWeight.w500),
+                    ),
+                  ),
+                  Spacer(),
+                  SizedBox(
+                    width: 140,
+                    child: commonTextField(
+                        label: "Enter Amount",
+                        focusNode: openingFloatPaymentFocusNode,
+                        controller: openingFloatPaymentTextController,
+                        onValueChanged: (value) {
+                          print('commonTextField $value');
+                        }),
+                  ),
+                  Spacer(),
+                ],
               ),
-              _buildAddCommentForOpen(),
-              SizedBox(
-                height: 10,
-              ),
-            ],
-          ),
+            ),
+            SizedBox(
+              height: 10,
+            ),
+            _buildAddCommentForOpen(),
+            SizedBox(
+              height: 10,
+            ),
+          ],
         ),
       ),
     );
@@ -724,229 +721,226 @@ class _RegisterSectionState extends State<RegisterSection>
       children: [
         Padding(
           padding: const EdgeInsets.all(20),
-          child: Expanded(
-            flex: 1,
-            child: Container(
-              padding: EdgeInsets.symmetric(vertical: 20),
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                border: Border.all(color: Colors.grey),
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(10),
-                  topRight: Radius.circular(10),
-                  bottomLeft: Radius.circular(10),
-                  bottomRight: Radius.circular(10),
+          child: Container(
+            padding: EdgeInsets.symmetric(vertical: 20),
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              border: Border.all(color: Colors.grey),
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(10),
+                topRight: Radius.circular(10),
+                bottomLeft: Radius.circular(10),
+                bottomRight: Radius.circular(10),
+              ),
+              shape: BoxShape.rectangle,
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(left: 10),
+                  child: Text('Payment summary',
+                      maxLines: 1,
+                      textAlign: TextAlign.start,
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleMedium
+                          ?.copyWith(fontWeight: FontWeight.normal)),
                 ),
-                shape: BoxShape.rectangle,
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(left: 10),
-                    child: Text('Payment summary',
-                        maxLines: 1,
-                        textAlign: TextAlign.start,
-                        style: Theme.of(context)
-                            .textTheme
-                            .titleMedium
-                            ?.copyWith(fontWeight: FontWeight.normal)),
+                SizedBox(
+                  height: 10,
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                      vertical: 2.0, horizontal: 10),
+                  decoration: BoxDecoration(
+                    color: CustomColors.enabledBorderColor,
+                    border:
+                        Border.all(color: CustomColors.enabledBorderColor),
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(0),
+                      topRight: Radius.circular(0),
+                      bottomLeft: Radius.circular(0),
+                      bottomRight: Radius.circular(0),
+                    ),
+                    shape: BoxShape.rectangle,
                   ),
-                  SizedBox(
-                    height: 10,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 10.0),
+                    child: Row(
+                      children: [
+                        SizedBox(
+                          width: 140,
+                          child: Text('Payment type',
+                              maxLines: 1,
+                              textAlign: TextAlign.start,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleSmall
+                                  ?.copyWith(fontWeight: FontWeight.normal)),
+                        ),
+                        Spacer(),
+                        SizedBox(
+                          width: 140,
+                          child: Text('Counted ₹',
+                              maxLines: 1,
+                              textAlign: TextAlign.start,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleSmall
+                                  ?.copyWith(fontWeight: FontWeight.normal)),
+                        ),
+                        Spacer(),
+                        SizedBox(
+                          width: 140,
+                          child: Text('Charge slip count',
+                              maxLines: 1,
+                              textAlign: TextAlign.start,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleSmall
+                                  ?.copyWith(fontWeight: FontWeight.normal)),
+                        ),
+                        Spacer(),
+                      ],
+                    ),
                   ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 2.0, horizontal: 10),
-                    decoration: BoxDecoration(
-                      color: CustomColors.enabledBorderColor,
-                      border:
-                          Border.all(color: CustomColors.enabledBorderColor),
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(0),
-                        topRight: Radius.circular(0),
-                        bottomLeft: Radius.circular(0),
-                        bottomRight: Radius.circular(0),
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                Container(
+                  // color: Colors.amberAccent,
+                  padding: const EdgeInsets.symmetric(
+                      vertical: 10.0, horizontal: 10),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      SizedBox(
+                        width: 140,
+                        child: Text(
+                          "Cash payments",
+                          style: theme.textTheme.bodyMedium
+                              ?.copyWith(fontWeight: FontWeight.w500),
+                        ),
                       ),
-                      shape: BoxShape.rectangle,
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 10.0),
-                      child: Row(
-                        children: [
-                          SizedBox(
-                            width: 140,
-                            child: Text('Payment type',
-                                maxLines: 1,
-                                textAlign: TextAlign.start,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .titleSmall
-                                    ?.copyWith(fontWeight: FontWeight.normal)),
-                          ),
-                          Spacer(),
-                          SizedBox(
-                            width: 140,
-                            child: Text('Counted ₹',
-                                maxLines: 1,
-                                textAlign: TextAlign.start,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .titleSmall
-                                    ?.copyWith(fontWeight: FontWeight.normal)),
-                          ),
-                          Spacer(),
-                          SizedBox(
-                            width: 140,
-                            child: Text('Charge slip count',
-                                maxLines: 1,
-                                textAlign: TextAlign.start,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .titleSmall
-                                    ?.copyWith(fontWeight: FontWeight.normal)),
-                          ),
-                          Spacer(),
-                        ],
+                      Spacer(),
+                      SizedBox(
+                        width: 140,
+                        child: commonTextField(
+                            label: "Enter Amount",
+                            readOnly: true,
+                            focusNode: cashPaymentFocusNode,
+                            controller: cashPaymentTextController,
+                            onValueChanged: (value) {
+                              print('commonTextField $value');
+                            }),
                       ),
-                    ),
+                      Spacer(),
+                      SizedBox(width: 140, child: Container()),
+                      Spacer()
+                    ],
                   ),
-                  SizedBox(
-                    height: 10,
+                ),
+                Container(
+                  // color: Colors.amberAccent,
+                  padding: const EdgeInsets.symmetric(
+                      vertical: 10.0, horizontal: 10),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      SizedBox(
+                        width: 140,
+                        child: Text(
+                          "Card",
+                          style: theme.textTheme.bodyMedium
+                              ?.copyWith(fontWeight: FontWeight.w500),
+                        ),
+                      ),
+                      Spacer(),
+                      SizedBox(
+                        width: 140,
+                        child: commonTextField(
+                            label: "Enter Amount",
+                            readOnly: true,
+                            focusNode: cardsPaymentFocusNode,
+                            controller: cardsPaymentTextController,
+                            onValueChanged: (value) {
+                              print('commonTextField $value');
+                            }),
+                      ),
+                      Spacer(),
+                      SizedBox(
+                        width: 140,
+                        child: commonTextField(
+                            label: "Enter Count",
+                            readOnly: true,
+                            focusNode: cardSlipCountFocusNode,
+                            controller: cardSlipCountTextController,
+                            onValueChanged: (value) {
+                              print('commonTextField $value');
+                            }),
+                      ),
+                      Spacer()
+                    ],
                   ),
-                  Container(
-                    // color: Colors.amberAccent,
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 10.0, horizontal: 10),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        SizedBox(
-                          width: 140,
-                          child: Text(
-                            "Cash payments",
-                            style: theme.textTheme.bodyMedium
-                                ?.copyWith(fontWeight: FontWeight.w500),
-                          ),
+                ),
+                Container(
+                  // color: Colors.amberAccent,
+                  padding: const EdgeInsets.symmetric(
+                      vertical: 10.0, horizontal: 10),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      SizedBox(
+                        width: 140,
+                        child: Text(
+                          "UPI payments",
+                          style: theme.textTheme.bodyMedium
+                              ?.copyWith(fontWeight: FontWeight.w500),
                         ),
-                        Spacer(),
-                        SizedBox(
-                          width: 140,
-                          child: commonTextField(
-                              label: "Enter Amount",
-                              readOnly: true,
-                              focusNode: cashPaymentFocusNode,
-                              controller: cashPaymentTextController,
-                              onValueChanged: (value) {
-                                print('commonTextField $value');
-                              }),
-                        ),
-                        Spacer(),
-                        SizedBox(width: 140, child: Container()),
-                        Spacer()
-                      ],
-                    ),
+                      ),
+                      Spacer(),
+                      SizedBox(
+                        width: 140,
+                        child: commonTextField(
+                            label: "Enter Amount",
+                            readOnly: true,
+                            focusNode: upiPaymentFocusNode,
+                            controller: upiPaymentTextController,
+                            onValueChanged: (value) {
+                              print('commonTextField $value');
+                            }),
+                      ),
+                      Spacer(),
+                      SizedBox(
+                        width: 140,
+                        child: commonTextField(
+                            label: "Enter Count",
+                            readOnly: true,
+                            focusNode: upiSlipCountFocusNode,
+                            controller: upiSlipCountTextController,
+                            onValueChanged: (value) {
+                              print('commonTextField $value');
+                            }),
+                      ),
+                      Spacer()
+                    ],
                   ),
-                  Container(
-                    // color: Colors.amberAccent,
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 10.0, horizontal: 10),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        SizedBox(
-                          width: 140,
-                          child: Text(
-                            "Card",
-                            style: theme.textTheme.bodyMedium
-                                ?.copyWith(fontWeight: FontWeight.w500),
-                          ),
-                        ),
-                        Spacer(),
-                        SizedBox(
-                          width: 140,
-                          child: commonTextField(
-                              label: "Enter Amount",
-                              readOnly: true,
-                              focusNode: cardsPaymentFocusNode,
-                              controller: cardsPaymentTextController,
-                              onValueChanged: (value) {
-                                print('commonTextField $value');
-                              }),
-                        ),
-                        Spacer(),
-                        SizedBox(
-                          width: 140,
-                          child: commonTextField(
-                              label: "Enter Count",
-                              readOnly: true,
-                              focusNode: cardSlipCountFocusNode,
-                              controller: cardSlipCountTextController,
-                              onValueChanged: (value) {
-                                print('commonTextField $value');
-                              }),
-                        ),
-                        Spacer()
-                      ],
-                    ),
-                  ),
-                  Container(
-                    // color: Colors.amberAccent,
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 10.0, horizontal: 10),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        SizedBox(
-                          width: 140,
-                          child: Text(
-                            "UPI payments",
-                            style: theme.textTheme.bodyMedium
-                                ?.copyWith(fontWeight: FontWeight.w500),
-                          ),
-                        ),
-                        Spacer(),
-                        SizedBox(
-                          width: 140,
-                          child: commonTextField(
-                              label: "Enter Amount",
-                              readOnly: true,
-                              focusNode: upiPaymentFocusNode,
-                              controller: upiPaymentTextController,
-                              onValueChanged: (value) {
-                                print('commonTextField $value');
-                              }),
-                        ),
-                        Spacer(),
-                        SizedBox(
-                          width: 140,
-                          child: commonTextField(
-                              label: "Enter Count",
-                              readOnly: true,
-                              focusNode: upiSlipCountFocusNode,
-                              controller: upiSlipCountTextController,
-                              onValueChanged: (value) {
-                                print('commonTextField $value');
-                              }),
-                        ),
-                        Spacer()
-                      ],
-                    ),
-                  ),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  _buildAddCommentForClose(),
-                  SizedBox(
-                    height: 10,
-                  ),
-                ],
-              ),
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                _buildAddCommentForClose(),
+                SizedBox(
+                  height: 10,
+                ),
+              ],
             ),
           ),
         ),
