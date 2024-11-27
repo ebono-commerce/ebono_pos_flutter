@@ -47,7 +47,10 @@ class _OrdersSectionState extends State<OrdersSection>
       }
     });
     ever(homeController.validOfferId, (value) {
+      print('valid offer id 1: $value');
       if (isValidOfferId(value)) {
+        homeController.validOfferId.value = '';
+        print('valid offer id  2 :$value');
         homeController.scanApiCall(value);
       }
     });
@@ -229,6 +232,88 @@ class _OrdersSectionState extends State<OrdersSection>
     );
   }
 
+  TableRow _buildTableHeader(){
+    return TableRow(
+      decoration: BoxDecoration(
+          color: Colors.grey.shade300,
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(10),
+            topRight: Radius.circular(10),
+            bottomLeft: Radius.circular(0),
+            bottomRight: Radius.circular(0),
+          )), // Header background color
+      children: [
+        Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: Text(
+              "Item Code",
+              style: Theme.of(context)
+                  .textTheme
+                  .labelMedium
+                  ?.copyWith(
+                  fontWeight: FontWeight.w100,
+                  color: CustomColors.greyFont),
+            )),
+        Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: Text(
+              "Name",
+              style: Theme.of(context)
+                  .textTheme
+                  .labelMedium
+                  ?.copyWith(
+                  fontWeight: FontWeight.w100,
+                  color: CustomColors.greyFont),
+            )),
+        Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: Text(
+              "Quantity",
+              style: Theme.of(context)
+                  .textTheme
+                  .labelMedium
+                  ?.copyWith(
+                  fontWeight: FontWeight.w100,
+                  color: CustomColors.greyFont),
+            )),
+        Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: Text(
+              " ",
+              style: Theme.of(context)
+                  .textTheme
+                  .labelMedium
+                  ?.copyWith(
+                  fontWeight: FontWeight.w100,
+                  color: CustomColors.greyFont),
+            )),
+        Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: Text(
+              "MRP ₹",
+              style: Theme.of(context)
+                  .textTheme
+                  .labelMedium
+                  ?.copyWith(
+                  fontWeight: FontWeight.w100,
+                  color: CustomColors.greyFont),
+            )),
+        Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: Text(
+              "Price ₹",
+              style: Theme.of(context)
+                  .textTheme
+                  .labelMedium
+                  ?.copyWith(
+                  fontWeight: FontWeight.w100,
+                  color: CustomColors.greyFont),
+            )),
+        Padding(padding: const EdgeInsets.all(10.0), child: Text("")),
+      ],
+    );
+  }
+
   Widget _buildTableView2() {
     return Container(
       padding: EdgeInsets.only(bottom: 2),
@@ -257,85 +342,7 @@ class _OrdersSectionState extends State<OrdersSection>
               6: FlexColumnWidth(1),
             },
             children: [
-              TableRow(
-                decoration: BoxDecoration(
-                    color: Colors.grey.shade300,
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(10),
-                      topRight: Radius.circular(10),
-                      bottomLeft: Radius.circular(0),
-                      bottomRight: Radius.circular(0),
-                    )), // Header background color
-                children: [
-                  Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child: Text(
-                        "Item Code",
-                        style: Theme.of(context)
-                            .textTheme
-                            .labelMedium
-                            ?.copyWith(
-                                fontWeight: FontWeight.w100,
-                                color: CustomColors.greyFont),
-                      )),
-                  Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child: Text(
-                        "Name",
-                        style: Theme.of(context)
-                            .textTheme
-                            .labelMedium
-                            ?.copyWith(
-                                fontWeight: FontWeight.w100,
-                                color: CustomColors.greyFont),
-                      )),
-                  Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child: Text(
-                        "Quantity",
-                        style: Theme.of(context)
-                            .textTheme
-                            .labelMedium
-                            ?.copyWith(
-                                fontWeight: FontWeight.w100,
-                                color: CustomColors.greyFont),
-                      )),
-                  Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child: Text(
-                        " ",
-                        style: Theme.of(context)
-                            .textTheme
-                            .labelMedium
-                            ?.copyWith(
-                                fontWeight: FontWeight.w100,
-                                color: CustomColors.greyFont),
-                      )),
-                  Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child: Text(
-                        "MRP ₹",
-                        style: Theme.of(context)
-                            .textTheme
-                            .labelMedium
-                            ?.copyWith(
-                                fontWeight: FontWeight.w100,
-                                color: CustomColors.greyFont),
-                      )),
-                  Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child: Text(
-                        "Price ₹",
-                        style: Theme.of(context)
-                            .textTheme
-                            .labelMedium
-                            ?.copyWith(
-                                fontWeight: FontWeight.w100,
-                                color: CustomColors.greyFont),
-                      )),
-                  Padding(padding: const EdgeInsets.all(10.0), child: Text("")),
-                ],
-              ),
+              _buildTableHeader(),
               ...homeController.cartLines.map((itemData) {
                 itemData.focusNode?.addListener(() {
                   setState(() {});
@@ -844,7 +851,7 @@ class _OrdersSectionState extends State<OrdersSection>
                             if (homeController.cartId.value.isNotEmpty &&
                                 homeController.registerId.isNotEmpty) {
                               if (isValidOfferId(text)) {
-                                if (isValidOfferId(text)) {
+                                if (text != homeController.validOfferId.value ) {
                                   homeController.validOfferId.value = text;
                                 }
                               } else {

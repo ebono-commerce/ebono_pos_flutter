@@ -4,6 +4,7 @@
 
 list(APPEND FLUTTER_PLUGIN_LIST
   flutter_libserialport
+  flutter_platform_alert
   flutter_window_close
   printing
 )

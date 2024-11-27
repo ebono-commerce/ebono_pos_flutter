@@ -1,5 +1,8 @@
 import 'package:dropdown_search/dropdown_search.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter_platform_alert/flutter_platform_alert.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:flutter_window_close/flutter_window_close.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -40,9 +43,35 @@ class _LoginPageState extends State<LoginPage> {
       GlobalKey<DropdownSearchState>();
   late ThemeData theme;
 
+  var _alertShowing = false;
   @override
   void initState() {
-    super.initState();
+    FlutterWindowClose.setWindowShouldCloseHandler(() async {
+      print('c;lsoing winsows  $_alertShowing');
+      if (_alertShowing) return false;
+      _alertShowing = true;
+
+      return await showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+                title: const Text('Do you really want to quit?'),
+                actions: [
+                  ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(context).pop(true);
+                        _alertShowing = false;
+                      },
+                      child: const Text('Yes')),
+                  ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(context).pop(false);
+                        _alertShowing = false;
+                      },
+                      child: const Text('No'))
+                ]);
+          });
+    });
     loginBloc.add(LoginInitialEvent());
 
     storeIdFocusNode.addListener(() {
@@ -57,6 +86,7 @@ class _LoginPageState extends State<LoginPage> {
     passwordFocusNode.addListener(() {
       setState(() {});
     });
+    super.initState();
   }
 
   @override
@@ -253,6 +283,25 @@ class _LoginPageState extends State<LoginPage> {
                         'Contact operations',
                         style: theme.textTheme.bodyLarge
                             ?.copyWith(color: theme.colorScheme.primary),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // Unable to log in text
+              Center(
+                child: Wrap(
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    TextButton(
+                      onPressed: () {
+                        loginBloc.add(LoginInitialEvent());
+                      },
+                      child: Text(
+                        'Back to Port selection',
+                        style: theme.textTheme.labelSmall
+                            ?.copyWith(color: CustomColors.grey),
                       ),
                     ),
                   ],
