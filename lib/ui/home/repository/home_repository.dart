@@ -1,23 +1,25 @@
 import 'dart:convert';
 
-import 'package:kpn_pos_application/api/api_constants.dart';
-import 'package:kpn_pos_application/api/api_helper.dart';
-import 'package:kpn_pos_application/models/cart_response.dart';
-import 'package:kpn_pos_application/models/customer_response.dart';
-import 'package:kpn_pos_application/models/scan_products_response.dart';
-import 'package:kpn_pos_application/ui/home/model/add_to_cart.dart';
-import 'package:kpn_pos_application/ui/home/model/cart_request.dart';
-import 'package:kpn_pos_application/ui/home/model/customer_details_response.dart';
-import 'package:kpn_pos_application/ui/home/model/customer_request.dart';
-import 'package:kpn_pos_application/ui/home/model/delete_cart.dart';
-import 'package:kpn_pos_application/ui/home/model/general_success_response.dart';
-import 'package:kpn_pos_application/ui/home/model/open_register_response.dart';
-import 'package:kpn_pos_application/ui/home/model/phone_number_request.dart';
-import 'package:kpn_pos_application/ui/home/model/register_close_request.dart';
-import 'package:kpn_pos_application/ui/home/model/register_open_request.dart';
-import 'package:kpn_pos_application/ui/home/model/resume_hold_cart_request.dart';
-import 'package:kpn_pos_application/ui/home/model/update_cart.dart';
-import 'package:kpn_pos_application/ui/payment_summary/model/health_check_response.dart';
+import 'package:ebono_pos/api/api_constants.dart';
+import 'package:ebono_pos/api/api_helper.dart';
+import 'package:ebono_pos/models/cart_response.dart';
+import 'package:ebono_pos/models/customer_response.dart';
+import 'package:ebono_pos/models/scan_products_response.dart';
+import 'package:ebono_pos/ui/home/model/add_to_cart.dart';
+import 'package:ebono_pos/ui/home/model/cart_request.dart';
+import 'package:ebono_pos/ui/home/model/customer_details_response.dart';
+import 'package:ebono_pos/ui/home/model/customer_request.dart';
+import 'package:ebono_pos/ui/home/model/delete_cart.dart';
+import 'package:ebono_pos/ui/home/model/general_success_response.dart';
+import 'package:ebono_pos/ui/home/model/open_register_response.dart';
+import 'package:ebono_pos/ui/home/model/orders_on_hold.dart';
+import 'package:ebono_pos/ui/home/model/orders_onhold_request.dart';
+import 'package:ebono_pos/ui/home/model/phone_number_request.dart';
+import 'package:ebono_pos/ui/home/model/register_close_request.dart';
+import 'package:ebono_pos/ui/home/model/register_open_request.dart';
+import 'package:ebono_pos/ui/home/model/resume_hold_cart_request.dart';
+import 'package:ebono_pos/ui/home/model/update_cart.dart';
+import 'package:ebono_pos/ui/payment_summary/model/health_check_response.dart';
 
 class HomeRepository {
   final ApiHelper _apiHelper;

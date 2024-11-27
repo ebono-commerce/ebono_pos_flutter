@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:ebono_pos/ui/home/model/orders_on_hold.dart';
+import 'package:ebono_pos/ui/home/model/orders_onhold_request.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:ebono_pos/constants/shared_preference_constants.dart';
