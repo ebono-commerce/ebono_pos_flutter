@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:kpn_pos_application/navigation/navigation.dart';
-import 'package:kpn_pos_application/theme/theme_data.dart';
-import 'package:kpn_pos_application/utils/SDP.dart';
+import 'package:ebono_pos/navigation/navigation.dart';
+import 'package:ebono_pos/theme/theme_data.dart';
+import 'package:ebono_pos/utils/SDP.dart';
 import 'di/initial_binding.dart';
 import 'navigation/page_routes.dart';
 

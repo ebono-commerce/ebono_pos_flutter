@@ -1,4 +1,4 @@
-name: kpn_pos_application
+name: ebono_pos
 description: "Ebono POS."
 publish_to: "none" # Remove this line if you wish to publish to pub.dev
 

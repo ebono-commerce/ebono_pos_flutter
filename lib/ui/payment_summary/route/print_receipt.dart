@@ -2,8 +2,8 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:kpn_pos_application/ui/payment_summary/model/receipt_data.dart';
-import 'package:kpn_pos_application/ui/payment_summary/model/receipt_json.dart';
+import 'package:ebono_pos/ui/payment_summary/model/receipt_data.dart';
+import 'package:ebono_pos/ui/payment_summary/model/receipt_json.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';

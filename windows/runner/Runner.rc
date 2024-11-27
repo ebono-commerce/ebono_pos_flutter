@@ -90,12 +90,12 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "com.example" "\0"
-            VALUE "FileDescription", "kpn_pos_application" "\0"
+            VALUE "FileDescription", "ebono_pos" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "kpn_pos_application" "\0"
+            VALUE "InternalName", "ebono_pos" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2024 com.example. All rights reserved." "\0"
-            VALUE "OriginalFilename", "kpn_pos_application.exe" "\0"
-            VALUE "ProductName", "kpn_pos_application" "\0"
+            VALUE "OriginalFilename", "ebono_pos.exe" "\0"
+            VALUE "ProductName", "ebono_pos" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:kpn_pos_application/data_store/shared_preference_helper.dart';
-import 'package:kpn_pos_application/ui/home/home_controller.dart';
-import 'package:kpn_pos_application/ui/home/order_on_hold.dart';
-import 'package:kpn_pos_application/ui/home/orders_section.dart';
-import 'package:kpn_pos_application/ui/home/register_section.dart';
-import 'package:kpn_pos_application/ui/home/repository/home_repository.dart';
-import 'package:kpn_pos_application/ui/home/widgets/home_app_bar.dart';
-import 'package:kpn_pos_application/ui/login/bloc/login_bloc.dart';
-import 'package:kpn_pos_application/ui/login/repository/login_repository.dart';
+import 'package:ebono_pos/data_store/shared_preference_helper.dart';
+import 'package:ebono_pos/ui/home/home_controller.dart';
+import 'package:ebono_pos/ui/home/order_on_hold.dart';
+import 'package:ebono_pos/ui/home/orders_section.dart';
+import 'package:ebono_pos/ui/home/register_section.dart';
+import 'package:ebono_pos/ui/home/repository/home_repository.dart';
+import 'package:ebono_pos/ui/home/widgets/home_app_bar.dart';
+import 'package:ebono_pos/ui/login/bloc/login_bloc.dart';
+import 'package:ebono_pos/ui/login/repository/login_repository.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});

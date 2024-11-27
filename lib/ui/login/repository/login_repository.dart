@@ -1,14 +1,14 @@
 import 'dart:convert';
 
-import 'package:kpn_pos_application/api/api_constants.dart';
-import 'package:kpn_pos_application/api/api_helper.dart';
-import 'package:kpn_pos_application/ui/login/model/get_terminal_details_request.dart';
-import 'package:kpn_pos_application/ui/login/model/login_request.dart';
-import 'package:kpn_pos_application/ui/login/model/login_response.dart';
-import 'package:kpn_pos_application/ui/login/model/logout_request.dart';
-import 'package:kpn_pos_application/ui/login/model/logout_response.dart';
-import 'package:kpn_pos_application/ui/login/model/outlet_details_response.dart';
-import 'package:kpn_pos_application/ui/login/model/terminal_details_response.dart';
+import 'package:ebono_pos/api/api_constants.dart';
+import 'package:ebono_pos/api/api_helper.dart';
+import 'package:ebono_pos/ui/login/model/get_terminal_details_request.dart';
+import 'package:ebono_pos/ui/login/model/login_request.dart';
+import 'package:ebono_pos/ui/login/model/login_response.dart';
+import 'package:ebono_pos/ui/login/model/logout_request.dart';
+import 'package:ebono_pos/ui/login/model/logout_response.dart';
+import 'package:ebono_pos/ui/login/model/outlet_details_response.dart';
+import 'package:ebono_pos/ui/login/model/terminal_details_response.dart';
 
 class LoginRepository {
   final ApiHelper _apiHelper;

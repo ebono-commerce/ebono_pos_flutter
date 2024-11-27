@@ -1,4 +1,4 @@
-import 'package:kpn_pos_application/constants/shared_preference_constants.dart';
+import 'package:ebono_pos/constants/shared_preference_constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SharedPreferenceHelper {

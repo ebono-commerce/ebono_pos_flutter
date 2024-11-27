@@ -1,12 +1,12 @@
+import 'package:ebono_pos/ui/common_text_field.dart';
+import 'package:ebono_pos/ui/custom_keyboard/custom_num_pad.dart';
+import 'package:ebono_pos/ui/home/home_controller.dart';
+import 'package:ebono_pos/ui/home/widgets/quick_action_buttons.dart';
+import 'package:ebono_pos/utils/dash_line.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:ebono_pos/constants/custom_colors.dart';
 import 'package:intl/intl.dart';
-import 'package:kpn_pos_application/constants/custom_colors.dart';
-import 'package:kpn_pos_application/ui/common_text_field.dart';
-import 'package:kpn_pos_application/ui/custom_keyboard/custom_num_pad.dart';
-import 'package:kpn_pos_application/ui/home/home_controller.dart';
-import 'package:kpn_pos_application/ui/home/widgets/quick_action_buttons.dart';
-import 'package:kpn_pos_application/utils/dash_line.dart';
 
 class OrderOnHold extends StatefulWidget {
   final HomeController homeController;

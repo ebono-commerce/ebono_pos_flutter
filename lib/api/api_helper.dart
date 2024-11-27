@@ -1,5 +1,5 @@
 import 'package:dio/dio.dart' as dio;
-import 'package:kpn_pos_application/data_store/shared_preference_helper.dart';
+import 'package:ebono_pos/data_store/shared_preference_helper.dart';
 
 import 'auth_interceptor.dart';
 

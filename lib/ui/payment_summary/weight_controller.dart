@@ -1,5 +1,5 @@
 import 'package:get/get.dart';
-import 'package:kpn_pos_application/utils/digital_weighing_scale.dart';
+import 'package:ebono_pos/utils/digital_weighing_scale.dart';
 
 class WeightController extends GetxController {
   RxDouble weight = 0.0.obs; // Observable weight value

@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:get/get.dart';
-import 'package:kpn_pos_application/utils/digital_weighing_scale_implementation.dart';
+import 'package:ebono_pos/utils/digital_weighing_scale_implementation.dart';
 import 'package:libserialport/libserialport.dart';
 
 class DigitalWeighingScale implements DigitalWeighingScaleImplementation {

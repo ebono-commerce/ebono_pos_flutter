@@ -1,14 +1,14 @@
 import 'dart:convert';
 
-import 'package:kpn_pos_application/api/api_constants.dart';
-import 'package:kpn_pos_application/api/api_helper.dart';
-import 'package:kpn_pos_application/ui/payment_summary/model/payment_cancel_request.dart';
-import 'package:kpn_pos_application/ui/payment_summary/model/payment_initiate_request.dart';
-import 'package:kpn_pos_application/ui/payment_summary/model/payment_initiate_response.dart';
-import 'package:kpn_pos_application/ui/payment_summary/model/payment_status_request.dart';
-import 'package:kpn_pos_application/ui/payment_summary/model/payment_status_response.dart';
-import 'package:kpn_pos_application/ui/payment_summary/model/payment_summary_request.dart';
-import 'package:kpn_pos_application/ui/payment_summary/model/payment_summary_response.dart';
+import 'package:ebono_pos/api/api_constants.dart';
+import 'package:ebono_pos/api/api_helper.dart';
+import 'package:ebono_pos/ui/payment_summary/model/payment_cancel_request.dart';
+import 'package:ebono_pos/ui/payment_summary/model/payment_initiate_request.dart';
+import 'package:ebono_pos/ui/payment_summary/model/payment_initiate_response.dart';
+import 'package:ebono_pos/ui/payment_summary/model/payment_status_request.dart';
+import 'package:ebono_pos/ui/payment_summary/model/payment_status_response.dart';
+import 'package:ebono_pos/ui/payment_summary/model/payment_summary_request.dart';
+import 'package:ebono_pos/ui/payment_summary/model/payment_summary_response.dart';
 
 class PaymentRepository {
   final ApiHelper _apiHelper;
