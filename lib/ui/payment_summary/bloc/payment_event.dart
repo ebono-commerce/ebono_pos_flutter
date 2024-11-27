@@ -17,3 +17,5 @@ class PaymentStatusEvent extends PaymentEvent {}
 class PaymentCancelEvent extends PaymentEvent {}
 
 class CheckPaymentStatusBasedOnTimer extends PaymentEvent {}
+
+class PlaceOrderEvent extends PaymentEvent {}

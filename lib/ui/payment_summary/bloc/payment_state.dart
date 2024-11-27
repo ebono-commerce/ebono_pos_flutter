@@ -2,27 +2,29 @@ class PaymentState {
   final bool initialState;
   final bool isLoading;
   final bool showPaymentPopup;
-  final bool stopTimer; //final bool stopTimer;
+  final bool stopTimer;
   final bool isPaymentStartSuccess;
   final bool isPaymentStatusSuccess;
   final bool isPaymentCancelSuccess;
-
   final bool isPaymentSummarySuccess;
+  final bool isPlaceOrderSuccess;
+  final String? orderStatus;
   final bool isPaymentSummaryError;
   final String? errorMessage;
 
-  const PaymentState({
-    this.initialState = false,
-    this.isLoading = false,
-    this.showPaymentPopup = false,
-    this.stopTimer = false,
-    this.isPaymentStatusSuccess = false,
-    this.isPaymentCancelSuccess = false,
-    this.isPaymentStartSuccess = false,
-    this.isPaymentSummarySuccess = false,
-    this.isPaymentSummaryError = false,
-    this.errorMessage,
-  });
+  const PaymentState(
+      {this.initialState = false,
+      this.isLoading = false,
+      this.showPaymentPopup = false,
+      this.stopTimer = false,
+      this.isPaymentStatusSuccess = false,
+      this.isPaymentCancelSuccess = false,
+      this.isPaymentStartSuccess = false,
+      this.isPaymentSummarySuccess = false,
+      this.isPlaceOrderSuccess = false,
+      this.isPaymentSummaryError = false,
+      this.errorMessage,
+      this.orderStatus});
 
   PaymentState copyWith({
     bool? initialState,
@@ -34,7 +36,9 @@ class PaymentState {
     bool? isPaymentStartSuccess,
     bool? isPaymentSummarySuccess,
     bool? isPaymentSummaryError,
+    bool? isPlaceOrderSuccess,
     String? errorMessage,
+    String? orderStatus,
   }) {
     return PaymentState(
       initialState: initialState ?? this.initialState,
@@ -49,9 +53,11 @@ class PaymentState {
           isPaymentStartSuccess ?? this.isPaymentStartSuccess,
       isPaymentSummarySuccess:
           isPaymentSummarySuccess ?? this.isPaymentSummarySuccess,
+      isPlaceOrderSuccess: isPlaceOrderSuccess ?? this.isPlaceOrderSuccess,
       isPaymentSummaryError:
           isPaymentSummaryError ?? this.isPaymentSummaryError,
       errorMessage: errorMessage ?? this.errorMessage,
+      orderStatus: orderStatus ?? this.orderStatus,
     );
   }
 }
