@@ -184,7 +184,7 @@ class _HomePageState extends State<HomePage> {
                 : homeController.selectedTabButton.value == 2
                     ? OrdersSection(homeController)
                     : homeController.selectedTabButton.value == 3
-                        ? OrderOnHold()
+                        ? OrderOnHold(homeController)
                         : Container(),
           )),
     );
