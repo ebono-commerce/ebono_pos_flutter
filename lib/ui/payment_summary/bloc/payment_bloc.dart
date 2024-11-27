@@ -151,7 +151,6 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
     try {
       paymentStatusResponse =
           await _paymentRepository.paymentStatusApiCall(paymentStatusRequest);
-      emit(state.copyWith(isLoading: false, isPaymentStatusSuccess: true));
 
       print(
           "Success payment status --> : ${paymentStatusResponse.abstractPaymentStatus}");
@@ -165,36 +164,39 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
         case "P2P_DEVICE_TXN_DONE":
           p2pRequestId = '';
           Get.back();
-          emit(state.copyWith(stopTimer: true));
+          emit(state.copyWith(stopTimer: true, showPaymentPopup: false));
           Get.snackbar('Payment status', '${paymentStatusResponse.message}');
           break;
         case "P2P_STATUS_UNKNOWN":
           break;
         case "P2P_DEVICE_CANCELED":
           p2pRequestId = '';
-          emit(state.copyWith(stopTimer: true));
+          emit(state.copyWith(stopTimer: true, showPaymentPopup: false));
           Get.back();
+          Get.snackbar('Payment status', '${paymentStatusResponse.message}');
           break;
         case "P2P_STATUS_IN_CANCELED_FROM_EXTERNAL_SYSTEM":
           p2pRequestId = '';
-          emit(state.copyWith(stopTimer: true));
+          emit(state.copyWith(stopTimer: true, showPaymentPopup: false));
           Get.back();
+          Get.snackbar('Payment status', '${paymentStatusResponse.message}');
           break;
         case "P2P_ORIGINAL_P2P_REQUEST_IS_MISSING":
           p2pRequestId = '';
-          emit(state.copyWith(stopTimer: true));
+          emit(state.copyWith(stopTimer: true, showPaymentPopup: false));
           Get.back();
+          Get.snackbar('Payment status', '${paymentStatusResponse.message}');
           break;
         default:
           Get.back();
-          emit(state.copyWith(stopTimer: true));
+          emit(state.copyWith(stopTimer: true, showPaymentPopup: false));
           break;
       }
-      // Get.snackbar('Payment status', '${paymentStatusResponse.message}');
     } catch (error) {
       emit(state.copyWith(
           isLoading: false,
           isPaymentSummaryError: true,
+          showPaymentPopup: false,
           errorMessage: error.toString(),
           stopTimer: true));
       _timer?.cancel();
@@ -219,7 +221,8 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
 
       if (paymentStatusResponse.success == true) {
         emit(state.copyWith(
-            isPaymentCancelSuccess: paymentStatusResponse.success));
+            isPaymentCancelSuccess: paymentStatusResponse.success,
+            showPaymentPopup: false));
         Get.back();
       } else {
         if (paymentInitiateResponse.realCode ==
@@ -240,20 +243,17 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
 
   Future<void> _placeOrder(
       PlaceOrderEvent event, Emitter<PaymentState> emit) async {
-    print('_placeOrder: ');
     try {
       emit(state.copyWith(
           isLoading: true,
           orderStatus: "INVOICE_GENERATING",
           isPlaceOrderSuccess: false));
-      print('_placeOrder: INVOICE_GENERATING');
 
       await Future.delayed(Duration(seconds: 6));
       emit(state.copyWith(
           isLoading: false,
           orderStatus: "INVOICE_GENERATED",
           isPlaceOrderSuccess: true));
-      print('_placeOrder: INVOICE_GENERATED');
     } catch (error) {
       emit(state.copyWith(
         isLoading: false,
