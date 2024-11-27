@@ -17,8 +17,7 @@ import 'package:ebono_pos/utils/dash_line.dart';
 import 'package:ebono_pos/utils/price.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:intl/intlls/dash_line.dart';
-import 'package:ebono_pos/utils/price.dart';
+import 'package:intl/intl.dart';
 
 class OrdersSection extends StatefulWidget {
   final HomeController homeController;
