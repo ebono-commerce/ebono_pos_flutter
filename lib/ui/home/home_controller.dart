@@ -91,7 +91,8 @@ class HomeController extends GetxController {
   var isEnableHoldCartEnabled = ''.obs;
   var isPriceEditEnabled = ''.obs;
   var isSalesAssociateLinkEnabled = ''.obs;
-  var validOfferId = ''.obs;
+  bool isApiCallInProgress = false;
+
   @override
   void onInit() async {
     _checkConnectivity();
@@ -251,10 +252,11 @@ class HomeController extends GetxController {
 
   Future<void> scanApiCall(String code) async {
     try {
+      if (isApiCallInProgress) return;
+      isApiCallInProgress = true;
       var response = await _homeRepository.getScanProduct(
           code: code, outletId: selectedOutletId);
       scanProductsResponse.value = response;
-      validOfferId.value = '';
       if (cartId.value != "" && (response.priceList?.length ?? 0) <= 1) {
         addToCartApiCall(
             scanProductsResponse.value.esin,
@@ -263,8 +265,10 @@ class HomeController extends GetxController {
             scanProductsResponse.value.salesUom,
             cartId.value);
       }
-    } catch (e) {
-      print("Error $e");
+    } catch (error) {
+      print('Error fetching data: $error');
+    } finally {
+      isApiCallInProgress = false;
     }
   }
 
@@ -321,7 +325,6 @@ class HomeController extends GetxController {
           addCartLine(element);
         }
       }
-      cartLines.value = cartLines.toSet().toList();
     } catch (e) {
       print("Error $e");
     }
@@ -383,6 +386,7 @@ class HomeController extends GetxController {
       cartResponse.value = response;
       cartId.value = '';
       getCustomerDetailsResponse.value = CustomerDetailsResponse();
+      customerResponse.value = CustomerResponse();
       customerName.value = '';
       phoneNumber.value = '';
       cartLines.value = [];
@@ -399,6 +403,7 @@ class HomeController extends GetxController {
       generalSuccessResponse.value = response;
       cartId.value = '';
       getCustomerDetailsResponse.value = CustomerDetailsResponse();
+      customerResponse.value = CustomerResponse();
       customerName.value = '';
       phoneNumber.value = '';
       cartLines.value = [];
