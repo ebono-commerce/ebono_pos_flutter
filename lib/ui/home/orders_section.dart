@@ -325,7 +325,7 @@ class _OrdersSectionState extends State<OrdersSection>
             maxLines: 2, outerPadding: 4.0, innerPadding: 2.0),
         _buildEditableQuantityCell(itemData,
             outerPadding: 8.0, innerPadding: 10.0),
-        _buildUnitCell(itemData, outerPadding: 8.0, innerPadding: 10.0),
+        _buildUnitCell(itemData, outerPadding: 4.0, innerPadding: 4.0),
         _buildTableCell(
             getActualPrice(itemData.mrp?.centAmount, itemData.mrp?.fraction),
             outerPadding: 8.0,
@@ -402,11 +402,13 @@ class _OrdersSectionState extends State<OrdersSection>
             itemData.controller?.text !=
                 itemData.quantity?.quantityNumber.toString()) {
           double doubleValue = double.parse(itemData.controller?.text ?? '');
-          homeController.updateCartItemApiCall(
-            itemData.cartLineId,
-            itemData.quantity?.quantityUom,
-            doubleValue,
-          );
+          if (!homeController.isApiCallInProgress) {
+            homeController.updateCartItemApiCall(
+              itemData.cartLineId,
+              itemData.quantity?.quantityUom,
+              doubleValue,
+            );
+          }
         }
       } on Exception catch (e) {
         print(e);

@@ -368,6 +368,8 @@ class HomeController extends GetxController {
   Future<void> updateCartItemApiCall(
       String? cartLineId, String? qUom, double? qty) async {
     try {
+      if (isApiCallInProgress) return;
+      isApiCallInProgress = true;
       var response = await _homeRepository.updateCartItem(
           UpdateCartRequest(
               quantity: UpdateQuantity(quantityNumber: qty, quantityUom: qUom)),
@@ -377,6 +379,9 @@ class HomeController extends GetxController {
       fetchCartDetails();
     } catch (e) {
       print("Error $e");
+    }
+    finally {
+      isApiCallInProgress = false;
     }
   }
 
