@@ -1,7 +1,3 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_svg/svg.dart';
-import 'package:get/get.dart';
 import 'package:ebono_pos/constants/custom_colors.dart';
 import 'package:ebono_pos/data_store/shared_preference_helper.dart';
 import 'package:ebono_pos/ui/Common_button.dart';
@@ -10,6 +6,7 @@ import 'package:ebono_pos/ui/custom_keyboard/custom_num_pad.dart';
 import 'package:ebono_pos/ui/home/home_controller.dart';
 import 'package:ebono_pos/ui/home/widgets/home_app_bar.dart';
 import 'package:ebono_pos/ui/home/widgets/quick_action_buttons.dart';
+import 'package:ebono_pos/ui/order_success_screen.dart';
 import 'package:ebono_pos/ui/payment_summary/bloc/payment_bloc.dart';
 import 'package:ebono_pos/ui/payment_summary/bloc/payment_event.dart';
 import 'package:ebono_pos/ui/payment_summary/bloc/payment_state.dart';
@@ -18,6 +15,10 @@ import 'package:ebono_pos/ui/payment_summary/model/payment_summary_response.dart
 import 'package:ebono_pos/ui/payment_summary/repository/PaymentRepository.dart';
 import 'package:ebono_pos/utils/dash_line.dart';
 import 'package:ebono_pos/utils/price.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:get/get.dart';
 
 class PaymentSummaryScreen extends StatefulWidget {
   const PaymentSummaryScreen({super.key});
@@ -104,8 +105,7 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
         } else if (activeFocusNode == walletPaymentFocusNode) {
           walletTextController.text = numPadTextController.text;
         }
-       // }
-
+        // }
       });
     });
     super.initState();
@@ -130,7 +130,7 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
         create: (context) => paymentBloc,
         child: BlocListener<PaymentBloc, PaymentState>(
           listener: (BuildContext context, PaymentState state) {
-            if (state.showPaymentPopup) {
+            if (state.showPaymentPopup && state.isPaymentStartSuccess) {
               _showPaymentDialog();
             }
           },
@@ -423,13 +423,15 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
   }
 
 // Widget for Payment Mode Option
-  Widget paymentModeOption(
-      {required String label,
-      required String iconPath,
-      required String inputHint,
-      required String buttonLabel,
-      required TextEditingController controller,
-      required FocusNode focusNode}) {
+  Widget paymentModeOption({
+    required String label,
+    required String iconPath,
+    required String inputHint,
+    required String buttonLabel,
+    required TextEditingController controller,
+    required FocusNode focusNode,
+    required VoidCallback onPressed, // Add callback parameter
+  }) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -470,7 +472,7 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                       theme: theme,
                       textStyle: theme.textTheme.bodyMedium,
                       padding: EdgeInsets.all(12)),
-                  onPressed: () {},
+                  onPressed: onPressed,
                   child: Text(
                     buttonLabel,
                     style: TextStyle(
@@ -518,7 +520,8 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                     inputHint: 'Enter Amount',
                     buttonLabel: 'Received',
                     controller: cashPaymentTextController,
-                    focusNode: cashPaymentFocusNode),
+                    focusNode: cashPaymentFocusNode,
+                    onPressed: () {}),
                 SizedBox(height: 16),
                 paymentModeOption(
                     label: 'Online payment',
@@ -526,7 +529,10 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                     inputHint: 'Enter Amount',
                     buttonLabel: 'Generate link',
                     controller: onlinePaymentTextController,
-                    focusNode: onlinePaymentFocusNode),
+                    focusNode: onlinePaymentFocusNode,
+                    onPressed: () {
+                      paymentBloc.add(PaymentStartEvent());
+                    }),
               ],
             ),
           ),
@@ -563,7 +569,8 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                     inputHint: 'Available points',
                     buttonLabel: 'Redeem',
                     controller: loyaltyTextController,
-                    focusNode: loyaltyPaymentFocusNode),
+                    focusNode: loyaltyPaymentFocusNode,
+                    onPressed: () {}),
                 //redemptionOption(),
                 SizedBox(height: 16),
                 paymentModeOption(
@@ -572,7 +579,8 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                     inputHint: 'Available',
                     buttonLabel: 'Apply',
                     controller: walletTextController,
-                    focusNode: walletPaymentFocusNode),
+                    focusNode: walletPaymentFocusNode,
+                    onPressed: () {}),
 
                 //loyaltyPointsRedemption(),
               ],
@@ -647,10 +655,13 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                       theme: theme,
                       textStyle: theme.textTheme.bodyMedium,
                       padding: EdgeInsets.all(12)),
-                  onPressed: () {
-                    //printReceipt();
-                    paymentBloc.add(PaymentStartEvent());
-                  },
+                  onPressed: balanceAmount <= 0
+                      ? () {
+                          //printReceipt();
+                          //paymentBloc.add(PaymentStartEvent());
+                          _showOrderSuccessDialog();
+                        }
+                      : null,
                   child: Text(
                     "Place Order",
                     style: theme.textTheme.titleMedium?.copyWith(
@@ -664,6 +675,119 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
   }
 
   void _showPaymentDialog() {
+    if (!Get.isDialogOpen!) {
+      Get.dialog(
+        Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          insetPadding: EdgeInsets.all(100),
+          backgroundColor: Colors.transparent,
+          child: Wrap(
+            children: [
+              Container(
+                  padding: EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20)),
+                  child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        SizedBox(
+                          height: 10,
+                        ),
+                        Text(
+                          'Please wait....',
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleLarge
+                              ?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: CustomColors.black),
+                        ),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        Text(
+                          'Online payment is in processing',
+                          style: theme.textTheme.titleSmall?.copyWith(
+                              fontWeight: FontWeight.normal,
+                              color: Colors.black87),
+                        ),
+                        SizedBox(
+                          height: 30,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8.0, vertical: 5),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              TextButton(
+                                style: TextButton.styleFrom(
+                                  backgroundColor: CustomColors.red,
+                                  side: BorderSide(
+                                      color: CustomColors.red, width: 1),
+                                ),
+                                onPressed: () {
+                                  paymentBloc.add(PaymentCancelEvent());
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.all(20.0),
+                                  child: Text(
+                                    'Cancel Payment',
+                                    style: theme.textTheme.titleSmall?.copyWith(
+                                        fontWeight: FontWeight.normal,
+                                        color: Colors.white),
+                                  ),
+                                ),
+                              ),
+                              SizedBox(
+                                width: 20,
+                              ),
+                              TextButton(
+                                style: TextButton.styleFrom(
+                                  backgroundColor: CustomColors.secondaryColor,
+                                  disabledBackgroundColor:
+                                      CustomColors.enabledBorderColor,
+                                  disabledForegroundColor:
+                                      CustomColors.enabledBorderColor,
+                                  side: BorderSide(
+                                      color: CustomColors.secondaryColor,
+                                      width: 1),
+                                ),
+                                onPressed: () {
+                                  paymentBloc.add(PaymentStatusEvent());
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.all(20.0),
+                                  child: Text(
+                                    'Check Payment Status',
+                                    style: theme.textTheme.titleSmall?.copyWith(
+                                        fontWeight: FontWeight.normal,
+                                        color: Colors.black87),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                      ])),
+            ],
+          ),
+        ),
+        barrierDismissible: true,
+        // Prevents the dialog from closing on outside tap
+      );
+    }
+  }
+
+  void _showPaymentDialog1() {
     Get.dialog(
       AlertDialog(
         title: Text(
@@ -717,5 +841,30 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
       barrierDismissible: false,
       // Prevents the dialog from closing on outside tap
     );
+  }
+
+  void _showOrderSuccessDialog() {
+    if (!Get.isDialogOpen!) {
+      Get.dialog(
+          barrierDismissible: false,
+          Dialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            insetPadding: EdgeInsets.all(100),
+            backgroundColor: Colors.transparent,
+            child:
+                // WillPopScope(
+                //   onWillPop: () async => true,
+                //   child:
+                Container(
+                    padding: EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20)),
+                    child: OrderSuccessScreen()),
+            // ),
+          ));
+    }
   }
 }

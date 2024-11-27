@@ -28,6 +28,7 @@ dependencies:
   shared_preferences: ^2.3.2
   uuid: ^4.4.2
   connectivity_plus: ^3.0.3
+  lottie: ^3.1.3
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -48,6 +49,7 @@ flutter:
     - assets/fonts/
     - assets/
     - assets/data/
+    - assets/lottie/
 
   # fonts:
   #   - family: Schyler

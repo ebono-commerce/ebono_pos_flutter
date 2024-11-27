@@ -1,8 +1,6 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get/get.dart';
 import 'package:ebono_pos/constants/shared_preference_constants.dart';
 import 'package:ebono_pos/data_store/get_storage_helper.dart';
 import 'package:ebono_pos/data_store/shared_preference_helper.dart';
@@ -16,6 +14,8 @@ import 'package:ebono_pos/ui/payment_summary/model/payment_status_response.dart'
 import 'package:ebono_pos/ui/payment_summary/model/payment_summary_request.dart';
 import 'package:ebono_pos/ui/payment_summary/model/payment_summary_response.dart';
 import 'package:ebono_pos/ui/payment_summary/repository/PaymentRepository.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get/get.dart';
 
 class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
   final PaymentRepository _paymentRepository;
@@ -34,7 +34,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
   String loyaltyValue = '';
   String walletValue = '';
 
-  String p2pRequestId = '241122060944906E020075684';
+  String p2pRequestId = '';
 
   PaymentBloc(this._paymentRepository, this._sharedPreferenceHelper)
       : super(PaymentState()) {
@@ -44,6 +44,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
     on<PaymentStartEvent>(_paymentInitiateApi);
     on<PaymentStatusEvent>(_paymentStatusApi);
     on<PaymentCancelEvent>(_paymentCancelApi);
+    on<PlaceOrderEvent>(_placeOrder);
   }
 
   void _startPeriodicPaymentStatusCheck() {
@@ -163,8 +164,9 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
           break;
         case "P2P_DEVICE_TXN_DONE":
           p2pRequestId = '';
-          emit(state.copyWith(stopTimer: true));
           Get.back();
+          emit(state.copyWith(stopTimer: true));
+          Get.snackbar('Payment status', '${paymentStatusResponse.message}');
           break;
         case "P2P_STATUS_UNKNOWN":
           break;
@@ -188,7 +190,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
           emit(state.copyWith(stopTimer: true));
           break;
       }
-      Get.snackbar('Payment status', '${paymentStatusResponse.message}');
+      // Get.snackbar('Payment status', '${paymentStatusResponse.message}');
     } catch (error) {
       emit(state.copyWith(
           isLoading: false,
@@ -233,6 +235,32 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
           isLoading: false,
           isPaymentSummaryError: true,
           errorMessage: error.toString()));
+    }
+  }
+
+  Future<void> _placeOrder(
+      PlaceOrderEvent event, Emitter<PaymentState> emit) async {
+    print('_placeOrder: ');
+    try {
+      emit(state.copyWith(
+          isLoading: true,
+          orderStatus: "INVOICE_GENERATING",
+          isPlaceOrderSuccess: false));
+      print('_placeOrder: INVOICE_GENERATING');
+
+      await Future.delayed(Duration(seconds: 6));
+      emit(state.copyWith(
+          isLoading: false,
+          orderStatus: "INVOICE_GENERATED",
+          isPlaceOrderSuccess: true));
+      print('_placeOrder: INVOICE_GENERATED');
+    } catch (error) {
+      emit(state.copyWith(
+        isLoading: false,
+        orderStatus: "INVOICE_GENERATING",
+        isPaymentSummaryError: true,
+        errorMessage: error.toString(),
+      ));
     }
   }
 
