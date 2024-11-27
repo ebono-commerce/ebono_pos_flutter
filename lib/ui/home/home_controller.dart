@@ -321,6 +321,7 @@ class HomeController extends GetxController {
           addCartLine(element);
         }
       }
+      cartLines.value = cartLines.toSet().toList();
     } catch (e) {
       print("Error $e");
     }
