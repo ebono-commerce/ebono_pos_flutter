@@ -21,10 +21,7 @@ class ApiHelper {
         'Content-Type': 'application/json',
         'x-channel': 'POS',
         'x-app-id': '8521954d-6746-49c2-b50c-1593cf0adb42',
-      },
-      queryParameters: {
-        'channel': 'POS',
-      },
+      }
     ));
 
     _dio.interceptors.add(AuthInterceptor(_sharedPreferenceHelper));

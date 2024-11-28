@@ -135,24 +135,22 @@ class _RegisterSectionState extends State<RegisterSection>
 
     numPadTextController.addListener(() {
       setState(() {
-        if (numPadTextController.text.isNotEmpty) {
-          if (activeFocusNode == cashPaymentFocusNode) {
-            cashPaymentTextController.text = numPadTextController.text;
-          } else if (activeFocusNode == openingFloatPaymentFocusNode) {
-            openingFloatPaymentTextController.text = numPadTextController.text;
-          } else if (activeFocusNode == cardsPaymentFocusNode) {
-            cardsPaymentTextController.text = numPadTextController.text;
-          } else if (activeFocusNode == upiPaymentFocusNode) {
-            upiPaymentTextController.text = numPadTextController.text;
-          } else if (activeFocusNode == openCommentFocusNode) {
-            openCommentTextController.text = numPadTextController.text;
-          } else if (activeFocusNode == closeCommentFocusNode) {
-            closeCommentTextController.text = numPadTextController.text;
-          } else if (activeFocusNode == upiSlipCountFocusNode) {
-            upiSlipCountTextController.text = numPadTextController.text;
-          } else if (activeFocusNode == cardSlipCountFocusNode) {
-            cardSlipCountTextController.text = numPadTextController.text;
-          }
+        if (activeFocusNode == cashPaymentFocusNode) {
+          cashPaymentTextController.text = numPadTextController.text;
+        } else if (activeFocusNode == openingFloatPaymentFocusNode) {
+          openingFloatPaymentTextController.text = numPadTextController.text;
+        } else if (activeFocusNode == cardsPaymentFocusNode) {
+          cardsPaymentTextController.text = numPadTextController.text;
+        } else if (activeFocusNode == upiPaymentFocusNode) {
+          upiPaymentTextController.text = numPadTextController.text;
+        } else if (activeFocusNode == openCommentFocusNode) {
+          openCommentTextController.text = numPadTextController.text;
+        } else if (activeFocusNode == closeCommentFocusNode) {
+          closeCommentTextController.text = numPadTextController.text;
+        } else if (activeFocusNode == upiSlipCountFocusNode) {
+          upiSlipCountTextController.text = numPadTextController.text;
+        } else if (activeFocusNode == cardSlipCountFocusNode) {
+          cardSlipCountTextController.text = numPadTextController.text;
         }
       });
     });

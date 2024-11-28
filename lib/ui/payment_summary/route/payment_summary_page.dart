@@ -6,13 +6,13 @@ import 'package:ebono_pos/ui/custom_keyboard/custom_num_pad.dart';
 import 'package:ebono_pos/ui/home/home_controller.dart';
 import 'package:ebono_pos/ui/home/widgets/home_app_bar.dart';
 import 'package:ebono_pos/ui/home/widgets/quick_action_buttons.dart';
-import 'package:ebono_pos/ui/order_success_screen.dart';
 import 'package:ebono_pos/ui/payment_summary/bloc/payment_bloc.dart';
 import 'package:ebono_pos/ui/payment_summary/bloc/payment_event.dart';
 import 'package:ebono_pos/ui/payment_summary/bloc/payment_state.dart';
 import 'package:ebono_pos/ui/payment_summary/model/payment_summary_request.dart';
 import 'package:ebono_pos/ui/payment_summary/model/payment_summary_response.dart';
 import 'package:ebono_pos/ui/payment_summary/repository/PaymentRepository.dart';
+import 'package:ebono_pos/ui/payment_summary/route/order_success_screen.dart';
 import 'package:ebono_pos/utils/dash_line.dart';
 import 'package:ebono_pos/utils/price.dart';
 import 'package:flutter/material.dart';
@@ -95,7 +95,6 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
 
     numPadTextController.addListener(() {
       setState(() {
-        //if (numPadTextController.text.isNotEmpty) {
         if (activeFocusNode == cashPaymentFocusNode) {
           cashPaymentTextController.text = numPadTextController.text;
         } else if (activeFocusNode == onlinePaymentFocusNode) {
@@ -105,7 +104,6 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
         } else if (activeFocusNode == walletPaymentFocusNode) {
           walletTextController.text = numPadTextController.text;
         }
-        // }
       });
     });
     super.initState();
@@ -218,14 +216,14 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  billDetailRow(label: 'Invoice no.', value: '#123456789'),
+                  //billDetailRow(label: 'Invoice no.', value: '#123456789'),
                   billDetailRow(
                       label: 'Total items',
                       value: data?.totalItems.toString() ?? ''),
                   billDetailRow(
                       label: 'Price',
-                      value: getActualPrice(data?.mrpSavings?.centAmount,
-                          data?.mrpSavings?.fraction)),
+                      value: getActualPrice(data?.amountPayable?.centAmount,
+                          data?.amountPayable?.fraction)),
                   billDetailRow(
                       label: 'GST',
                       value: getActualPrice(data?.taxTotal?.centAmount,
@@ -430,7 +428,7 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
     required String buttonLabel,
     required TextEditingController controller,
     required FocusNode focusNode,
-    required VoidCallback onPressed, // Add callback parameter
+    required VoidCallback? onPressed, // Add callback parameter
   }) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -521,7 +519,9 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                     buttonLabel: 'Received',
                     controller: cashPaymentTextController,
                     focusNode: cashPaymentFocusNode,
-                    onPressed: () {}),
+                    onPressed: cashPaymentTextController.value.text.isNotEmpty
+                        ? () {}
+                        : null),
                 SizedBox(height: 16),
                 paymentModeOption(
                     label: 'Online payment',
@@ -530,9 +530,11 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                     buttonLabel: 'Generate link',
                     controller: onlinePaymentTextController,
                     focusNode: onlinePaymentFocusNode,
-                    onPressed: () {
-                      paymentBloc.add(PaymentStartEvent());
-                    }),
+                    onPressed: onlinePaymentTextController.value.text.isNotEmpty
+                        ? () {
+                            paymentBloc.add(PaymentStartEvent());
+                          }
+                        : null),
               ],
             ),
           ),
@@ -570,7 +572,7 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                     buttonLabel: 'Redeem',
                     controller: loyaltyTextController,
                     focusNode: loyaltyPaymentFocusNode,
-                    onPressed: () {}),
+                    onPressed: null),
                 //redemptionOption(),
                 SizedBox(height: 16),
                 paymentModeOption(
@@ -580,7 +582,7 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                     buttonLabel: 'Apply',
                     controller: walletTextController,
                     focusNode: walletPaymentFocusNode,
-                    onPressed: () {}),
+                    onPressed: null),
 
                 //loyaltyPointsRedemption(),
               ],
@@ -604,6 +606,9 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
     var totalPayable =
         (paymentBloc.paymentSummaryResponse.amountPayable?.centAmount ?? 0) /
             (paymentBloc.paymentSummaryResponse.amountPayable?.fraction ?? 1);
+    if(online != '0'){
+      paymentBloc.isOnlinePaymentSuccess = true;
+    }
     return totalPayable - givenAmount;
   }
 
@@ -655,10 +660,9 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                       theme: theme,
                       textStyle: theme.textTheme.bodyMedium,
                       padding: EdgeInsets.all(12)),
-                  onPressed: balanceAmount <= 0
+                  onPressed: ((balanceAmount <= 0 &&
+                          onlinePaymentTextController.value.text == ''))
                       ? () {
-                          //printReceipt();
-                          //paymentBloc.add(PaymentStartEvent());
                           _showOrderSuccessDialog();
                         }
                       : null,

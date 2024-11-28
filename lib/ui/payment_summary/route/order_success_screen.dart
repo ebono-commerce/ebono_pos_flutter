@@ -5,6 +5,7 @@ import 'package:ebono_pos/ui/payment_summary/bloc/payment_bloc.dart';
 import 'package:ebono_pos/ui/payment_summary/bloc/payment_event.dart';
 import 'package:ebono_pos/ui/payment_summary/bloc/payment_state.dart';
 import 'package:ebono_pos/ui/payment_summary/repository/PaymentRepository.dart';
+import 'package:ebono_pos/ui/payment_summary/route/print_receipt.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
@@ -92,6 +93,7 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                                 padding: EdgeInsets.all(12)),
                             onPressed: !state.isLoading
                                 ? () {
+                                    printReceipt();
                                     Get.back();
                                   }
                                 : null,
@@ -111,6 +113,7 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                           child: ElevatedButton(
                             onPressed: !state.isLoading
                                 ? () {
+                                    printReceipt();
                                     Get.back();
                                   }
                                 : null,
