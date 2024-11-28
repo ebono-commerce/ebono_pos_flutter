@@ -35,6 +35,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
   String walletValue = '';
 
   String p2pRequestId = '';
+  bool isOnlinePaymentSuccess = false;
 
   PaymentBloc(this._paymentRepository, this._sharedPreferenceHelper)
       : super(PaymentState()) {
@@ -163,6 +164,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
           break;
         case "P2P_DEVICE_TXN_DONE":
           p2pRequestId = '';
+          isOnlinePaymentSuccess = true;
           Get.back();
           emit(state.copyWith(stopTimer: true, showPaymentPopup: false));
           Get.snackbar('Payment status', '${paymentStatusResponse.message}');

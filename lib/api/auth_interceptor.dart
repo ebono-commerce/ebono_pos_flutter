@@ -1,9 +1,9 @@
 import 'package:dio/dio.dart';
-import 'package:get/get.dart';
 import 'package:ebono_pos/api/api_constants.dart';
 import 'package:ebono_pos/data_store/get_storage_helper.dart';
 import 'package:ebono_pos/data_store/shared_preference_helper.dart';
 import 'package:ebono_pos/navigation/page_routes.dart';
+import 'package:get/get.dart';
 
 class AuthInterceptor extends Interceptor {
   final SharedPreferenceHelper _sharedPreferenceHelper;
@@ -28,14 +28,16 @@ class AuthInterceptor extends Interceptor {
       } else if (options.uri.path.contains('/cancel')) {
         options.path = ApiConstants.paymentApiCancel;
       }
-
     } else {
-     if (token != null && !options.uri.path.contains('/login')) {
+      if (token != null && !options.uri.path.contains('/login')) {
         options.headers['Authorization'] = 'Bearer $token';
       }
       if (appUUID != null) {
         options.headers['x-app-id'] = appUUID;
       }
+      options.queryParameters = {
+        'channel': 'POS',
+      };
     }
     print('app id : $appUUID');
     print('token $token');
