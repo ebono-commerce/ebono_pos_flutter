@@ -1,11 +1,4 @@
 import 'package:dropdown_search/dropdown_search.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter_platform_alert/flutter_platform_alert.dart';
-import 'package:flutter_svg/svg.dart';
-import 'package:flutter_window_close/flutter_window_close.dart';
-import 'package:get/get.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ebono_pos/constants/custom_colors.dart';
 import 'package:ebono_pos/data_store/shared_preference_helper.dart';
 import 'package:ebono_pos/navigation/page_routes.dart';
@@ -14,7 +7,11 @@ import 'package:ebono_pos/ui/login/bloc/login_bloc.dart';
 import 'package:ebono_pos/ui/login/bloc/login_event.dart';
 import 'package:ebono_pos/ui/login/bloc/login_state.dart';
 import 'package:ebono_pos/ui/login/repository/login_repository.dart';
-import 'package:libserialport/libserialport.dart';
+import 'package:ebono_pos/utils/common_methods.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:get/get.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -43,35 +40,12 @@ class _LoginPageState extends State<LoginPage> {
       GlobalKey<DropdownSearchState>();
   late ThemeData theme;
 
-  var _alertShowing = false;
   @override
   void initState() {
-    FlutterWindowClose.setWindowShouldCloseHandler(() async {
-      print('c;lsoing winsows  $_alertShowing');
-      if (_alertShowing) return false;
-      _alertShowing = true;
-
-      return await showDialog(
-          context: context,
-          builder: (context) {
-            return AlertDialog(
-                title: const Text('Do you really want to quit?'),
-                actions: [
-                  ElevatedButton(
-                      onPressed: () {
-                        Navigator.of(context).pop(true);
-                        _alertShowing = false;
-                      },
-                      child: const Text('Yes')),
-                  ElevatedButton(
-                      onPressed: () {
-                        Navigator.of(context).pop(false);
-                        _alertShowing = false;
-                      },
-                      child: const Text('No'))
-                ]);
-          });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      showCloseAlert(context);
     });
+
     loginBloc.add(LoginInitialEvent());
 
     storeIdFocusNode.addListener(() {

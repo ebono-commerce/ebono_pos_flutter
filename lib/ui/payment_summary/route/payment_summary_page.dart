@@ -1,7 +1,3 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_svg/svg.dart';
-import 'package:get/get.dart';
 import 'package:ebono_pos/constants/custom_colors.dart';
 import 'package:ebono_pos/data_store/shared_preference_helper.dart';
 import 'package:ebono_pos/ui/Common_button.dart';
@@ -16,8 +12,13 @@ import 'package:ebono_pos/ui/payment_summary/bloc/payment_state.dart';
 import 'package:ebono_pos/ui/payment_summary/model/payment_summary_request.dart';
 import 'package:ebono_pos/ui/payment_summary/model/payment_summary_response.dart';
 import 'package:ebono_pos/ui/payment_summary/repository/PaymentRepository.dart';
+import 'package:ebono_pos/utils/common_methods.dart';
 import 'package:ebono_pos/utils/dash_line.dart';
 import 'package:ebono_pos/utils/price.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:get/get.dart';
 
 class PaymentSummaryScreen extends StatefulWidget {
   const PaymentSummaryScreen({super.key});
@@ -107,6 +108,9 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
        // }
 
       });
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      showCloseAlert(context);
     });
     super.initState();
   }
