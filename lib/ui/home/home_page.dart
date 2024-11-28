@@ -1,6 +1,6 @@
 import 'package:ebono_pos/data_store/shared_preference_helper.dart';
 import 'package:ebono_pos/ui/home/home_controller.dart';
-import 'package:ebono_pos/ui/home/order_on_hold.dart';
+import 'package:ebono_pos/ui/home/orders_on_hold/route/order_on_hold2.dart';
 import 'package:ebono_pos/ui/home/orders_section.dart';
 import 'package:ebono_pos/ui/home/register_section.dart';
 import 'package:ebono_pos/ui/home/repository/home_repository.dart';
@@ -209,7 +209,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                 : homeController.selectedTabButton.value == 2
                     ? OrdersSection(homeController)
                     : homeController.selectedTabButton.value == 3
-                        ? OrderOnHold(homeController)
+                        ? OrderOnHold2(homeController)
                         : Container(),
           )),
     );
