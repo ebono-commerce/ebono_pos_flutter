@@ -3,11 +3,11 @@ import 'package:ebono_pos/constants/custom_colors.dart';
 import 'package:ebono_pos/data_store/shared_preference_helper.dart';
 import 'package:ebono_pos/navigation/page_routes.dart';
 import 'package:ebono_pos/ui/common_text_field.dart';
+import 'package:ebono_pos/ui/custom_keyboard/custom_querty_pad.dart';
 import 'package:ebono_pos/ui/login/bloc/login_bloc.dart';
 import 'package:ebono_pos/ui/login/bloc/login_event.dart';
 import 'package:ebono_pos/ui/login/bloc/login_state.dart';
 import 'package:ebono_pos/ui/login/repository/login_repository.dart';
-import 'package:ebono_pos/utils/common_methods.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
@@ -29,6 +29,9 @@ class _LoginPageState extends State<LoginPage> {
   TextEditingController terminalIdController = TextEditingController();
   TextEditingController loginIdController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
+  final TextEditingController _qwertyPadController = TextEditingController();
+  FocusNode? activeFocusNode;
+
   final _formKey = GlobalKey<FormState>();
 
   final loginBloc = LoginBloc(
@@ -42,10 +45,6 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   void initState() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      showCloseAlert(context);
-    });
-
     loginBloc.add(LoginInitialEvent());
 
     storeIdFocusNode.addListener(() {
@@ -54,11 +53,40 @@ class _LoginPageState extends State<LoginPage> {
     terminalIdFocusNode.addListener(() {
       setState(() {});
     });
+
+    if (!loginIdFocusNode.hasFocus) {
+      loginIdFocusNode.requestFocus();
+    }
+    activeFocusNode = loginIdFocusNode;
+
     loginIdFocusNode.addListener(() {
-      setState(() {});
+      setState(() {
+        if (loginIdFocusNode.hasFocus) {
+          activeFocusNode = loginIdFocusNode;
+        }
+        _qwertyPadController.text = loginIdController.text;
+      });
     });
+
     passwordFocusNode.addListener(() {
-      setState(() {});
+      setState(() {
+        if (passwordFocusNode.hasFocus) {
+          activeFocusNode = passwordFocusNode;
+        }
+        _qwertyPadController.text = passwordController.text;
+      });
+    });
+
+    _qwertyPadController.addListener(() {
+      setState(() {
+        //if (_qwertyPadController.text.isNotEmpty) {
+        if (activeFocusNode == loginIdFocusNode) {
+          loginIdController.text = _qwertyPadController.text;
+        } else if (activeFocusNode == passwordFocusNode) {
+          passwordController.text = _qwertyPadController.text;
+        }
+        //}
+      });
     });
     super.initState();
   }
@@ -95,17 +123,63 @@ class _LoginPageState extends State<LoginPage> {
               return Stack(children: [
                 Container(
                   color: CustomColors.backgroundColor,
-                  child: Row(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.max,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Flexible(flex: 3, child: welcomeWidget(context)),
-                      state is LoginSuccess ||
-                              state is GetOutletDetailsSuccess ||
-                              state is SubmitTerminalDetailsSuccess
-                          ? Flexible(
-                              flex: 2,
-                              child: storeDetailsWidget(context, loginBloc))
-                          : state is LoginInitial || state is ReadPortSuccess ? Flexible(flex: 2, child: portSelectionWidget(context, loginBloc)):  Flexible(flex: 2, child: loginWidget(context)),
-                      Flexible(flex: 1, child: SizedBox())
+                      state is PortSelectionSuccess ? SizedBox() : SizedBox(),
+                      Row(
+                        children: [
+                          Flexible(flex: 3, child: welcomeWidget(context)),
+                          state is LoginSuccess ||
+                                  state is GetOutletDetailsSuccess ||
+                                  state is SubmitTerminalDetailsSuccess
+                              ? Flexible(
+                                  flex: 2,
+                                  child: storeDetailsWidget(context, loginBloc))
+                              : state is LoginInitial ||
+                                      state is ReadPortSuccess
+                                  ? Flexible(
+                                      flex: 2,
+                                      child: portSelectionWidget(
+                                          context, loginBloc))
+                                  : Flexible(
+                                      flex: 2, child: loginWidget(context)),
+                          Flexible(flex: 1, child: SizedBox())
+                        ],
+                      ),
+                      state is PortSelectionSuccess || state is LoginFailure
+                          ? Container(
+                              width: MediaQuery.of(context).size.width,
+                              color: Colors.white,
+                              child: Column(
+                                children: [
+                                  SizedBox(height: 20),
+                                  Container(
+                                    width: MediaQuery.of(context).size.width,
+                                    color: Colors.white,
+                                    child: SizedBox(
+                                      width: 900,
+                                      child: CustomQwertyPad(
+                                        textController: _qwertyPadController,
+                                        focusNode: activeFocusNode!,
+                                        onEnterPressed: (value) {
+                                          if (activeFocusNode ==
+                                              loginIdFocusNode) {
+                                            passwordFocusNode.requestFocus();
+                                          } else if (activeFocusNode ==
+                                              passwordFocusNode) {
+                                            passwordFocusNode.unfocus();
+                                          }
+                                        },
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(height: 20)
+                                ],
+                              ),
+                            )
+                          : SizedBox(),
                     ],
                   ),
                 ),
@@ -340,8 +414,40 @@ class _LoginPageState extends State<LoginPage> {
                       label: '"Search Store Id',
                       prefixIcon: Icon(Icons.search)),
                 ),
+                bottomSheetProps: BottomSheetProps(
+                  constraints: BoxConstraints(
+                      maxWidth: 940,
+                      minWidth: 900,
+                      maxHeight: 1000,
+                      minHeight: 600),
+                ),
+                containerBuilder: (context, popupWidget) {
+                  return ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxWidth: 920, // Set your desired width here
+                    ),
+                    child: Column(
+                      children: [
+                        // Add any custom widgets here
+                        Expanded(child: popupWidget),
+                        Divider(
+                          color: CustomColors.borderColor,
+                        ),
+                        SizedBox(
+                          child: CustomQwertyPad(
+                            textController: storeIdController,
+                            focusNode: storeIdFocusNode,
+                            onEnterPressed: (value) {},
+                          ),
+                        ),
+                        SizedBox(
+                          height: 10,
+                        )
+                      ],
+                    ),
+                  );
+                },
               ),
-              //dropdownBuilder: (ctx, selectedItem) => Text(selectedItem!.name),
             ),
 
             SizedBox(height: 20),
@@ -401,9 +507,40 @@ class _LoginPageState extends State<LoginPage> {
                             label: '"Search Terminal Id',
                             prefixIcon: Icon(Icons.search)),
                       ),
-                    ),
-                    //dropdownBuilder: (ctx, selectedItem) => Text(selectedItem!.name),
-                  )
+                      bottomSheetProps: BottomSheetProps(
+                        constraints: BoxConstraints(
+                            maxWidth: 940,
+                            minWidth: 900,
+                            maxHeight: 1000,
+                            minHeight: 600),
+                      ),
+                      containerBuilder: (context, popupWidget) {
+                        return ConstrainedBox(
+                          constraints: BoxConstraints(
+                            maxWidth: 920, // Set your desired width here
+                          ),
+                          child: Column(
+                            children: [
+                              // Add any custom widgets here
+                              Expanded(child: popupWidget),
+                              Divider(
+                                color: CustomColors.borderColor,
+                              ),
+                              SizedBox(
+                                child: CustomQwertyPad(
+                                  textController: terminalIdController,
+                                  focusNode: terminalIdFocusNode,
+                                  onEnterPressed: (value) {},
+                                ),
+                              ),
+                              SizedBox(
+                                height: 10,
+                              )
+                            ],
+                          ),
+                        );
+                      },
+                    ))
                 : SizedBox(),
             SizedBox(height: 20),
 
@@ -482,24 +619,16 @@ class _LoginPageState extends State<LoginPage> {
                       iconClosed: Icon(Icons.keyboard_arrow_down),
                     )),
                     selectedItem: availablePorts.first,
-                    popupProps: PopupProps.bottomSheet(
-                      showSearchBox: true,
+                    popupProps: PopupProps.menu(
+                      showSearchBox: false,
                       fit: FlexFit.loose,
                       showSelectedItems: true,
-                      searchFieldProps: TextFieldProps(
-                        controller: storeIdController,
-                        focusNode: storeIdFocusNode,
-                        decoration: textFieldDecoration(
-                            isFocused: storeIdFocusNode.hasFocus,
-                            filled: true,
-                            label: 'Select Port Id',
-                            prefixIcon: Icon(Icons.search)),
-                      ),
                     ),
                     //dropdownBuilder: (ctx, selectedItem) => Text(selectedItem!.name),
                   )
-                : Text('No port found',  style: theme.textTheme.bodyLarge
-                ?.copyWith(color: Colors.black45)),
+                : Text('No port found',
+                    style: theme.textTheme.bodyLarge
+                        ?.copyWith(color: Colors.black45)),
 
             SizedBox(height: 20),
             // Sign in button
@@ -526,8 +655,7 @@ class _LoginPageState extends State<LoginPage> {
                         SelectPort(availablePorts.first),
                       );
                     });
-                  }
-                  else{
+                  } else {
                     Future.delayed(Duration(milliseconds: 400), () {
                       loginBloc.add(
                         SelectPort(''),

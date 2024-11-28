@@ -7,7 +7,6 @@ import 'package:ebono_pos/ui/home/repository/home_repository.dart';
 import 'package:ebono_pos/ui/home/widgets/home_app_bar.dart';
 import 'package:ebono_pos/ui/login/bloc/login_bloc.dart';
 import 'package:ebono_pos/ui/login/repository/login_repository.dart';
-import 'package:ebono_pos/utils/common_methods.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -18,7 +17,7 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
+class _HomePageState extends State<HomePage> {
   //int _selectedButton = 2;
 
   // bool isOnline = false;
@@ -28,30 +27,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   late ThemeData theme;
   final loginBloc = LoginBloc(
       Get.find<LoginRepository>(), Get.find<SharedPreferenceHelper>());
-
-  @override
-  void initState() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      showCloseAlert(context);
-    });
-    WidgetsBinding.instance.addObserver(this);
-
-    super.initState();
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    print('didChangeAppLifecycleState $state');
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      showCloseAlert(context);
-    });
-  }
-
-  @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {

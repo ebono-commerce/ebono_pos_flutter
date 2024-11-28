@@ -1,11 +1,11 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
-import 'package:get/get.dart';
 import 'package:ebono_pos/constants/custom_colors.dart';
 import 'package:ebono_pos/ui/Common_button.dart';
 import 'package:ebono_pos/ui/common_text_field.dart';
 import 'package:ebono_pos/ui/custom_keyboard/custom_querty_pad.dart';
 import 'package:ebono_pos/ui/home/home_controller.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:get/get.dart';
 
 class AuthorisationRequiredWidget extends StatefulWidget {
   final HomeController homeController;
@@ -45,7 +45,7 @@ class _AuthorisationRequiredWidgetState
         if (loginIdFocusNode.hasFocus) {
           activeFocusNode = loginIdFocusNode;
         }
-        _qwertyPadController.text = passwordController.text;
+        _qwertyPadController.text = loginIdController.text;
       });
     });
 
@@ -54,16 +54,16 @@ class _AuthorisationRequiredWidgetState
         if (passwordFocusNode.hasFocus) {
           activeFocusNode = passwordFocusNode;
         }
-        _qwertyPadController.text = loginIdController.text;
+        _qwertyPadController.text = passwordController.text;
       });
     });
 
     _qwertyPadController.addListener(() {
       setState(() {
         //if (_qwertyPadController.text.isNotEmpty) {
-        if (activeFocusNode == passwordFocusNode) {
+        if (activeFocusNode == loginIdFocusNode) {
           loginIdController.text = _qwertyPadController.text;
-        } else if (activeFocusNode == loginIdFocusNode) {
+        } else if (activeFocusNode == passwordFocusNode) {
           passwordController.text = _qwertyPadController.text;
         }
         //}
@@ -119,7 +119,7 @@ class _AuthorisationRequiredWidgetState
                     child: commonTextField(
                       label: "Login Id",
                       controller: loginIdController,
-                      focusNode: passwordFocusNode,
+                      focusNode: loginIdFocusNode,
                       onValueChanged: (value) =>
                       value,
                     ),
@@ -129,7 +129,7 @@ class _AuthorisationRequiredWidgetState
                     child: commonTextField(
                       label: "Password",
                       controller: passwordController,
-                      focusNode: loginIdFocusNode,
+                      focusNode: passwordFocusNode,
                       obscureText: true,
                       onValueChanged: (value) =>
                       value,
@@ -155,10 +155,11 @@ class _AuthorisationRequiredWidgetState
             textController: _qwertyPadController,
             focusNode: activeFocusNode!,
             onEnterPressed: (value) {
-              if (activeFocusNode == passwordFocusNode) {
-                loginIdFocusNode.requestFocus();
-              } else if (activeFocusNode == loginIdFocusNode) {
-                loginIdFocusNode.unfocus();
+              if (activeFocusNode == loginIdFocusNode) {
+                passwordFocusNode.requestFocus();
+              } else if (activeFocusNode ==
+                  passwordFocusNode) {
+                passwordFocusNode.unfocus();
               }
             },
           ),

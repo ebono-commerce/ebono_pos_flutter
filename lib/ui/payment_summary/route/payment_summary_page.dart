@@ -13,7 +13,6 @@ import 'package:ebono_pos/ui/payment_summary/bloc/payment_state.dart';
 import 'package:ebono_pos/ui/payment_summary/model/payment_summary_request.dart';
 import 'package:ebono_pos/ui/payment_summary/model/payment_summary_response.dart';
 import 'package:ebono_pos/ui/payment_summary/repository/PaymentRepository.dart';
-import 'package:ebono_pos/utils/common_methods.dart';
 import 'package:ebono_pos/utils/dash_line.dart';
 import 'package:ebono_pos/utils/price.dart';
 import 'package:flutter/material.dart';
@@ -108,9 +107,6 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
         }
         // }
       });
-    });
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      showCloseAlert(context);
     });
     super.initState();
   }
