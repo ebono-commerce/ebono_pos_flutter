@@ -5,9 +5,10 @@
 list(APPEND FLUTTER_PLUGIN_LIST
   connectivity_plus
   flutter_libserialport
-  flutter_platform_alert
   flutter_window_close
   printing
+  screen_retriever_windows
+  window_manager
 )
 
 list(APPEND FLUTTER_FFI_PLUGIN_LIST
