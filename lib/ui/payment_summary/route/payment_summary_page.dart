@@ -6,7 +6,7 @@ import 'package:ebono_pos/ui/custom_keyboard/custom_num_pad.dart';
 import 'package:ebono_pos/ui/home/home_controller.dart';
 import 'package:ebono_pos/ui/home/widgets/home_app_bar.dart';
 import 'package:ebono_pos/ui/home/widgets/quick_action_buttons.dart';
-import 'package:ebono_pos/ui/order_success_screen.dart';
+import 'package:ebono_pos/ui/payment_summary/route/order_success_screen.dart';
 import 'package:ebono_pos/ui/payment_summary/bloc/payment_bloc.dart';
 import 'package:ebono_pos/ui/payment_summary/bloc/payment_event.dart';
 import 'package:ebono_pos/ui/payment_summary/bloc/payment_state.dart';
@@ -95,7 +95,6 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
 
     numPadTextController.addListener(() {
       setState(() {
-        //if (numPadTextController.text.isNotEmpty) {
         if (activeFocusNode == cashPaymentFocusNode) {
           cashPaymentTextController.text = numPadTextController.text;
         } else if (activeFocusNode == onlinePaymentFocusNode) {
@@ -105,7 +104,6 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
         } else if (activeFocusNode == walletPaymentFocusNode) {
           walletTextController.text = numPadTextController.text;
         }
-        // }
       });
     });
     super.initState();
@@ -218,14 +216,14 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  billDetailRow(label: 'Invoice no.', value: '#123456789'),
+                  //billDetailRow(label: 'Invoice no.', value: '#123456789'),
                   billDetailRow(
                       label: 'Total items',
                       value: data?.totalItems.toString() ?? ''),
                   billDetailRow(
                       label: 'Price',
-                      value: getActualPrice(data?.mrpSavings?.centAmount,
-                          data?.mrpSavings?.fraction)),
+                      value: getActualPrice(data?.amountPayable?.centAmount,
+                          data?.amountPayable?.fraction)),
                   billDetailRow(
                       label: 'GST',
                       value: getActualPrice(data?.taxTotal?.centAmount,
