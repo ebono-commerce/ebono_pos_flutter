@@ -49,7 +49,9 @@ class _LogoutButtonState extends State<LogoutButton> {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 5.0, vertical: 10),
       child: TextButton.icon(
-        onPressed: onLogoutPressed,
+        onPressed: (){
+          onLogoutPressed();
+        },
         style: ElevatedButton.styleFrom(
           elevation: 1,
           padding: EdgeInsets.symmetric(horizontal: 1, vertical: 20),
