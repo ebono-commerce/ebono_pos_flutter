@@ -1,10 +1,6 @@
 import 'dart:async';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:ebono_pos/ui/home/model/orders_on_hold.dart';
-import 'package:ebono_pos/ui/home/model/orders_onhold_request.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:ebono_pos/constants/shared_preference_constants.dart';
 import 'package:ebono_pos/data_store/get_storage_helper.dart';
 import 'package:ebono_pos/data_store/shared_preference_helper.dart';
@@ -19,6 +15,8 @@ import 'package:ebono_pos/ui/home/model/customer_request.dart';
 import 'package:ebono_pos/ui/home/model/delete_cart.dart';
 import 'package:ebono_pos/ui/home/model/general_success_response.dart';
 import 'package:ebono_pos/ui/home/model/open_register_response.dart';
+import 'package:ebono_pos/ui/home/model/orders_on_hold.dart';
+import 'package:ebono_pos/ui/home/model/orders_onhold_request.dart';
 import 'package:ebono_pos/ui/home/model/phone_number_request.dart';
 import 'package:ebono_pos/ui/home/model/register_close_request.dart';
 import 'package:ebono_pos/ui/home/model/register_open_request.dart';
@@ -28,6 +26,8 @@ import 'package:ebono_pos/ui/home/repository/home_repository.dart';
 import 'package:ebono_pos/ui/login/model/login_response.dart';
 import 'package:ebono_pos/ui/payment_summary/model/health_check_response.dart';
 import 'package:ebono_pos/utils/digital_weighing_scale.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class HomeController extends GetxController {
   late final HomeRepository _homeRepository;
@@ -379,8 +379,7 @@ class HomeController extends GetxController {
       fetchCartDetails();
     } catch (e) {
       print("Error $e");
-    }
-    finally {
+    } finally {
       isApiCallInProgress = false;
     }
   }
@@ -420,6 +419,7 @@ class HomeController extends GetxController {
   }
 
   Future<void> resumeHoldCartApiCall(String? id) async {
+    //cartId | holdCartId | terminal Id
     try {
       var response = await _homeRepository.resumeHoldCart(
           cartId.value,
