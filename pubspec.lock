@@ -227,6 +227,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_platform_alert:
+    dependency: "direct main"
+    description:
+      name: flutter_platform_alert
+      sha256: caf2d6350f7fe7aae2a89a7d39fcb6bedaba477a4383f321ef475b8f9cde0a4b
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.5.3"
   flutter_styled_toast:
     dependency: "direct main"
     description:
@@ -253,6 +261,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_window_close:
+    dependency: "direct main"
+    description:
+      name: flutter_window_close
+      sha256: bbdd1ec57259cbffc3f978c1709a3314a0991f042490d9d0a02c5fd70ac8dff6
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.2.0"
   get:
     dependency: "direct main"
     description:

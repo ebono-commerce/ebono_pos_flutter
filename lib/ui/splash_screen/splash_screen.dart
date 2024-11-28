@@ -1,9 +1,9 @@
+import 'package:ebono_pos/data_store/shared_preference_helper.dart';
+import 'package:ebono_pos/navigation/page_routes.dart';
+import 'package:ebono_pos/utils/common_methods.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
-import 'package:ebono_pos/data_store/shared_preference_helper.dart';
-import 'package:ebono_pos/navigation/page_routes.dart';
-import 'package:libserialport/libserialport.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -13,12 +13,15 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  var prefs = Get.find<SharedPreferenceHelper>();
 
- var prefs =  Get.find<SharedPreferenceHelper>();
   @override
   void initState() {
     super.initState();
     _checkLoginStatus();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      showCloseAlert(context);
+    });
   }
 
   Future<void> _checkLoginStatus() async {
@@ -38,7 +41,6 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       body: Center(
         child: SvgPicture.asset(

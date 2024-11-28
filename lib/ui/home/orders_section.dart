@@ -46,11 +46,7 @@ class _OrdersSectionState extends State<OrdersSection>
         _numPadFocusNode.requestFocus();
       }
     });
-    ever(homeController.validOfferId, (value) {
-      if (isValidOfferId(value)) {
-        homeController.scanApiCall(value);
-      }
-    });
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ever(homeController.scanProductsResponse, (value) {
         if (value.esin != null) {
@@ -103,7 +99,7 @@ class _OrdersSectionState extends State<OrdersSection>
                         if (homeController.registerId.value.isNotEmpty) {
                           return homeController.cartId.value.isEmpty
                               ? AddCustomerStaticWidget(homeController)
-                              : _buildTableView2();
+                              : _buildTableView();
                         } else {
                           return _buildRegisterClosed(context,
                               onPressed: () async {
@@ -229,25 +225,76 @@ class _OrdersSectionState extends State<OrdersSection>
     );
   }
 
-  Widget _buildTableView2() {
-    return Container(
-      padding: EdgeInsets.only(bottom: 2),
-      margin: EdgeInsets.all(10),
+  TableRow _buildTableHeader() {
+    return TableRow(
       decoration: BoxDecoration(
-          border: Border.all(
-            color: Colors.grey.shade300,
-          ),
+          color: Colors.grey.shade300,
           borderRadius: BorderRadius.only(
             topLeft: Radius.circular(10),
             topRight: Radius.circular(10),
-            bottomLeft: Radius.circular(10),
-            bottomRight: Radius.circular(10),
-          )),
+            bottomLeft: Radius.circular(0),
+            bottomRight: Radius.circular(0),
+          )), // Header background color
+      children: [
+        Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: Text(
+              "Item Code",
+              style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                  fontWeight: FontWeight.w100, color: CustomColors.greyFont),
+            )),
+        Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: Text(
+              "Name",
+              style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                  fontWeight: FontWeight.w100, color: CustomColors.greyFont),
+            )),
+        Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: Text(
+              "Quantity",
+              style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                  fontWeight: FontWeight.w100, color: CustomColors.greyFont),
+            )),
+        Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: Text(
+              " ",
+              style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                  fontWeight: FontWeight.w100, color: CustomColors.greyFont),
+            )),
+        Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: Text(
+              "MRP ₹",
+              style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                  fontWeight: FontWeight.w100, color: CustomColors.greyFont),
+            )),
+        Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: Text(
+              "Price ₹",
+              style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                  fontWeight: FontWeight.w100, color: CustomColors.greyFont),
+            )),
+        Padding(padding: const EdgeInsets.all(10.0), child: Text("")),
+      ],
+    );
+  }
+
+  Widget _buildTableView() {
+    return Container(
+      padding: const EdgeInsets.only(bottom: 2),
+      margin: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey.shade300),
+        borderRadius: BorderRadius.circular(10),
+      ),
       child: Column(
         children: [
-          //Table header
           Table(
-            columnWidths: {
+            columnWidths: const {
               0: FlexColumnWidth(2),
               1: FlexColumnWidth(3),
               2: FlexColumnWidth(2),
@@ -257,369 +304,8 @@ class _OrdersSectionState extends State<OrdersSection>
               6: FlexColumnWidth(1),
             },
             children: [
-              TableRow(
-                decoration: BoxDecoration(
-                    color: Colors.grey.shade300,
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(10),
-                      topRight: Radius.circular(10),
-                      bottomLeft: Radius.circular(0),
-                      bottomRight: Radius.circular(0),
-                    )), // Header background color
-                children: [
-                  Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child: Text(
-                        "Item Code",
-                        style: Theme.of(context)
-                            .textTheme
-                            .labelMedium
-                            ?.copyWith(
-                                fontWeight: FontWeight.w100,
-                                color: CustomColors.greyFont),
-                      )),
-                  Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child: Text(
-                        "Name",
-                        style: Theme.of(context)
-                            .textTheme
-                            .labelMedium
-                            ?.copyWith(
-                                fontWeight: FontWeight.w100,
-                                color: CustomColors.greyFont),
-                      )),
-                  Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child: Text(
-                        "Quantity",
-                        style: Theme.of(context)
-                            .textTheme
-                            .labelMedium
-                            ?.copyWith(
-                                fontWeight: FontWeight.w100,
-                                color: CustomColors.greyFont),
-                      )),
-                  Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child: Text(
-                        " ",
-                        style: Theme.of(context)
-                            .textTheme
-                            .labelMedium
-                            ?.copyWith(
-                                fontWeight: FontWeight.w100,
-                                color: CustomColors.greyFont),
-                      )),
-                  Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child: Text(
-                        "MRP ₹",
-                        style: Theme.of(context)
-                            .textTheme
-                            .labelMedium
-                            ?.copyWith(
-                                fontWeight: FontWeight.w100,
-                                color: CustomColors.greyFont),
-                      )),
-                  Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child: Text(
-                        "Price ₹",
-                        style: Theme.of(context)
-                            .textTheme
-                            .labelMedium
-                            ?.copyWith(
-                                fontWeight: FontWeight.w100,
-                                color: CustomColors.greyFont),
-                      )),
-                  Padding(padding: const EdgeInsets.all(10.0), child: Text("")),
-                ],
-              ),
-              ...homeController.cartLines.map((itemData) {
-                itemData.focusNode?.addListener(() {
-                  setState(() {});
-                });
-                itemData.controller?.addListener(() {
-                  try {
-                    if (itemData.controller?.text != '0.0' &&
-                        itemData.controller?.text.isBlank != true &&
-                        itemData.controller?.text !=
-                            itemData.quantity?.quantityNumber.toString()) {
-                      double doubleValue =
-                          double.parse(itemData.controller?.text ?? '');
-                      homeController.updateCartItemApiCall(
-                        itemData.cartLineId,
-                        itemData.quantity?.quantityUom,
-                        doubleValue,
-                      );
-                    }
-                  } on Exception catch (e) {
-                    print(e);
-                  }
-                });
-                if (itemData.focusNode != null) {
-                  if (itemData.focusNode?.hasFocus == true) {
-                    itemData.controller?.text =
-                        homeController.weight.value.toString();
-                    homeController.weight.value = 0.0;
-                  }
-                }
-                if (itemData.isWeighedItem != true) {
-                  itemData.controller?.text =
-                      itemData.quantity?.quantityNumber.toString() ?? '';
-                }
-                return TableRow(
-                  decoration: BoxDecoration(
-                      border:
-                          Border.all(color: Colors.grey.shade300, width: 1)),
-                  children: [
-                    Container(
-                      color: Colors.white,
-                      padding: const EdgeInsets.all(8.0),
-                      child: Padding(
-                          padding: const EdgeInsets.all(10.0),
-                          child: Text(
-                            '${itemData.item?.esin}',
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            softWrap: true,
-                            style: Theme.of(context)
-                                .textTheme
-                                .labelLarge
-                                ?.copyWith(
-                                    fontWeight: FontWeight.w500,
-                                    color: CustomColors.black),
-                          )),
-                    ),
-                    Container(
-                      color: Colors.white,
-                      padding: const EdgeInsets.all(4.0),
-                      child: Padding(
-                          padding: const EdgeInsets.all(2.0),
-                          child: Text(
-                            '${itemData.item?.ebonoTitle}',
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            softWrap: true,
-                            style: Theme.of(context)
-                                .textTheme
-                                .labelLarge
-                                ?.copyWith(
-                                    fontWeight: FontWeight.w500,
-                                    color: CustomColors.black),
-                          )),
-                    ),
-                    Container(
-                      color: Colors.white,
-                      padding: const EdgeInsets.all(2.0),
-                      child: Padding(
-                        padding: const EdgeInsets.all(2.0),
-                        child: itemData.item?.isWeighedItem == true
-                            ? commonTextField(
-                                label: '',
-                                focusNode: itemData.focusNode ?? FocusNode(),
-                                readOnly: true,
-                                controller: itemData.controller ??
-                                    TextEditingController(),
-                                onValueChanged: (value) {
-                                  print('on value change');
-                                },
-                                suffixLabel: null,
-                                suffixWidget: InkWell(
-                                  onTap: () {
-                                    print('on tap');
-                                    itemData.focusNode?.requestFocus();
-                                  },
-                                  child: Text(
-                                    '',
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    softWrap: true,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .labelLarge
-                                        ?.copyWith(
-                                            fontWeight: FontWeight.w500,
-                                            color: CustomColors.black),
-                                  ),
-                                ))
-                            : Container(
-                                decoration: BoxDecoration(
-                                    // color: Colors.grey.shade300,
-                                    borderRadius: BorderRadius.circular(10),
-                                    border: Border.all(
-                                      color: Colors.grey.shade300,
-                                      width: 1,
-                                    )),
-                                //padding: const EdgeInsets.all(8.0),
-                                child: Padding(
-                                    padding: const EdgeInsets.all(10.0),
-                                    child: Text(
-                                      '${itemData.quantity?.quantityNumber}',
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      softWrap: true,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .labelLarge
-                                          ?.copyWith(
-                                              fontWeight: FontWeight.w500,
-                                              color: CustomColors.black),
-                                    )),
-                              ),
-                      ),
-                    ),
-                    itemData.item?.isWeighedItem == true
-                        ? InkWell(
-                            onTap: () {
-                              itemData.focusNode?.requestFocus();
-                            },
-                            child: Container(
-                              color: Colors.white,
-                              padding: const EdgeInsets.only(
-                                  top: 8.0, bottom: 8.0, right: 8.0, left: 0.0),
-                              child: Padding(
-                                  padding: const EdgeInsets.all(10.0),
-                                  child: Text(
-                                    itemData.quantity?.quantityUom ?? '',
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    softWrap: true,
-                                    textAlign: TextAlign.left,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .labelMedium
-                                        ?.copyWith(
-                                            fontWeight: FontWeight.w500,
-                                            color: CustomColors.black),
-                                  )),
-                            ),
-                          )
-                        : Container(
-                            color: Colors.white,
-                            padding: const EdgeInsets.only(
-                                top: 8.0, bottom: 8.0, right: 8.0, left: 0.0),
-                            child: Padding(
-                                padding: const EdgeInsets.all(10.0),
-                                child: Text(
-                                  '',
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  softWrap: true,
-                                  textAlign: TextAlign.left,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .labelMedium
-                                      ?.copyWith(
-                                          fontWeight: FontWeight.w500,
-                                          color: CustomColors.black),
-                                )),
-                          ),
-                    Container(
-                      color: Colors.white,
-                      padding: const EdgeInsets.all(8.0),
-                      child: Padding(
-                          padding: const EdgeInsets.all(10.0),
-                          child: Text(
-                            getActualPrice(itemData.mrp?.centAmount,
-                                itemData.mrp?.fraction),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            softWrap: true,
-                            style: Theme.of(context)
-                                .textTheme
-                                .labelLarge
-                                ?.copyWith(
-                                    fontWeight: FontWeight.w500,
-                                    color: CustomColors.black),
-                          )),
-                    ),
-                    Container(
-                        color: Colors.white,
-                        padding: const EdgeInsets.all(8.0),
-                        child: Padding(
-                            padding: const EdgeInsets.all(10.0),
-                            child: Text(
-                              getActualPrice(itemData.unitPrice?.centAmount,
-                                  itemData.unitPrice?.fraction),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              softWrap: true,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .labelLarge
-                                  ?.copyWith(
-                                      fontWeight: FontWeight.w500,
-                                      color: CustomColors.black),
-                            ))),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Container(
-                        padding: const EdgeInsets.all(0.0),
-                        width: 50,
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            color: CustomColors.red,
-                            width: 1,
-                          ),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: IconButton(
-                          icon: ImageIcon(
-                            size: 20,
-                            color: CustomColors.red,
-                            AssetImage('assets/images/ic_remove.png'),
-                          ),
-                          onPressed: () {
-                            Get.defaultDialog(
-                                contentPadding: EdgeInsets.only(
-                                  left: 10,
-                                  right: 10,
-                                ),
-                                title: '',
-                                middleText: '',
-                                titlePadding: EdgeInsets.all(0),
-                                barrierDismissible: false,
-                                backgroundColor: Colors.white,
-                                content: _buildRemoveDialog2(itemData,
-                                    onPressed: () {
-                                  AuthModes enableLineDeleteMode =
-                                      AuthModeExtension.fromString(
-                                          homeController
-                                              .isLineDeleteEnabled.value);
-                                  if (enableLineDeleteMode ==
-                                      AuthModes.enabled) {
-                                    homeController.deleteCartItemApiCall(
-                                        itemData.cartLineId);
-                                    Get.back();
-                                  } else if (enableLineDeleteMode ==
-                                      AuthModes.authorised) {
-                                    showDialog(
-                                      context: context,
-                                      builder: (BuildContext context) {
-                                        return Dialog(
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(20.0),
-                                          ),
-                                          child: AuthorisationRequiredWidget(
-                                              homeController, context),
-                                        );
-                                      },
-                                    );
-                                  } else {
-                                    Get.snackbar('Need Permission',
-                                        'Please contact support');
-                                  }
-                                }));
-                          },
-                        ),
-                      ),
-                    )
-                  ],
-                );
-              })
+              _buildTableHeader(),
+              ...homeController.cartLines.map(_buildTableRow).toList(),
             ],
           ),
         ],
@@ -627,8 +313,187 @@ class _OrdersSectionState extends State<OrdersSection>
     );
   }
 
+  TableRow _buildTableRow(CartLine itemData) {
+    return TableRow(
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey.shade300, width: 1),
+      ),
+      children: [
+        _buildTableCell(itemData.item?.esin ?? '',
+            maxLines: 1, outerPadding: 8.0, innerPadding: 10.0),
+        _buildTableCell(itemData.item?.ebonoTitle ?? '',
+            maxLines: 2, outerPadding: 4.0, innerPadding: 2.0),
+        _buildEditableQuantityCell(itemData,
+            outerPadding: 8.0, innerPadding: 10.0),
+        _buildUnitCell(itemData, outerPadding: 4.0, innerPadding: 4.0),
+        _buildTableCell(
+            getActualPrice(itemData.mrp?.centAmount, itemData.mrp?.fraction),
+            outerPadding: 8.0,
+            innerPadding: 10.0),
+        _buildTableCell(
+            getActualPrice(
+                itemData.unitPrice?.centAmount, itemData.unitPrice?.fraction),
+            outerPadding: 8.0,
+            innerPadding: 10.0),
+        _buildDeleteButton(itemData),
+      ],
+    );
+  }
+
+  Widget _buildTableCell(String text,
+      {int maxLines = 1,
+      required double outerPadding,
+      required double innerPadding}) {
+    return Container(
+      color: Colors.white,
+      padding: EdgeInsets.all(outerPadding),
+      child: Padding(
+        padding: EdgeInsets.all(innerPadding),
+        child: Text(
+          text,
+          maxLines: maxLines,
+          overflow: TextOverflow.ellipsis,
+          softWrap: true,
+          style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                fontWeight: FontWeight.w500,
+                color: CustomColors.black,
+              ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEditableTextField(CartLine itemData) {
+    return Container(
+      color: Colors.white,
+      padding: const EdgeInsets.all(2.0),
+      child: Padding(
+        padding: const EdgeInsets.all(1.0),
+        child: commonTextField(
+          label: '',
+          focusNode: itemData.focusNode ?? FocusNode(),
+          readOnly: true,
+          controller: itemData.controller ?? TextEditingController(),
+          suffixLabel: null,
+          suffixWidget: InkWell(
+            onTap: () {
+              itemData.focusNode?.requestFocus();
+            },
+            child: const Text(''),
+          ),
+          onValueChanged: (value) {
+            print('on value change');
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEditableQuantityCell(CartLine itemData,
+      {required double outerPadding, required double innerPadding}) {
+    itemData.focusNode?.addListener(() {
+      setState(() {});
+    });
+
+    itemData.controller?.addListener(() {
+      try {
+        if (itemData.controller?.text != '0.0' &&
+            itemData.controller?.text.isNotEmpty == true &&
+            itemData.controller?.text !=
+                itemData.quantity?.quantityNumber.toString()) {
+          double doubleValue = double.parse(itemData.controller?.text ?? '');
+          if (!homeController.isApiCallInProgress) {
+            homeController.updateCartItemApiCall(
+              itemData.cartLineId,
+              itemData.quantity?.quantityUom,
+              doubleValue,
+            );
+          }
+        }
+      } on Exception catch (e) {
+        print(e);
+      }
+    });
+
+    if (itemData.focusNode?.hasFocus == true) {
+      itemData.controller?.text = homeController.weight.value.toString();
+      homeController.weight.value = 0.0;
+    }
+
+    if (itemData.isWeighedItem != true) {
+      itemData.controller?.text =
+          itemData.quantity?.quantityNumber.toString() ?? '';
+    }
+
+    return itemData.item?.isWeighedItem == true
+        ? _buildEditableTextField(itemData)
+        : _buildTableCell(itemData.quantity?.quantityNumber?.toString() ?? '',
+            innerPadding: innerPadding, outerPadding: outerPadding);
+  }
+
+  Widget _buildUnitCell(CartLine itemData,
+      {required double outerPadding, required double innerPadding}) {
+    String unitText = itemData.item?.isWeighedItem == true
+        ? itemData.quantity?.quantityUom ?? ''
+        : '';
+    return _buildTableCell(unitText,
+        outerPadding: outerPadding, innerPadding: innerPadding);
+  }
+
+  Widget _buildDeleteButton(CartLine itemData) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Container(
+        padding: const EdgeInsets.all(0),
+        width: 50,
+        decoration: BoxDecoration(
+          border: Border.all(color: CustomColors.red, width: 1),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: IconButton(
+            icon: ImageIcon(
+              const AssetImage('assets/images/ic_remove.png'),
+              size: 20,
+              color: CustomColors.red,
+            ),
+            onPressed: () {
+              AuthModes deleteMode = AuthModeExtension.fromString(
+                homeController.isLineDeleteEnabled.value,
+              );
+
+              if (deleteMode == AuthModes.enabled) {
+                _showRemoveDialog(itemData);
+              } else if (deleteMode == AuthModes.authorised) {
+                showDialog(
+                  context: context,
+                  builder: (_) => Dialog(
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20.0)),
+                    child: AuthorisationRequiredWidget(homeController, context),
+                  ),
+                );
+              } else {
+                Get.snackbar('Need Permission', 'Please contact support');
+              }
+            }),
+      ),
+    );
+  }
+
+  void _showRemoveDialog(CartLine itemData) {
+    Get.defaultDialog(
+      title: '',
+      content: _buildRemoveDialog(itemData, onPressed: () {
+        homeController.deleteCartItemApiCall(itemData.cartLineId);
+        Get.back();
+      }),
+    );
+  }
+
   Widget _buildNumberPadSection(HomeController homeController) {
     return Obx(() {
+      var scanData = homeController.scanProductsResponse.value;
+      var cartData = homeController.cartResponse.value;
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 5),
         child: Column(
@@ -642,14 +507,9 @@ class _OrdersSectionState extends State<OrdersSection>
                 decoration: BoxDecoration(
                   color: Colors.white,
                   border: Border.all(color: Colors.grey),
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(10),
-                    topRight: Radius.circular(10),
-                    bottomLeft: Radius.circular(10),
-                    bottomRight: Radius.circular(10),
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(10),
                   ),
-                  // borderRadius: BorderRadius.circular(
-                  //     10),
                   shape: BoxShape.rectangle,
                 ),
                 child: Column(
@@ -669,10 +529,8 @@ class _OrdersSectionState extends State<OrdersSection>
                                 Container(
                                   padding: EdgeInsets.only(right: 2),
                                   child: Text(
-                                      homeController.scanProductsResponse.value
-                                                  .ebonoTitle?.isNotEmpty ==
-                                              true
-                                          ? '${homeController.scanProductsResponse.value.ebonoTitle}'
+                                      scanData.ebonoTitle?.isNotEmpty == true
+                                          ? '${scanData.ebonoTitle}'
                                           : " - ",
                                       maxLines: 2,
                                       softWrap: true,
@@ -695,11 +553,7 @@ class _OrdersSectionState extends State<OrdersSection>
                                             fontWeight: FontWeight.w400),
                                       ),
                                       TextSpan(
-                                        text: homeController
-                                                    .scanProductsResponse
-                                                    .value
-                                                    .salesUom
-                                                    ?.isNotEmpty ==
+                                        text: scanData.salesUom?.isNotEmpty ==
                                                 true
                                             ? '1 '
                                             : " - ",
@@ -709,18 +563,10 @@ class _OrdersSectionState extends State<OrdersSection>
                                             fontWeight: FontWeight.bold),
                                       ),
                                       TextSpan(
-                                        text: homeController
-                                                    .scanProductsResponse
-                                                    .value
-                                                    .salesUom
-                                                    ?.isNotEmpty ==
+                                        text: scanData.salesUom?.isNotEmpty ==
                                                 true
-                                            ? homeController
-                                                        .scanProductsResponse
-                                                        .value
-                                                        .isWeighedItem ==
-                                                    true
-                                                ? '(${homeController.scanProductsResponse.value.salesUom})'
+                                            ? scanData.isWeighedItem == true
+                                                ? '(${scanData.salesUom})'
                                                 : ''
                                             : " - ",
                                         style: TextStyle(
@@ -743,25 +589,11 @@ class _OrdersSectionState extends State<OrdersSection>
                                             fontWeight: FontWeight.w400),
                                       ),
                                       TextSpan(
-                                        // text: "",
-                                        text: homeController
-                                                    .scanProductsResponse
-                                                    .value
-                                                    .priceList?[0]
-                                                    .mrp !=
-                                                null
+                                        text: scanData.priceList?[0].mrp != null
                                             ? getActualPrice(
-                                                homeController
-                                                    .scanProductsResponse
-                                                    .value
-                                                    .priceList?[0]
-                                                    .mrp!
+                                                scanData.priceList?[0].mrp!
                                                     .centAmount,
-                                                homeController
-                                                    .scanProductsResponse
-                                                    .value
-                                                    .priceList?[0]
-                                                    .mrp!
+                                                scanData.priceList?[0].mrp!
                                                     .fraction,
                                               )
                                             : ' - ',
@@ -785,7 +617,7 @@ class _OrdersSectionState extends State<OrdersSection>
                                 shape: BoxShape.rectangle,
                               ),
                               child: Image.network(
-                                '${homeController.scanProductsResponse.value.mediaUrl}',
+                                '${scanData.mediaUrl}',
                                 cacheHeight: 50,
                                 cacheWidth: 50,
                                 errorBuilder: (BuildContext context,
@@ -844,9 +676,7 @@ class _OrdersSectionState extends State<OrdersSection>
                             if (homeController.cartId.value.isNotEmpty &&
                                 homeController.registerId.isNotEmpty) {
                               if (isValidOfferId(text)) {
-                                if (isValidOfferId(text)) {
-                                  homeController.validOfferId.value = text;
-                                }
+                                homeController.scanApiCall(text);
                               } else {
                                 Get.snackbar("Invalid Offer Id",
                                     'Please enter valid offer id');
@@ -858,7 +688,7 @@ class _OrdersSectionState extends State<OrdersSection>
                                 homeController.registerId.isNotEmpty) {
                               print("onTextListener text: $text");
                               if (isValidOfferId(text)) {
-                                homeController.validOfferId.value = text;
+                                homeController.scanApiCall(text);
                               }
                             }
                           },
@@ -885,11 +715,8 @@ class _OrdersSectionState extends State<OrdersSection>
                   decoration: BoxDecoration(
                     color: Colors.white,
                     border: Border.all(color: Colors.grey),
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(10),
-                      topRight: Radius.circular(10),
-                      bottomLeft: Radius.circular(10),
-                      bottomRight: Radius.circular(10),
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(10),
                     ),
                     // borderRadius: BorderRadius.circular(
                     //     10),
@@ -920,9 +747,7 @@ class _OrdersSectionState extends State<OrdersSection>
                                       fontWeight: FontWeight.w500),
                                 ),
                                 Text(
-                                  homeController.cartResponse.value.cartLines
-                                              ?.length !=
-                                          null
+                                  cartData.cartLines?.length != null
                                       ? '${homeController.cartResponse.value.totalItems}'
                                       : '-',
                                   style: TextStyle(
@@ -944,25 +769,16 @@ class _OrdersSectionState extends State<OrdersSection>
                                       fontWeight: FontWeight.w500),
                                 ),
                                 Text(
-                                  homeController.cartResponse.value.mrpSavings !=
-                                          null
+                                  cartData.mrpSavings != null
                                       ? getActualPrice(
-                                                  homeController
-                                                      .cartResponse
-                                                      .value
-                                                      .mrpSavings!
-                                                      .centAmount,
-                                                  homeController
-                                                      .cartResponse
-                                                      .value
-                                                      .mrpSavings!
-                                                      .fraction) !=
+                                                  cartData
+                                                      .mrpSavings!.centAmount,
+                                                  cartData
+                                                      .mrpSavings!.fraction) !=
                                               "₹0.00"
                                           ? getActualPrice(
-                                              homeController.cartResponse.value
-                                                  .mrpSavings!.centAmount,
-                                              homeController.cartResponse.value
-                                                  .mrpSavings!.fraction)
+                                              cartData.mrpSavings!.centAmount,
+                                              cartData.mrpSavings!.fraction)
                                           : "--"
                                       : "--",
                                   style: TextStyle(
@@ -1000,13 +816,11 @@ class _OrdersSectionState extends State<OrdersSection>
                                 side: BorderSide.none,
                                 borderRadius: BorderRadius.circular(10),
                               ),
-                              backgroundColor: homeController
-                                          .cartResponse.value.amountPayable !=
-                                      null
+                              backgroundColor: cartData.amountPayable != null
                                   ? getActualPrice(
-                                              homeController.cartResponse.value
+                                              cartData
                                                   .amountPayable!.centAmount,
-                                              homeController.cartResponse.value
+                                              cartData
                                                   .amountPayable!.fraction) !=
                                           "₹0.00"
                                       ? CustomColors.secondaryColor
@@ -1025,21 +839,11 @@ class _OrdersSectionState extends State<OrdersSection>
                                       fontSize: 20,
                                       fontWeight: FontWeight.bold),
                                 ),
-                                // homeController.cartResponse.value.cartTotals
-                                //             ?.firstWhere((item) =>
-                                //                 item.type == 'GRAND_TOTAL')
-                                //             .amount !=
-                                //         null
-                                //     ?
                                 Text(
-                                  homeController.cartResponse.value
-                                              .amountPayable !=
-                                          null
+                                  cartData.amountPayable != null
                                       ? getActualPrice(
-                                          homeController.cartResponse.value
-                                              .amountPayable!.centAmount,
-                                          homeController.cartResponse.value
-                                              .amountPayable!.fraction)
+                                          cartData.amountPayable!.centAmount,
+                                          cartData.amountPayable!.fraction)
                                       : "--",
                                   style: TextStyle(
                                       color: Colors.black,
@@ -1063,210 +867,202 @@ class _OrdersSectionState extends State<OrdersSection>
     });
   }
 
-  Widget _buildRemoveDialog2(CartLine? itemData, {VoidCallback? onPressed}) {
-    return Container(
-      child: Column(
-        children: [
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 20),
-            child: Text(
-              "Are you sure you want to remove this item?",
-              softWrap: true,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(fontWeight: FontWeight.w600),
-            ),
+  Widget _buildRemoveDialog(CartLine? itemData, {VoidCallback? onPressed}) {
+    return Column(
+      children: [
+        Container(
+          padding: EdgeInsets.symmetric(horizontal: 20),
+          child: Text(
+            "Are you sure you want to remove this item?",
+            softWrap: true,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(fontWeight: FontWeight.w600),
           ),
-          SizedBox(
-            height: 20,
+        ),
+        SizedBox(
+          height: 20,
+        ),
+        Container(
+          // padding: EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: Color(0xFFF8F8F8),
+            border: Border.all(color: Colors.grey.shade300),
+            borderRadius: BorderRadius.circular(10),
+            shape: BoxShape.rectangle,
           ),
-          Container(
-            // padding: EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: Color(0xFFF8F8F8),
-              border: Border.all(color: Colors.grey.shade300),
-              borderRadius: BorderRadius.circular(10),
-              shape: BoxShape.rectangle,
-            ),
-            //color: Color(0xFFF8F8F8),
-            child: Padding(
-              padding:
-                  const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(height: 5),
-                      RichText(
-                        maxLines: 3,
-                        textAlign: TextAlign.left,
-                        text: TextSpan(
-                          children: <TextSpan>[
-                            TextSpan(
-                              text: '${itemData?.item?.ebonoTitle}',
-                              style: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold),
-                            ),
-                          ],
-                        ),
+          //color: Color(0xFFF8F8F8),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(height: 5),
+                    RichText(
+                      maxLines: 3,
+                      textAlign: TextAlign.left,
+                      text: TextSpan(
+                        children: <TextSpan>[
+                          TextSpan(
+                            text: '${itemData?.item?.ebonoTitle}',
+                            style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        ],
                       ),
-                      SizedBox(height: 5),
-                      RichText(
-                        text: TextSpan(
-                          children: <TextSpan>[
-                            TextSpan(
-                              text: '${itemData?.item?.esin}',
-                              style: TextStyle(
-                                  color: Colors.black87,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w400),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(
-                    width: 80,
-                  ),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(height: 5),
-                      RichText(
-                        text: TextSpan(
-                          children: <TextSpan>[
-                            TextSpan(
-                              text: 'Qty:  ',
-                              style: TextStyle(
-                                  color: Colors.black87,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w400),
-                            ),
-                            TextSpan(
-                              text: '${itemData!.quantity?.quantityNumber}',
-                              style: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold),
-                            ),
-                            TextSpan(
-                              text: ' (${itemData.quantity?.quantityUom})',
-                              style: TextStyle(
-                                  color: CustomColors.greyFont,
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.normal),
-                            ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(height: 5),
-                      RichText(
-                        text: TextSpan(
-                          children: <TextSpan>[
-                            TextSpan(
-                              text: 'Price:  ',
-                              style: TextStyle(
-                                  color: Colors.black87,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w400),
-                            ),
-                            TextSpan(
-                              text: getActualPrice(
-                                  itemData.unitPrice?.centAmount,
-                                  itemData.unitPrice?.fraction),
-                              style: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-          SizedBox(
-            height: 20,
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Expanded(
-                flex: 1,
-                child: Container(
-                  padding:
-                      EdgeInsets.only(left: 4, right: 4, top: 10, bottom: 4),
-                  child: ElevatedButton(
-                    onPressed: onPressed,
-                    style: ElevatedButton.styleFrom(
-                      elevation: 1,
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 1, vertical: 20),
-                      shape: RoundedRectangleBorder(
-                        side: BorderSide(
-                            color: homeController.phoneNumber.isNotEmpty
-                                ? CustomColors.secondaryColor
-                                : CustomColors.cardBackground),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      disabledBackgroundColor: CustomColors.cardBackground,
-                      backgroundColor: CustomColors.secondaryColor,
                     ),
-                    child: Text(
-                      "    Yes, Remove    ",
-                      style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold),
+                    SizedBox(height: 5),
+                    RichText(
+                      text: TextSpan(
+                        children: <TextSpan>[
+                          TextSpan(
+                            text: '${itemData?.item?.esin}',
+                            style: TextStyle(
+                                color: Colors.black87,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w400),
+                          ),
+                        ],
+                      ),
                     ),
+                  ],
+                ),
+                SizedBox(
+                  width: 80,
+                ),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(height: 5),
+                    RichText(
+                      text: TextSpan(
+                        children: <TextSpan>[
+                          TextSpan(
+                            text: 'Qty:  ',
+                            style: TextStyle(
+                                color: Colors.black87,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w400),
+                          ),
+                          TextSpan(
+                            text: '${itemData!.quantity?.quantityNumber}',
+                            style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold),
+                          ),
+                          TextSpan(
+                            text: ' (${itemData.quantity?.quantityUom})',
+                            style: TextStyle(
+                                color: CustomColors.greyFont,
+                                fontSize: 11,
+                                fontWeight: FontWeight.normal),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(height: 5),
+                    RichText(
+                      text: TextSpan(
+                        children: <TextSpan>[
+                          TextSpan(
+                            text: 'Price:  ',
+                            style: TextStyle(
+                                color: Colors.black87,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w400),
+                          ),
+                          TextSpan(
+                            text: getActualPrice(itemData.unitPrice?.centAmount,
+                                itemData.unitPrice?.fraction),
+                            style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+        SizedBox(
+          height: 20,
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Expanded(
+              flex: 1,
+              child: Container(
+                padding: EdgeInsets.only(left: 4, right: 4, top: 10, bottom: 4),
+                child: ElevatedButton(
+                  onPressed: onPressed,
+                  style: ElevatedButton.styleFrom(
+                    elevation: 1,
+                    padding: EdgeInsets.symmetric(horizontal: 1, vertical: 20),
+                    shape: RoundedRectangleBorder(
+                      side: BorderSide(
+                          color: homeController.phoneNumber.isNotEmpty
+                              ? CustomColors.secondaryColor
+                              : CustomColors.cardBackground),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    disabledBackgroundColor: CustomColors.cardBackground,
+                    backgroundColor: CustomColors.secondaryColor,
+                  ),
+                  child: Text(
+                    "    Yes, Remove    ",
+                    style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold),
                   ),
                 ),
               ),
-              Expanded(
-                flex: 1,
-                child: Container(
-                  padding:
-                      EdgeInsets.only(left: 4, right: 4, top: 10, bottom: 4),
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Get.back();
-                    },
-                    style: ElevatedButton.styleFrom(
-                      elevation: 1,
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 1, vertical: 20),
-                      shape: RoundedRectangleBorder(
-                        side: BorderSide(
-                            color: CustomColors.primaryColor, width: 1.5),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      backgroundColor: Color(0xFFF0F4F4),
+            ),
+            Expanded(
+              flex: 1,
+              child: Container(
+                padding: EdgeInsets.only(left: 4, right: 4, top: 10, bottom: 4),
+                child: ElevatedButton(
+                  onPressed: () {
+                    Get.back();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    elevation: 1,
+                    padding: EdgeInsets.symmetric(horizontal: 1, vertical: 20),
+                    shape: RoundedRectangleBorder(
+                      side: BorderSide(
+                          color: CustomColors.primaryColor, width: 1.5),
+                      borderRadius: BorderRadius.circular(10),
                     ),
-                    child: Text(
-                      "    No, Cancel    ",
-                      style: TextStyle(
-                          color: CustomColors.primaryColor,
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold),
-                    ),
+                    backgroundColor: Color(0xFFF0F4F4),
+                  ),
+                  child: Text(
+                    "    No, Cancel    ",
+                    style: TextStyle(
+                        color: CustomColors.primaryColor,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold),
                   ),
                 ),
               ),
-            ],
-          )
-        ],
-      ),
+            ),
+          ],
+        )
+      ],
     );
   }
 
@@ -1281,11 +1077,8 @@ class _OrdersSectionState extends State<OrdersSection>
         decoration: BoxDecoration(
           color: Colors.white,
           border: Border.all(color: Colors.grey),
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(10),
-            topRight: Radius.circular(10),
-            bottomLeft: Radius.circular(10),
-            bottomRight: Radius.circular(10),
+          borderRadius: BorderRadius.all(
+            Radius.circular(10),
           ),
           shape: BoxShape.rectangle,
         ),

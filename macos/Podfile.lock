@@ -5,6 +5,10 @@ PODS:
   - flutter_libserialport (0.0.1):
     - FlutterMacOS
     - libserialport
+  - flutter_platform_alert (0.0.1):
+    - FlutterMacOS
+  - flutter_window_close (0.0.1):
+    - FlutterMacOS
   - FlutterMacOS (1.0.0)
   - libserialport (0.1.1)
   - path_provider_foundation (0.0.1):
@@ -20,6 +24,8 @@ PODS:
 DEPENDENCIES:
   - connectivity_plus (from `Flutter/ephemeral/.symlinks/plugins/connectivity_plus/macos`)
   - flutter_libserialport (from `Flutter/ephemeral/.symlinks/plugins/flutter_libserialport/macos`)
+  - flutter_platform_alert (from `Flutter/ephemeral/.symlinks/plugins/flutter_platform_alert/macos`)
+  - flutter_window_close (from `Flutter/ephemeral/.symlinks/plugins/flutter_window_close/macos`)
   - FlutterMacOS (from `Flutter/ephemeral`)
   - path_provider_foundation (from `Flutter/ephemeral/.symlinks/plugins/path_provider_foundation/darwin`)
   - printing (from `Flutter/ephemeral/.symlinks/plugins/printing/macos`)
@@ -35,6 +41,10 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral/.symlinks/plugins/connectivity_plus/macos
   flutter_libserialport:
     :path: Flutter/ephemeral/.symlinks/plugins/flutter_libserialport/macos
+  flutter_platform_alert:
+    :path: Flutter/ephemeral/.symlinks/plugins/flutter_platform_alert/macos
+  flutter_window_close:
+    :path: Flutter/ephemeral/.symlinks/plugins/flutter_window_close/macos
   FlutterMacOS:
     :path: Flutter/ephemeral
   path_provider_foundation:
@@ -47,6 +57,8 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   connectivity_plus: 18d3c32514c886e046de60e9c13895109866c747
   flutter_libserialport: d1a505fd4b05785f7b50cc7c93b361937ea1c5bd
+  flutter_platform_alert: b21b2b7d801e71c12ce9ffab618ff114ca9fc903
+  flutter_window_close: a0f4f388e956ebafa866e3e171ce837c166eab9c
   FlutterMacOS: 8f6f14fa908a6fb3fba0cd85dbd81ec4b251fb24
   libserialport: 1cb25e66ef3c92a8e59c2ea3820302c3fa2268cd
   path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46

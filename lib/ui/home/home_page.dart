@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:ebono_pos/data_store/shared_preference_helper.dart';
 import 'package:ebono_pos/ui/home/home_controller.dart';
 import 'package:ebono_pos/ui/home/order_on_hold.dart';
@@ -9,6 +7,9 @@ import 'package:ebono_pos/ui/home/repository/home_repository.dart';
 import 'package:ebono_pos/ui/home/widgets/home_app_bar.dart';
 import 'package:ebono_pos/ui/login/bloc/login_bloc.dart';
 import 'package:ebono_pos/ui/login/repository/login_repository.dart';
+import 'package:ebono_pos/utils/common_methods.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -17,7 +18,7 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   //int _selectedButton = 2;
 
   // bool isOnline = false;
@@ -27,6 +28,30 @@ class _HomePageState extends State<HomePage> {
   late ThemeData theme;
   final loginBloc = LoginBloc(
       Get.find<LoginRepository>(), Get.find<SharedPreferenceHelper>());
+
+  @override
+  void initState() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      showCloseAlert(context);
+    });
+    WidgetsBinding.instance.addObserver(this);
+
+    super.initState();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    print('didChangeAppLifecycleState $state');
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      showCloseAlert(context);
+    });
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {

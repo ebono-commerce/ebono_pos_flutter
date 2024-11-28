@@ -1,8 +1,4 @@
 import 'package:dropdown_search/dropdown_search.dart';
-import 'package:flutter_svg/svg.dart';
-import 'package:get/get.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ebono_pos/constants/custom_colors.dart';
 import 'package:ebono_pos/data_store/shared_preference_helper.dart';
 import 'package:ebono_pos/navigation/page_routes.dart';
@@ -11,7 +7,11 @@ import 'package:ebono_pos/ui/login/bloc/login_bloc.dart';
 import 'package:ebono_pos/ui/login/bloc/login_event.dart';
 import 'package:ebono_pos/ui/login/bloc/login_state.dart';
 import 'package:ebono_pos/ui/login/repository/login_repository.dart';
-import 'package:libserialport/libserialport.dart';
+import 'package:ebono_pos/utils/common_methods.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:get/get.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -42,7 +42,10 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   void initState() {
-    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      showCloseAlert(context);
+    });
+
     loginBloc.add(LoginInitialEvent());
 
     storeIdFocusNode.addListener(() {
@@ -57,6 +60,7 @@ class _LoginPageState extends State<LoginPage> {
     passwordFocusNode.addListener(() {
       setState(() {});
     });
+    super.initState();
   }
 
   @override
@@ -253,6 +257,25 @@ class _LoginPageState extends State<LoginPage> {
                         'Contact operations',
                         style: theme.textTheme.bodyLarge
                             ?.copyWith(color: theme.colorScheme.primary),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // Unable to log in text
+              Center(
+                child: Wrap(
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    TextButton(
+                      onPressed: () {
+                        loginBloc.add(LoginInitialEvent());
+                      },
+                      child: Text(
+                        'Back to Port selection',
+                        style: theme.textTheme.labelSmall
+                            ?.copyWith(color: CustomColors.grey),
                       ),
                     ),
                   ],
