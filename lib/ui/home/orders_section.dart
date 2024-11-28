@@ -1,6 +1,3 @@
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:intl/intl.dart';
 import 'package:ebono_pos/constants/custom_colors.dart';
 import 'package:ebono_pos/models/cart_response.dart';
 import 'package:ebono_pos/navigation/page_routes.dart';
@@ -18,6 +15,9 @@ import 'package:ebono_pos/utils/auth_modes.dart';
 import 'package:ebono_pos/utils/common_methods.dart';
 import 'package:ebono_pos/utils/dash_line.dart';
 import 'package:ebono_pos/utils/price.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 
 class OrdersSection extends StatefulWidget {
   final HomeController homeController;
