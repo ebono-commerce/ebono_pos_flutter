@@ -34,7 +34,7 @@ class DigitalWeighingScale implements DigitalWeighingScaleImplementation {
       } catch (e) {
         // Handle the exception
         print('Error: $e');
-        Get.snackbar('Error in port', '$e');
+        Get.snackbar('Error in port 1', '$e');
       }
     }
   }
@@ -47,7 +47,7 @@ class DigitalWeighingScale implements DigitalWeighingScaleImplementation {
         serialPort.close();
       } catch (e) {
         print('Error: $e');
-        Get.snackbar('Error in port', '$e');
+        Get.snackbar('Error in port 2', '$e');
       }
     }
 
@@ -82,7 +82,7 @@ class DigitalWeighingScale implements DigitalWeighingScaleImplementation {
       serialPort.write(utf8.encoder.convert(value));
     } catch (e) {
       print('Error: $e');
-      Get.snackbar('Error in port', '$e');
+      Get.snackbar('Error in port 3', '$e');
     }
   }
 
@@ -93,7 +93,7 @@ class DigitalWeighingScale implements DigitalWeighingScaleImplementation {
       serialPortReader = SerialPortReader(serialPort);
     } catch (e) {
       print('Error: $e');
-      Get.snackbar('Error in port', '$e');
+      Get.snackbar('Error in port 5', '$e');
     }
   }
 
@@ -115,10 +115,11 @@ class DigitalWeighingScale implements DigitalWeighingScaleImplementation {
         }
       });
     } catch (e) {
-      print('digital scale error: $e');
-      Get.snackbar('Error in port', '$e');
       serialPort.close();
       subscription?.cancel();
+      print('digital scale error: $e');
+      Get.snackbar('Error in port 6', '$e}');
+
     }
   }
 

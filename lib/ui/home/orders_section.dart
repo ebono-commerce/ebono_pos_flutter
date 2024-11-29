@@ -69,13 +69,13 @@ class _OrdersSectionState extends State<OrdersSection>
     super.initState();
   }
 
-  @override
+ /* @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _numPadFocusNode.dispose();
     _numPadTextController.dispose();
     super.dispose();
-  }
+  }*/
 
   @override
   Widget build(BuildContext context) {
