@@ -132,7 +132,12 @@ class HomeController extends GetxController {
       userDetails.value = userDetailsData;
       print(userDetails.value.toJson());
     }
+    initializeWeighingScale();
+    initialResponse();
+    super.onInit();
+  }
 
+  void initializeWeighingScale() {
     try {
       digitalWeighingScale = DigitalWeighingScale(
         digitalScalePort: portName.value,
@@ -140,12 +145,9 @@ class HomeController extends GetxController {
         digitalScaleTimeout: timeout,
         weightController: weight,
       );
-      digitalWeighingScale.getWeight();
     } on Exception catch (e) {
       print(e);
     }
-    initialResponse();
-    super.onInit();
   }
 
   Future<void> _checkConnectivity() async {
@@ -585,20 +587,7 @@ class HomeController extends GetxController {
   @override
   void onClose() {
     _statusCheckTimer?.cancel();
+    digitalWeighingScale.dispose();
     super.onClose();
   }
-/*
-  Login:
-9999912343
-9999912342
-9999912341
-
-10000139
-10000004
-10000027
-10001394
-10007352
-10000071
-10004726
-  */
 }
