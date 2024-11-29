@@ -16,7 +16,7 @@ class DigitalWeighingScale implements DigitalWeighingScaleImplementation {
   late SerialPort serialPort;
   SerialPortReader? serialPortReader;
   StreamSubscription? subscription;
-
+  late bool isRecoveryInProgress = false;
   static String initString = String.fromCharCode(5) +
       String.fromCharCode(10) +
       String.fromCharCode(13);
@@ -28,6 +28,7 @@ class DigitalWeighingScale implements DigitalWeighingScaleImplementation {
     required this.digitalScaleTimeout,
     required this.weightController,
   }) {
+    print('selected port: $digitalScalePort');
     serialPort = SerialPort(digitalScalePort);
     initializePort();
   }
@@ -110,7 +111,6 @@ class DigitalWeighingScale implements DigitalWeighingScaleImplementation {
   readPort() {
     try {
       serialPortReader = SerialPortReader(serialPort);
-      getWeight();
     } catch (e) {
       handlePortError(e, 'Error creating serial port reader');
     }
@@ -120,7 +120,7 @@ class DigitalWeighingScale implements DigitalWeighingScaleImplementation {
   @override
   Future<void> getWeight() async {
     if (subscription != null) {
-      subscription?.cancel(); // Cancel any existing subscription
+      subscription?.cancel();
     }
 
     if (serialPortReader == null) {
@@ -133,20 +133,19 @@ class DigitalWeighingScale implements DigitalWeighingScaleImplementation {
 
     try {
       double weight = 0.00;
-      subscription = serialPortReader!.stream.listen((data) async {
-        decodedWeight += utf8.decode(data);
-        if(decodedWeight.length >= 9){
-          try {
+      if(subscription == null || subscription?.isPaused ==true || subscription?.isBlank == true){
+        print('subscription not listenening');
+        subscription = serialPortReader!.stream.listen((data) async {
+          decodedWeight += utf8.decode(data);
+          if(decodedWeight.length >= 9){
             weight = double.parse(decodedWeight);
             weightController.value = weight;
             print('decoded weight $weight');
             decodedWeight = '';
-          } on Exception catch (e) {
-            print('Error parsing weight: $e');
-            Get.snackbar('Error in port', " error parsing weight");
           }
-        }
-      });
+        });
+      }
+
     } catch (e) {
       handlePortError(e, 'Error listening to stream');
     }
@@ -154,15 +153,20 @@ class DigitalWeighingScale implements DigitalWeighingScaleImplementation {
 
   @override
   void handlePortError(Object? error, String message) {
-    print('$message in port: ${error ?? 'Unknown error'}');
-    Get.snackbar('Error in port', message);
-
+    print('$message in $digitalScalePort: ${error ?? 'Unknown error'}');
+    Get.snackbar('Error in port $digitalScalePort', message);
+    if(isRecoveryInProgress) return;
+    isRecoveryInProgress = true;
+    Future.delayed(Duration(seconds: 5)).then((_){
+      if (!serialPort.isOpen) {
+        open();
+        config();
+        readPort();
+      }
+      isRecoveryInProgress = false;
+    });
     // Attempt recovery
-    if (!serialPort.isOpen) {
-      open();
-      config();
-      readPort();
-    }
+
   }
 
 

@@ -20,7 +20,6 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
 class OrdersSection extends StatefulWidget {
-
   const OrdersSection({super.key});
 
   @override
@@ -29,26 +28,43 @@ class OrdersSection extends StatefulWidget {
 
 class _OrdersSectionState extends State<OrdersSection>
     with WidgetsBindingObserver {
-  final FocusNode _numPadFocusNode = FocusNode();
-  final TextEditingController _numPadTextController = TextEditingController();
+  final TextEditingController numPadTextController = TextEditingController();
+  final FocusNode scanFocusNode = FocusNode();
+  final TextEditingController scanTextController = TextEditingController();
   HomeController homeController = Get.find<HomeController>();
+  FocusNode? activeFocusNode;
 
   @override
   void initState() {
-    if (mounted == true) {
-      //homeController.initialResponse();
-    }
+    activeFocusNode = scanFocusNode;
+    scanFocusNode.addListener(() {
+      setState(() {
+        if (scanFocusNode.hasFocus) {
+          activeFocusNode = scanFocusNode;
+        }
+        numPadTextController.text = scanTextController.text;
+      });
+    });
+
+    numPadTextController.addListener(() {
+      setState(() {
+        if (activeFocusNode == scanFocusNode) {
+          scanTextController.text = numPadTextController.text;
+        }
+      });
+    });
+
     ever(homeController.customerResponse, (value) {
       if (value.phoneNumber != null) {
-        _numPadFocusNode.requestFocus();
+        scanFocusNode.requestFocus();
       }
     });
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ever(homeController.scanProductsResponse, (value) {
         if (value.esin != null) {
-          _numPadTextController.clear();
-          _numPadFocusNode.requestFocus();
+          scanTextController.clear();
+          scanFocusNode.requestFocus();
         }
         if ((value.priceList?.length ?? 0) > 1) {
           showDialog(
@@ -69,7 +85,7 @@ class _OrdersSectionState extends State<OrdersSection>
     super.initState();
   }
 
- /* @override
+  /* @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _numPadFocusNode.dispose();
@@ -144,8 +160,7 @@ class _OrdersSectionState extends State<OrdersSection>
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20.0),
                         ),
-                        child: AuthorisationRequiredWidget(
-                            context),
+                        child: AuthorisationRequiredWidget(context),
                       );
                     },
                   );
@@ -161,8 +176,7 @@ class _OrdersSectionState extends State<OrdersSection>
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20.0),
                       ),
-                      child:
-                          AuthorisationRequiredWidget(context),
+                      child: AuthorisationRequiredWidget(context),
                     );
                   },
                 );
@@ -387,11 +401,36 @@ class _OrdersSectionState extends State<OrdersSection>
 
   Widget _buildEditableQuantityCell(CartLine itemData,
       {required double outerPadding, required double innerPadding}) {
-    itemData.weightFocusNode?.addListener(() {
-      setState(() {});
+
+    numPadTextController.addListener(() {
+      setState(() {
+        if (activeFocusNode == itemData.weightFocusNode) {
+          itemData.weightController?.text = numPadTextController.text ;
+        }
+      });
     });
 
-    itemData.weightController?.addListener(() {
+
+
+    ever(homeController.weight, (value) {
+      if (value != 0.0) {
+        itemData.weightController?.text = homeController.weight.value.toString();
+        homeController.weight.value = 0.0;
+      }
+    });
+
+    itemData.weightFocusNode?.addListener(() {
+      setState(() {
+        if (itemData.weightFocusNode?.hasFocus == true ) {
+          homeController.selectedItemData.value = itemData;
+          activeFocusNode = itemData.weightFocusNode;
+        }
+       numPadTextController.text = itemData.weightController?.text ?? '';
+      });
+    });
+
+    //don't delete
+   /* itemData.weightController?.addListener(() {
       try {
         if (itemData.weightController?.text != '0.0' &&
             itemData.weightController?.text.isNotEmpty == true &&
@@ -409,32 +448,23 @@ class _OrdersSectionState extends State<OrdersSection>
       } on Exception catch (e) {
         print(e);
       }
-    });
-
-
-    if (itemData.weightFocusNode?.hasFocus == true && itemData.isWeighedItem != true) {
-      _numPadTextController.addListener(() {
-        setState(() {
-          itemData.weightController?.text = homeController.weight.value.toString();
-        });
-      });
-    }
-
+    });*/
+/*
     if (itemData.weightFocusNode?.hasFocus == true) {
       itemData.weightController?.text = homeController.weight.value.toString();
       homeController.weight.value = 0.0;
-    }
+    }*/
 
-    if (itemData.isWeighedItem != true) {
+  /*  if (itemData.isWeighedItem != true && itemData.weightFocusNode?.hasFocus == true) {
       itemData.weightController?.text =
           itemData.quantity?.quantityNumber.toString() ?? '';
-    }
+    }*/
 
     /*return itemData.item?.isWeighedItem == true
         ? _buildEditableTextField(itemData)
         : _buildTableCell(itemData.quantity?.quantityNumber?.toString() ?? '',
             innerPadding: innerPadding, outerPadding: outerPadding);*/
-    return  _buildEditableTextField(itemData);
+    return _buildEditableTextField(itemData);
   }
 
   Widget _buildUnitCell(CartLine itemData,
@@ -660,7 +690,7 @@ class _OrdersSectionState extends State<OrdersSection>
                             focusNode:
                                 (homeController.cartId.value.isNotEmpty &&
                                         homeController.registerId.isNotEmpty)
-                                    ? _numPadFocusNode
+                                    ? scanFocusNode
                                     : FocusNode(),
                             readOnly: (homeController.cartId.value.isNotEmpty &&
                                     homeController.registerId.isNotEmpty)
@@ -669,32 +699,54 @@ class _OrdersSectionState extends State<OrdersSection>
                             controller:
                                 (homeController.cartId.value.isNotEmpty &&
                                         homeController.registerId.isNotEmpty)
-                                    ? _numPadTextController
+                                    ? scanTextController
                                     : TextEditingController(),
                           ),
                         ),
                         CustomNumPad(
-                          focusNode: _numPadFocusNode,
-                          textController: _numPadTextController,
+                          focusNode: activeFocusNode!,
+                          textController: numPadTextController,
                           onEnterPressed: (text) {
                             print("Enter pressed with text: $text");
-                            _numPadFocusNode.unfocus();
-                            if (homeController.cartId.value.isNotEmpty &&
-                                homeController.registerId.isNotEmpty) {
-                              if (isValidOfferId(text)) {
-                                homeController.scanApiCall(text);
-                              } else {
-                                Get.snackbar("Invalid Offer Id",
-                                    'Please enter valid offer id');
+                            if(activeFocusNode==scanFocusNode){
+                              if (homeController.cartId.value.isNotEmpty &&
+                                  homeController.registerId.isNotEmpty) {
+                                print("onTextListener text: $text");
+                                if (isValidOfferId(text)) {
+                                  homeController.scanApiCall(text);
+                                }
                               }
+                              activeFocusNode?.unfocus();
+                            }else{
+                              try {
+                                if (numPadTextController.text != '0.0' &&
+                                    numPadTextController.text.isNotEmpty == true &&
+                                    numPadTextController.text !=
+                                        homeController.selectedItemData.value.quantity?.quantityNumber.toString()) {
+                                  double weight =
+                                  double.parse(homeController.selectedItemData.value.weightController?.text ?? '');
+                                  if (!homeController.isApiCallInProgress) {
+                                    homeController.updateCartItemApiCall(
+                                      homeController.selectedItemData.value.cartLineId,
+                                      homeController.selectedItemData.value.quantity?.quantityUom,
+                                      weight,
+                                    );
+                                  }
+                                }
+                              } on Exception catch (e) {
+                                print(e);
+                              }
+                              activeFocusNode?.unfocus();
                             }
                           },
                           onValueChanged: (text) {
-                            if (homeController.cartId.value.isNotEmpty &&
-                                homeController.registerId.isNotEmpty) {
-                              print("onTextListener text: $text");
-                              if (isValidOfferId(text)) {
-                                homeController.scanApiCall(text);
+                            if (activeFocusNode == scanFocusNode) {
+                              if (homeController.cartId.value.isNotEmpty &&
+                                  homeController.registerId.isNotEmpty) {
+                                print("onTextListener text: $text");
+                                if (isValidOfferId(text)) {
+                                  homeController.scanApiCall(text);
+                                }
                               }
                             }
                           },

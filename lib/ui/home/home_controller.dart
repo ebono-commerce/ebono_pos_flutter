@@ -93,11 +93,11 @@ class HomeController extends GetxController {
   var isPriceEditEnabled = ''.obs;
   var isSalesAssociateLinkEnabled = ''.obs;
   bool isApiCallInProgress = false;
-
+  var selectedItemData = CartLine().obs;
   @override
   void onInit() async {
     _checkConnectivity();
-    readStorageData();
+    await readStorageData();
     if(Platform.isLinux){
       initializeWeighingScale();
     }
@@ -152,6 +152,7 @@ class HomeController extends GetxController {
         digitalScaleTimeout: timeout,
         weightController: weight,
       );
+      digitalWeighingScale.getWeight();
     } on Exception catch (e) {
       print(e);
     }
@@ -445,7 +446,7 @@ class HomeController extends GetxController {
       generalSuccessResponse.value = response;
       if (generalSuccessResponse.value == true) {
         clearHoldCartOrders();
-        Get.offAllNamed(PageRoutes.home);
+        selectedTabButton.value = 2;
       }
     } catch (e) {
       print("Error $e");
@@ -496,8 +497,9 @@ class HomeController extends GetxController {
       openRegisterResponse.value = response;
       GetStorageHelper.save(SharedPreferenceConstants.registerId,
           openRegisterResponse.value.registerId ?? "");
+      registerId.value =  openRegisterResponse.value.registerId ?? "";
       openFloatPayment.value = '';
-      Get.offAllNamed(PageRoutes.home);
+      selectedTabButton.value = 2;
       isLoading.value = false;
     } catch (e) {
       print("Error $e");
@@ -538,12 +540,13 @@ class HomeController extends GetxController {
       closeRegisterResponse.value = response;
       if (closeRegisterResponse.value.success == true) {
         GetStorageHelper.save(SharedPreferenceConstants.registerId, "");
+        registerId.value =  "";
         upiPayment.value = '';
         upiPaymentCount.value = '';
         cardPayment.value = '';
         cardPaymentCount.value = '';
         cashPayment.value = '';
-        Get.offAllNamed(PageRoutes.home);
+        selectedTabButton.value = 2;
       }
       isLoading.value = false;
     } catch (e) {
