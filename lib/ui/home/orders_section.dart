@@ -32,7 +32,10 @@ class _OrdersSectionState extends State<OrdersSection>
     with WidgetsBindingObserver {
   final FocusNode _numPadFocusNode = FocusNode();
   final TextEditingController _numPadTextController = TextEditingController();
-
+  final FocusNode _quantityFocusNode = FocusNode();
+  final TextEditingController _quantityTextController = TextEditingController();
+  final FocusNode _priceFocusNode = FocusNode();
+  final TextEditingController _priceTextController = TextEditingController();
   late HomeController homeController;
 
   @override
