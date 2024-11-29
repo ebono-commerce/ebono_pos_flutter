@@ -184,21 +184,30 @@ class CartLine {
   AmountPayable? lineTotal;
   List<String>? applicableCartAdjustments;
   CartLineAudit? audit;
-  TextEditingController? controller = TextEditingController();
-  FocusNode? focusNode = FocusNode();
+  TextEditingController? weightController = TextEditingController();
+  FocusNode? weightFocusNode = FocusNode();
+  TextEditingController? quantityTextController = TextEditingController();
+  FocusNode? quantityFocusNode = FocusNode();
+  TextEditingController? priceTextController = TextEditingController();
+  FocusNode? priceFocusNode = FocusNode();
 
-  CartLine(
-      {this.cartLineId,
-      this.item,
-      this.isWeighedItem,
-      this.quantity,
-      this.unitPrice,
-      this.mrp,
-      this.lineTotal,
-      this.applicableCartAdjustments,
-      this.audit,
-      this.controller,
-      this.focusNode});
+  CartLine({
+    this.cartLineId,
+    this.item,
+    this.isWeighedItem,
+    this.quantity,
+    this.unitPrice,
+    this.mrp,
+    this.lineTotal,
+    this.applicableCartAdjustments,
+    this.audit,
+    this.weightController,
+    this.weightFocusNode,
+    this.quantityTextController,
+    this.quantityFocusNode,
+    this.priceTextController,
+    this.priceFocusNode,
+  });
 
   factory CartLine.fromJson(Map<String, dynamic> json) => CartLine(
         cartLineId: json["cart_line_id"],

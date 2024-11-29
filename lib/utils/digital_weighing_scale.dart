@@ -1,7 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:get/get.dart';
+
 import 'package:ebono_pos/utils/digital_weighing_scale_implementation.dart';
+import 'package:get/get.dart';
 import 'package:libserialport/libserialport.dart';
 
 class DigitalWeighingScale implements DigitalWeighingScaleImplementation {
@@ -33,6 +34,7 @@ class DigitalWeighingScale implements DigitalWeighingScaleImplementation {
       } catch (e) {
         // Handle the exception
         print('Error: $e');
+        Get.snackbar('Error in port', '$e');
       }
     }
   }
@@ -45,6 +47,7 @@ class DigitalWeighingScale implements DigitalWeighingScaleImplementation {
         serialPort.close();
       } catch (e) {
         print('Error: $e');
+        Get.snackbar('Error in port', '$e');
       }
     }
 
@@ -79,6 +82,7 @@ class DigitalWeighingScale implements DigitalWeighingScaleImplementation {
       serialPort.write(utf8.encoder.convert(value));
     } catch (e) {
       print('Error: $e');
+      Get.snackbar('Error in port', '$e');
     }
   }
 
@@ -89,6 +93,7 @@ class DigitalWeighingScale implements DigitalWeighingScaleImplementation {
       serialPortReader = SerialPortReader(serialPort);
     } catch (e) {
       print('Error: $e');
+      Get.snackbar('Error in port', '$e');
     }
   }
 
@@ -111,6 +116,7 @@ class DigitalWeighingScale implements DigitalWeighingScaleImplementation {
       });
     } catch (e) {
       print('digital scale error: $e');
+      Get.snackbar('Error in port', '$e');
       serialPort.close();
       subscription?.cancel();
     }

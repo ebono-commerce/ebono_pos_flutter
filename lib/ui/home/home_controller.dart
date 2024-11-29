@@ -1,10 +1,6 @@
 import 'dart:async';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:ebono_pos/ui/home/model/orders_on_hold.dart';
-import 'package:ebono_pos/ui/home/model/orders_onhold_request.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:ebono_pos/constants/shared_preference_constants.dart';
 import 'package:ebono_pos/data_store/get_storage_helper.dart';
 import 'package:ebono_pos/data_store/shared_preference_helper.dart';
@@ -19,6 +15,8 @@ import 'package:ebono_pos/ui/home/model/customer_request.dart';
 import 'package:ebono_pos/ui/home/model/delete_cart.dart';
 import 'package:ebono_pos/ui/home/model/general_success_response.dart';
 import 'package:ebono_pos/ui/home/model/open_register_response.dart';
+import 'package:ebono_pos/ui/home/model/orders_on_hold.dart';
+import 'package:ebono_pos/ui/home/model/orders_onhold_request.dart';
 import 'package:ebono_pos/ui/home/model/phone_number_request.dart';
 import 'package:ebono_pos/ui/home/model/register_close_request.dart';
 import 'package:ebono_pos/ui/home/model/register_open_request.dart';
@@ -28,6 +26,8 @@ import 'package:ebono_pos/ui/home/repository/home_repository.dart';
 import 'package:ebono_pos/ui/login/model/login_response.dart';
 import 'package:ebono_pos/ui/payment_summary/model/health_check_response.dart';
 import 'package:ebono_pos/utils/digital_weighing_scale.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class HomeController extends GetxController {
   late final HomeRepository _homeRepository;
@@ -184,18 +184,25 @@ class HomeController extends GetxController {
 
   void addCartLine(CartLine cartLine) {
     var cart = CartLine(
-        cartLineId: cartLine.cartLineId,
-        item: cartLine.item,
-        quantity: cartLine.quantity,
-        unitPrice: cartLine.unitPrice,
-        isWeighedItem: cartLine.isWeighedItem,
-        mrp: cartLine.mrp,
-        lineTotal: cartLine.lineTotal,
-        applicableCartAdjustments: cartLine.applicableCartAdjustments,
-        audit: cartLine.audit,
-        controller: TextEditingController(
-            text: cartLine.quantity?.quantityNumber.toString()),
-        focusNode: FocusNode());
+      cartLineId: cartLine.cartLineId,
+      item: cartLine.item,
+      quantity: cartLine.quantity,
+      unitPrice: cartLine.unitPrice,
+      isWeighedItem: cartLine.isWeighedItem,
+      mrp: cartLine.mrp,
+      lineTotal: cartLine.lineTotal,
+      applicableCartAdjustments: cartLine.applicableCartAdjustments,
+      audit: cartLine.audit,
+      weightController: TextEditingController(
+          text: cartLine.quantity?.quantityNumber.toString()),
+      weightFocusNode: FocusNode(),
+      quantityTextController: TextEditingController(
+          text: cartLine.quantity?.quantityNumber.toString()),
+      quantityFocusNode: FocusNode(),
+      priceTextController: TextEditingController(
+          text: cartLine.quantity?.quantityNumber.toString()),
+      priceFocusNode: FocusNode(),
+    );
     cartLines.add(cart);
   }
 
@@ -379,8 +386,7 @@ class HomeController extends GetxController {
       fetchCartDetails();
     } catch (e) {
       print("Error $e");
-    }
-    finally {
+    } finally {
       isApiCallInProgress = false;
     }
   }

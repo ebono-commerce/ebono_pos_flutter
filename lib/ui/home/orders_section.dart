@@ -32,10 +32,6 @@ class _OrdersSectionState extends State<OrdersSection>
     with WidgetsBindingObserver {
   final FocusNode _numPadFocusNode = FocusNode();
   final TextEditingController _numPadTextController = TextEditingController();
-  final FocusNode _quantityFocusNode = FocusNode();
-  final TextEditingController _quantityTextController = TextEditingController();
-  final FocusNode _priceFocusNode = FocusNode();
-  final TextEditingController _priceTextController = TextEditingController();
   late HomeController homeController;
 
   @override
@@ -374,13 +370,13 @@ class _OrdersSectionState extends State<OrdersSection>
         padding: const EdgeInsets.all(1.0),
         child: commonTextField(
           label: '',
-          focusNode: itemData.focusNode ?? FocusNode(),
+          focusNode: itemData.weightFocusNode ?? FocusNode(),
           readOnly: true,
-          controller: itemData.controller ?? TextEditingController(),
+          controller: itemData.weightController ?? TextEditingController(),
           suffixLabel: null,
           suffixWidget: InkWell(
             onTap: () {
-              itemData.focusNode?.requestFocus();
+              itemData.weightFocusNode?.requestFocus();
             },
             child: const Text(''),
           ),
@@ -394,17 +390,17 @@ class _OrdersSectionState extends State<OrdersSection>
 
   Widget _buildEditableQuantityCell(CartLine itemData,
       {required double outerPadding, required double innerPadding}) {
-    itemData.focusNode?.addListener(() {
+    itemData.weightFocusNode?.addListener(() {
       setState(() {});
     });
 
-    itemData.controller?.addListener(() {
+    itemData.weightController?.addListener(() {
       try {
-        if (itemData.controller?.text != '0.0' &&
-            itemData.controller?.text.isNotEmpty == true &&
-            itemData.controller?.text !=
+        if (itemData.weightController?.text != '0.0' &&
+            itemData.weightController?.text.isNotEmpty == true &&
+            itemData.weightController?.text !=
                 itemData.quantity?.quantityNumber.toString()) {
-          double doubleValue = double.parse(itemData.controller?.text ?? '');
+          double doubleValue = double.parse(itemData.weightController?.text ?? '');
           if (!homeController.isApiCallInProgress) {
             homeController.updateCartItemApiCall(
               itemData.cartLineId,
@@ -418,20 +414,21 @@ class _OrdersSectionState extends State<OrdersSection>
       }
     });
 
-    if (itemData.focusNode?.hasFocus == true) {
-      itemData.controller?.text = homeController.weight.value.toString();
+    if (itemData.weightFocusNode?.hasFocus == true) {
+      itemData.weightController?.text = homeController.weight.value.toString();
       homeController.weight.value = 0.0;
     }
 
     if (itemData.isWeighedItem != true) {
-      itemData.controller?.text =
+      itemData.weightController?.text =
           itemData.quantity?.quantityNumber.toString() ?? '';
     }
 
-    return itemData.item?.isWeighedItem == true
+    /*return itemData.item?.isWeighedItem == true
         ? _buildEditableTextField(itemData)
         : _buildTableCell(itemData.quantity?.quantityNumber?.toString() ?? '',
-            innerPadding: innerPadding, outerPadding: outerPadding);
+            innerPadding: innerPadding, outerPadding: outerPadding);*/
+    return  _buildEditableTextField(itemData);
   }
 
   Widget _buildUnitCell(CartLine itemData,
