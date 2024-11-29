@@ -35,9 +35,7 @@ class AuthInterceptor extends Interceptor {
       if (appUUID != null) {
         options.headers['x-app-id'] = appUUID;
       }
-      options.queryParameters = {
-        'channel': 'POS',
-      };
+      options.queryParameters.addAll({'channel': 'POS'});
     }
     print('app id : $appUUID');
     print('token $token');

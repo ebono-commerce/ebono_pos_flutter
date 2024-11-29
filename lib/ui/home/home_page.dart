@@ -35,156 +35,156 @@ class _HomePageState extends State<HomePage> {
       appBar: PreferredSize(
           preferredSize: Size.fromHeight(kToolbarHeight),
           child: HomeAppBar(
-              titleWidget: Obx(() => Row(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      SizedBox(
-                        width: 10,
-                      ),
-                      TextButton(
-                        style: TextButton.styleFrom(
-                          padding: EdgeInsets.only(left: 10, right: 5),
-                          backgroundColor:
-                              homeController.selectedTabButton.value == 1
-                                  ? Colors.white
-                                  : Colors.grey.shade100,
-                          foregroundColor: Colors.black,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            homeController.selectedTabButton.value = 1;
-                            print(
-                                "selectedTabButton H: ${homeController.selectedTabButton.value}");
-                          });
-                        },
-                        child: Row(
-                          children: [
-                            Text(
-                              'Register',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleSmall
-                                  ?.copyWith(),
-                              //   style: TextStyle(color: Colors.black),
-                            ),
+            titleWidget: Obx(() => Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    SizedBox(
+                      width: 10,
+                    ),
+                    TextButton(
+                      style: TextButton.styleFrom(
+                        padding: EdgeInsets.only(left: 10, right: 5),
+                        backgroundColor:
                             homeController.selectedTabButton.value == 1
-                                ? Container(
-                                    margin: EdgeInsets.only(left: 5),
-                                    decoration: BoxDecoration(
-                                      color: Colors.green,
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                    width: 8,
-                                    height: 8,
-                                  )
-                                : Container()
-                          ],
+                                ? Colors.white
+                                : Colors.grey.shade100,
+                        foregroundColor: Colors.black,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
                         ),
                       ),
-                      SizedBox(
-                        width: 10,
-                      ),
-                      TextButton(
-                        style: TextButton.styleFrom(
-                          padding: EdgeInsets.only(left: 10, right: 5),
-                          backgroundColor:
-                              homeController.selectedTabButton.value == 2
-                                  ? Colors.white
-                                  : Colors.grey.shade100,
-                          foregroundColor: Colors.black,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
+                      onPressed: () {
+                        setState(() {
+                          homeController.selectedTabButton.value = 1;
+                          print(
+                              "selectedTabButton H: ${homeController.selectedTabButton.value}");
+                        });
+                      },
+                      child: Row(
+                        children: [
+                          Text(
+                            'Register',
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleSmall
+                                ?.copyWith(),
+                            //   style: TextStyle(color: Colors.black),
                           ),
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            homeController.selectedTabButton.value = 2;
-                          });
-                        },
-                        child: Row(
-                          children: [
-                            Text(
-                              'Order',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleSmall
-                                  ?.copyWith(),
-                              // style: TextStyle(color: Colors.black),
-                            ),
+                          homeController.selectedTabButton.value == 1
+                              ? Container(
+                                  margin: EdgeInsets.only(left: 5),
+                                  decoration: BoxDecoration(
+                                    color: Colors.green,
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  width: 8,
+                                  height: 8,
+                                )
+                              : Container()
+                        ],
+                      ),
+                    ),
+                    SizedBox(
+                      width: 10,
+                    ),
+                    TextButton(
+                      style: TextButton.styleFrom(
+                        padding: EdgeInsets.only(left: 10, right: 5),
+                        backgroundColor:
                             homeController.selectedTabButton.value == 2
-                                ? Container(
-                                    margin: EdgeInsets.only(left: 5),
-                                    decoration: BoxDecoration(
-                                      color: Colors.green,
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                    width: 8,
-                                    height: 8,
-                                  )
-                                : Container()
-                          ],
+                                ? Colors.white
+                                : Colors.grey.shade100,
+                        foregroundColor: Colors.black,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
                         ),
                       ),
-                      SizedBox(
-                        width: 10,
-                      ),
-                      TextButton(
-                        style: TextButton.styleFrom(
-                          padding: EdgeInsets.only(left: 10, right: 5),
-                          backgroundColor:
-                              homeController.selectedTabButton.value == 3
-                                  ? Colors.white
-                                  : Colors.grey.shade100,
-                          foregroundColor: Colors.black,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
+                      onPressed: () {
+                        setState(() {
+                          homeController.selectedTabButton.value = 2;
+                        });
+                      },
+                      child: Row(
+                        children: [
+                          Text(
+                            'Order',
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleSmall
+                                ?.copyWith(),
+                            // style: TextStyle(color: Colors.black),
                           ),
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            homeController.selectedTabButton.value = 3;
-                          });
-                        },
-                        child: Row(
-                          children: [
-                            Text(
-                              'Orders on hold',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleSmall
-                                  ?.copyWith(),
-                              //  style: TextStyle(color: Colors.black),
-                            ),
+                          homeController.selectedTabButton.value == 2
+                              ? Container(
+                                  margin: EdgeInsets.only(left: 5),
+                                  decoration: BoxDecoration(
+                                    color: Colors.green,
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  width: 8,
+                                  height: 8,
+                                )
+                              : Container()
+                        ],
+                      ),
+                    ),
+                    SizedBox(
+                      width: 10,
+                    ),
+                    TextButton(
+                      style: TextButton.styleFrom(
+                        padding: EdgeInsets.only(left: 10, right: 5),
+                        backgroundColor:
                             homeController.selectedTabButton.value == 3
-                                ? Container(
-                                    margin: EdgeInsets.only(left: 5),
-                                    decoration: BoxDecoration(
-                                      color: Colors.green,
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                    width: 8,
-                                    height: 8,
-                                  )
-                                : Container()
-                          ],
+                                ? Colors.white
+                                : Colors.grey.shade100,
+                        foregroundColor: Colors.black,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
                         ),
                       ),
-                      SizedBox(
-                        width: 10,
+                      onPressed: () {
+                        setState(() {
+                          homeController.selectedTabButton.value = 3;
+                        });
+                      },
+                      child: Row(
+                        children: [
+                          Text(
+                            'Orders on hold',
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleSmall
+                                ?.copyWith(),
+                            //  style: TextStyle(color: Colors.black),
+                          ),
+                          homeController.selectedTabButton.value == 3
+                              ? Container(
+                                  margin: EdgeInsets.only(left: 5),
+                                  decoration: BoxDecoration(
+                                    color: Colors.green,
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  width: 8,
+                                  height: 8,
+                                )
+                              : Container()
+                        ],
                       ),
-                    ],
-                  )),
-              homeController: homeController)),
+                    ),
+                    SizedBox(
+                      width: 10,
+                    ),
+                  ],
+                )),
+          )),
       body: Obx(() => Center(
             child: homeController.selectedTabButton.value == 1
-                ? RegisterSection(homeController)
+                ? RegisterSection()
                 : homeController.selectedTabButton.value == 2
-                    ? OrdersSection(homeController)
+                    ? OrdersSection()
                     : homeController.selectedTabButton.value == 3
-                        ? OrderOnHold(homeController)
+                        ? OrderOnHold()
                         : Container(),
           )),
     );

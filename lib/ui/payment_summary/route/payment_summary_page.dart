@@ -118,12 +118,12 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
       appBar: PreferredSize(
           preferredSize: Size.fromHeight(kToolbarHeight),
           child: HomeAppBar(
-              showBackButton: true,
-              titleWidget: Text(
-                'Payment summary',
-                style: theme.textTheme.titleMedium,
-              ),
-              homeController: homeController)),
+            showBackButton: true,
+            titleWidget: Text(
+              'Payment summary',
+              style: theme.textTheme.titleMedium,
+            ),
+          )),
       body: BlocProvider(
         create: (context) => paymentBloc,
         child: BlocListener<PaymentBloc, PaymentState>(
@@ -606,7 +606,7 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
     var totalPayable =
         (paymentBloc.paymentSummaryResponse.amountPayable?.centAmount ?? 0) /
             (paymentBloc.paymentSummaryResponse.amountPayable?.fraction ?? 1);
-    if(online != '0'){
+    if (online != '0') {
       paymentBloc.isOnlinePaymentSuccess = true;
     }
     return totalPayable - givenAmount;

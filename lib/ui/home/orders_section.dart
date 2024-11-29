@@ -20,9 +20,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
 class OrdersSection extends StatefulWidget {
-  final HomeController homeController;
-
-  const OrdersSection(this.homeController, {super.key});
+  const OrdersSection({super.key});
 
   @override
   State<OrdersSection> createState() => _OrdersSectionState();
@@ -30,28 +28,43 @@ class OrdersSection extends StatefulWidget {
 
 class _OrdersSectionState extends State<OrdersSection>
     with WidgetsBindingObserver {
-  final FocusNode _numPadFocusNode = FocusNode();
-  final TextEditingController _numPadTextController = TextEditingController();
-
-  late HomeController homeController;
+  final TextEditingController numPadTextController = TextEditingController();
+  final FocusNode scanFocusNode = FocusNode();
+  final TextEditingController scanTextController = TextEditingController();
+  HomeController homeController = Get.find<HomeController>();
+  FocusNode? activeFocusNode;
 
   @override
   void initState() {
-    if (mounted == true) {
-      homeController = widget.homeController;
-      //homeController.initialResponse();
-    }
+    activeFocusNode = scanFocusNode;
+    scanFocusNode.addListener(() {
+      setState(() {
+        if (scanFocusNode.hasFocus) {
+          activeFocusNode = scanFocusNode;
+        }
+        numPadTextController.text = scanTextController.text;
+      });
+    });
+
+    numPadTextController.addListener(() {
+      setState(() {
+        if (activeFocusNode == scanFocusNode) {
+          scanTextController.text = numPadTextController.text;
+        }
+      });
+    });
+
     ever(homeController.customerResponse, (value) {
       if (value.phoneNumber != null) {
-        _numPadFocusNode.requestFocus();
+        scanFocusNode.requestFocus();
       }
     });
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ever(homeController.scanProductsResponse, (value) {
         if (value.esin != null) {
-          _numPadTextController.clear();
-          _numPadFocusNode.requestFocus();
+          scanTextController.clear();
+          scanFocusNode.requestFocus();
         }
         if ((value.priceList?.length ?? 0) > 1) {
           showDialog(
@@ -61,7 +74,7 @@ class _OrdersSectionState extends State<OrdersSection>
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20.0),
                 ),
-                child: MultipleMrpWidget(homeController, context),
+                child: MultipleMrpWidget(context),
               );
             },
           );
@@ -72,13 +85,13 @@ class _OrdersSectionState extends State<OrdersSection>
     super.initState();
   }
 
-  @override
+  /* @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _numPadFocusNode.dispose();
     _numPadTextController.dispose();
     super.dispose();
-  }
+  }*/
 
   @override
   Widget build(BuildContext context) {
@@ -98,7 +111,7 @@ class _OrdersSectionState extends State<OrdersSection>
                       child: Obx(() {
                         if (homeController.registerId.value.isNotEmpty) {
                           return homeController.cartId.value.isEmpty
-                              ? AddCustomerStaticWidget(homeController)
+                              ? AddCustomerStaticWidget()
                               : _buildTableView();
                         } else {
                           return _buildRegisterClosed(context,
@@ -129,7 +142,7 @@ class _OrdersSectionState extends State<OrdersSection>
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20.0),
                       ),
-                      child: AddCustomerWidget(homeController, context),
+                      child: AddCustomerWidget(context),
                     );
                   },
                 );
@@ -147,8 +160,7 @@ class _OrdersSectionState extends State<OrdersSection>
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20.0),
                         ),
-                        child: AuthorisationRequiredWidget(
-                            homeController, context),
+                        child: AuthorisationRequiredWidget(context),
                       );
                     },
                   );
@@ -164,8 +176,7 @@ class _OrdersSectionState extends State<OrdersSection>
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20.0),
                       ),
-                      child:
-                          AuthorisationRequiredWidget(homeController, context),
+                      child: AuthorisationRequiredWidget(context),
                     );
                   },
                 );
@@ -178,7 +189,7 @@ class _OrdersSectionState extends State<OrdersSection>
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20.0),
                       ),
-                      child: CouponCodeWidget(homeController, context),
+                      child: CouponCodeWidget(context),
                     );
                   },
                 );
@@ -196,8 +207,7 @@ class _OrdersSectionState extends State<OrdersSection>
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20.0),
                         ),
-                        child: AuthorisationRequiredWidget(
-                            homeController, context),
+                        child: AuthorisationRequiredWidget(context),
                       );
                     },
                   );
@@ -213,7 +223,7 @@ class _OrdersSectionState extends State<OrdersSection>
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20.0),
                       ),
-                      child: MultipleMrpWidget(homeController, context),
+                      child: MultipleMrpWidget(context),
                     );
                   },
                 );
@@ -371,13 +381,13 @@ class _OrdersSectionState extends State<OrdersSection>
         padding: const EdgeInsets.all(1.0),
         child: commonTextField(
           label: '',
-          focusNode: itemData.focusNode ?? FocusNode(),
-          readOnly: true,
-          controller: itemData.controller ?? TextEditingController(),
+          focusNode: itemData.weightFocusNode ?? FocusNode(),
+          readOnly: false,
+          controller: itemData.weightController ?? TextEditingController(),
           suffixLabel: null,
           suffixWidget: InkWell(
             onTap: () {
-              itemData.focusNode?.requestFocus();
+              itemData.weightFocusNode?.requestFocus();
             },
             child: const Text(''),
           ),
@@ -391,44 +401,34 @@ class _OrdersSectionState extends State<OrdersSection>
 
   Widget _buildEditableQuantityCell(CartLine itemData,
       {required double outerPadding, required double innerPadding}) {
-    itemData.focusNode?.addListener(() {
-      setState(() {});
+
+    numPadTextController.addListener(() {
+      setState(() {
+        if (activeFocusNode == itemData.weightFocusNode) {
+          itemData.weightController?.text = numPadTextController.text ;
+        }
+      });
     });
 
-    itemData.controller?.addListener(() {
-      try {
-        if (itemData.controller?.text != '0.0' &&
-            itemData.controller?.text.isNotEmpty == true &&
-            itemData.controller?.text !=
-                itemData.quantity?.quantityNumber.toString()) {
-          double doubleValue = double.parse(itemData.controller?.text ?? '');
-          if (!homeController.isApiCallInProgress) {
-            homeController.updateCartItemApiCall(
-              itemData.cartLineId,
-              itemData.quantity?.quantityUom,
-              doubleValue,
-            );
-          }
-        }
-      } on Exception catch (e) {
-        print(e);
+
+
+    ever(homeController.weight, (value) {
+      if (value != 0.0) {
+        itemData.weightController?.text = homeController.weight.value.toString();
+        homeController.weight.value = 0.0;
       }
     });
 
-    if (itemData.focusNode?.hasFocus == true) {
-      itemData.controller?.text = homeController.weight.value.toString();
-      homeController.weight.value = 0.0;
-    }
-
-    if (itemData.isWeighedItem != true) {
-      itemData.controller?.text =
-          itemData.quantity?.quantityNumber.toString() ?? '';
-    }
-
-    return itemData.item?.isWeighedItem == true
-        ? _buildEditableTextField(itemData)
-        : _buildTableCell(itemData.quantity?.quantityNumber?.toString() ?? '',
-            innerPadding: innerPadding, outerPadding: outerPadding);
+    itemData.weightFocusNode?.addListener(() {
+      setState(() {
+        if (itemData.weightFocusNode?.hasFocus == true ) {
+          homeController.selectedItemData.value = itemData;
+          activeFocusNode = itemData.weightFocusNode;
+        }
+       numPadTextController.text = itemData.weightController?.text ?? '';
+      });
+    });
+    return _buildEditableTextField(itemData);
   }
 
   Widget _buildUnitCell(CartLine itemData,
@@ -469,7 +469,7 @@ class _OrdersSectionState extends State<OrdersSection>
                   builder: (_) => Dialog(
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20.0)),
-                    child: AuthorisationRequiredWidget(homeController, context),
+                    child: AuthorisationRequiredWidget(context),
                   ),
                 );
               } else {
@@ -654,7 +654,7 @@ class _OrdersSectionState extends State<OrdersSection>
                             focusNode:
                                 (homeController.cartId.value.isNotEmpty &&
                                         homeController.registerId.isNotEmpty)
-                                    ? _numPadFocusNode
+                                    ? scanFocusNode
                                     : FocusNode(),
                             readOnly: (homeController.cartId.value.isNotEmpty &&
                                     homeController.registerId.isNotEmpty)
@@ -663,32 +663,54 @@ class _OrdersSectionState extends State<OrdersSection>
                             controller:
                                 (homeController.cartId.value.isNotEmpty &&
                                         homeController.registerId.isNotEmpty)
-                                    ? _numPadTextController
+                                    ? scanTextController
                                     : TextEditingController(),
                           ),
                         ),
                         CustomNumPad(
-                          focusNode: _numPadFocusNode,
-                          textController: _numPadTextController,
+                          focusNode: activeFocusNode!,
+                          textController: numPadTextController,
                           onEnterPressed: (text) {
                             print("Enter pressed with text: $text");
-                            _numPadFocusNode.unfocus();
-                            if (homeController.cartId.value.isNotEmpty &&
-                                homeController.registerId.isNotEmpty) {
-                              if (isValidOfferId(text)) {
-                                homeController.scanApiCall(text);
-                              } else {
-                                Get.snackbar("Invalid Offer Id",
-                                    'Please enter valid offer id');
+                            if(activeFocusNode==scanFocusNode){
+                              if (homeController.cartId.value.isNotEmpty &&
+                                  homeController.registerId.isNotEmpty) {
+                                print("onTextListener text: $text");
+                                if (isValidOfferId(text)) {
+                                  homeController.scanApiCall(text);
+                                }
                               }
+                              activeFocusNode?.unfocus();
+                            }else{
+                              try {
+                                if (numPadTextController.text != '0.0' &&
+                                    numPadTextController.text.isNotEmpty == true &&
+                                    numPadTextController.text !=
+                                        homeController.selectedItemData.value.quantity?.quantityNumber.toString()) {
+                                  double weight =
+                                  double.parse(homeController.selectedItemData.value.weightController?.text ?? '');
+                                  if (!homeController.isApiCallInProgress) {
+                                    homeController.updateCartItemApiCall(
+                                      homeController.selectedItemData.value.cartLineId,
+                                      homeController.selectedItemData.value.quantity?.quantityUom,
+                                      weight,
+                                    );
+                                  }
+                                }
+                              } on Exception catch (e) {
+                                print(e);
+                              }
+                              activeFocusNode?.unfocus();
                             }
                           },
                           onValueChanged: (text) {
-                            if (homeController.cartId.value.isNotEmpty &&
-                                homeController.registerId.isNotEmpty) {
-                              print("onTextListener text: $text");
-                              if (isValidOfferId(text)) {
-                                homeController.scanApiCall(text);
+                            if (activeFocusNode == scanFocusNode) {
+                              if (homeController.cartId.value.isNotEmpty &&
+                                  homeController.registerId.isNotEmpty) {
+                                print("onTextListener text: $text");
+                                if (isValidOfferId(text)) {
+                                  homeController.scanApiCall(text);
+                                }
                               }
                             }
                           },

@@ -1,13 +1,12 @@
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:ebono_pos/constants/custom_colors.dart';
 import 'package:ebono_pos/ui/home/home_controller.dart';
 import 'package:ebono_pos/ui/home/widgets/add_customer_widget.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class AddCustomerStaticWidget extends StatefulWidget {
-  final HomeController homeController;
 
-  const AddCustomerStaticWidget(this.homeController, {super.key});
+  const AddCustomerStaticWidget({super.key});
 
   @override
   State<AddCustomerStaticWidget> createState() => _AddCustomerStaticWidgetState();
@@ -15,7 +14,7 @@ class AddCustomerStaticWidget extends StatefulWidget {
 
 class _AddCustomerStaticWidgetState extends State<AddCustomerStaticWidget>
     with WidgetsBindingObserver {
-  late HomeController homeController;
+  HomeController homeController = Get.find<HomeController>();
   final TextEditingController _controllerPhoneNumber = TextEditingController();
   final TextEditingController _controllerCustomerName = TextEditingController();
   final FocusNode customerNameFocusNode = FocusNode();
@@ -24,10 +23,6 @@ class _AddCustomerStaticWidgetState extends State<AddCustomerStaticWidget>
 
   @override
   void initState() {
-    if (mounted == true) {
-      homeController = widget.homeController;
-    }
-
     ever(homeController.phoneNumber, (value) {
       _controllerPhoneNumber.text = value.toString();
     });
@@ -85,7 +80,7 @@ class _AddCustomerStaticWidgetState extends State<AddCustomerStaticWidget>
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(20.0),
                               ),
-                              child: AddCustomerWidget(homeController, context),
+                              child: AddCustomerWidget(context),
                             );
                           },
                         );
@@ -202,7 +197,7 @@ class _AddCustomerStaticWidgetState extends State<AddCustomerStaticWidget>
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(20.0),
                               ),
-                              child: AddCustomerWidget(homeController, context),
+                              child: AddCustomerWidget(context),
                             );
                           },
                         );

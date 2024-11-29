@@ -8,11 +8,10 @@ import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 
 class AuthorisationRequiredWidget extends StatefulWidget {
-  final HomeController homeController;
   final BuildContext dialogContext;
 
 
-  const AuthorisationRequiredWidget(this.homeController, this.dialogContext, {super.key});
+  const AuthorisationRequiredWidget(this.dialogContext, {super.key});
 
   @override
   State<AuthorisationRequiredWidget> createState() =>
@@ -21,7 +20,7 @@ class AuthorisationRequiredWidget extends StatefulWidget {
 
 class _AuthorisationRequiredWidgetState
     extends State<AuthorisationRequiredWidget> {
-  late HomeController homeController;
+  HomeController homeController = Get.find<HomeController>();
   final TextEditingController loginIdController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController _qwertyPadController = TextEditingController();
@@ -33,8 +32,6 @@ class _AuthorisationRequiredWidgetState
   @override
   void initState() {
     super.initState();
-    homeController = widget.homeController;
-
     if (!loginIdFocusNode.hasFocus) {
       loginIdFocusNode.requestFocus();
     }

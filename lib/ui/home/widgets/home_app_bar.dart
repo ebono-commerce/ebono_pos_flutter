@@ -1,18 +1,16 @@
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:ebono_pos/constants/custom_colors.dart';
 import 'package:ebono_pos/ui/home/home_controller.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import 'logout_button.dart';
 
 class HomeAppBar extends StatefulWidget {
   final Widget titleWidget;
-  final HomeController homeController;
   final bool showBackButton;
 
   const HomeAppBar(
       {super.key,
-      required this.homeController,
       required this.titleWidget,
       this.showBackButton = false});
 
@@ -21,20 +19,8 @@ class HomeAppBar extends StatefulWidget {
 }
 
 class _HomeAppBarState extends State<HomeAppBar> {
-  late HomeController homeController;
+  HomeController homeController = Get.find<HomeController>();
 
-  //bool isOnline = false;
-
-  @override
-  void initState() {
-    super.initState();
-    if (mounted == true) {
-      homeController = widget.homeController;
-      // homeController.healthCheckApiCall();
-    }
-    print(
-        "API healthCheckApiCall initState:  ${homeController.isOnline.value}");
-  }
 
   @override
   Widget build(BuildContext context) {

@@ -1,22 +1,21 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
-import 'package:get/get.dart';
 import 'package:ebono_pos/constants/custom_colors.dart';
 import 'package:ebono_pos/ui/custom_keyboard/custom_querty_pad.dart';
 import 'package:ebono_pos/ui/home/home_controller.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:get/get.dart';
 
 class AddCustomerWidget extends StatefulWidget {
-  final HomeController homeController;
   final BuildContext dialogContext;
 
-  const AddCustomerWidget(this.homeController, this.dialogContext, {super.key});
+  const AddCustomerWidget(this.dialogContext, {super.key});
 
   @override
   State<AddCustomerWidget> createState() => _AddCustomerWidgetState();
 }
 
 class _AddCustomerWidgetState extends State<AddCustomerWidget> {
-  late HomeController homeController;
+  HomeController homeController = Get.find<HomeController>();
   final TextEditingController _controllerPhoneNumber = TextEditingController();
   final TextEditingController _controllerCustomerName = TextEditingController();
   final TextEditingController _qwertyPadController = TextEditingController();
@@ -28,8 +27,6 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
   @override
   void initState() {
     super.initState();
-    homeController = widget.homeController;
-
     ever(homeController.customerName, (value) {
       _controllerCustomerName.text = value.toString();
     });

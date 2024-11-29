@@ -1,3 +1,4 @@
+import 'package:ebono_pos/constants/custom_colors.dart';
 import 'package:ebono_pos/ui/common_text_field.dart';
 import 'package:ebono_pos/ui/custom_keyboard/custom_num_pad.dart';
 import 'package:ebono_pos/ui/home/home_controller.dart';
@@ -5,13 +6,10 @@ import 'package:ebono_pos/ui/home/widgets/quick_action_buttons.dart';
 import 'package:ebono_pos/utils/dash_line.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:ebono_pos/constants/custom_colors.dart';
 import 'package:intl/intl.dart';
 
 class OrderOnHold extends StatefulWidget {
-  final HomeController homeController;
-
-  const OrderOnHold(this.homeController, {super.key});
+  const OrderOnHold({super.key});
 
   @override
   State<OrderOnHold> createState() => _OrderOnHoldState();
@@ -21,12 +19,11 @@ class _OrderOnHoldState extends State<OrderOnHold> with WidgetsBindingObserver {
   final FocusNode _numPadFocusNode = FocusNode();
   final TextEditingController _numPadTextController = TextEditingController();
 
-  late HomeController homeController;
+  HomeController homeController = Get.find<HomeController>();
 
   @override
   void initState() {
     if (mounted == true) {
-      homeController = widget.homeController;
       _numPadFocusNode.requestFocus();
     }
     homeController.ordersOnHoldApiCall();

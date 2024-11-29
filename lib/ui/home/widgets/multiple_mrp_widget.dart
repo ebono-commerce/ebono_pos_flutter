@@ -1,23 +1,23 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:ebono_pos/constants/custom_colors.dart';
 import 'package:ebono_pos/models/cart_response.dart';
 import 'package:ebono_pos/models/scan_products_response.dart';
 import 'package:ebono_pos/ui/home/home_controller.dart';
 import 'package:ebono_pos/utils/price.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:get/get.dart';
 
 class MultipleMrpWidget extends StatefulWidget {
-  final HomeController homeController;
   final BuildContext dialogContext;
 
-  const MultipleMrpWidget(this.homeController, this.dialogContext, {super.key});
+  const MultipleMrpWidget(this.dialogContext, {super.key});
 
   @override
   State<MultipleMrpWidget> createState() => _MultipleMrpWidgetState();
 }
 
 class _MultipleMrpWidgetState extends State<MultipleMrpWidget> {
-  late HomeController homeController;
+  HomeController homeController = Get.find<HomeController>();
   late ThemeData theme;
   late CartLine cartLine;
   late ScanProductsResponse scanData;
@@ -25,7 +25,6 @@ class _MultipleMrpWidgetState extends State<MultipleMrpWidget> {
   @override
   void initState() {
     super.initState();
-    homeController = widget.homeController;
     scanData = homeController.scanProductsResponse.value;
   }
 

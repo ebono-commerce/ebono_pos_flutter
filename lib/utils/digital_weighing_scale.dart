@@ -1,40 +1,67 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:get/get.dart';
+
 import 'package:ebono_pos/utils/digital_weighing_scale_implementation.dart';
+import 'package:get/get.dart';
 import 'package:libserialport/libserialport.dart';
 
 class DigitalWeighingScale implements DigitalWeighingScaleImplementation {
+  static DigitalWeighingScale? _instance;
+
   final String digitalScalePort;
   final int digitalScaleRate;
   final int digitalScaleTimeout;
-  static late SerialPort serialPort;
-  static late SerialPortReader serialPortReader;
-  static int factor = 1;
-  static String initString = '';
   final RxDouble weightController;
 
+  late SerialPort serialPort;
+  SerialPortReader? serialPortReader;
+  StreamSubscription? subscription;
+  late bool isRecoveryInProgress = false;
+  static String initString = String.fromCharCode(5) +
+      String.fromCharCode(10) +
+      String.fromCharCode(13);
+
   /// initialize the serial port and call methods
-  DigitalWeighingScale({
+  DigitalWeighingScale._({
     required this.digitalScalePort,
     required this.digitalScaleRate,
     required this.digitalScaleTimeout,
     required this.weightController,
   }) {
+    print('selected port: $digitalScalePort');
     serialPort = SerialPort(digitalScalePort);
+    initializePort();
+  }
 
-    bool resp = open();
+  /// Factory constructor to return the singleton instance
+  factory DigitalWeighingScale({
+    required String digitalScalePort,
+    required int digitalScaleRate,
+    required int digitalScaleTimeout,
+    required RxDouble weightController,
+  }) {
+    return _instance ??= DigitalWeighingScale._(
+      digitalScalePort: digitalScalePort,
+      digitalScaleRate: digitalScaleRate,
+      digitalScaleTimeout: digitalScaleTimeout,
+      weightController: weightController,
+    );
+  }
 
+  /// Initialize the port
+  @override
+  void initializePort() {
+    bool resp =  open();
     if (resp) {
       try {
         config();
         writeInPort(initString);
         readPort();
       } catch (e) {
-        // Handle the exception
-        print('Error: $e');
+        handlePortError(e, 'Error initializing port');
       }
     }
+    monitorConnection(); // Start monitoring connection
   }
 
   /// Open the port for Read and Write
@@ -44,12 +71,13 @@ class DigitalWeighingScale implements DigitalWeighingScaleImplementation {
       try {
         serialPort.close();
       } catch (e) {
-        print('Error: $e');
+        handlePortError(e, 'Error closing port');
       }
     }
 
     if (!serialPort.isOpen) {
       if (!serialPort.openReadWrite()) {
+        handlePortError(null, 'Failed to open port');
         return false;
       }
     }
@@ -60,12 +88,8 @@ class DigitalWeighingScale implements DigitalWeighingScaleImplementation {
   /// Configure the port with arguments
   @override
   config() {
-    initString = String.fromCharCode(5) +
-        String.fromCharCode(10) +
-        String.fromCharCode(13);
-
     SerialPortConfig config = serialPort.config;
-    config.baudRate = 9600;
+    config.baudRate = digitalScaleRate;
     config.stopBits = 1;
     config.bits = 8;
     config.parity = SerialPortParity.none;
@@ -78,7 +102,7 @@ class DigitalWeighingScale implements DigitalWeighingScaleImplementation {
     try {
       serialPort.write(utf8.encoder.convert(value));
     } catch (e) {
-      print('Error: $e');
+      handlePortError(e, 'Error writing to port');
     }
   }
 
@@ -88,33 +112,87 @@ class DigitalWeighingScale implements DigitalWeighingScaleImplementation {
     try {
       serialPortReader = SerialPortReader(serialPort);
     } catch (e) {
-      print('Error: $e');
+      handlePortError(e, 'Error creating serial port reader');
     }
   }
 
   /// create the listener and return the weight
   @override
   Future<void> getWeight() async {
+    if (subscription != null) {
+      subscription?.cancel();
+    }
+
+    if (serialPortReader == null) {
+      handlePortError(null, 'SerialPortReader is not initialized');
+      return;
+    }
+
     String decodedWeight = '';
-    StreamSubscription? subscription;
+   // StreamSubscription? subscription;
 
     try {
       double weight = 0.00;
-      subscription = serialPortReader.stream.listen((data) async {
-        decodedWeight += utf8.decode(data);
-        if(decodedWeight.length >= 9){
-          weight = double.parse(decodedWeight);
-          weightController.value = weight;
-          print('decoded weight $weight');
-          decodedWeight = '';
-        }
-      });
+      if(subscription == null || subscription?.isPaused ==true || subscription?.isBlank == true){
+        print('subscription not listenening');
+        subscription = serialPortReader!.stream.listen((data) async {
+          decodedWeight += utf8.decode(data);
+          if(decodedWeight.length >= 9){
+            weight = double.parse(decodedWeight);
+            weightController.value = weight;
+            print('decoded weight $weight');
+            decodedWeight = '';
+          }
+        });
+      }
+
     } catch (e) {
-      print('digital scale error: $e');
-      serialPort.close();
-      subscription?.cancel();
+      handlePortError(e, 'Error listening to stream');
     }
   }
 
+  @override
+  void handlePortError(Object? error, String message) {
+    print('$message in $digitalScalePort: ${error ?? 'Unknown error'}');
+    Get.snackbar('Error in port $digitalScalePort', message);
+    if(isRecoveryInProgress) return;
+    isRecoveryInProgress = true;
+    Future.delayed(Duration(seconds: 5)).then((_){
+      if (!serialPort.isOpen) {
+        open();
+        config();
+        readPort();
+      }
+      isRecoveryInProgress = false;
+    });
+    // Attempt recovery
+
+  }
+
+
+  /// Monitor the connection and reconnect if needed
+  @override
+  void monitorConnection() {
+    Timer.periodic(Duration(seconds: 30), (timer) {
+      if (!serialPort.isOpen) {
+        print('Scale disconnected. Attempting to reconnect...');
+        open();
+        config();
+        readPort();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    try {
+      subscription?.cancel(); // Cancel the subscription
+      if (serialPort.isOpen) {
+        serialPort.close();
+      }
+    } catch (e) {
+      handlePortError(e, 'Error disposing port resources');
+    }
+  }
 
 }

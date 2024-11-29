@@ -1,10 +1,7 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:ebono_pos/ui/home/model/orders_on_hold.dart';
-import 'package:ebono_pos/ui/home/model/orders_onhold_request.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:ebono_pos/constants/shared_preference_constants.dart';
 import 'package:ebono_pos/data_store/get_storage_helper.dart';
 import 'package:ebono_pos/data_store/shared_preference_helper.dart';
@@ -19,6 +16,8 @@ import 'package:ebono_pos/ui/home/model/customer_request.dart';
 import 'package:ebono_pos/ui/home/model/delete_cart.dart';
 import 'package:ebono_pos/ui/home/model/general_success_response.dart';
 import 'package:ebono_pos/ui/home/model/open_register_response.dart';
+import 'package:ebono_pos/ui/home/model/orders_on_hold.dart';
+import 'package:ebono_pos/ui/home/model/orders_onhold_request.dart';
 import 'package:ebono_pos/ui/home/model/phone_number_request.dart';
 import 'package:ebono_pos/ui/home/model/register_close_request.dart';
 import 'package:ebono_pos/ui/home/model/register_open_request.dart';
@@ -28,6 +27,8 @@ import 'package:ebono_pos/ui/home/repository/home_repository.dart';
 import 'package:ebono_pos/ui/login/model/login_response.dart';
 import 'package:ebono_pos/ui/payment_summary/model/health_check_response.dart';
 import 'package:ebono_pos/utils/digital_weighing_scale.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class HomeController extends GetxController {
   late final HomeRepository _homeRepository;
@@ -92,10 +93,19 @@ class HomeController extends GetxController {
   var isPriceEditEnabled = ''.obs;
   var isSalesAssociateLinkEnabled = ''.obs;
   bool isApiCallInProgress = false;
-
+  var selectedItemData = CartLine().obs;
   @override
   void onInit() async {
     _checkConnectivity();
+    await readStorageData();
+    if(Platform.isLinux){
+      initializeWeighingScale();
+    }
+    initialResponse();
+    super.onInit();
+  }
+
+  Future<void> readStorageData() async {
     portName.value = await sharedPreferenceHelper.getPortName() ?? '';
     selectedOutlet.value =
         GetStorageHelper.read(SharedPreferenceConstants.selectedOutletName);
@@ -124,7 +134,7 @@ class HomeController extends GetxController {
     isSalesAssociateLinkEnabled.value = GetStorageHelper.read(
         SharedPreferenceConstants.isSalesAssociateLinkEnabled);
     final userDetailsData =
-        GetStorageHelper.read(SharedPreferenceConstants.userDetails);
+    GetStorageHelper.read(SharedPreferenceConstants.userDetails);
     if (userDetailsData != null && userDetailsData is Map<String, dynamic>) {
       userDetails.value = UserDetails.fromJson(userDetailsData);
       print(userDetails.value.toJson());
@@ -132,7 +142,9 @@ class HomeController extends GetxController {
       userDetails.value = userDetailsData;
       print(userDetails.value.toJson());
     }
+  }
 
+  void initializeWeighingScale() {
     try {
       digitalWeighingScale = DigitalWeighingScale(
         digitalScalePort: portName.value,
@@ -144,8 +156,6 @@ class HomeController extends GetxController {
     } on Exception catch (e) {
       print(e);
     }
-    initialResponse();
-    super.onInit();
   }
 
   Future<void> _checkConnectivity() async {
@@ -184,18 +194,25 @@ class HomeController extends GetxController {
 
   void addCartLine(CartLine cartLine) {
     var cart = CartLine(
-        cartLineId: cartLine.cartLineId,
-        item: cartLine.item,
-        quantity: cartLine.quantity,
-        unitPrice: cartLine.unitPrice,
-        isWeighedItem: cartLine.isWeighedItem,
-        mrp: cartLine.mrp,
-        lineTotal: cartLine.lineTotal,
-        applicableCartAdjustments: cartLine.applicableCartAdjustments,
-        audit: cartLine.audit,
-        controller: TextEditingController(
-            text: cartLine.quantity?.quantityNumber.toString()),
-        focusNode: FocusNode());
+      cartLineId: cartLine.cartLineId,
+      item: cartLine.item,
+      quantity: cartLine.quantity,
+      unitPrice: cartLine.unitPrice,
+      isWeighedItem: cartLine.isWeighedItem,
+      mrp: cartLine.mrp,
+      lineTotal: cartLine.lineTotal,
+      applicableCartAdjustments: cartLine.applicableCartAdjustments,
+      audit: cartLine.audit,
+      weightController: TextEditingController(
+          text: cartLine.quantity?.quantityNumber.toString()),
+      weightFocusNode: FocusNode(),
+      quantityTextController: TextEditingController(
+          text: cartLine.quantity?.quantityNumber.toString()),
+      quantityFocusNode: FocusNode(),
+      priceTextController: TextEditingController(
+          text: cartLine.quantity?.quantityNumber.toString()),
+      priceFocusNode: FocusNode(),
+    );
     cartLines.add(cart);
   }
 
@@ -379,8 +396,7 @@ class HomeController extends GetxController {
       fetchCartDetails();
     } catch (e) {
       print("Error $e");
-    }
-    finally {
+    } finally {
       isApiCallInProgress = false;
     }
   }
@@ -430,7 +446,7 @@ class HomeController extends GetxController {
       generalSuccessResponse.value = response;
       if (generalSuccessResponse.value == true) {
         clearHoldCartOrders();
-        Get.offAllNamed(PageRoutes.home);
+        selectedTabButton.value = 2;
       }
     } catch (e) {
       print("Error $e");
@@ -481,8 +497,9 @@ class HomeController extends GetxController {
       openRegisterResponse.value = response;
       GetStorageHelper.save(SharedPreferenceConstants.registerId,
           openRegisterResponse.value.registerId ?? "");
+      registerId.value =  openRegisterResponse.value.registerId ?? "";
       openFloatPayment.value = '';
-      Get.offAllNamed(PageRoutes.home);
+      selectedTabButton.value = 2;
       isLoading.value = false;
     } catch (e) {
       print("Error $e");
@@ -523,12 +540,13 @@ class HomeController extends GetxController {
       closeRegisterResponse.value = response;
       if (closeRegisterResponse.value.success == true) {
         GetStorageHelper.save(SharedPreferenceConstants.registerId, "");
+        registerId.value =  "";
         upiPayment.value = '';
         upiPaymentCount.value = '';
         cardPayment.value = '';
         cardPaymentCount.value = '';
         cashPayment.value = '';
-        Get.offAllNamed(PageRoutes.home);
+        selectedTabButton.value = 2;
       }
       isLoading.value = false;
     } catch (e) {
@@ -579,20 +597,7 @@ class HomeController extends GetxController {
   @override
   void onClose() {
     _statusCheckTimer?.cancel();
+    digitalWeighingScale.dispose();
     super.onClose();
   }
-/*
-  Login:
-9999912343
-9999912342
-9999912341
-
-10000139
-10000004
-10000027
-10001394
-10007352
-10000071
-10004726
-  */
 }
