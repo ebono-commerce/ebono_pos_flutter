@@ -428,42 +428,6 @@ class _OrdersSectionState extends State<OrdersSection>
        numPadTextController.text = itemData.weightController?.text ?? '';
       });
     });
-
-    //don't delete
-   /* itemData.weightController?.addListener(() {
-      try {
-        if (itemData.weightController?.text != '0.0' &&
-            itemData.weightController?.text.isNotEmpty == true &&
-            itemData.weightController?.text !=
-                itemData.quantity?.quantityNumber.toString()) {
-          double doubleValue = double.parse(itemData.weightController?.text ?? '');
-          if (!homeController.isApiCallInProgress) {
-            homeController.updateCartItemApiCall(
-              itemData.cartLineId,
-              itemData.quantity?.quantityUom,
-              doubleValue,
-            );
-          }
-        }
-      } on Exception catch (e) {
-        print(e);
-      }
-    });*/
-/*
-    if (itemData.weightFocusNode?.hasFocus == true) {
-      itemData.weightController?.text = homeController.weight.value.toString();
-      homeController.weight.value = 0.0;
-    }*/
-
-  /*  if (itemData.isWeighedItem != true && itemData.weightFocusNode?.hasFocus == true) {
-      itemData.weightController?.text =
-          itemData.quantity?.quantityNumber.toString() ?? '';
-    }*/
-
-    /*return itemData.item?.isWeighedItem == true
-        ? _buildEditableTextField(itemData)
-        : _buildTableCell(itemData.quantity?.quantityNumber?.toString() ?? '',
-            innerPadding: innerPadding, outerPadding: outerPadding);*/
     return _buildEditableTextField(itemData);
   }
 
