@@ -1,7 +1,3 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
-import 'package:get/get.dart';
-import 'package:intl/intl.dart';
 import 'package:ebono_pos/constants/custom_colors.dart';
 import 'package:ebono_pos/ui/Common_button.dart';
 import 'package:ebono_pos/ui/common_text_field.dart';
@@ -9,11 +5,14 @@ import 'package:ebono_pos/ui/custom_keyboard/custom_num_pad.dart';
 import 'package:ebono_pos/ui/home/home_controller.dart';
 import 'package:ebono_pos/ui/home/widgets/quick_action_buttons.dart';
 import 'package:ebono_pos/utils/dash_line.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 
 class RegisterSection extends StatefulWidget {
-  final HomeController homeController;
 
-  const RegisterSection(this.homeController, {super.key});
+  const RegisterSection({super.key});
 
   @override
   State<RegisterSection> createState() => _RegisterSectionState();
@@ -54,12 +53,11 @@ class _RegisterSectionState extends State<RegisterSection>
   final TextEditingController openCommentTextController =
       TextEditingController();
 
-  late HomeController homeController;
+  HomeController homeController = Get.find<HomeController>();
 
   @override
   void initState() {
     if (mounted == true) {
-      homeController = widget.homeController;
     }
     if (!openingFloatPaymentFocusNode.hasFocus) {
       openingFloatPaymentFocusNode.requestFocus();

@@ -1,18 +1,17 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
-import 'package:get/get.dart';
 import 'package:ebono_pos/constants/custom_colors.dart';
 import 'package:ebono_pos/ui/Common_button.dart';
 import 'package:ebono_pos/ui/common_text_field.dart';
 import 'package:ebono_pos/ui/custom_keyboard/custom_querty_pad.dart';
 import 'package:ebono_pos/ui/home/home_controller.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:get/get.dart';
 
 class CouponCodeWidget extends StatefulWidget {
-  final HomeController homeController;
   final BuildContext dialogContext;
 
 
-  const CouponCodeWidget(this.homeController, this.dialogContext, {super.key});
+  const CouponCodeWidget(this.dialogContext, {super.key});
 
   @override
   State<CouponCodeWidget> createState() =>
@@ -21,7 +20,7 @@ class CouponCodeWidget extends StatefulWidget {
 
 class _CouponCodeWidgetState
     extends State<CouponCodeWidget> {
-  late HomeController homeController;
+  HomeController homeController = Get.find<HomeController>();
   final TextEditingController couponCodeController = TextEditingController();
   final TextEditingController _qwertyPadController = TextEditingController();
   final FocusNode couponCodeFocusNode = FocusNode();
@@ -30,7 +29,6 @@ class _CouponCodeWidgetState
   @override
   void initState() {
     super.initState();
-    homeController = widget.homeController;
 
     if (!couponCodeFocusNode.hasFocus) {
       couponCodeFocusNode.requestFocus();

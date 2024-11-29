@@ -20,9 +20,8 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
 class OrdersSection extends StatefulWidget {
-  final HomeController homeController;
 
-  const OrdersSection(this.homeController, {super.key});
+  const OrdersSection({super.key});
 
   @override
   State<OrdersSection> createState() => _OrdersSectionState();
@@ -32,12 +31,11 @@ class _OrdersSectionState extends State<OrdersSection>
     with WidgetsBindingObserver {
   final FocusNode _numPadFocusNode = FocusNode();
   final TextEditingController _numPadTextController = TextEditingController();
-  late HomeController homeController;
+  HomeController homeController = Get.find<HomeController>();
 
   @override
   void initState() {
     if (mounted == true) {
-      homeController = widget.homeController;
       //homeController.initialResponse();
     }
     ever(homeController.customerResponse, (value) {
@@ -60,7 +58,7 @@ class _OrdersSectionState extends State<OrdersSection>
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20.0),
                 ),
-                child: MultipleMrpWidget(homeController, context),
+                child: MultipleMrpWidget(context),
               );
             },
           );
@@ -97,7 +95,7 @@ class _OrdersSectionState extends State<OrdersSection>
                       child: Obx(() {
                         if (homeController.registerId.value.isNotEmpty) {
                           return homeController.cartId.value.isEmpty
-                              ? AddCustomerStaticWidget(homeController)
+                              ? AddCustomerStaticWidget()
                               : _buildTableView();
                         } else {
                           return _buildRegisterClosed(context,
@@ -128,7 +126,7 @@ class _OrdersSectionState extends State<OrdersSection>
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20.0),
                       ),
-                      child: AddCustomerWidget(homeController, context),
+                      child: AddCustomerWidget(context),
                     );
                   },
                 );
@@ -147,7 +145,7 @@ class _OrdersSectionState extends State<OrdersSection>
                           borderRadius: BorderRadius.circular(20.0),
                         ),
                         child: AuthorisationRequiredWidget(
-                            homeController, context),
+                            context),
                       );
                     },
                   );
@@ -164,7 +162,7 @@ class _OrdersSectionState extends State<OrdersSection>
                         borderRadius: BorderRadius.circular(20.0),
                       ),
                       child:
-                          AuthorisationRequiredWidget(homeController, context),
+                          AuthorisationRequiredWidget(context),
                     );
                   },
                 );
@@ -177,7 +175,7 @@ class _OrdersSectionState extends State<OrdersSection>
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20.0),
                       ),
-                      child: CouponCodeWidget(homeController, context),
+                      child: CouponCodeWidget(context),
                     );
                   },
                 );
@@ -195,8 +193,7 @@ class _OrdersSectionState extends State<OrdersSection>
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20.0),
                         ),
-                        child: AuthorisationRequiredWidget(
-                            homeController, context),
+                        child: AuthorisationRequiredWidget(context),
                       );
                     },
                   );
@@ -212,7 +209,7 @@ class _OrdersSectionState extends State<OrdersSection>
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20.0),
                       ),
-                      child: MultipleMrpWidget(homeController, context),
+                      child: MultipleMrpWidget(context),
                     );
                   },
                 );
@@ -371,7 +368,7 @@ class _OrdersSectionState extends State<OrdersSection>
         child: commonTextField(
           label: '',
           focusNode: itemData.weightFocusNode ?? FocusNode(),
-          readOnly: true,
+          readOnly: false,
           controller: itemData.weightController ?? TextEditingController(),
           suffixLabel: null,
           suffixWidget: InkWell(
@@ -413,6 +410,15 @@ class _OrdersSectionState extends State<OrdersSection>
         print(e);
       }
     });
+
+
+    if (itemData.weightFocusNode?.hasFocus == true && itemData.isWeighedItem != true) {
+      _numPadTextController.addListener(() {
+        setState(() {
+          itemData.weightController?.text = homeController.weight.value.toString();
+        });
+      });
+    }
 
     if (itemData.weightFocusNode?.hasFocus == true) {
       itemData.weightController?.text = homeController.weight.value.toString();
@@ -469,7 +475,7 @@ class _OrdersSectionState extends State<OrdersSection>
                   builder: (_) => Dialog(
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20.0)),
-                    child: AuthorisationRequiredWidget(homeController, context),
+                    child: AuthorisationRequiredWidget(context),
                   ),
                 );
               } else {
