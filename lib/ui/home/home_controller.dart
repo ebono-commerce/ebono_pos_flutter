@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:ebono_pos/constants/shared_preference_constants.dart';
@@ -96,6 +97,15 @@ class HomeController extends GetxController {
   @override
   void onInit() async {
     _checkConnectivity();
+    readStorageData();
+    if(Platform.isLinux){
+      initializeWeighingScale();
+    }
+    initialResponse();
+    super.onInit();
+  }
+
+  Future<void> readStorageData() async {
     portName.value = await sharedPreferenceHelper.getPortName() ?? '';
     selectedOutlet.value =
         GetStorageHelper.read(SharedPreferenceConstants.selectedOutletName);
@@ -124,7 +134,7 @@ class HomeController extends GetxController {
     isSalesAssociateLinkEnabled.value = GetStorageHelper.read(
         SharedPreferenceConstants.isSalesAssociateLinkEnabled);
     final userDetailsData =
-        GetStorageHelper.read(SharedPreferenceConstants.userDetails);
+    GetStorageHelper.read(SharedPreferenceConstants.userDetails);
     if (userDetailsData != null && userDetailsData is Map<String, dynamic>) {
       userDetails.value = UserDetails.fromJson(userDetailsData);
       print(userDetails.value.toJson());
@@ -132,9 +142,6 @@ class HomeController extends GetxController {
       userDetails.value = userDetailsData;
       print(userDetails.value.toJson());
     }
-    initializeWeighingScale();
-    initialResponse();
-    super.onInit();
   }
 
   void initializeWeighingScale() {

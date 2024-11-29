@@ -29,7 +29,7 @@ class DigitalWeighingScale implements DigitalWeighingScaleImplementation {
     required this.weightController,
   }) {
     serialPort = SerialPort(digitalScalePort);
-    initializeScale();
+    initializePort();
   }
 
   /// Factory constructor to return the singleton instance
@@ -47,8 +47,9 @@ class DigitalWeighingScale implements DigitalWeighingScaleImplementation {
     );
   }
 
-  /// Initialize the scale
-  void initializeScale() {
+  /// Initialize the port
+  @override
+  void initializePort() {
     bool resp =  open();
     if (resp) {
       try {
@@ -56,7 +57,7 @@ class DigitalWeighingScale implements DigitalWeighingScaleImplementation {
         writeInPort(initString);
         readPort();
       } catch (e) {
-        _handleError(e, 'Error initializing port');
+        handlePortError(e, 'Error initializing port');
       }
     }
     monitorConnection(); // Start monitoring connection
@@ -69,13 +70,13 @@ class DigitalWeighingScale implements DigitalWeighingScaleImplementation {
       try {
         serialPort.close();
       } catch (e) {
-        _handleError(e, 'Error closing port');
+        handlePortError(e, 'Error closing port');
       }
     }
 
     if (!serialPort.isOpen) {
       if (!serialPort.openReadWrite()) {
-        _handleError(null, 'Failed to open port');
+        handlePortError(null, 'Failed to open port');
         return false;
       }
     }
@@ -100,7 +101,7 @@ class DigitalWeighingScale implements DigitalWeighingScaleImplementation {
     try {
       serialPort.write(utf8.encoder.convert(value));
     } catch (e) {
-      _handleError(e, 'Error writing to port');
+      handlePortError(e, 'Error writing to port');
     }
   }
 
@@ -111,7 +112,7 @@ class DigitalWeighingScale implements DigitalWeighingScaleImplementation {
       serialPortReader = SerialPortReader(serialPort);
       getWeight();
     } catch (e) {
-      _handleError(e, 'Error creating serial port reader');
+      handlePortError(e, 'Error creating serial port reader');
     }
   }
 
@@ -123,7 +124,7 @@ class DigitalWeighingScale implements DigitalWeighingScaleImplementation {
     }
 
     if (serialPortReader == null) {
-      _handleError(null, 'SerialPortReader is not initialized');
+      handlePortError(null, 'SerialPortReader is not initialized');
       return;
     }
 
@@ -147,11 +148,12 @@ class DigitalWeighingScale implements DigitalWeighingScaleImplementation {
         }
       });
     } catch (e) {
-      _handleError(e, 'Error listening to stream');
+      handlePortError(e, 'Error listening to stream');
     }
   }
 
-  void _handleError(Object? error, String message) {
+  @override
+  void handlePortError(Object? error, String message) {
     print('$message in port: ${error ?? 'Unknown error'}');
     Get.snackbar('Error in port', message);
 
@@ -165,6 +167,7 @@ class DigitalWeighingScale implements DigitalWeighingScaleImplementation {
 
 
   /// Monitor the connection and reconnect if needed
+  @override
   void monitorConnection() {
     Timer.periodic(Duration(seconds: 30), (timer) {
       if (!serialPort.isOpen) {
@@ -176,6 +179,7 @@ class DigitalWeighingScale implements DigitalWeighingScaleImplementation {
     });
   }
 
+  @override
   void dispose() {
     try {
       subscription?.cancel(); // Cancel the subscription
@@ -183,7 +187,7 @@ class DigitalWeighingScale implements DigitalWeighingScaleImplementation {
         serialPort.close();
       }
     } catch (e) {
-      _handleError(e, 'Error disposing port resources');
+      handlePortError(e, 'Error disposing port resources');
     }
   }
 
