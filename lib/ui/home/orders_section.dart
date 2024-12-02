@@ -415,7 +415,7 @@ class _OrdersSectionState extends State<OrdersSection>
     ever(homeController.weight, (value) {
       if (value != 0.0) {
         itemData.weightController?.text = homeController.weight.value.toString();
-        homeController.weight.value = 0.0;
+        //homeController.weight.value = 0.0;
       }
     });
 
