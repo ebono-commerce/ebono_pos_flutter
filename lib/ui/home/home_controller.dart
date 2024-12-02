@@ -84,7 +84,7 @@ class HomeController extends GetxController {
   var closeRegisterResponse = GeneralSuccessResponse().obs;
   var ordersOnHoldResponse = OrdersOnHoldResponse().obs;
 
-  RxString _connectionStatus = 'Unknown'.obs;
+  final RxString _connectionStatus = 'Unknown'.obs;
   var isOnline = false.obs;
   final Connectivity _connectivity = Connectivity();
   var isQuantityEditEnabled = ''.obs;
@@ -94,6 +94,7 @@ class HomeController extends GetxController {
   var isSalesAssociateLinkEnabled = ''.obs;
   bool isApiCallInProgress = false;
   var selectedItemData = CartLine().obs;
+  var lastRoute = PageRoutes.paymentSummary.obs;
   @override
   void onInit() async {
     _checkConnectivity();

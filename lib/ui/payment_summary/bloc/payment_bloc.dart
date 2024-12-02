@@ -3,7 +3,6 @@ import 'dart:math';
 
 import 'package:ebono_pos/constants/shared_preference_constants.dart';
 import 'package:ebono_pos/data_store/get_storage_helper.dart';
-import 'package:ebono_pos/data_store/shared_preference_helper.dart';
 import 'package:ebono_pos/ui/payment_summary/bloc/payment_event.dart';
 import 'package:ebono_pos/ui/payment_summary/bloc/payment_state.dart';
 import 'package:ebono_pos/ui/payment_summary/model/payment_cancel_request.dart';
@@ -19,7 +18,6 @@ import 'package:get/get.dart';
 
 class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
   final PaymentRepository _paymentRepository;
-  final SharedPreferenceHelper _sharedPreferenceHelper;
   Timer? _timer;
   late PaymentSummaryRequest paymentSummaryRequest;
   late PaymentSummaryResponse paymentSummaryResponse;
@@ -35,17 +33,16 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
   String walletValue = '';
 
   String p2pRequestId = '';
-  bool isOnlinePaymentSuccess = false;
 
-  PaymentBloc(this._paymentRepository, this._sharedPreferenceHelper)
+  PaymentBloc(this._paymentRepository)
       : super(PaymentState()) {
     on<PaymentInitialEvent>(_onInitial);
     on<FetchPaymentSummary>(_fetchPaymentSummary);
-
     on<PaymentStartEvent>(_paymentInitiateApi);
     on<PaymentStatusEvent>(_paymentStatusApi);
     on<PaymentCancelEvent>(_paymentCancelApi);
     on<PlaceOrderEvent>(_placeOrder);
+    on<GetBalancePayableAmountEvent>(_getBalancePayableAmount);
   }
 
   void _startPeriodicPaymentStatusCheck() {
@@ -164,9 +161,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
           break;
         case "P2P_DEVICE_TXN_DONE":
           p2pRequestId = '';
-          isOnlinePaymentSuccess = true;
-          Get.back();
-          emit(state.copyWith(stopTimer: true, showPaymentPopup: false));
+          emit(state.copyWith(stopTimer: true, showPaymentPopup: false,  isOnlinePaymentSuccess: true, isPaymentStatusSuccess: true));
           Get.snackbar('Payment status', '${paymentStatusResponse.message}');
           break;
         case "P2P_STATUS_UNKNOWN":
@@ -264,6 +259,21 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
         errorMessage: error.toString(),
       ));
     }
+  }
+
+   _getBalancePayableAmount(
+      GetBalancePayableAmountEvent event, Emitter<PaymentState> emit) {
+    var givenAmount = double.parse(event.cash) +
+        double.parse(event.online) +
+        double.parse(event.wallet);
+    var totalPayable = (paymentSummaryResponse.amountPayable?.centAmount ?? 0) /
+        (paymentSummaryResponse.amountPayable?.fraction ?? 1);
+    if (event.online != '0') {
+      emit(state.copyWith(isOnlinePaymentSuccess: true));
+    }
+    var balancePayable = totalPayable - givenAmount;
+
+    emit(state.copyWith(balancePayableAmount: balancePayable));
   }
 
   @override
