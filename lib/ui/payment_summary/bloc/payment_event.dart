@@ -19,3 +19,12 @@ class PaymentCancelEvent extends PaymentEvent {}
 class CheckPaymentStatusBasedOnTimer extends PaymentEvent {}
 
 class PlaceOrderEvent extends PaymentEvent {}
+
+class GetBalancePayableAmountEvent extends PaymentEvent {
+   final String cash;
+   final String online;
+   final String wallet;
+
+   GetBalancePayableAmountEvent(this.cash, this.online, this.wallet);
+}
+

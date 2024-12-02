@@ -11,20 +11,25 @@ class PaymentState {
   final String? orderStatus;
   final bool isPaymentSummaryError;
   final String? errorMessage;
+  final double? balancePayableAmount;
+  final bool isOnlinePaymentSuccess;
 
-  const PaymentState(
-      {this.initialState = false,
-      this.isLoading = false,
-      this.showPaymentPopup = false,
-      this.stopTimer = false,
-      this.isPaymentStatusSuccess = false,
-      this.isPaymentCancelSuccess = false,
-      this.isPaymentStartSuccess = false,
-      this.isPaymentSummarySuccess = false,
-      this.isPlaceOrderSuccess = false,
-      this.isPaymentSummaryError = false,
-      this.errorMessage,
-      this.orderStatus});
+  const PaymentState({
+    this.initialState = false,
+    this.isLoading = false,
+    this.showPaymentPopup = false,
+    this.stopTimer = false,
+    this.isPaymentStatusSuccess = false,
+    this.isPaymentCancelSuccess = false,
+    this.isPaymentStartSuccess = false,
+    this.isPaymentSummarySuccess = false,
+    this.isPlaceOrderSuccess = false,
+    this.isPaymentSummaryError = false,
+    this.errorMessage,
+    this.orderStatus,
+    this.balancePayableAmount,
+    this.isOnlinePaymentSuccess = false,
+  });
 
   PaymentState copyWith({
     bool? initialState,
@@ -39,6 +44,8 @@ class PaymentState {
     bool? isPlaceOrderSuccess,
     String? errorMessage,
     String? orderStatus,
+    double? balancePayableAmount,
+    bool? isOnlinePaymentSuccess,
   }) {
     return PaymentState(
       initialState: initialState ?? this.initialState,
@@ -58,6 +65,9 @@ class PaymentState {
           isPaymentSummaryError ?? this.isPaymentSummaryError,
       errorMessage: errorMessage ?? this.errorMessage,
       orderStatus: orderStatus ?? this.orderStatus,
+      balancePayableAmount: balancePayableAmount ?? this.balancePayableAmount,
+      isOnlinePaymentSuccess:
+          isOnlinePaymentSuccess ?? this.isOnlinePaymentSuccess,
     );
   }
 }

@@ -1,15 +1,13 @@
 import 'package:ebono_pos/constants/custom_colors.dart';
-import 'package:ebono_pos/data_store/shared_preference_helper.dart';
 import 'package:ebono_pos/ui/Common_button.dart';
+import 'package:ebono_pos/ui/home/home_controller.dart';
 import 'package:ebono_pos/ui/payment_summary/bloc/payment_bloc.dart';
 import 'package:ebono_pos/ui/payment_summary/bloc/payment_event.dart';
 import 'package:ebono_pos/ui/payment_summary/bloc/payment_state.dart';
-import 'package:ebono_pos/ui/payment_summary/repository/PaymentRepository.dart';
 import 'package:ebono_pos/ui/payment_summary/route/print_receipt.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 import 'package:lottie/lottie.dart';
 
 class OrderSuccessScreen extends StatefulWidget {
@@ -21,14 +19,16 @@ class OrderSuccessScreen extends StatefulWidget {
 
 class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
   late ThemeData theme;
-  final paymentBloc = PaymentBloc(
-      Get.find<PaymentRepository>(), Get.find<SharedPreferenceHelper>());
+  final paymentBloc = Get.find<PaymentBloc>();
+  HomeController homeController = Get.find<HomeController>();
 
   @override
   void initState() {
     if (mounted == true) {
       paymentBloc.add(PlaceOrderEvent());
     }
+    homeController.lastRoute.value = '/order_success';
+
     super.initState();
   }
 
@@ -95,6 +95,7 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                                 ? () {
                                     printReceipt();
                                     Get.back();
+                                    Get.back();
                                   }
                                 : null,
                             child: Text(
@@ -114,6 +115,7 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                             onPressed: !state.isLoading
                                 ? () {
                                     printReceipt();
+                                    Get.back();
                                     Get.back();
                                   }
                                 : null,
@@ -152,7 +154,8 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                             onPressed: !state.isLoading
                                 ? () {
                                     Get.back();
-                                  }
+                                    Get.back();
+                            }
                                 : null,
                             style: ElevatedButton.styleFrom(
                               elevation: 1,

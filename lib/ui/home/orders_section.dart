@@ -60,6 +60,7 @@ class _OrdersSectionState extends State<OrdersSection>
       }
     });
 
+    WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ever(homeController.scanProductsResponse, (value) {
         if (value.esin != null) {
@@ -85,7 +86,16 @@ class _OrdersSectionState extends State<OrdersSection>
     super.initState();
   }
 
-  /* @override
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    print('didChangeAppLifecycleState $state ${homeController.lastRoute.value}');
+    if(homeController.lastRoute.value ==  '/order_success'){
+      homeController.initialResponse();
+    }
+
+  }
+
+  /*@override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _numPadFocusNode.dispose();
@@ -415,7 +425,7 @@ class _OrdersSectionState extends State<OrdersSection>
     ever(homeController.weight, (value) {
       if (value != 0.0) {
         itemData.weightController?.text = homeController.weight.value.toString();
-        homeController.weight.value = 0.0;
+        //homeController.weight.value = 0.0;
       }
     });
 

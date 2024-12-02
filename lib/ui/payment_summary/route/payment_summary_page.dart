@@ -1,5 +1,5 @@
 import 'package:ebono_pos/constants/custom_colors.dart';
-import 'package:ebono_pos/data_store/shared_preference_helper.dart';
+import 'package:ebono_pos/navigation/page_routes.dart';
 import 'package:ebono_pos/ui/Common_button.dart';
 import 'package:ebono_pos/ui/common_text_field.dart';
 import 'package:ebono_pos/ui/custom_keyboard/custom_num_pad.dart';
@@ -28,8 +28,7 @@ class PaymentSummaryScreen extends StatefulWidget {
 }
 
 class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
-  final paymentBloc = PaymentBloc(
-      Get.find<PaymentRepository>(), Get.find<SharedPreferenceHelper>());
+  final paymentBloc = Get.put(PaymentBloc(Get.find<PaymentRepository>()));
   late ThemeData theme;
   String input = '';
   HomeController homeController = Get.find<HomeController>();
@@ -106,6 +105,7 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
         }
       });
     });
+    homeController.lastRoute.value = PageRoutes.paymentSummary;
     super.initState();
   }
 
@@ -130,6 +130,10 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
           listener: (BuildContext context, PaymentState state) {
             if (state.showPaymentPopup && state.isPaymentStartSuccess) {
               _showPaymentDialog();
+            }
+            if (state.isPaymentStatusSuccess) {
+              onlinePaymentTextController.text = '';
+              Get.back();
             }
           },
           child:
@@ -157,7 +161,7 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                       Expanded(
                         flex: 3,
                         child: state.isPaymentSummarySuccess
-                            ? numpadSection()
+                            ? numpadSection(state)
                             : SizedBox(),
                       ),
                       Expanded(
@@ -233,8 +237,7 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                       value:
                           '-${getActualPrice(data?.discountTotal?.centAmount, data?.discountTotal?.fraction)}',
                       isNegative: true),
-                  billDetailRow(
-                      label: 'Loyalty points', value: '-100', isNegative: true),
+                  //billDetailRow(label: 'Loyalty points', value: '-100', isNegative: true),
                 ],
               ),
             ),
@@ -283,7 +286,7 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
     );
   }
 
-  Widget numpadSection() {
+  Widget numpadSection(PaymentState state) {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 20),
       child: Column(
@@ -376,7 +379,7 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
           SizedBox(
             height: 10,
           ),
-          balanceAmountSection(),
+          balanceAmountSection(state),
         ],
       ),
     );
@@ -591,7 +594,7 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
         ));
   }
 
-  double getPayableAmount() {
+  getPayableAmount() {
     var cash = cashPaymentTextController.text.isNotEmpty
         ? cashPaymentTextController.text
         : '0';
@@ -601,20 +604,13 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
     var wallet =
         walletTextController.text.isNotEmpty ? walletTextController.text : '0';
 
-    var givenAmount =
-        double.parse(cash) + double.parse(online) + double.parse(wallet);
-    var totalPayable =
-        (paymentBloc.paymentSummaryResponse.amountPayable?.centAmount ?? 0) /
-            (paymentBloc.paymentSummaryResponse.amountPayable?.fraction ?? 1);
-    if (online != '0') {
-      paymentBloc.isOnlinePaymentSuccess = true;
-    }
-    return totalPayable - givenAmount;
+    paymentBloc.add(GetBalancePayableAmountEvent(cash, online, wallet));
   }
 
 // Widget for Balance Amount Section
-  Widget balanceAmountSection() {
-    var balanceAmount = getPayableAmount();
+  Widget balanceAmountSection(PaymentState state) {
+    getPayableAmount();
+    var balancePayableAmount = state.balancePayableAmount ?? 0;
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -633,17 +629,17 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    balanceAmount > 0
+                    balancePayableAmount > 0
                         ? 'Balance amount'
                         : 'Balance amount return to customer',
                     style: theme.textTheme.titleSmall
                         ?.copyWith(fontWeight: FontWeight.normal),
                   ),
                   Text(
-                    '₹$balanceAmount',
+                    '₹$balancePayableAmount',
                     style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
-                        color: balanceAmount > 0
+                        color: balancePayableAmount > 0
                             ? Colors.black
                             : CustomColors.red),
                   ),
@@ -660,7 +656,7 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                       theme: theme,
                       textStyle: theme.textTheme.bodyMedium,
                       padding: EdgeInsets.all(12)),
-                  onPressed: ((balanceAmount <= 0 &&
+                  onPressed: ((balancePayableAmount <= 0 &&
                           onlinePaymentTextController.value.text == ''))
                       ? () {
                           _showOrderSuccessDialog();
@@ -789,62 +785,6 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
         // Prevents the dialog from closing on outside tap
       );
     }
-  }
-
-  void _showPaymentDialog1() {
-    Get.dialog(
-      AlertDialog(
-        title: Text(
-          'Please wait....',
-        ),
-        content: Text(
-          'Online payment is in processing',
-          style: theme.textTheme.titleSmall
-              ?.copyWith(fontWeight: FontWeight.normal, color: Colors.black87),
-        ),
-        actions: [
-          TextButton(
-            style: TextButton.styleFrom(
-              backgroundColor: CustomColors.red,
-              side: BorderSide(color: CustomColors.red, width: 1),
-            ),
-            onPressed: () {
-              paymentBloc.add(PaymentCancelEvent());
-            },
-            child: Padding(
-              padding: const EdgeInsets.all(4.0),
-              child: Text(
-                'Cancel Payment',
-                style: theme.textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.normal, color: Colors.white),
-              ),
-            ),
-          ),
-          TextButton(
-            style: TextButton.styleFrom(
-              backgroundColor: CustomColors.secondaryColor,
-              disabledBackgroundColor: CustomColors.enabledBorderColor,
-              disabledForegroundColor: CustomColors.enabledBorderColor,
-              side: BorderSide(color: CustomColors.secondaryColor, width: 1),
-            ),
-            isSemanticButton: true,
-            onPressed: () {
-              paymentBloc.add(PaymentStatusEvent());
-            },
-            child: Padding(
-              padding: const EdgeInsets.all(4.0),
-              child: Text(
-                'Check Payment Status',
-                style: theme.textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.normal, color: Colors.black87),
-              ),
-            ),
-          ),
-        ],
-      ),
-      barrierDismissible: false,
-      // Prevents the dialog from closing on outside tap
-    );
   }
 
   void _showOrderSuccessDialog() {

@@ -141,6 +141,7 @@ class DigitalWeighingScale implements DigitalWeighingScaleImplementation {
             weight = double.parse(decodedWeight);
             weightController.value = weight;
             print('decoded weight $weight');
+            Get.snackbar('Reading from port $digitalScalePort', 'detected weight $weight');
             decodedWeight = '';
           }
         });
