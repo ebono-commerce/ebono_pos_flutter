@@ -5,6 +5,7 @@ import 'package:ebono_pos/constants/shared_preference_constants.dart';
 import 'package:ebono_pos/data_store/get_storage_helper.dart';
 import 'package:ebono_pos/ui/payment_summary/bloc/payment_event.dart';
 import 'package:ebono_pos/ui/payment_summary/bloc/payment_state.dart';
+import 'package:ebono_pos/ui/payment_summary/model/order_summary_response.dart';
 import 'package:ebono_pos/ui/payment_summary/model/payment_cancel_request.dart';
 import 'package:ebono_pos/ui/payment_summary/model/payment_initiate_request.dart';
 import 'package:ebono_pos/ui/payment_summary/model/payment_initiate_response.dart';
@@ -12,6 +13,7 @@ import 'package:ebono_pos/ui/payment_summary/model/payment_status_request.dart';
 import 'package:ebono_pos/ui/payment_summary/model/payment_status_response.dart';
 import 'package:ebono_pos/ui/payment_summary/model/payment_summary_request.dart';
 import 'package:ebono_pos/ui/payment_summary/model/payment_summary_response.dart';
+import 'package:ebono_pos/ui/payment_summary/model/place_order_request.dart';
 import 'package:ebono_pos/ui/payment_summary/repository/PaymentRepository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
@@ -21,6 +23,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
   Timer? _timer;
   late PaymentSummaryRequest paymentSummaryRequest;
   late PaymentSummaryResponse paymentSummaryResponse;
+  late OrderSummaryResponse orderSummaryResponse;
 
   // payment EDC
 
@@ -31,11 +34,12 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
   String onlinePayment = '';
   String loyaltyValue = '';
   String walletValue = '';
-
   String p2pRequestId = '';
+  List<PaymentMethod>? paymentMethods = [];
+  late PaymentOption? cashPaymentOption;
+  late PaymentOption? onlinePaymentOption;
 
-  PaymentBloc(this._paymentRepository)
-      : super(PaymentState()) {
+  PaymentBloc(this._paymentRepository) : super(PaymentState()) {
     on<PaymentInitialEvent>(_onInitial);
     on<FetchPaymentSummary>(_fetchPaymentSummary);
     on<PaymentStartEvent>(_paymentInitiateApi);
@@ -160,8 +164,11 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
         case "P2P_STATUS_IN_EXPIRED":
           break;
         case "P2P_DEVICE_TXN_DONE":
-          p2pRequestId = '';
-          emit(state.copyWith(stopTimer: true, showPaymentPopup: false,  isOnlinePaymentSuccess: true, isPaymentStatusSuccess: true));
+          emit(state.copyWith(
+              stopTimer: true,
+              showPaymentPopup: false,
+              isOnlinePaymentSuccess: true,
+              isPaymentStatusSuccess: true));
           Get.snackbar('Payment status', '${paymentStatusResponse.message}');
           break;
         case "P2P_STATUS_UNKNOWN":
@@ -238,30 +245,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
     }
   }
 
-  Future<void> _placeOrder(
-      PlaceOrderEvent event, Emitter<PaymentState> emit) async {
-    try {
-      emit(state.copyWith(
-          isLoading: true,
-          orderStatus: "INVOICE_GENERATING",
-          isPlaceOrderSuccess: false));
-
-      await Future.delayed(Duration(seconds: 6));
-      emit(state.copyWith(
-          isLoading: false,
-          orderStatus: "INVOICE_GENERATED",
-          isPlaceOrderSuccess: true));
-    } catch (error) {
-      emit(state.copyWith(
-        isLoading: false,
-        orderStatus: "INVOICE_GENERATING",
-        isPaymentSummaryError: true,
-        errorMessage: error.toString(),
-      ));
-    }
-  }
-
-   _getBalancePayableAmount(
+  _getBalancePayableAmount(
       GetBalancePayableAmountEvent event, Emitter<PaymentState> emit) {
     var givenAmount = double.parse(event.cash) +
         double.parse(event.online) +
@@ -274,6 +258,54 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
     var balancePayable = totalPayable - givenAmount;
 
     emit(state.copyWith(balancePayableAmount: balancePayable));
+  }
+
+  Future<void> _placeOrder(
+      PlaceOrderEvent event, Emitter<PaymentState> emit) async {
+    emit(state.copyWith(isLoading: true));
+
+    try {
+      if (cashPayment.isNotEmpty) {
+        cashPaymentOption = paymentSummaryResponse.paymentOptions?.firstWhere(
+              (option) => option.code == 'CASH',
+        );
+        paymentMethods?.add(PaymentMethod(
+          paymentOptionId: cashPaymentOption?.paymentOptionId,
+          pspId: cashPaymentOption?.pspId,
+          requestId: p2pRequestId,
+          transactionReferenceId: '',
+          amount: double.parse(cashPayment),
+        ));
+      }
+      if (onlinePayment.isNotEmpty) {
+        onlinePaymentOption = paymentSummaryResponse.paymentOptions?.firstWhere(
+              (option) => option.code == 'ONLINE',
+        );
+        paymentMethods?.add(PaymentMethod(
+          paymentOptionId: onlinePaymentOption?.paymentOptionId,
+          pspId: onlinePaymentOption?.pspId,
+          requestId: p2pRequestId,
+          transactionReferenceId: '',
+          amount: double.parse(onlinePayment),
+        ));
+      }
+
+      orderSummaryResponse = await _paymentRepository.placeOrder(
+          PlaceOrderRequest(
+              cartId: paymentSummaryRequest.cartId,
+              phoneNumber: paymentSummaryRequest.phoneNumber,
+              cartType: paymentSummaryRequest.cartType,
+              paymentMethods: paymentMethods));
+
+      emit(state.copyWith(
+          isLoading: false,
+          isPlaceOrderSuccess: true,
+          isPaymentStatusSuccess: false,
+          showPaymentPopup: false,
+          isPaymentStartSuccess: false));
+    } catch (error) {
+      emit(state.copyWith(isLoading: false, isPlaceOrderError: true, errorMessage: error.toString()));
+    }
   }
 
   @override

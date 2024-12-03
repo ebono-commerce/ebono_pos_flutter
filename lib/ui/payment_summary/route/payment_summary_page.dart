@@ -135,6 +135,12 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
               onlinePaymentTextController.text = '';
               Get.back();
             }
+            if(state.isPlaceOrderSuccess){
+              _showOrderSuccessDialog();
+            }
+            if(state.isPlaceOrderError){
+              Get.snackbar("Place Order Error", state.errorMessage?? "");
+            }
           },
           child:
               BlocBuilder<PaymentBloc, PaymentState>(builder: (context, state) {
@@ -659,7 +665,7 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                   onPressed: ((balancePayableAmount <= 0 &&
                           onlinePaymentTextController.value.text == ''))
                       ? () {
-                          _showOrderSuccessDialog();
+                    paymentBloc.add(PlaceOrderEvent());
                         }
                       : null,
                   child: Text(

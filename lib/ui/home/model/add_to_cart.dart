@@ -33,19 +33,19 @@ class AddToCartRequest {
 }
 
 class AddToCartCartLine {
-  String? esin;
+  String? skuCode;
   AddToCartQuantity? quantity;
   String? mrpId;
 
   AddToCartCartLine({
-    this.esin,
+    this.skuCode,
     this.quantity,
     this.mrpId,
   });
 
   factory AddToCartCartLine.fromJson(Map<String, dynamic> json) =>
       AddToCartCartLine(
-        esin: json["esin"],
+        skuCode: json["sku_code"],
         quantity: json["quantity"] == null
             ? null
             : AddToCartQuantity.fromJson(json["quantity"]),
@@ -53,7 +53,7 @@ class AddToCartCartLine {
       );
 
   Map<String, dynamic> toJson() => {
-        "esin": esin,
+        "sku_code": skuCode,
         "quantity": quantity?.toJson(),
         if (mrpId != null) "mrp_id": mrpId,
       };

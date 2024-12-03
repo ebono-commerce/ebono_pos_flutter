@@ -63,7 +63,7 @@ class _OrdersSectionState extends State<OrdersSection>
     WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ever(homeController.scanProductsResponse, (value) {
-        if (value.esin != null) {
+        if (value.skuCode != null) {
           scanTextController.clear();
           scanFocusNode.requestFocus();
         }
@@ -339,9 +339,9 @@ class _OrdersSectionState extends State<OrdersSection>
         border: Border.all(color: Colors.grey.shade300, width: 1),
       ),
       children: [
-        _buildTableCell(itemData.item?.esin ?? '',
+        _buildTableCell(itemData.item?.skuCode ?? '',
             maxLines: 1, outerPadding: 8.0, innerPadding: 10.0),
-        _buildTableCell(itemData.item?.ebonoTitle ?? '',
+        _buildTableCell(itemData.item?.skuTitle ?? '',
             maxLines: 2, outerPadding: 4.0, innerPadding: 2.0),
         _buildEditableQuantityCell(itemData,
             outerPadding: 8.0, innerPadding: 10.0),
@@ -539,8 +539,8 @@ class _OrdersSectionState extends State<OrdersSection>
                                 Container(
                                   padding: EdgeInsets.only(right: 2),
                                   child: Text(
-                                      scanData.ebonoTitle?.isNotEmpty == true
-                                          ? '${scanData.ebonoTitle}'
+                                      scanData.skuTitle?.isNotEmpty == true
+                                          ? '${scanData.skuTitle}'
                                           : " - ",
                                       maxLines: 2,
                                       softWrap: true,
@@ -940,7 +940,7 @@ class _OrdersSectionState extends State<OrdersSection>
                       text: TextSpan(
                         children: <TextSpan>[
                           TextSpan(
-                            text: '${itemData?.item?.ebonoTitle}',
+                            text: '${itemData?.item?.skuTitle}',
                             style: TextStyle(
                                 color: Colors.black,
                                 fontSize: 14,
@@ -954,7 +954,7 @@ class _OrdersSectionState extends State<OrdersSection>
                       text: TextSpan(
                         children: <TextSpan>[
                           TextSpan(
-                            text: '${itemData?.item?.esin}',
+                            text: '${itemData?.item?.skuCode}',
                             style: TextStyle(
                                 color: Colors.black87,
                                 fontSize: 12,
