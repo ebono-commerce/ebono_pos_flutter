@@ -63,81 +63,82 @@ Future<Uint8List> generatePdf(OrderSummaryResponse data) async {
                     font: font,
                   ),
                 ),
-              pw.Container(
-                width: PdfPageFormat.roll80.availableWidth,
-                child: pw.Column(
-                    crossAxisAlignment: pw.CrossAxisAlignment.start,
-                    children: [
-                      pw.Text(
-                        data.outletAddress?.fullAddress ?? '',
-                        style: pw.TextStyle(
-                          fontSize: 6,
-                          font: font,
-                        ),
+              pw.Column(
+                  crossAxisAlignment: pw.CrossAxisAlignment.start,
+                  children: [
+                    pw.Text(
+                      data.outletAddress?.fullAddress ?? '',
+                      style: pw.TextStyle(
+                        fontSize: 6,
+                        font: font,
                       ),
-                      pw.Text(
-                        'Phone Number: +91 ${data.outletAddress?.phoneNumber?.number}',
-                        style: pw.TextStyle(
-                          fontSize: 6,
-                          font: font,
-                        ),
+                    ),
+                    pw.Text(
+                      'Phone Number: +91 ${data.outletAddress?.phoneNumber?.number}',
+                      style: pw.TextStyle(
+                        fontSize: 6,
+                        font: font,
                       ),
-                      pw.Text(
-                        'GSTIN: ${data.outletAddress?.gstinNumber}',
-                        style: pw.TextStyle(
-                          fontSize: 6,
-                          font: font,
-                        ),
+                    ),
+                    pw.Text(
+                      'GSTIN: ${data.outletAddress?.gstinNumber}',
+                      style: pw.TextStyle(
+                        fontSize: 6,
+                        font: font,
                       ),
-                    ]
-                ),
+                    ),
+                  ]
               ),
 
 
               pw.Divider(),
-              pw.Column(
-                  crossAxisAlignment: pw.CrossAxisAlignment.start,
-                  children: [
-                    if (data.invoiceNumber?.isNotEmpty == true)
+              pw.Container(
+                width: PdfPageFormat.roll80.availableWidth,
+                child:  pw.Column(
+                    crossAxisAlignment: pw.CrossAxisAlignment.start,
+                    children: [
+                      if (data.invoiceNumber?.isNotEmpty == true)
+                        pw.Text(
+                          'Invoice No: ${data.invoiceNumber}',
+                          style: pw.TextStyle(
+                            fontSize: 6,
+                            fontWeight: pw.FontWeight.bold,
+                            font: font,
+                          ),
+                        ),
+                      if (data.invoiceDate?.isNotEmpty == true)
+                        pw.Text(
+                          'Invoice Date: ${data.invoiceDate}',
+                          style: pw.TextStyle(
+                            fontSize: 6,
+                            font: font,
+                          ),
+                        ),
+                      if (data.orderNumber?.isNotEmpty == true)
+                        pw.Text(
+                          'Order No: ${data.orderNumber}',
+                          style: pw.TextStyle(
+                            fontSize: 6,
+                            font: font,
+                          ),
+                        ),
                       pw.Text(
-                        'Invoice No.: ${data.invoiceNumber}',
+                        'Order Date: ${data.orderDate}',
                         style: pw.TextStyle(
                           fontSize: 6,
-                          fontWeight: pw.FontWeight.bold,
                           font: font,
                         ),
                       ),
-                    if (data.invoiceDate?.isNotEmpty == true)
                       pw.Text(
-                        'Invoice Date: ${data.invoiceDate}',
+                        'Payment Method: ${data.paymentMethods.toString()}',
                         style: pw.TextStyle(
                           fontSize: 6,
                           font: font,
                         ),
                       ),
-                    if (data.orderNumber?.isNotEmpty == true)
-                      pw.Text(
-                        'Order No: ${data.orderNumber}',
-                        style: pw.TextStyle(
-                          fontSize: 6,
-                          font: font,
-                        ),
-                      ),
-                    pw.Text(
-                      'Order Date: ${data.orderDate}',
-                      style: pw.TextStyle(
-                        fontSize: 6,
-                        font: font,
-                      ),
-                    ),
-                    pw.Text(
-                      'Payment Method: ${data.paymentMethods.toString()}',
-                      style: pw.TextStyle(
-                        fontSize: 6,
-                        font: font,
-                      ),
-                    ),
-                  ]),
+                    ]),
+              ),
+
 
               pw.Divider(),
               pw.Row(
@@ -584,29 +585,44 @@ Future<Uint8List> generatePdf(OrderSummaryResponse data) async {
                     pw.Divider(),
                   ],
                 ),
-              pw.Text(
-                'Website: ${data.contactDetails?.website}',
-                style: pw.TextStyle(
-                  fontSize: 8,
-                  fontWeight: pw.FontWeight.bold,
-                  font: font,
-                ),
-              ),
-              pw.Text(
-                'Contact Us Email: ${data.contactDetails?.emailId}',
-                style: pw.TextStyle(
-                  fontSize: 8,
-                  fontWeight: pw.FontWeight.bold,
-                  font: font,
-                ),
-              ),
-              pw.SizedBox(height: 4),
-              pw.Text(
-                'Terms & Conditions:',
-                style: pw.TextStyle(
-                  fontSize: 8,
-                  fontWeight: pw.FontWeight.bold,
-                  font: font,
+              pw.Container(
+                width: PdfPageFormat.roll80.availableWidth,
+                child:  pw.Column(
+                    crossAxisAlignment: pw.CrossAxisAlignment.start,
+                    children: [
+                      pw.Text(
+                        'E.&O.E',
+                        style: pw.TextStyle(
+                          fontSize: 8,
+                          fontWeight: pw.FontWeight.bold,
+                          font: font,
+                        ),
+                      ),
+                      pw.Text(
+                      'Website: ${data.contactDetails?.website}',
+                      style: pw.TextStyle(
+                        fontSize: 8,
+                        fontWeight: pw.FontWeight.bold,
+                        font: font,
+                      ),
+                    ),
+                      pw.Text(
+                        'Contact Us Email: ${data.contactDetails?.emailId}',
+                        style: pw.TextStyle(
+                          fontSize: 8,
+                          fontWeight: pw.FontWeight.bold,
+                          font: font,
+                        ),
+                      ),
+                      pw.SizedBox(height: 4),
+                      pw.Text(
+                        'Terms & Conditions:',
+                        style: pw.TextStyle(
+                          fontSize: 8,
+                          fontWeight: pw.FontWeight.bold,
+                          font: font,
+                        ),
+                      ),]
                 ),
               ),
               ...?data.termsAndConditions?.map((term) => pw.Container(
@@ -627,6 +643,7 @@ Future<Uint8List> generatePdf(OrderSummaryResponse data) async {
                   font: font,
                 ),
               ),
+              pw.SizedBox(height: 4),
             ],
           ),
         ));
