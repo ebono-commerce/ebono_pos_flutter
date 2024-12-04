@@ -245,7 +245,7 @@ class HomeController extends GetxController {
     cartResponse.value = CartResponse(cartId: '', cartType: '');
     phoneNumber.value = '';
     cartId.value = '';
-
+    customerName.value = '';
     generalSuccessResponse.value = GeneralSuccessResponse(success: false);
     ordersOnHoldResponse.value = OrdersOnHoldResponse(data: [], meta: null);
   }
