@@ -47,6 +47,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
     on<PaymentCancelEvent>(_paymentCancelApi);
     on<PlaceOrderEvent>(_placeOrder);
     on<GetBalancePayableAmountEvent>(_getBalancePayableAmount);
+    on<PaymentIdealEvent>(_onIdeal);
   }
 
   void _startPeriodicPaymentStatusCheck() {
@@ -59,20 +60,29 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
     });
   }
 
-  Future<void> _onInitial(
-      PaymentInitialEvent event, Emitter<PaymentState> emit) async {
+  Future<void> _onIdeal(PaymentIdealEvent event,
+      Emitter<PaymentState> emit) async {
+    emit(state.copyWith(
+      initialState: false,
+      isLoading: false,
+      isPlaceOrderSuccess: false,
+    ));
+  }
+
+  Future<void> _onInitial(PaymentInitialEvent event,
+      Emitter<PaymentState> emit) async {
     emit(state.copyWith(initialState: true));
     paymentSummaryRequest = event.request;
     add(FetchPaymentSummary());
   }
 
-  Future<void> _fetchPaymentSummary(
-      FetchPaymentSummary event, Emitter<PaymentState> emit) async {
+  Future<void> _fetchPaymentSummary(FetchPaymentSummary event,
+      Emitter<PaymentState> emit) async {
     emit(state.copyWith(isLoading: true, initialState: false));
 
     try {
       paymentSummaryResponse =
-          await _paymentRepository.fetchPaymentSummary(paymentSummaryRequest);
+      await _paymentRepository.fetchPaymentSummary(paymentSummaryRequest);
 
       emit(state.copyWith(isLoading: false, isPaymentSummarySuccess: true));
     } catch (error) {
@@ -83,37 +93,40 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
     }
   }
 
-  Future<void> _paymentInitiateApi(
-      PaymentStartEvent event, Emitter<PaymentState> emit) async {
+  Future<void> _paymentInitiateApi(PaymentStartEvent event,
+      Emitter<PaymentState> emit) async {
     emit(state.copyWith(isLoading: true, initialState: false));
     final random = Random();
     final reqBody = {
       "amount": onlinePayment,
       "externalRefNumber": "${random.nextInt(10)}",
       "customerName":
-          "${GetStorageHelper.read(SharedPreferenceConstants.sessionCustomerName)}",
+      "${GetStorageHelper.read(SharedPreferenceConstants.sessionCustomerName)}",
       "customerEmail": "",
       "customerMobileNumber":
-          "${GetStorageHelper.read(SharedPreferenceConstants.sessionCustomerNumber)}",
+      "${GetStorageHelper.read(
+          SharedPreferenceConstants.sessionCustomerNumber)}",
       "is_emi": false,
       //"terminal_id": "10120",demo account
       "terminal_id":
-          "${GetStorageHelper.read(SharedPreferenceConstants.selectedTerminalId)}",
+      "${GetStorageHelper.read(SharedPreferenceConstants.selectedTerminalId)}",
       "username": "2211202100",
       "appKey": "eaa762ba-08ac-41d6-b6d3-38f754ed1572",
       "pushTo": {"deviceId": "0821387918|ezetap_android"}
     };
     var paymentRequest = PaymentRequest.fromJson(reqBody);
     print(
-        'Payment Request: ${paymentRequest.amount}, ${paymentRequest.customerName}, ${paymentRequest.customerMobileNumber}');
+        'Payment Request: ${paymentRequest.amount}, ${paymentRequest
+            .customerName}, ${paymentRequest.customerMobileNumber}');
 
     try {
       paymentInitiateResponse =
-          await _paymentRepository.paymentInitiateApiCall(paymentRequest);
+      await _paymentRepository.paymentInitiateApiCall(paymentRequest);
 
       if (paymentInitiateResponse.success == true) {
         print(
-            "Success p2pRequestId --> : ${paymentInitiateResponse.p2PRequestId}");
+            "Success p2pRequestId --> : ${paymentInitiateResponse
+                .p2PRequestId}");
         emit(state.copyWith(
             isLoading: false,
             showPaymentPopup: paymentInitiateResponse.success,
@@ -139,8 +152,8 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
     }
   }
 
-  Future<void> _paymentStatusApi(
-      PaymentStatusEvent event, Emitter<PaymentState> emit) async {
+  Future<void> _paymentStatusApi(PaymentStatusEvent event,
+      Emitter<PaymentState> emit) async {
     emit(state.copyWith(isLoading: false, initialState: false));
     final reqBody = {
       "username": "2211202100",
@@ -152,10 +165,11 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
 
     try {
       paymentStatusResponse =
-          await _paymentRepository.paymentStatusApiCall(paymentStatusRequest);
+      await _paymentRepository.paymentStatusApiCall(paymentStatusRequest);
 
       print(
-          "Success payment status --> : ${paymentStatusResponse.abstractPaymentStatus}");
+          "Success payment status --> : ${paymentStatusResponse
+              .abstractPaymentStatus}");
       switch (paymentStatusResponse.messageCode) {
         case "P2P_DEVICE_RECEIVED":
           break;
@@ -207,8 +221,8 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
     }
   }
 
-  Future<void> _paymentCancelApi(
-      PaymentCancelEvent event, Emitter<PaymentState> emit) async {
+  Future<void> _paymentCancelApi(PaymentCancelEvent event,
+      Emitter<PaymentState> emit) async {
     emit(state.copyWith(isLoading: false, initialState: false));
     final reqBody = {
       "username": "2211202100",
@@ -221,7 +235,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
 
     try {
       paymentStatusResponse =
-          await _paymentRepository.paymentCancelApiCall(paymentCancelRequest);
+      await _paymentRepository.paymentCancelApiCall(paymentCancelRequest);
 
       if (paymentStatusResponse.success == true) {
         emit(state.copyWith(
@@ -230,7 +244,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
         Get.back();
       } else {
         if (paymentInitiateResponse.realCode ==
-                "P2P_DUPLICATE_CANCEL_REQUEST" ||
+            "P2P_DUPLICATE_CANCEL_REQUEST" ||
             paymentInitiateResponse.realCode ==
                 "P2P_ORIGINAL_P2P_REQUEST_IS_MISSING") {
           Get.back();
@@ -245,8 +259,8 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
     }
   }
 
-  _getBalancePayableAmount(
-      GetBalancePayableAmountEvent event, Emitter<PaymentState> emit) {
+  _getBalancePayableAmount(GetBalancePayableAmountEvent event,
+      Emitter<PaymentState> emit) {
     var givenAmount = double.parse(event.cash) +
         double.parse(event.online) +
         double.parse(event.wallet);
@@ -260,8 +274,8 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
     emit(state.copyWith(balancePayableAmount: balancePayable));
   }
 
-  Future<void> _placeOrder(
-      PlaceOrderEvent event, Emitter<PaymentState> emit) async {
+  Future<void> _placeOrder(PlaceOrderEvent event,
+      Emitter<PaymentState> emit) async {
     emit(state.copyWith(isLoading: true));
 
     try {
@@ -303,7 +317,9 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
           showPaymentPopup: false,
           isPaymentStartSuccess: false));
     } catch (error) {
-      emit(state.copyWith(isLoading: false, isPlaceOrderError: true, errorMessage: error.toString()));
+      emit(state.copyWith(isLoading: false,
+          isPlaceOrderError: true,
+          errorMessage: error.toString()));
     }
   }
 

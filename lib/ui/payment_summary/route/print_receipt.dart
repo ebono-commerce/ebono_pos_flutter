@@ -69,6 +69,7 @@ Future<Uint8List> generatePdf(OrderSummaryResponse data) async {
                 ),
               ),
               pw.Divider(),
+              if(data.invoiceNumber?.isNotEmpty == true)
               pw.Text(
                 'Invoice No.: ${data.invoiceNumber}',
                 style: pw.TextStyle(
@@ -77,14 +78,16 @@ Future<Uint8List> generatePdf(OrderSummaryResponse data) async {
                   font: font,
                 ),
               ),
-              pw.Text(
+              if(data.invoiceDate?.isNotEmpty == true)
+                pw.Text(
                 'Invoice Date.: ${data.invoiceDate}',
                 style: pw.TextStyle(
                   fontSize: 14 * fontSizeFactor,
                   font: font,
                 ),
               ),
-              pw.Text(
+              if(data.orderNumber?.isNotEmpty == true)
+                pw.Text(
                 'Order No.: ${data.orderNumber}',
                 style: pw.TextStyle(
                   fontSize: 14 * fontSizeFactor,
@@ -341,7 +344,8 @@ Future<Uint8List> generatePdf(OrderSummaryResponse data) async {
                 ),
               ),
               pw.Divider(),
-              pw.Column(
+              if(data.taxDetails?.taxesLines?.isNotEmpty == true)
+                pw.Column(
                 crossAxisAlignment: pw.CrossAxisAlignment.start,
                 children: [
                   // Header row
