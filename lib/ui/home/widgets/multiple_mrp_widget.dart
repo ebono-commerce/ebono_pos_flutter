@@ -77,7 +77,7 @@ class _MultipleMrpWidgetState extends State<MultipleMrpWidget> {
                         borderRadius: BorderRadius.circular(20.0),
                         side: BorderSide(color: CustomColors.borderColor)),
                     title: Text(
-                      scanData.ebonoTitle ?? '',
+                      scanData.skuTitle ?? '',
                       style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.normal,
                         color: CustomColors.black,
@@ -86,7 +86,7 @@ class _MultipleMrpWidgetState extends State<MultipleMrpWidget> {
                     subtitle: Padding(
                       padding: const EdgeInsets.only(top: 12.0),
                       child: Text(
-                        scanData.esin ?? '',
+                        scanData.skuCode ?? '',
                         style: theme.textTheme.bodySmall?.copyWith(
                           fontWeight: FontWeight.normal,
                           color: CustomColors.enabledLabelColor,
@@ -150,7 +150,7 @@ class _MultipleMrpWidgetState extends State<MultipleMrpWidget> {
                         scanData.priceList?[index].mrp?.fraction,
                       ),
                       (value) {
-                        homeController.addToCartApiCall(scanData.esin, 1, scanData.priceList?[index].mrpId, scanData.salesUom, homeController.cartId.value).then((value){
+                        homeController.addToCartApiCall(scanData.skuCode, 1, scanData.priceList?[index].mrpId, scanData.salesUom, homeController.cartId.value).then((value){
                           Navigator.pop(widget.dialogContext);
                         });
                       },

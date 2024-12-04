@@ -50,7 +50,6 @@ flutter:
     - assets/images/
     - assets/fonts/
     - assets/
-    - assets/data/
     - assets/lottie/
 
   # fonts:

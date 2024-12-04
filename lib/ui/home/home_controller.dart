@@ -231,8 +231,8 @@ class HomeController extends GetxController {
 
   Future<void> initialResponse() async {
     scanProductsResponse.value = ScanProductsResponse(
-      esin: '',
-      ebonoTitle: '-',
+      skuCode: '',
+      skuTitle: '-',
       isWeighedItem: false,
       mediaUrl: '',
       isActive: false,
@@ -252,8 +252,8 @@ class HomeController extends GetxController {
 
   Future<void> clearScanData() async {
     scanProductsResponse.value = ScanProductsResponse(
-      esin: '',
-      ebonoTitle: '-',
+      skuCode: '',
+      skuTitle: '-',
       isWeighedItem: false,
       mediaUrl: '',
       isActive: false,
@@ -277,7 +277,7 @@ class HomeController extends GetxController {
       scanProductsResponse.value = response;
       if (cartId.value != "" && (response.priceList?.length ?? 0) <= 1) {
         addToCartApiCall(
-            scanProductsResponse.value.esin,
+            scanProductsResponse.value.skuCode,
             1,
             scanProductsResponse.value.priceList!.first.mrpId,
             scanProductsResponse.value.salesUom,
@@ -349,7 +349,7 @@ class HomeController extends GetxController {
   }
 
   Future<void> addToCartApiCall(
-    String? esin,
+    String? skuCode,
     int? qty,
     String? mrpId,
     String? qtyUom,
@@ -359,7 +359,7 @@ class HomeController extends GetxController {
       var response = await _homeRepository.addToCart(
           AddToCartRequest(cartLines: [
             AddToCartCartLine(
-                esin: esin,
+                skuCode: skuCode,
                 quantity:
                     AddToCartQuantity(quantityNumber: qty, quantityUom: qtyUom),
                 mrpId: mrpId)

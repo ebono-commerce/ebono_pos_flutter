@@ -276,35 +276,35 @@ class CartLineAudit {
 }
 
 class Item {
-  String? esin;
+  String? skuCode;
   String? saleUom;
-  String? ebonoTitle;
+  String? skuTitle;
   String? primaryImageUrl;
   String? productType;
   bool? isWeighedItem;
 
   Item({
-    this.esin,
+    this.skuCode,
     this.saleUom,
-    this.ebonoTitle,
+    this.skuTitle,
     this.primaryImageUrl,
     this.productType,
     this.isWeighedItem,
   });
 
   factory Item.fromJson(Map<String, dynamic> json) => Item(
-        esin: json["esin"],
+        skuCode: json["sku_code"],
         saleUom: json["sale_uom"],
-        ebonoTitle: json["ebono_title"],
+        skuTitle: json["sku_title"],
         primaryImageUrl: json["primary_image_url"],
         productType: json["product_type"],
         isWeighedItem: json["is_weighed_item"],
       );
 
   Map<String, dynamic> toJson() => {
-        "esin": esin,
+        "sku_code": skuCode,
         "sale_uom": saleUom,
-        "ebono_title": ebonoTitle,
+        "sku_title": skuTitle,
         "primary_image_url": primaryImageUrl,
         "product_type": productType,
         "is_weighed_item": isWeighedItem,

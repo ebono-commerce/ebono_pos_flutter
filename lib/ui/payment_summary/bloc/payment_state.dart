@@ -8,6 +8,7 @@ class PaymentState {
   final bool isPaymentCancelSuccess;
   final bool isPaymentSummarySuccess;
   final bool isPlaceOrderSuccess;
+  final bool isPlaceOrderError;
   final String? orderStatus;
   final bool isPaymentSummaryError;
   final String? errorMessage;
@@ -24,6 +25,7 @@ class PaymentState {
     this.isPaymentStartSuccess = false,
     this.isPaymentSummarySuccess = false,
     this.isPlaceOrderSuccess = false,
+    this.isPlaceOrderError = false,
     this.isPaymentSummaryError = false,
     this.errorMessage,
     this.orderStatus,
@@ -42,6 +44,7 @@ class PaymentState {
     bool? isPaymentSummarySuccess,
     bool? isPaymentSummaryError,
     bool? isPlaceOrderSuccess,
+    bool? isPlaceOrderError,
     String? errorMessage,
     String? orderStatus,
     double? balancePayableAmount,
@@ -61,6 +64,8 @@ class PaymentState {
       isPaymentSummarySuccess:
           isPaymentSummarySuccess ?? this.isPaymentSummarySuccess,
       isPlaceOrderSuccess: isPlaceOrderSuccess ?? this.isPlaceOrderSuccess,
+      isPlaceOrderError:
+      isPlaceOrderError ?? this.isPlaceOrderError,
       isPaymentSummaryError:
           isPaymentSummaryError ?? this.isPaymentSummaryError,
       errorMessage: errorMessage ?? this.errorMessage,

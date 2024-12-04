@@ -11,10 +11,9 @@ String scanProductsResponseToJson(ScanProductsResponse data) =>
     json.encode(data.toJson());
 
 class ScanProductsResponse {
-  String? esin;
+  String? skuCode;
   String? salesUom;
-
-  String? ebonoTitle;
+  String? skuTitle;
   int? packOf;
   bool? isWeighedItem;
   String? productType;
@@ -25,9 +24,9 @@ class ScanProductsResponse {
   bool? isActive;
 
   ScanProductsResponse({
-    this.esin,
+    this.skuCode,
     this.salesUom,
-    this.ebonoTitle,
+    this.skuTitle,
     this.packOf,
     this.isWeighedItem,
     this.productType,
@@ -40,9 +39,9 @@ class ScanProductsResponse {
 
   factory ScanProductsResponse.fromJson(Map<String, dynamic> json) =>
       ScanProductsResponse(
-        esin: json["esin"],
+        skuCode: json["sku_code"],
         salesUom: json["sale_uom"],
-        ebonoTitle: json["ebono_title"],
+        skuTitle: json["sku_title"],
         packOf: json["pack_of"],
         isWeighedItem: json["is_weighed_item"],
         productType: json["product_type"],
@@ -61,9 +60,9 @@ class ScanProductsResponse {
       );
 
   Map<String, dynamic> toJson() => {
-        "esin": esin,
+        "sku_code": skuCode,
         "sale_uom": salesUom,
-        "ebono_title": ebonoTitle,
+        "sku_title": skuTitle,
         "pack_of": packOf,
         "is_weighed_item": isWeighedItem,
         "product_type": productType,
