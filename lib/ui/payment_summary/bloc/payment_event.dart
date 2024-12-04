@@ -28,3 +28,6 @@ class GetBalancePayableAmountEvent extends PaymentEvent {
    GetBalancePayableAmountEvent(this.cash, this.online, this.wallet);
 }
 
+class PaymentIdealEvent extends PaymentEvent {}
+
+

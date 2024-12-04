@@ -62,7 +62,7 @@ class PaymentMethod {
     "payment_option_id": paymentOptionId,
     "psp_id": pspId,
     "request_id": requestId,
-    "transaction_reference_id": transactionReferenceId,
+    if (transactionReferenceId != null) "transaction_reference_id": transactionReferenceId,
     "amount": amount,
     "method_detail": methodDetail == null ? [] : List<dynamic>.from(methodDetail!.map((x) => x.toJson())),
   };

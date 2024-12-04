@@ -89,10 +89,9 @@ class _OrdersSectionState extends State<OrdersSection>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     print('didChangeAppLifecycleState $state ${homeController.lastRoute.value}');
-    if(homeController.lastRoute.value ==  '/order_success'){
+    if (homeController.lastRoute.value == '/order_success') {
       homeController.initialResponse();
     }
-
   }
 
   /*@override
@@ -105,144 +104,153 @@ class _OrdersSectionState extends State<OrdersSection>
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Row(
-        children: [
-          Expanded(
-            flex: 5, // 0.6 ratio
-            child: Container(
-                color: Colors.white,
-                child: Column(
-                  children: [
-                    Obx(() {
-                      return _buildOrderDetail(context);
-                    }),
-                    Expanded(
-                      child: Obx(() {
-                        if (homeController.registerId.value.isNotEmpty) {
-                          return homeController.cartId.value.isEmpty
-                              ? AddCustomerStaticWidget()
-                              : _buildTableView();
-                        } else {
-                          return _buildRegisterClosed(context,
-                              onPressed: () async {
-                            setState(() {
-                              homeController.selectedTabButton.value = 1;
-                            });
-                          });
-                        }
-                      }),
-                    )
-                  ],
-                )),
-          ),
-          Expanded(
-            flex: 2, // 0.2 ratio
-            child: Center(child: _buildNumberPadSection(homeController)),
-          ),
-          Expanded(
-            flex: 1,
-            child: QuickActionButtons(
-              color: Colors.white,
-              onCustomerPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return Dialog(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20.0),
-                      ),
-                      child: AddCustomerWidget(context),
+    return GetBuilder<HomeController>(
+      init: homeController,
+      builder: (controller) {
+        return Center(
+          child: Row(
+            children: [
+              Expanded(
+                flex: 5, // 0.6 ratio
+                child: Container(
+                    color: Colors.white,
+                    child: Column(
+                      children: [
+                        Obx(() {
+                          return _buildOrderDetail(context);
+                        }),
+                        Expanded(
+                          child: Obx(() {
+                            if (homeController.registerId.value.isNotEmpty) {
+                              return homeController.cartId.value.isEmpty
+                                  ? AddCustomerStaticWidget()
+                                  : _buildTableView();
+                            } else {
+                              return _buildRegisterClosed(context,
+                                  onPressed: () async {
+                                    setState(() {
+                                      homeController.selectedTabButton.value =
+                                      1;
+                                    });
+                                  });
+                            }
+                          }),
+                        )
+                      ],
+                    )),
+              ),
+              Expanded(
+                flex: 2, // 0.2 ratio
+                child: Center(child: _buildNumberPadSection(homeController)),
+              ),
+              Expanded(
+                flex: 1,
+                child: QuickActionButtons(
+                  color: Colors.white,
+                  onCustomerPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return Dialog(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20.0),
+                          ),
+                          child: AddCustomerWidget(context),
+                        );
+                      },
                     );
                   },
-                );
-              },
-              onHoldCartPressed: () {
-                AuthModes enableHoldCartMode = AuthModeExtension.fromString(
-                    homeController.isEnableHoldCartEnabled.value);
-                if (enableHoldCartMode == AuthModes.enabled) {
-                  homeController.holdCartApiCall();
-                } else if (enableHoldCartMode == AuthModes.authorised) {
-                  showDialog(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return Dialog(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20.0),
-                        ),
-                        child: AuthorisationRequiredWidget(context),
+                  onHoldCartPressed: () {
+                    AuthModes enableHoldCartMode = AuthModeExtension
+                        .fromString(
+                        homeController.isEnableHoldCartEnabled.value);
+                    if (enableHoldCartMode == AuthModes.enabled) {
+                      homeController.holdCartApiCall();
+                    } else if (enableHoldCartMode == AuthModes.authorised) {
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return Dialog(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20.0),
+                            ),
+                            child: AuthorisationRequiredWidget(context),
+                          );
+                        },
                       );
-                    },
-                  );
-                } else {
-                  Get.snackbar('Need Permission', 'Please contact support');
-                }
-              },
-              onSalesAssociatePressed: () {
-                showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return Dialog(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20.0),
-                      ),
-                      child: AuthorisationRequiredWidget(context),
+                    } else {
+                      Get.snackbar(
+                          'Need Permission', 'Please contact support');
+                    }
+                  },
+                  onSalesAssociatePressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return Dialog(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20.0),
+                          ),
+                          child: AuthorisationRequiredWidget(context),
+                        );
+                      },
                     );
                   },
-                );
-              },
-              onCouponsPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return Dialog(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20.0),
-                      ),
-                      child: CouponCodeWidget(context),
+                  onCouponsPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return Dialog(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20.0),
+                          ),
+                          child: CouponCodeWidget(context),
+                        );
+                      },
                     );
                   },
-                );
-              },
-              onClearCartPressed: () {
-                AuthModes enableHoldCartMode = AuthModeExtension.fromString(
-                    homeController.isEnableHoldCartEnabled.value);
-                if (enableHoldCartMode == AuthModes.enabled) {
-                  homeController.clearFullCart();
-                } else if (enableHoldCartMode == AuthModes.authorised) {
-                  showDialog(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return Dialog(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20.0),
-                        ),
-                        child: AuthorisationRequiredWidget(context),
+                  onClearCartPressed: () {
+                    AuthModes enableHoldCartMode = AuthModeExtension
+                        .fromString(
+                        homeController.isEnableHoldCartEnabled.value);
+                    if (enableHoldCartMode == AuthModes.enabled) {
+                      homeController.clearFullCart();
+                    } else if (enableHoldCartMode == AuthModes.authorised) {
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return Dialog(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20.0),
+                            ),
+                            child: AuthorisationRequiredWidget(context),
+                          );
+                        },
                       );
-                    },
-                  );
-                } else {
-                  Get.snackbar('Need Permission', 'Please contact support');
-                }
-              },
-              onSearchItemsPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return Dialog(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20.0),
-                      ),
-                      child: MultipleMrpWidget(context),
+                    } else {
+                      Get.snackbar(
+                          'Need Permission', 'Please contact support');
+                    }
+                  },
+                  onSearchItemsPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return Dialog(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20.0),
+                          ),
+                          child: MultipleMrpWidget(context),
+                        );
+                      },
                     );
                   },
-                );
-              },
-            ),
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
-    );
+        );
+      });
   }
 
   TableRow _buildTableHeader() {
@@ -411,31 +419,29 @@ class _OrdersSectionState extends State<OrdersSection>
 
   Widget _buildEditableQuantityCell(CartLine itemData,
       {required double outerPadding, required double innerPadding}) {
-
     numPadTextController.addListener(() {
       setState(() {
         if (activeFocusNode == itemData.weightFocusNode) {
-          itemData.weightController?.text = numPadTextController.text ;
+          itemData.weightController?.text = numPadTextController.text;
         }
       });
     });
 
-
-
     ever(homeController.weight, (value) {
       if (value != 0.0) {
-        itemData.weightController?.text = homeController.weight.value.toString();
+        itemData.weightController?.text =
+            homeController.weight.value.toString();
         //homeController.weight.value = 0.0;
       }
     });
 
     itemData.weightFocusNode?.addListener(() {
       setState(() {
-        if (itemData.weightFocusNode?.hasFocus == true ) {
+        if (itemData.weightFocusNode?.hasFocus == true) {
           homeController.selectedItemData.value = itemData;
           activeFocusNode = itemData.weightFocusNode;
         }
-       numPadTextController.text = itemData.weightController?.text ?? '';
+        numPadTextController.text = itemData.weightController?.text ?? '';
       });
     });
     return _buildEditableTextField(itemData);
@@ -443,9 +449,7 @@ class _OrdersSectionState extends State<OrdersSection>
 
   Widget _buildUnitCell(CartLine itemData,
       {required double outerPadding, required double innerPadding}) {
-    String unitText = itemData.item?.isWeighedItem == true
-        ? itemData.quantity?.quantityUom ?? ''
-        : '';
+    String unitText = itemData.quantity?.quantityUom ?? '';
     return _buildTableCell(unitText,
         outerPadding: outerPadding, innerPadding: innerPadding);
   }
@@ -575,9 +579,7 @@ class _OrdersSectionState extends State<OrdersSection>
                                       TextSpan(
                                         text: scanData.salesUom?.isNotEmpty ==
                                                 true
-                                            ? scanData.isWeighedItem == true
-                                                ? '(${scanData.salesUom})'
-                                                : ''
+                                            ? '(${scanData.salesUom})'
                                             : " - ",
                                         style: TextStyle(
                                             color: Colors.black,
@@ -682,7 +684,7 @@ class _OrdersSectionState extends State<OrdersSection>
                           textController: numPadTextController,
                           onEnterPressed: (text) {
                             print("Enter pressed with text: $text");
-                            if(activeFocusNode==scanFocusNode){
+                            if (activeFocusNode == scanFocusNode) {
                               if (homeController.cartId.value.isNotEmpty &&
                                   homeController.registerId.isNotEmpty) {
                                 print("onTextListener text: $text");
@@ -691,18 +693,27 @@ class _OrdersSectionState extends State<OrdersSection>
                                 }
                               }
                               activeFocusNode?.unfocus();
-                            }else{
+                            } else {
                               try {
                                 if (numPadTextController.text != '0.0' &&
-                                    numPadTextController.text.isNotEmpty == true &&
+                                    numPadTextController.text.isNotEmpty ==
+                                        true &&
                                     numPadTextController.text !=
-                                        homeController.selectedItemData.value.quantity?.quantityNumber.toString()) {
-                                  double weight =
-                                  double.parse(homeController.selectedItemData.value.weightController?.text ?? '');
+                                        homeController.selectedItemData.value
+                                            .quantity?.quantityNumber
+                                            .toString()) {
+                                  double weight = double.parse(homeController
+                                          .selectedItemData
+                                          .value
+                                          .weightController
+                                          ?.text ??
+                                      '');
                                   if (!homeController.isApiCallInProgress) {
                                     homeController.updateCartItemApiCall(
-                                      homeController.selectedItemData.value.cartLineId,
-                                      homeController.selectedItemData.value.quantity?.quantityUom,
+                                      homeController
+                                          .selectedItemData.value.cartLineId,
+                                      homeController.selectedItemData.value
+                                          .quantity?.quantityUom,
                                       weight,
                                     );
                                   }

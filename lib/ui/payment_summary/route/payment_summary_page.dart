@@ -135,11 +135,13 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
               onlinePaymentTextController.text = '';
               Get.back();
             }
-            if(state.isPlaceOrderSuccess){
+            if (state.isPlaceOrderSuccess) {
+              paymentBloc.add(PaymentIdealEvent());
               _showOrderSuccessDialog();
+              print('opeining dialog order ');
             }
-            if(state.isPlaceOrderError){
-              Get.snackbar("Place Order Error", state.errorMessage?? "");
+            if (state.isPlaceOrderError) {
+              Get.snackbar("Place Order Error", state.errorMessage ?? "");
             }
           },
           child:
@@ -665,7 +667,7 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                   onPressed: ((balancePayableAmount <= 0 &&
                           onlinePaymentTextController.value.text == ''))
                       ? () {
-                    paymentBloc.add(PlaceOrderEvent());
+                          paymentBloc.add(PlaceOrderEvent());
                         }
                       : null,
                   child: Text(
