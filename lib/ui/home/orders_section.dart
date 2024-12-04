@@ -443,9 +443,7 @@ class _OrdersSectionState extends State<OrdersSection>
 
   Widget _buildUnitCell(CartLine itemData,
       {required double outerPadding, required double innerPadding}) {
-    String unitText = itemData.item?.isWeighedItem == true
-        ? itemData.quantity?.quantityUom ?? ''
-        : '';
+    String unitText =  itemData.quantity?.quantityUom ?? '';
     return _buildTableCell(unitText,
         outerPadding: outerPadding, innerPadding: innerPadding);
   }
@@ -575,10 +573,7 @@ class _OrdersSectionState extends State<OrdersSection>
                                       TextSpan(
                                         text: scanData.salesUom?.isNotEmpty ==
                                                 true
-                                            ? scanData.isWeighedItem == true
-                                                ? '(${scanData.salesUom})'
-                                                : ''
-                                            : " - ",
+                                            ? '(${scanData.salesUom})' : " - ",
                                         style: TextStyle(
                                             color: Colors.black,
                                             fontSize: 13,

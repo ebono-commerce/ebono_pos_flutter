@@ -34,7 +34,7 @@ class MyApp extends StatelessWidget {
     return SafeArea(
       child: GetMaterialApp(
         debugShowCheckedModeBanner: false,
-        initialRoute: PageRoutes.printReceipt,
+        initialRoute: PageRoutes.splashScreen,
         theme: themeData(context),
         initialBinding: InitialBinding(),
         getPages: getPages(),
