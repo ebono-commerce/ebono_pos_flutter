@@ -60,6 +60,12 @@ class _OrdersSectionState extends State<OrdersSection>
       }
     });
 
+    ever(homeController.cartResponse, (value) {
+      if (!scanFocusNode.hasFocus) {
+        scanFocusNode.requestFocus();
+      }
+    });
+
     WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ever(homeController.scanProductsResponse, (value) {
