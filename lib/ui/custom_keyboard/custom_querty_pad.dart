@@ -148,8 +148,8 @@ class _CustomQwertyPadState extends State<CustomQwertyPad> {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                _buildKeyDot('assets/images/qwerty_dot.png', '.'),
-                _buildKeyDot('assets/images/qwerty_comma.png', ','),
+                _buildKeyIcon('assets/images/qwerty_dot.png', '.'),
+                _buildKeyIcon('assets/images/qwerty_comma.png', ','),
                 _buildKeyEnterIcon('assets/images/qwerty_enter.png'),
               ],
             )
@@ -191,7 +191,7 @@ class _CustomQwertyPadState extends State<CustomQwertyPad> {
       onTap: _onBackspace,
       borderRadius: BorderRadius.circular(10.0),
       child: Container(
-        padding: EdgeInsets.all(10.0),
+        padding: EdgeInsets.all(15.0),
         margin: EdgeInsets.all(5.0),
         decoration: BoxDecoration(
           color: Color(0xFFF0F4F4),
@@ -201,8 +201,8 @@ class _CustomQwertyPadState extends State<CustomQwertyPad> {
         child: Center(
           child: Image.asset(
             img,
-            width: 40,
-            height: 40,
+            width: 30,
+            height: 30,
           ),
         ),
       ),
@@ -225,7 +225,7 @@ class _CustomQwertyPadState extends State<CustomQwertyPad> {
         child: Center(
           child: Image.asset(
             img,
-            width: 160,
+            width: 165,
             height: 20,
           ),
         ),
