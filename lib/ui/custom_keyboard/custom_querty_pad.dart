@@ -148,8 +148,8 @@ class _CustomQwertyPadState extends State<CustomQwertyPad> {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                _buildKeyDot('assets/images/qwerty_dot.png'),
-                _buildKeyDot('assets/images/qwerty_comma.png'),
+                _buildKeyDot('assets/images/qwerty_dot.png', '.'),
+                _buildKeyDot('assets/images/qwerty_comma.png', ','),
                 _buildKeyEnterIcon('assets/images/qwerty_enter.png'),
               ],
             )
@@ -202,7 +202,7 @@ class _CustomQwertyPadState extends State<CustomQwertyPad> {
           child: Image.asset(
             img,
             width: 40,
-            height: 30,
+            height: 40,
           ),
         ),
       ),
@@ -259,10 +259,10 @@ class _CustomQwertyPadState extends State<CustomQwertyPad> {
     );
   }
 
-  Widget _buildKeyDot(String img) {
+  Widget _buildKeyDot(String img, String label) {
     return InkWell(
       onTap: () {
-        _onKeyPressed(".");
+        _onKeyPressed(label);
       },
       child: Container(
         padding: EdgeInsets.all(10.0),
