@@ -68,23 +68,29 @@ class _OrdersSectionState extends State<OrdersSection>
 
     WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
+
       ever(homeController.scanProductsResponse, (value) {
         if (value.skuCode != null) {
           scanTextController.clear();
           scanFocusNode.requestFocus();
         }
+
         if ((value.priceList?.length ?? 0) > 1) {
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return Dialog(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20.0),
-                ),
-                child: MultipleMrpWidget(context),
+          Future.delayed(const Duration(milliseconds: 400), () {
+            if (mounted) {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return Dialog(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20.0),
+                    ),
+                    child: MultipleMrpWidget(context),
+                  );
+                },
               );
-            },
-          );
+            }
+          });
         }
       });
     });
@@ -429,7 +435,7 @@ class _OrdersSectionState extends State<OrdersSection>
     });
 
     ever(homeController.weight, (value) {
-      if (value != 0.0) {
+      if (value != 0.0 && itemData.weightFocusNode?.hasFocus == true) {
         itemData.weightController?.text =
             homeController.weight.value.toString();
         //homeController.weight.value = 0.0;
@@ -679,6 +685,17 @@ class _OrdersSectionState extends State<OrdersSection>
                                         homeController.registerId.isNotEmpty)
                                     ? scanTextController
                                     : TextEditingController(),
+                            onValueChanged: (text){
+                              if (activeFocusNode == scanFocusNode) {
+                                if (homeController.cartId.value.isNotEmpty &&
+                                    homeController.registerId.isNotEmpty) {
+                                  print("common field onValueChanged text: $text");
+                                  if (isValidOfferId(text)) {
+                                    homeController.scanApiCall(text.trim());
+                                  }
+                                }
+                              }
+                            }
                           ),
                         ),
                         CustomNumPad(
@@ -689,7 +706,6 @@ class _OrdersSectionState extends State<OrdersSection>
                             if (activeFocusNode == scanFocusNode) {
                               if (homeController.cartId.value.isNotEmpty &&
                                   homeController.registerId.isNotEmpty) {
-                                print("onTextListener text: $text");
                                 if (isValidOfferId(text)) {
                                   homeController.scanApiCall(text.trim());
                                 }
