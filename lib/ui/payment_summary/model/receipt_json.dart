@@ -9,22 +9,22 @@ const jsonData = '''
     },
     "gstin_number": "29AAECK6393H1Z2"
   },
-  "invoice_number": "wertyu",
+  "invoice_number": "#12345678",
   "invoice_date": "23/12/2024",
   "order_number": "1234567",
   "order_date": "23/12/2024, 12:00 PM",
   "payment_methods": "wallet, Cash",
   "customer": {
-    "customer_name": "Pankaj L",
+    "customer_name": "Jagath Ratchagan",
     "phone_number": {
       "country_code": "+91",
-      "number": "8315861337"
+      "number": "9597135456"
     }
   },
   "invoice_lines": [
     {
       "sku_code": "1006885062",
-      "sku_title": "919215850991 5 W Yellow Rechargeable Torch",
+      "sku_title": "Aashirvaad Shudh Chakki Atta, 10kg Pack",
       "quantity": {
         "quantity_number": "1",
         "quantity_uom": "pcs"

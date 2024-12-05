@@ -95,11 +95,13 @@ class HomeController extends GetxController {
   bool isApiCallInProgress = false;
   var selectedItemData = CartLine().obs;
   var lastRoute = PageRoutes.paymentSummary.obs;
+  var isCustomerProxySelected = false.obs;
+
   @override
   void onInit() async {
     _checkConnectivity();
     await readStorageData();
-    if(Platform.isLinux){
+    if (Platform.isLinux) {
       initializeWeighingScale();
     }
     initialResponse();
@@ -135,7 +137,7 @@ class HomeController extends GetxController {
     isSalesAssociateLinkEnabled.value = GetStorageHelper.read(
         SharedPreferenceConstants.isSalesAssociateLinkEnabled);
     final userDetailsData =
-    GetStorageHelper.read(SharedPreferenceConstants.userDetails);
+        GetStorageHelper.read(SharedPreferenceConstants.userDetails);
     if (userDetailsData != null && userDetailsData is Map<String, dynamic>) {
       userDetails.value = UserDetails.fromJson(userDetailsData);
       print(userDetails.value.toJson());
@@ -316,16 +318,20 @@ class HomeController extends GetxController {
           terminalId: selectedTerminalId,
           outletId: selectedOutletId));
       customerResponse.value = response;
-      cartId.value = customerResponse.value.cartId.toString();
 
-      // Note Please clear when order success
-      GetStorageHelper.save(SharedPreferenceConstants.cartId, cartId.value);
       GetStorageHelper.save(SharedPreferenceConstants.sessionCustomerNumber,
           "${customerResponse.value.phoneNumber?.countryCode}${customerResponse.value.phoneNumber?.number}");
       GetStorageHelper.save(SharedPreferenceConstants.sessionCustomerName,
           customerResponse.value.customerName);
 
-      fetchCartDetails();
+      if (cartId.value.isNotEmpty && isCustomerProxySelected.value) {
+        mergeCart(phoneNumber.value);
+        isCustomerProxySelected.value = false;
+      } else {
+        cartId.value = customerResponse.value.cartId.toString();
+        GetStorageHelper.save(SharedPreferenceConstants.cartId, cartId.value);
+        fetchCartDetails();
+      }
     } catch (e) {
       print("Error $e");
     }
@@ -337,6 +343,24 @@ class HomeController extends GetxController {
       clearCart();
       var response =
           await _homeRepository.getCart(CartRequest(cartId: cartId.value));
+      cartResponse.value = response;
+      if (cartResponse.value.cartLines != null) {
+        for (var element in cartResponse.value.cartLines!) {
+          addCartLine(element);
+        }
+      }
+    } catch (e) {
+      print("Error $e");
+    }
+  }
+
+  Future<void> mergeCart(String phoneNumber) async {
+    cartLines.clear();
+    try {
+      clearCart();
+      print('merge cart');
+      var response = await _homeRepository.mergeCart(
+          CartRequest(cartId: cartId.value, phoneNumber: phoneNumber));
       cartResponse.value = response;
       if (cartResponse.value.cartLines != null) {
         for (var element in cartResponse.value.cartLines!) {
@@ -405,13 +429,14 @@ class HomeController extends GetxController {
   Future<void> clearFullCart() async {
     try {
       var response = await _homeRepository.clearFullCart(cartId.value);
-      cartResponse.value = response;
+      generalSuccessResponse.value = response;
       cartId.value = '';
       getCustomerDetailsResponse.value = CustomerDetailsResponse();
       customerResponse.value = CustomerResponse();
       customerName.value = '';
       phoneNumber.value = '';
       cartLines.value = [];
+      cartResponse.value = CartResponse();
       Get.snackbar('Cart cleared successfully', 'All items removed');
     } catch (e) {
       print("Error $e");
@@ -498,7 +523,7 @@ class HomeController extends GetxController {
       openRegisterResponse.value = response;
       GetStorageHelper.save(SharedPreferenceConstants.registerId,
           openRegisterResponse.value.registerId ?? "");
-      registerId.value =  openRegisterResponse.value.registerId ?? "";
+      registerId.value = openRegisterResponse.value.registerId ?? "";
       openFloatPayment.value = '';
       selectedTabButton.value = 2;
       isLoading.value = false;
@@ -541,7 +566,7 @@ class HomeController extends GetxController {
       closeRegisterResponse.value = response;
       if (closeRegisterResponse.value.success == true) {
         GetStorageHelper.save(SharedPreferenceConstants.registerId, "");
-        registerId.value =  "";
+        registerId.value = "";
         upiPayment.value = '';
         upiPaymentCount.value = '';
         cardPayment.value = '';

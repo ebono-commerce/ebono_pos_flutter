@@ -1,5 +1,7 @@
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:ebono_pos/constants/custom_colors.dart';
+import 'package:ebono_pos/constants/shared_preference_constants.dart';
+import 'package:ebono_pos/data_store/get_storage_helper.dart';
 import 'package:ebono_pos/data_store/shared_preference_helper.dart';
 import 'package:ebono_pos/navigation/page_routes.dart';
 import 'package:ebono_pos/ui/common_text_field.dart';
@@ -12,6 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
+import 'package:printing/printing.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -133,7 +136,10 @@ class _LoginPageState extends State<LoginPage> {
                           Flexible(flex: 3, child: welcomeWidget(context)),
                           state is LoginSuccess ||
                                   state is GetOutletDetailsSuccess ||
-                                  state is SubmitTerminalDetailsSuccess
+                                  state is SubmitTerminalDetailsSuccess ||
+                                  state is GetOutletDetailsLoading ||
+                                  state is SubmitTerminalDetailsLoading ||
+                                  state is SubmitTerminalDetailsFailure
                               ? Flexible(
                                   flex: 2,
                                   child: storeDetailsWidget(context, loginBloc))
@@ -604,13 +610,15 @@ class _LoginPageState extends State<LoginPage> {
                             isFocused:
                                 dropDownKey.currentState?.isFocused == true,
                             label: 'Select weighing scale port')),
-                    onChanged: (value) {
+                    onChanged: (value) async {
                       if (value != null) {
                         Future.delayed(Duration(milliseconds: 400), () {
                           loginBloc.add(
                             SelectPort(value),
                           );
                         });
+                        Printer? selectedPrinter = await Printing.pickPrinter(context: context);
+                        GetStorageHelper.save(SharedPreferenceConstants.selectedPrinter, selectedPrinter);
                       }
                     },
                     suffixProps: DropdownSuffixProps(

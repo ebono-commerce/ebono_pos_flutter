@@ -86,6 +86,19 @@ class HomeRepository {
     }
   }
 
+  Future<CartResponse> mergeCart(CartRequest request) async {
+    try {
+      final response = await _apiHelper.post(
+        ApiConstants.mergeCart,
+        data: request.toJson(),
+      );
+      final cartResponse = cartResponseFromJson(jsonEncode(response));
+      return cartResponse;
+    } catch (e) {
+      throw Exception('Failed to load data');
+    }
+  }
+
   Future<CartResponse> addToCart(
       AddToCartRequest request, String? cartId) async {
     try {
@@ -128,14 +141,14 @@ class HomeRepository {
     }
   }
 
-  Future<CartResponse> clearFullCart(String cartId) async {
+  Future<GeneralSuccessResponse> clearFullCart(String cartId) async {
     try {
       final response = await _apiHelper.delete(
         '${ApiConstants.clearFullCart}$cartId/clear',
         data: {},
       );
-      final cartResponse = cartResponseFromJson(jsonEncode(response));
-      return cartResponse;
+      final generalResponse = generalSuccessResponseFromJson(jsonEncode(response));
+      return generalResponse;
     } catch (e) {
       throw Exception('Failed to parse data');
     }

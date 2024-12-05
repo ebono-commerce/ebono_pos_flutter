@@ -87,14 +87,12 @@ Future<Uint8List> generatePdf(OrderSummaryResponse data) async {
                         font: font,
                       ),
                     ),
-                  ]
-              ),
-
+                  ]),
 
               pw.Divider(),
               pw.Container(
                 width: PdfPageFormat.roll80.availableWidth,
-                child:  pw.Column(
+                child: pw.Column(
                     crossAxisAlignment: pw.CrossAxisAlignment.start,
                     children: [
                       if (data.invoiceNumber?.isNotEmpty == true)
@@ -138,7 +136,6 @@ Future<Uint8List> generatePdf(OrderSummaryResponse data) async {
                       ),
                     ]),
               ),
-
 
               pw.Divider(),
               pw.Row(
@@ -587,7 +584,7 @@ Future<Uint8List> generatePdf(OrderSummaryResponse data) async {
                 ),
               pw.Container(
                 width: PdfPageFormat.roll80.availableWidth,
-                child:  pw.Column(
+                child: pw.Column(
                     crossAxisAlignment: pw.CrossAxisAlignment.start,
                     children: [
                       pw.Text(
@@ -599,13 +596,13 @@ Future<Uint8List> generatePdf(OrderSummaryResponse data) async {
                         ),
                       ),
                       pw.Text(
-                      'Website: ${data.contactDetails?.website}',
-                      style: pw.TextStyle(
-                        fontSize: 8,
-                        fontWeight: pw.FontWeight.bold,
-                        font: font,
+                        'Website: ${data.contactDetails?.website}',
+                        style: pw.TextStyle(
+                          fontSize: 8,
+                          fontWeight: pw.FontWeight.bold,
+                          font: font,
+                        ),
                       ),
-                    ),
                       pw.Text(
                         'Contact Us Email: ${data.contactDetails?.emailId}',
                         style: pw.TextStyle(
@@ -622,8 +619,8 @@ Future<Uint8List> generatePdf(OrderSummaryResponse data) async {
                           fontWeight: pw.FontWeight.bold,
                           font: font,
                         ),
-                      ),]
-                ),
+                      ),
+                    ]),
               ),
               ...?data.termsAndConditions?.map((term) => pw.Container(
                     child: pw.Text(
@@ -654,17 +651,14 @@ Future<Uint8List> generatePdf(OrderSummaryResponse data) async {
   return pdf.save();
 }
 
-void printOrderSummary(OrderSummaryResponse orderSummaryResponse) async {
+void printOrderSummary(
+    OrderSummaryResponse orderSummaryResponse, Printer printer) async {
   final pdfBytes = await generatePdf(orderSummaryResponse);
+  await Printing.directPrintPdf(
+      printer: printer,
+      onLayout: (PdfPageFormat format) async {
+        final Uint8List cutPaperCommand = Uint8List.fromList([27, 105]);
+        return Uint8List.fromList([...pdfBytes, ...cutPaperCommand]);
+      });
 
-  // Print without showing preview
-  await Printing.layoutPdf(
-    onLayout: (PdfPageFormat format) async {
-      // Add the ESC/POS command for cutting the paper
-      final Uint8List cutPaperCommand = Uint8List.fromList([27, 105]);
-
-      // Combine the PDF data with the cut command
-      return Uint8List.fromList([...pdfBytes, ...cutPaperCommand]);
-    },
-  );
 }

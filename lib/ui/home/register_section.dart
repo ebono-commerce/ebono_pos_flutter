@@ -75,11 +75,12 @@ class _RegisterSectionState extends State<RegisterSection>
         if (openingFloatPaymentFocusNode.hasFocus) {
           activeFocusNode = openingFloatPaymentFocusNode;
         }
-        if (RegExp(r'^\d+(\.\d+)?$')
+        if (RegExp(r'^\d*\.?\d*$')
             .hasMatch(openingFloatPaymentTextController.text)) {
-          // If it contains a decimal point, set the text to an empty string or handle accordingly
-          openingFloatPaymentTextController.text =
-              openingFloatPaymentTextController.text.split('.')[0];
+          if (openingFloatPaymentTextController.text.contains('.')) {
+            openingFloatPaymentTextController.text =
+            openingFloatPaymentTextController.text.split('.')[0];
+          }
         }
 
         numPadTextController.text = openingFloatPaymentTextController.text;
@@ -124,11 +125,14 @@ class _RegisterSectionState extends State<RegisterSection>
         if (upiSlipCountFocusNode.hasFocus) {
           activeFocusNode = upiSlipCountFocusNode;
         }
-        if (RegExp(r'^\d+(\.\d+)?$')
+        if (RegExp(r'^\d*\.?\d*$')
             .hasMatch(upiSlipCountTextController.text)) {
           // If it contains a decimal point, set the text to an empty string or handle accordingly
-          upiSlipCountTextController.text =
+          if (upiSlipCountTextController.text.contains('.')) {
+
+            upiSlipCountTextController.text =
               upiSlipCountTextController.text.split('.')[0];
+        }
         }
         numPadTextController.text = upiSlipCountTextController.text;
       });
@@ -138,11 +142,14 @@ class _RegisterSectionState extends State<RegisterSection>
         if (cardSlipCountFocusNode.hasFocus) {
           activeFocusNode = cardSlipCountFocusNode;
         }
-        if (RegExp(r'^\d+(\.\d+)?$')
+        if (RegExp(r'^\d*\.?\d*$')
             .hasMatch(cardSlipCountTextController.text)) {
           // If it contains a decimal point, set the text to an empty string or handle accordingly
-          cardSlipCountTextController.text =
+          if (cardSlipCountTextController.text.contains('.')) {
+
+            cardSlipCountTextController.text =
               cardSlipCountTextController.text.split('.')[0];
+        }
         }
         numPadTextController.text = cardSlipCountTextController.text;
       });
@@ -457,7 +464,7 @@ class _RegisterSectionState extends State<RegisterSection>
                             } else {
                               Get.snackbar(
                                 "Error",
-                                "The amount should be at least 5000.",
+                                "The amount should not be more than 5000.",
                                 snackPosition: SnackPosition.TOP,
                               );
                             }

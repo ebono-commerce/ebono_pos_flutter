@@ -1,6 +1,7 @@
 import 'package:ebono_pos/constants/custom_colors.dart';
 import 'package:ebono_pos/ui/custom_keyboard/custom_querty_pad.dart';
 import 'package:ebono_pos/ui/home/home_controller.dart';
+import 'package:ebono_pos/utils/common_methods.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
@@ -136,27 +137,29 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
     return Obx(() {
       return Column(
         children: [
-          SizedBox(width: 900,
-          child:  Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            mainAxisSize: MainAxisSize.max,
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(right: 18.0, top: 18),
-                child: InkWell(
-                  onTap: () {
-                    Navigator.pop(widget.dialogContext);
-                  },
-                  child: SvgPicture.asset(
-                    'assets/images/ic_close.svg',
-                    semanticsLabel: 'cash icon,',
-                    width: 30,
-                    height: 30,
+          SizedBox(
+            width: 900,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              mainAxisSize: MainAxisSize.max,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(right: 18.0, top: 18),
+                  child: InkWell(
+                    onTap: () {
+                      Navigator.pop(widget.dialogContext);
+                    },
+                    child: SvgPicture.asset(
+                      'assets/images/ic_close.svg',
+                      semanticsLabel: 'cash icon,',
+                      width: 30,
+                      height: 30,
+                    ),
                   ),
                 ),
-              ),
-            ],
-          ),),
+              ],
+            ),
+          ),
           SizedBox(
             width: 400,
             child: Column(
@@ -273,8 +276,15 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
       padding: EdgeInsets.symmetric(horizontal: 5, vertical: 1),
       width: 100,
       child: ElevatedButton(
-        onPressed: homeController.phoneNumber.isNotEmpty
-            ? () => homeController.getCustomerDetails()
+        onPressed: homeController.phoneNumber.value.isNotEmpty
+            ? () {
+                if (isValidPhoneNumber(homeController.phoneNumber.value)) {
+                  homeController.getCustomerDetails();
+                } else {
+                  Get.snackbar('Invalid Phone Number',
+                      'Please enter valid 10 digit phone number');
+                }
+              }
             : null,
         style: ElevatedButton.styleFrom(
           elevation: 1,
@@ -306,7 +316,10 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
       width: 100,
       child: ElevatedButton(
         onPressed: homeController.customerName.isNotEmpty
-            ? () => homeController.fetchCustomer()
+            ? () {
+                homeController.isCustomerProxySelected.value = true;
+                homeController.fetchCustomer();
+              }
             : null,
         style: ElevatedButton.styleFrom(
           elevation: 1,
@@ -346,7 +359,7 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
           homeController.phoneNumber.value =
               homeController.customerProxyNumber.value;
           homeController.customerName.value = 'Admin';
-
+          homeController.isCustomerProxySelected.value = true;
           homeController.fetchCustomer();
         },
         style: ElevatedButton.styleFrom(
