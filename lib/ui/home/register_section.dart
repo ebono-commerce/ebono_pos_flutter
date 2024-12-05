@@ -172,6 +172,20 @@ class _RegisterSectionState extends State<RegisterSection>
     super.initState();
   }
 
+  bool isButtonEnabled() {
+    if (homeController.registerId.value == "") {
+      // OPEN case: check openControllerText
+      return openingFloatPaymentTextController.text.isNotEmpty;
+    } else {
+      // CLOSE case: check cashController, upiController, and cardController
+      return cashPaymentTextController.text.isNotEmpty &&
+          upiPaymentTextController.text.isNotEmpty &&
+          cardsPaymentTextController.text.isNotEmpty &&
+          cardSlipCountTextController.text.isNotEmpty &&
+          upiSlipCountTextController.text.isNotEmpty;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     theme = Theme.of(context);
@@ -300,6 +314,7 @@ class _RegisterSectionState extends State<RegisterSection>
                       homeController.cardPayment.value = value;
                     } else if (activeFocusNode == upiPaymentFocusNode) {
                       homeController.upiPayment.value = value;
+                      print("UPI : ${homeController.upiPayment.value}");
                     } else if (activeFocusNode == upiSlipCountFocusNode) {
                       homeController.upiPaymentCount.value = value;
                     } else if (activeFocusNode == cardSlipCountFocusNode) {
@@ -430,15 +445,28 @@ class _RegisterSectionState extends State<RegisterSection>
                       theme: theme,
                       textStyle: theme.textTheme.bodyMedium,
                       padding: EdgeInsets.all(12)),
-                  onPressed: () {
-                    if (homeController.registerId.value == "") {
-                      // OPEN
-                      homeController.openRegisterApiCall();
-                    } else {
-                      // CLOSE
-                      homeController.closeRegisterApiCall();
-                    }
-                  },
+                  onPressed: isButtonEnabled()
+                      ? () {
+                          if (homeController.registerId.value == "") {
+                            // OPEN
+                            double floatVal = double.tryParse(
+                                    homeController.openFloatPayment.value) ??
+                                0;
+                            if (!(floatVal >= 5000)) {
+                              homeController.openRegisterApiCall();
+                            } else {
+                              Get.snackbar(
+                                "Error",
+                                "The amount should be at least 5000.",
+                                snackPosition: SnackPosition.TOP,
+                              );
+                            }
+                          } else {
+                            // CLOSE
+                            homeController.closeRegisterApiCall();
+                          }
+                        }
+                      : null,
                   child: Text(
                     homeController.registerId.value != ""
                         ? "Close Register"
