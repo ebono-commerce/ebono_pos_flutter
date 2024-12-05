@@ -449,7 +449,18 @@ class _RegisterSectionState extends State<RegisterSection>
                       ? () {
                           if (homeController.registerId.value == "") {
                             // OPEN
-                            homeController.openRegisterApiCall();
+                            double floatVal = double.tryParse(
+                                    homeController.openFloatPayment.value) ??
+                                0;
+                            if (!(floatVal >= 5000)) {
+                              homeController.openRegisterApiCall();
+                            } else {
+                              Get.snackbar(
+                                "Error",
+                                "The amount should be at least 5000.",
+                                snackPosition: SnackPosition.TOP,
+                              );
+                            }
                           } else {
                             // CLOSE
                             homeController.closeRegisterApiCall();
