@@ -11,7 +11,6 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
 class RegisterSection extends StatefulWidget {
-
   const RegisterSection({super.key});
 
   @override
@@ -57,8 +56,7 @@ class _RegisterSectionState extends State<RegisterSection>
 
   @override
   void initState() {
-    if (mounted == true) {
-    }
+    if (mounted == true) {}
     if (!openingFloatPaymentFocusNode.hasFocus) {
       openingFloatPaymentFocusNode.requestFocus();
     }
@@ -77,6 +75,13 @@ class _RegisterSectionState extends State<RegisterSection>
         if (openingFloatPaymentFocusNode.hasFocus) {
           activeFocusNode = openingFloatPaymentFocusNode;
         }
+        if (RegExp(r'^\d+(\.\d+)?$')
+            .hasMatch(openingFloatPaymentTextController.text)) {
+          // If it contains a decimal point, set the text to an empty string or handle accordingly
+          openingFloatPaymentTextController.text =
+              openingFloatPaymentTextController.text.split('.')[0];
+        }
+
         numPadTextController.text = openingFloatPaymentTextController.text;
       });
     });
@@ -119,6 +124,12 @@ class _RegisterSectionState extends State<RegisterSection>
         if (upiSlipCountFocusNode.hasFocus) {
           activeFocusNode = upiSlipCountFocusNode;
         }
+        if (RegExp(r'^\d+(\.\d+)?$')
+            .hasMatch(upiSlipCountTextController.text)) {
+          // If it contains a decimal point, set the text to an empty string or handle accordingly
+          upiSlipCountTextController.text =
+              upiSlipCountTextController.text.split('.')[0];
+        }
         numPadTextController.text = upiSlipCountTextController.text;
       });
     });
@@ -126,6 +137,12 @@ class _RegisterSectionState extends State<RegisterSection>
       setState(() {
         if (cardSlipCountFocusNode.hasFocus) {
           activeFocusNode = cardSlipCountFocusNode;
+        }
+        if (RegExp(r'^\d+(\.\d+)?$')
+            .hasMatch(cardSlipCountTextController.text)) {
+          // If it contains a decimal point, set the text to an empty string or handle accordingly
+          cardSlipCountTextController.text =
+              cardSlipCountTextController.text.split('.')[0];
         }
         numPadTextController.text = cardSlipCountTextController.text;
       });
@@ -153,6 +170,20 @@ class _RegisterSectionState extends State<RegisterSection>
       });
     });
     super.initState();
+  }
+
+  bool isButtonEnabled() {
+    if (homeController.registerId.value == "") {
+      // OPEN case: check openControllerText
+      return openingFloatPaymentTextController.text.isNotEmpty;
+    } else {
+      // CLOSE case: check cashController, upiController, and cardController
+      return cashPaymentTextController.text.isNotEmpty &&
+          upiPaymentTextController.text.isNotEmpty &&
+          cardsPaymentTextController.text.isNotEmpty &&
+          cardSlipCountTextController.text.isNotEmpty &&
+          upiSlipCountTextController.text.isNotEmpty;
+    }
   }
 
   @override
@@ -283,6 +314,7 @@ class _RegisterSectionState extends State<RegisterSection>
                       homeController.cardPayment.value = value;
                     } else if (activeFocusNode == upiPaymentFocusNode) {
                       homeController.upiPayment.value = value;
+                      print("UPI : ${homeController.upiPayment.value}");
                     } else if (activeFocusNode == upiSlipCountFocusNode) {
                       homeController.upiPaymentCount.value = value;
                     } else if (activeFocusNode == cardSlipCountFocusNode) {
@@ -413,15 +445,28 @@ class _RegisterSectionState extends State<RegisterSection>
                       theme: theme,
                       textStyle: theme.textTheme.bodyMedium,
                       padding: EdgeInsets.all(12)),
-                  onPressed: () {
-                    if (homeController.registerId.value == "") {
-                      // OPEN
-                      homeController.openRegisterApiCall();
-                    } else {
-                      // CLOSE
-                      homeController.closeRegisterApiCall();
-                    }
-                  },
+                  onPressed: isButtonEnabled()
+                      ? () {
+                          if (homeController.registerId.value == "") {
+                            // OPEN
+                            double floatVal = double.tryParse(
+                                    homeController.openFloatPayment.value) ??
+                                0;
+                            if (!(floatVal >= 5000)) {
+                              homeController.openRegisterApiCall();
+                            } else {
+                              Get.snackbar(
+                                "Error",
+                                "The amount should be at least 5000.",
+                                snackPosition: SnackPosition.TOP,
+                              );
+                            }
+                          } else {
+                            // CLOSE
+                            homeController.closeRegisterApiCall();
+                          }
+                        }
+                      : null,
                   child: Text(
                     homeController.registerId.value != ""
                         ? "Close Register"
@@ -560,7 +605,7 @@ class _RegisterSectionState extends State<RegisterSection>
                                   ?.copyWith(
                                       fontWeight: FontWeight.normal,
                                       color: CustomColors.greyFont)),
-                          Text("Wednesday, 18 September 2024 | 09:12 AM",
+                          Text(formattedDate,
                               maxLines: 2,
                               textAlign: TextAlign.center,
                               softWrap: true,
@@ -702,10 +747,10 @@ class _RegisterSectionState extends State<RegisterSection>
             SizedBox(
               height: 10,
             ),
-            _buildAddCommentForOpen(),
-            SizedBox(
-              height: 10,
-            ),
+            //  _buildAddCommentForOpen(),
+            // SizedBox(
+            //   height: 10,
+            // ),
           ],
         ),
       ),
@@ -749,12 +794,11 @@ class _RegisterSectionState extends State<RegisterSection>
                   height: 10,
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                      vertical: 2.0, horizontal: 10),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 2.0, horizontal: 10),
                   decoration: BoxDecoration(
                     color: CustomColors.enabledBorderColor,
-                    border:
-                        Border.all(color: CustomColors.enabledBorderColor),
+                    border: Border.all(color: CustomColors.enabledBorderColor),
                     borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(0),
                       topRight: Radius.circular(0),
@@ -932,10 +976,10 @@ class _RegisterSectionState extends State<RegisterSection>
                 SizedBox(
                   height: 10,
                 ),
-                _buildAddCommentForClose(),
-                SizedBox(
-                  height: 10,
-                ),
+                //_buildAddCommentForClose(),
+                // SizedBox(
+                //   height: 10,
+                // ),
               ],
             ),
           ),
