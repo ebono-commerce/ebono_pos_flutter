@@ -654,17 +654,18 @@ Future<Uint8List> generatePdf(OrderSummaryResponse data) async {
   return pdf.save();
 }
 
-void printOrderSummary(OrderSummaryResponse orderSummaryResponse) async {
+void printOrderSummary(OrderSummaryResponse orderSummaryResponse, BuildContext context) async {
   final pdfBytes = await generatePdf(orderSummaryResponse);
 
-  // Print without showing preview
-  await Printing.layoutPdf(
-    onLayout: (PdfPageFormat format) async {
-      // Add the ESC/POS command for cutting the paper
-      final Uint8List cutPaperCommand = Uint8List.fromList([27, 105]);
+  Printer? myPrinter = await Printing.pickPrinter(bounds: null, context: context);
+  print(myPrinter?.name);
 
-      // Combine the PDF data with the cut command
-      return Uint8List.fromList([...pdfBytes, ...cutPaperCommand]);
-    },
-  );
+  // Print without showing preview
+  await Printing.directPrintPdf(printer: myPrinter!, onLayout: (PdfPageFormat format) async {
+    // Add the ESC/POS command for cutting the paper
+    final Uint8List cutPaperCommand = Uint8List.fromList([27, 105]);
+
+    // Combine the PDF data with the cut command
+    return Uint8List.fromList([...pdfBytes, ...cutPaperCommand]);
+  });
 }
