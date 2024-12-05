@@ -1,8 +1,12 @@
+import 'dart:convert';
+
 import 'package:ebono_pos/constants/custom_colors.dart';
 import 'package:ebono_pos/ui/Common_button.dart';
 import 'package:ebono_pos/ui/home/home_controller.dart';
 import 'package:ebono_pos/ui/payment_summary/bloc/payment_bloc.dart';
 import 'package:ebono_pos/ui/payment_summary/bloc/payment_state.dart';
+import 'package:ebono_pos/ui/payment_summary/model/order_summary_response.dart';
+import 'package:ebono_pos/ui/payment_summary/model/receipt_json.dart';
 import 'package:ebono_pos/ui/payment_summary/route/print_receipt.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -112,8 +116,8 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                         onPressed: !state.isLoading
                             ? () {
                                 homeController.initialResponse();
-                                printOrderSummary(
-                                    paymentBloc.orderSummaryResponse);
+                                printOrderSummary(OrderSummaryResponse.fromJson(
+                                    json.decode(jsonData)));
                                 Get.back();
                                 Get.back();
                               }

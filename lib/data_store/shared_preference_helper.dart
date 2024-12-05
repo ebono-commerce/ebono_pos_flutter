@@ -17,7 +17,12 @@ class SharedPreferenceHelper {
   // Clear all
   Future<void> clearAll() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.clear();
+    final appUUID = prefs.getString(SharedPreferenceConstants.appUUID);
+    await prefs.clear().then((value) async {
+      if(appUUID?.isNotEmpty == true){
+        await prefs.setString(SharedPreferenceConstants.appUUID, appUUID!);
+      }
+    });
   }
 
   // Store the appUUID

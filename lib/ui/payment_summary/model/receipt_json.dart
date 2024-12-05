@@ -9,7 +9,7 @@ const jsonData = '''
     },
     "gstin_number": "29AAECK6393H1Z2"
   },
-  "invoice_number": "wertyu",
+  "invoice_number": "#12345678",
   "invoice_date": "23/12/2024",
   "order_number": "1234567",
   "order_date": "23/12/2024, 12:00 PM",
@@ -24,7 +24,7 @@ const jsonData = '''
   "invoice_lines": [
     {
       "sku_code": "1006885062",
-      "sku_title": "919215850991 5 W Yellow Rechargeable Torch",
+      "sku_title": "Ashirvad Atta 10kg",
       "quantity": {
         "quantity_number": "1",
         "quantity_uom": "pcs"

@@ -429,13 +429,14 @@ class HomeController extends GetxController {
   Future<void> clearFullCart() async {
     try {
       var response = await _homeRepository.clearFullCart(cartId.value);
-      cartResponse.value = response;
+      generalSuccessResponse.value = response;
       cartId.value = '';
       getCustomerDetailsResponse.value = CustomerDetailsResponse();
       customerResponse.value = CustomerResponse();
       customerName.value = '';
       phoneNumber.value = '';
       cartLines.value = [];
+      cartResponse.value = CartResponse();
       Get.snackbar('Cart cleared successfully', 'All items removed');
     } catch (e) {
       print("Error $e");
