@@ -86,13 +86,6 @@ class _OrdersSectionState extends State<OrdersSection>
     super.initState();
   }
 
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    print('didChangeAppLifecycleState $state ${homeController.lastRoute.value}');
-    if (homeController.lastRoute.value == '/order_success') {
-      homeController.initialResponse();
-    }
-  }
 
   /*@override
   void dispose() {
@@ -104,153 +97,146 @@ class _OrdersSectionState extends State<OrdersSection>
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<HomeController>(
-      init: homeController,
-      builder: (controller) {
-        return Center(
-          child: Row(
-            children: [
-              Expanded(
-                flex: 5, // 0.6 ratio
-                child: Container(
-                    color: Colors.white,
-                    child: Column(
-                      children: [
-                        Obx(() {
-                          return _buildOrderDetail(context);
-                        }),
-                        Expanded(
-                          child: Obx(() {
-                            if (homeController.registerId.value.isNotEmpty) {
-                              return homeController.cartId.value.isEmpty
-                                  ? AddCustomerStaticWidget()
-                                  : _buildTableView();
-                            } else {
-                              return _buildRegisterClosed(context,
-                                  onPressed: () async {
-                                    setState(() {
-                                      homeController.selectedTabButton.value =
-                                      1;
-                                    });
-                                  });
-                            }
-                          }),
-                        )
-                      ],
-                    )),
-              ),
-              Expanded(
-                flex: 2, // 0.2 ratio
-                child: Center(child: _buildNumberPadSection(homeController)),
-              ),
-              Expanded(
-                flex: 1,
-                child: QuickActionButtons(
-                  color: Colors.white,
-                  onCustomerPressed: () {
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return Dialog(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20.0),
-                          ),
-                          child: AddCustomerWidget(context),
-                        );
-                      },
-                    );
-                  },
-                  onHoldCartPressed: () {
-                    AuthModes enableHoldCartMode = AuthModeExtension
-                        .fromString(
-                        homeController.isEnableHoldCartEnabled.value);
-                    if (enableHoldCartMode == AuthModes.enabled) {
-                      homeController.holdCartApiCall();
-                    } else if (enableHoldCartMode == AuthModes.authorised) {
-                      showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return Dialog(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20.0),
-                            ),
-                            child: AuthorisationRequiredWidget(context),
-                          );
-                        },
-                      );
-                    } else {
-                      Get.snackbar(
-                          'Need Permission', 'Please contact support');
-                    }
-                  },
-                  onSalesAssociatePressed: () {
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return Dialog(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20.0),
-                          ),
-                          child: AuthorisationRequiredWidget(context),
-                        );
-                      },
-                    );
-                  },
-                  onCouponsPressed: () {
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return Dialog(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20.0),
-                          ),
-                          child: CouponCodeWidget(context),
-                        );
-                      },
-                    );
-                  },
-                  onClearCartPressed: () {
-                    AuthModes enableHoldCartMode = AuthModeExtension
-                        .fromString(
-                        homeController.isEnableHoldCartEnabled.value);
-                    if (enableHoldCartMode == AuthModes.enabled) {
-                      homeController.clearFullCart();
-                    } else if (enableHoldCartMode == AuthModes.authorised) {
-                      showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return Dialog(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20.0),
-                            ),
-                            child: AuthorisationRequiredWidget(context),
-                          );
-                        },
-                      );
-                    } else {
-                      Get.snackbar(
-                          'Need Permission', 'Please contact support');
-                    }
-                  },
-                  onSearchItemsPressed: () {
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return Dialog(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20.0),
-                          ),
-                          child: MultipleMrpWidget(context),
-                        );
-                      },
-                    );
-                  },
-                ),
-              ),
-            ],
+    return Center(
+      child: Row(
+        children: [
+          Expanded(
+            flex: 5, // 0.6 ratio
+            child: Container(
+                color: Colors.white,
+                child: Column(
+                  children: [
+                    Obx(() {
+                      return _buildOrderDetail(context);
+                    }),
+                    Expanded(
+                      child: Obx(() {
+                        if (homeController.registerId.value.isNotEmpty) {
+                          return homeController.cartId.value.isEmpty
+                              ? AddCustomerStaticWidget()
+                              : _buildTableView();
+                        } else {
+                          return _buildRegisterClosed(context,
+                              onPressed: () async {
+                                homeController.selectedTabButton.value = 1;
+                              });
+                        }
+                      }),
+                    )
+                  ],
+                )),
           ),
-        );
-      });
+          Expanded(
+            flex: 2, // 0.2 ratio
+            child: Center(child: _buildNumberPadSection(homeController)),
+          ),
+          Expanded(
+            flex: 1,
+            child: QuickActionButtons(
+              color: Colors.white,
+              onCustomerPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return Dialog(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20.0),
+                      ),
+                      child: AddCustomerWidget(context),
+                    );
+                  },
+                );
+              },
+              onHoldCartPressed: () {
+                AuthModes enableHoldCartMode =
+                    AuthModeExtension.fromString(
+                        homeController.isEnableHoldCartEnabled.value);
+                if (enableHoldCartMode == AuthModes.enabled) {
+                  homeController.holdCartApiCall();
+                } else if (enableHoldCartMode == AuthModes.authorised) {
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return Dialog(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20.0),
+                        ),
+                        child: AuthorisationRequiredWidget(context),
+                      );
+                    },
+                  );
+                } else {
+                  Get.snackbar(
+                      'Action Disabled for this account', 'Please contact support');
+                }
+              },
+              onSalesAssociatePressed: () {
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return Dialog(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20.0),
+                      ),
+                      child: AuthorisationRequiredWidget(context),
+                    );
+                  },
+                );
+              },
+              onCouponsPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return Dialog(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20.0),
+                      ),
+                      child: CouponCodeWidget(context),
+                    );
+                  },
+                );
+              },
+              onClearCartPressed: () {
+                AuthModes enableHoldCartMode =
+                    AuthModeExtension.fromString(
+                        homeController.isEnableHoldCartEnabled.value);
+                if (enableHoldCartMode == AuthModes.enabled) {
+                  homeController.clearFullCart();
+                } else if (enableHoldCartMode == AuthModes.authorised) {
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return Dialog(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20.0),
+                        ),
+                        child: AuthorisationRequiredWidget(context),
+                      );
+                    },
+                  );
+                } else {
+                  Get.snackbar(
+                      'Action Disabled for this account', 'Please contact support');
+                }
+              },
+              onSearchItemsPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return Dialog(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20.0),
+                      ),
+                      child: MultipleMrpWidget(context),
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   TableRow _buildTableHeader() {
@@ -311,6 +297,16 @@ class _OrdersSectionState extends State<OrdersSection>
     );
   }
 
+  final Map<int, TableColumnWidth> columnWidths = const {
+    0: FlexColumnWidth(2),
+    1: FlexColumnWidth(3),
+    2: FlexColumnWidth(2),
+    3: FlexColumnWidth(1),
+    4: FlexColumnWidth(2),
+    5: FlexColumnWidth(2),
+    6: FlexColumnWidth(1),
+  };
+
   Widget _buildTableView() {
     return Container(
       padding: const EdgeInsets.only(bottom: 2),
@@ -322,19 +318,18 @@ class _OrdersSectionState extends State<OrdersSection>
       child: Column(
         children: [
           Table(
-            columnWidths: const {
-              0: FlexColumnWidth(2),
-              1: FlexColumnWidth(3),
-              2: FlexColumnWidth(2),
-              3: FlexColumnWidth(1),
-              4: FlexColumnWidth(2),
-              5: FlexColumnWidth(2),
-              6: FlexColumnWidth(1),
-            },
+            columnWidths: columnWidths,
             children: [
               _buildTableHeader(),
-              ...homeController.cartLines.map(_buildTableRow).toList(),
             ],
+          ),
+          Expanded(
+            child: SingleChildScrollView(
+              child: Table(
+                columnWidths: columnWidths,
+                children: homeController.cartLines.map(_buildTableRow).toList(),
+              ),
+            ),
           ),
         ],
       ),
@@ -487,7 +482,8 @@ class _OrdersSectionState extends State<OrdersSection>
                   ),
                 );
               } else {
-                Get.snackbar('Need Permission', 'Please contact support');
+                Get.snackbar(
+                    'Action Disabled for this account', 'Please contact support');
               }
             }),
       ),
@@ -689,7 +685,7 @@ class _OrdersSectionState extends State<OrdersSection>
                                   homeController.registerId.isNotEmpty) {
                                 print("onTextListener text: $text");
                                 if (isValidOfferId(text)) {
-                                  homeController.scanApiCall(text);
+                                  homeController.scanApiCall(text.trim());
                                 }
                               }
                               activeFocusNode?.unfocus();
@@ -730,7 +726,7 @@ class _OrdersSectionState extends State<OrdersSection>
                                   homeController.registerId.isNotEmpty) {
                                 print("onTextListener text: $text");
                                 if (isValidOfferId(text)) {
-                                  homeController.scanApiCall(text);
+                                  homeController.scanApiCall(text.trim());
                                 }
                               }
                             }

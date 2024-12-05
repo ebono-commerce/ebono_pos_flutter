@@ -86,6 +86,19 @@ class HomeRepository {
     }
   }
 
+  Future<CartResponse> mergeCart(CartRequest request) async {
+    try {
+      final response = await _apiHelper.post(
+        ApiConstants.mergeCart,
+        data: request.toJson(),
+      );
+      final cartResponse = cartResponseFromJson(jsonEncode(response));
+      return cartResponse;
+    } catch (e) {
+      throw Exception('Failed to load data');
+    }
+  }
+
   Future<CartResponse> addToCart(
       AddToCartRequest request, String? cartId) async {
     try {

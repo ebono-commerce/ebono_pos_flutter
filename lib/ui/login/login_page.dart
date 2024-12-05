@@ -133,7 +133,10 @@ class _LoginPageState extends State<LoginPage> {
                           Flexible(flex: 3, child: welcomeWidget(context)),
                           state is LoginSuccess ||
                                   state is GetOutletDetailsSuccess ||
-                                  state is SubmitTerminalDetailsSuccess
+                                  state is SubmitTerminalDetailsSuccess ||
+                                  state is GetOutletDetailsLoading ||
+                                  state is SubmitTerminalDetailsLoading ||
+                                  state is SubmitTerminalDetailsFailure
                               ? Flexible(
                                   flex: 2,
                                   child: storeDetailsWidget(context, loginBloc))
