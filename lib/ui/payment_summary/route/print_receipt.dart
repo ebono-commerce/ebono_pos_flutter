@@ -5,7 +5,6 @@ import 'package:ebono_pos/ui/payment_summary/model/receipt_json.dart';
 import 'package:ebono_pos/utils/price.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:get/get.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
@@ -653,20 +652,13 @@ Future<Uint8List> generatePdf(OrderSummaryResponse data) async {
 }
 
 void printOrderSummary(
-    OrderSummaryResponse orderSummaryResponse, BuildContext context) async {
+    OrderSummaryResponse orderSummaryResponse, Printer printer) async {
   final pdfBytes = await generatePdf(orderSummaryResponse);
-  if (context.mounted) {
-    Printer? selectedPrinter = await Printing.pickPrinter(context: context);
-    print('selected printer ${selectedPrinter?.name}');
+  await Printing.directPrintPdf(
+      printer: printer,
+      onLayout: (PdfPageFormat format) async {
+        final Uint8List cutPaperCommand = Uint8List.fromList([27, 105]);
+        return Uint8List.fromList([...pdfBytes, ...cutPaperCommand]);
+      });
 
-    await Printing.directPrintPdf(
-        printer: selectedPrinter!,
-        onLayout: (PdfPageFormat format) async {
-          final Uint8List cutPaperCommand = Uint8List.fromList([27, 105]);
-          return Uint8List.fromList([...pdfBytes, ...cutPaperCommand]);
-        });
-  }
-  else{
-    Get.snackbar('context not mounted', 'print order');
-  }
 }

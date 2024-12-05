@@ -20,4 +20,5 @@ class SharedPreferenceConstants {
   static final isEnableHoldCartEnabled = 'isEnableHoldCartEnabled';
   static final isPriceEditEnabled = 'isPriceEditEnabled';
   static final isSalesAssociateLinkEnabled = 'isSalesAssociateLinkEnabled';
+  static final selectedPrinter = 'selectedPrinter';
 }
