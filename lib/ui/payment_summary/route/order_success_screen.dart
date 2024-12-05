@@ -34,6 +34,7 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
   @override
   Widget build(BuildContext context) {
     theme = Theme.of(context);
+
     return BlocProvider(
       create: (context) => paymentBloc,
       child: BlocListener<PaymentBloc, PaymentState>(
@@ -91,7 +92,7 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                             ? () {
                                 homeController.initialResponse();
                                 printOrderSummary(
-                                    paymentBloc.orderSummaryResponse);
+                                    paymentBloc.orderSummaryResponse, context);
                                 Get.back();
                                 Get.back();
                               }
@@ -117,7 +118,7 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                             ? () {
                                 homeController.initialResponse();
                                 printOrderSummary(OrderSummaryResponse.fromJson(
-                                    json.decode(jsonData)));
+                                    json.decode(jsonData)), context);
                                 Get.back();
                                 Get.back();
                               }

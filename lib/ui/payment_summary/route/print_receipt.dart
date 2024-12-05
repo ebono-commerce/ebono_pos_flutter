@@ -5,6 +5,7 @@ import 'package:ebono_pos/ui/payment_summary/model/receipt_json.dart';
 import 'package:ebono_pos/utils/price.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get/get.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
@@ -87,14 +88,12 @@ Future<Uint8List> generatePdf(OrderSummaryResponse data) async {
                         font: font,
                       ),
                     ),
-                  ]
-              ),
-
+                  ]),
 
               pw.Divider(),
               pw.Container(
                 width: PdfPageFormat.roll80.availableWidth,
-                child:  pw.Column(
+                child: pw.Column(
                     crossAxisAlignment: pw.CrossAxisAlignment.start,
                     children: [
                       if (data.invoiceNumber?.isNotEmpty == true)
@@ -138,7 +137,6 @@ Future<Uint8List> generatePdf(OrderSummaryResponse data) async {
                       ),
                     ]),
               ),
-
 
               pw.Divider(),
               pw.Row(
@@ -587,7 +585,7 @@ Future<Uint8List> generatePdf(OrderSummaryResponse data) async {
                 ),
               pw.Container(
                 width: PdfPageFormat.roll80.availableWidth,
-                child:  pw.Column(
+                child: pw.Column(
                     crossAxisAlignment: pw.CrossAxisAlignment.start,
                     children: [
                       pw.Text(
@@ -599,13 +597,13 @@ Future<Uint8List> generatePdf(OrderSummaryResponse data) async {
                         ),
                       ),
                       pw.Text(
-                      'Website: ${data.contactDetails?.website}',
-                      style: pw.TextStyle(
-                        fontSize: 8,
-                        fontWeight: pw.FontWeight.bold,
-                        font: font,
+                        'Website: ${data.contactDetails?.website}',
+                        style: pw.TextStyle(
+                          fontSize: 8,
+                          fontWeight: pw.FontWeight.bold,
+                          font: font,
+                        ),
                       ),
-                    ),
                       pw.Text(
                         'Contact Us Email: ${data.contactDetails?.emailId}',
                         style: pw.TextStyle(
@@ -622,8 +620,8 @@ Future<Uint8List> generatePdf(OrderSummaryResponse data) async {
                           fontWeight: pw.FontWeight.bold,
                           font: font,
                         ),
-                      ),]
-                ),
+                      ),
+                    ]),
               ),
               ...?data.termsAndConditions?.map((term) => pw.Container(
                     child: pw.Text(
@@ -654,18 +652,21 @@ Future<Uint8List> generatePdf(OrderSummaryResponse data) async {
   return pdf.save();
 }
 
-void printOrderSummary(OrderSummaryResponse orderSummaryResponse, BuildContext context) async {
+void printOrderSummary(
+    OrderSummaryResponse orderSummaryResponse, BuildContext context) async {
   final pdfBytes = await generatePdf(orderSummaryResponse);
+  if (context.mounted) {
+    Printer? selectedPrinter = await Printing.pickPrinter(context: context);
+    print('selected printer ${selectedPrinter?.name}');
 
-  Printer? myPrinter = await Printing.pickPrinter(bounds: null, context: context);
-  print(myPrinter?.name);
-
-  // Print without showing preview
-  await Printing.directPrintPdf(printer: myPrinter!, onLayout: (PdfPageFormat format) async {
-    // Add the ESC/POS command for cutting the paper
-    final Uint8List cutPaperCommand = Uint8List.fromList([27, 105]);
-
-    // Combine the PDF data with the cut command
-    return Uint8List.fromList([...pdfBytes, ...cutPaperCommand]);
-  });
+    await Printing.directPrintPdf(
+        printer: selectedPrinter!,
+        onLayout: (PdfPageFormat format) async {
+          final Uint8List cutPaperCommand = Uint8List.fromList([27, 105]);
+          return Uint8List.fromList([...pdfBytes, ...cutPaperCommand]);
+        });
+  }
+  else{
+    Get.snackbar('context not mounted', 'print order');
+  }
 }
