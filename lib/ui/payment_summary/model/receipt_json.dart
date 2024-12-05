@@ -15,16 +15,16 @@ const jsonData = '''
   "order_date": "23/12/2024, 12:00 PM",
   "payment_methods": "wallet, Cash",
   "customer": {
-    "customer_name": "Pankaj L",
+    "customer_name": "Jagath Ratchagan",
     "phone_number": {
       "country_code": "+91",
-      "number": "8315861337"
+      "number": "9597135456"
     }
   },
   "invoice_lines": [
     {
       "sku_code": "1006885062",
-      "sku_title": "Ashirvad Atta 10kg",
+      "sku_title": "Aashirvaad Shudh Chakki Atta, 10kg Pack",
       "quantity": {
         "quantity_number": "1",
         "quantity_uom": "pcs"
