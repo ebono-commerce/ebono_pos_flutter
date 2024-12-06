@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:ebono_pos/constants/custom_colors.dart';
 import 'package:ebono_pos/constants/shared_preference_constants.dart';
-import 'package:ebono_pos/data_store/get_storage_helper.dart';
 import 'package:ebono_pos/ui/Common_button.dart';
 import 'package:ebono_pos/ui/home/home_controller.dart';
 import 'package:ebono_pos/ui/payment_summary/bloc/payment_bloc.dart';
@@ -95,7 +94,7 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                             ? () async {
                                 try {
                                   Printer? selectedPrinter =
-                                      GetStorageHelper.read(
+                                      paymentBloc.getStorageHelper.read(
                                           SharedPreferenceConstants
                                               .selectedPrinter);
                                   homeController.initialResponse();
@@ -141,7 +140,7 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                             ? () async {
                                 try {
                                   Printer? selectedPrinter =
-                                      GetStorageHelper.read(
+                                  paymentBloc.getStorageHelper.read(
                                           SharedPreferenceConstants
                                               .selectedPrinter);
                                   homeController.initialResponse();
