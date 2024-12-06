@@ -105,7 +105,7 @@ class HomeController extends GetxController {
     if (Platform.isLinux) {
       initializeWeighingScale();
     }
-    initialResponse();
+  //  initialResponse();
     super.onInit();
   }
 
@@ -482,7 +482,7 @@ class HomeController extends GetxController {
 
   Future<void> healthCheckApiCall() async {
     _statusCheckTimer = Timer.periodic(
-      const Duration(seconds: 120),
+      const Duration(seconds: 600),
       (timer) async {
         try {
           final loginStatus = await sharedPreferenceHelper.getLoginStatus();
@@ -626,5 +626,11 @@ class HomeController extends GetxController {
     _statusCheckTimer?.cancel();
     digitalWeighingScale.dispose();
     super.onClose();
+  }
+
+  void clearDataAndLogout() {
+    sharedPreferenceHelper.clearAll();
+    GetStorageHelper.clear();
+    Get.offAllNamed(PageRoutes.login);
   }
 }

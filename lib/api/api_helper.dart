@@ -142,12 +142,20 @@ class ApiHelper {
         case dio.DioExceptionType.badResponse:
           final statusCode = error.response?.statusCode;
           final errorData = error.response?.data;
-          final errorMessage = errorData is Map<String, dynamic>
-              ? errorData['message'] ?? 'Unknown error'
-              : 'Unknown error';
-          return
-              // Exception("Received invalid status code: $statusCode. Error: $errorMessage");
-              Exception("$statusCode | $errorMessage");
+          String errorMessage = 'Unknown error';
+          if (errorData is Map<String, dynamic>) {
+            final errors = errorData["errors"];
+            if (errors is List && errors.isNotEmpty) {
+              final firstError = errors.first;
+              if (firstError is Map<String, dynamic>) {
+                errorMessage = firstError["message"] ?? 'Unknown error';
+              }
+            }
+          }
+
+          return Exception("$statusCode | $errorMessage");
+
+
 
         case dio.DioExceptionType.connectionError:
           return Exception(

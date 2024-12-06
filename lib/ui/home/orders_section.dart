@@ -231,6 +231,9 @@ class _OrdersSectionState extends State<OrdersSection>
                       'Action Disabled for this account', 'Please contact support');
                 }
               },
+              onInventoryInquiryPressed: (){
+                homeController.clearDataAndLogout();
+              },
               onSearchItemsPressed: () {
                 showDialog(
                   context: context,
