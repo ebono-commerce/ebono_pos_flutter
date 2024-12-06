@@ -142,6 +142,7 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
             }
             if (state.isPlaceOrderError) {
               Get.snackbar("Place Order Error", state.errorMessage ?? "");
+              paymentBloc.add(PaymentIdealEvent());
             }
           },
           child:
