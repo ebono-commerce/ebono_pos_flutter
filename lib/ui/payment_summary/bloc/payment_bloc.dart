@@ -299,7 +299,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
           paymentOptionId: onlinePaymentOption?.paymentOptionId,
           pspId: onlinePaymentOption?.pspId,
           requestId: p2pRequestId,
-          transactionReferenceId: '',
+          transactionReferenceId:paymentStatusResponse.txnId,
           amount: double.parse(onlinePayment),
         ));
       }
