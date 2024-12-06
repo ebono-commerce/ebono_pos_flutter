@@ -37,7 +37,11 @@ class _LoginPageState extends State<LoginPage> {
   final loginBloc = LoginBloc(
       Get.find<LoginRepository>(), Get.find<SharedPreferenceHelper>());
 
-  final GlobalKey<DropdownSearchState> dropDownKey =
+  final GlobalKey<DropdownSearchState> printerDropDownKey =
+  GlobalKey<DropdownSearchState>();
+  final GlobalKey<DropdownSearchState> portDropDownKey =
+  GlobalKey<DropdownSearchState>();
+  final GlobalKey<DropdownSearchState> outletDropDownKey =
       GlobalKey<DropdownSearchState>();
   final GlobalKey<DropdownSearchState> terminalDropDownKey =
       GlobalKey<DropdownSearchState>();
@@ -383,11 +387,11 @@ class _LoginPageState extends State<LoginPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             DropdownSearch<String>(
-              key: dropDownKey,
+              key: outletDropDownKey,
               items: (filter, infiniteScrollProps) => outletDetails,
               decoratorProps: DropDownDecoratorProps(
                   decoration: textFieldDecoration(
-                      isFocused: dropDownKey.currentState?.isFocused == true,
+                      isFocused: outletDropDownKey.currentState?.isFocused == true,
                       label: 'Enter Store Id')),
               onChanged: (value) {
                 if (value != null) {
@@ -602,12 +606,12 @@ class _LoginPageState extends State<LoginPage> {
           children: [
             availablePrinters.isNotEmpty
                 ? DropdownSearch<String>(
-                    key: dropDownKey,
+                    key: printerDropDownKey,
                     items: (filter, infiniteScrollProps) => availablePrinters,
                     decoratorProps: DropDownDecoratorProps(
                         decoration: textFieldDecoration(
                             isFocused:
-                                dropDownKey.currentState?.isFocused == true,
+                                printerDropDownKey.currentState?.isFocused == true,
                             label: 'Select the thermal printer')),
                     onChanged: (value) async {
                       if (value != null) {
@@ -633,12 +637,12 @@ class _LoginPageState extends State<LoginPage> {
             SizedBox(height: 20),
             availablePorts.isNotEmpty
                 ? DropdownSearch<String>(
-                    key: dropDownKey,
+                    key: portDropDownKey,
                     items: (filter, infiniteScrollProps) => availablePorts,
                     decoratorProps: DropDownDecoratorProps(
                         decoration: textFieldDecoration(
                             isFocused:
-                                dropDownKey.currentState?.isFocused == true,
+                                portDropDownKey.currentState?.isFocused == true,
                             label: 'Select weighing scale port')),
                     onChanged: (value) async {
                       if (value != null) {
