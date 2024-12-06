@@ -116,6 +116,8 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                                 } on Exception catch (e) {
                                   print(e);
                                 }
+                                Get.back();
+                                Get.back();
                               }
                             : null,
                         child: Text(

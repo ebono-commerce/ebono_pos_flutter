@@ -99,6 +99,7 @@ class HomeController extends GetxController {
 
   @override
   void onInit() async {
+
     _checkConnectivity();
     await readStorageData();
     if (Platform.isLinux) {

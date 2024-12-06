@@ -664,7 +664,7 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                       theme: theme,
                       textStyle: theme.textTheme.bodyMedium,
                       padding: EdgeInsets.all(12)),
-                  onPressed: ((balancePayableAmount <= 0 &&
+                  onPressed: ((balancePayableAmount == 0 &&
                           onlinePaymentTextController.value.text == ''))
                       ? () {
                           paymentBloc.add(PlaceOrderEvent());
