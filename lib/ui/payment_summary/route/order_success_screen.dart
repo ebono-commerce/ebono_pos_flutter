@@ -104,10 +104,6 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                                           json.decode(jsonData)),
                                       selectedPrinter);
                                 }
-                                else{
-                                  Get.snackbar('Printer not selected', 'please select the printer');
-                                }
-
                                 Get.back();
                                 Get.back();
                               }
@@ -141,9 +137,6 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                                       OrderSummaryResponse.fromJson(
                                           json.decode(jsonData)),
                                       selectedPrinter);
-                                }
-                                else{
-                                  Get.snackbar('Printer not selected', 'please select the printer');
                                 }
                                 Get.back();
                                 Get.back();
