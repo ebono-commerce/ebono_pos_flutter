@@ -66,6 +66,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
       initialState: false,
       isLoading: false,
       isPlaceOrderSuccess: false,
+      isPlaceOrderError: false,
     ));
   }
 
