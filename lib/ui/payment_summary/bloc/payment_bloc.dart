@@ -286,7 +286,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
         paymentMethods?.add(PaymentMethod(
           paymentOptionId: cashPaymentOption?.paymentOptionId,
           pspId: cashPaymentOption?.pspId,
-          requestId: p2pRequestId,
+          requestId: paymentSummaryRequest.cartId,
           amount: double.parse(cashPayment),
         ));
       }
