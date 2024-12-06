@@ -138,11 +138,10 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
             if (state.isPlaceOrderSuccess) {
               paymentBloc.add(PaymentIdealEvent());
               _showOrderSuccessDialog();
-              print('opeining dialog order ');
             }
             if (state.isPlaceOrderError) {
-              Get.snackbar("Place Order Error", state.errorMessage ?? "");
               paymentBloc.add(PaymentIdealEvent());
+              Get.snackbar("Place Order Error", state.errorMessage ?? "");
             }
           },
           child:
@@ -184,7 +183,7 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                 ),
                 state.isLoading
                     ? Center(child: CircularProgressIndicator())
-                    : SizedBox(),
+                    : SizedBox(width: 1, height: 1,),
               ],
             );
           }),

@@ -93,19 +93,29 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                             padding: EdgeInsets.all(12)),
                         onPressed: !state.isLoading
                             ? () async {
-                                Printer? selectedPrinter =
-                                    GetStorageHelper.read(
-                                        SharedPreferenceConstants
-                                            .selectedPrinter);
-                                homeController.initialResponse();
-                                if(selectedPrinter != null){
-                                  printOrderSummary(
-                                      OrderSummaryResponse.fromJson(
-                                          json.decode(jsonData)),
-                                      selectedPrinter);
+                                try {
+                                  Printer? selectedPrinter =
+                                      GetStorageHelper.read(
+                                          SharedPreferenceConstants
+                                              .selectedPrinter);
+                                  homeController.initialResponse();
+                                  if (selectedPrinter != null) {
+                                    printOrderSummary(
+                                        paymentBloc.orderSummaryResponse,
+                                        selectedPrinter);
+                                  } else {
+                                    selectedPrinter =
+                                        await Printing.pickPrinter(
+                                            context: context);
+                                    if (selectedPrinter != null) {
+                                      printOrderSummary(
+                                          paymentBloc.orderSummaryResponse,
+                                          selectedPrinter);
+                                    }
+                                  }
+                                } on Exception catch (e) {
+                                  print(e);
                                 }
-                                Get.back();
-                                Get.back();
                               }
                             : null,
                         child: Text(
@@ -127,16 +137,30 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                       child: ElevatedButton(
                         onPressed: !state.isLoading
                             ? () async {
-                                Printer? selectedPrinter =
-                                    GetStorageHelper.read(
-                                        SharedPreferenceConstants
-                                            .selectedPrinter);
-                                homeController.initialResponse();
-                                if(selectedPrinter != null){
-                                  printOrderSummary(
-                                      OrderSummaryResponse.fromJson(
-                                          json.decode(jsonData)),
-                                      selectedPrinter);
+                                try {
+                                  Printer? selectedPrinter =
+                                      GetStorageHelper.read(
+                                          SharedPreferenceConstants
+                                              .selectedPrinter);
+                                  homeController.initialResponse();
+                                  if (selectedPrinter != null) {
+                                    printOrderSummary(
+                                        OrderSummaryResponse.fromJson(
+                                            json.decode(jsonData)),
+                                        selectedPrinter);
+                                  } else {
+                                    selectedPrinter =
+                                        await Printing.pickPrinter(
+                                            context: context);
+                                    if (selectedPrinter != null) {
+                                      printOrderSummary(
+                                          OrderSummaryResponse.fromJson(
+                                              json.decode(jsonData)),
+                                          selectedPrinter);
+                                    }
+                                  }
+                                } on Exception catch (e) {
+                                  print(e);
                                 }
                                 Get.back();
                                 Get.back();
