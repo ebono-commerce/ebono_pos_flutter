@@ -1,13 +1,14 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get/get.dart';
 import 'package:ebono_pos/constants/custom_colors.dart';
+import 'package:ebono_pos/data_store/get_storage_helper.dart';
 import 'package:ebono_pos/data_store/shared_preference_helper.dart';
 import 'package:ebono_pos/navigation/page_routes.dart';
 import 'package:ebono_pos/ui/login/bloc/login_bloc.dart';
 import 'package:ebono_pos/ui/login/bloc/login_event.dart';
 import 'package:ebono_pos/ui/login/bloc/login_state.dart';
 import 'package:ebono_pos/ui/login/repository/login_repository.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get/get.dart';
 
 class LogoutButton extends StatefulWidget {
    const LogoutButton({super.key});
@@ -19,7 +20,7 @@ class LogoutButton extends StatefulWidget {
 class _LogoutButtonState extends State<LogoutButton> {
 
   final loginBloc = LoginBloc(
-      Get.find<LoginRepository>(), Get.find<SharedPreferenceHelper>());
+      Get.find<LoginRepository>(), Get.find<SharedPreferenceHelper>(), Get.find<GetStorageHelper>());
 
   @override
   Widget build(BuildContext context) {

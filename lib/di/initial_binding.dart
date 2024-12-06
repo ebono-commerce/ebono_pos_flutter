@@ -15,7 +15,6 @@ class InitialBinding extends Bindings {
     Get.put<SharedPreferenceHelper>(SharedPreferenceHelper());
     Get.put<GetStorageHelper>(GetStorageHelper());
 
-
     // Register ApiHelper as a singleton
     Get.put<ApiHelper>(
         ApiHelper(ApiConstants.baseUrl, Get.find<SharedPreferenceHelper>()));
@@ -30,9 +29,7 @@ class InitialBinding extends Bindings {
         Get.find<LoginRepository>(), Get.find<SharedPreferenceHelper>()));*/
     // Register HomeController as a singleton
 
-     Get.lazyPut<HomeController>(() => HomeController(
-        Get.find<HomeRepository>(),
-        Get.find<SharedPreferenceHelper>(),
-      ));
+    Get.lazyPut<HomeController>(() => HomeController(Get.find<HomeRepository>(),
+        Get.find<SharedPreferenceHelper>(), Get.find<GetStorageHelper>()));
   }
 }

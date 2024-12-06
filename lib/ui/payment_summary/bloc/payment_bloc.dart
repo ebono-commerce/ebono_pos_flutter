@@ -20,6 +20,7 @@ import 'package:get/get.dart';
 
 class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
   final PaymentRepository _paymentRepository;
+  final GetStorageHelper getStorageHelper;
   Timer? _timer;
   late PaymentSummaryRequest paymentSummaryRequest;
   late PaymentSummaryResponse paymentSummaryResponse;
@@ -42,7 +43,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
   double balancePayable = 0;
   bool allowPlaceOrder = false;
 
-  PaymentBloc(this._paymentRepository) : super(PaymentState()) {
+  PaymentBloc(this._paymentRepository, this.getStorageHelper) : super(PaymentState()) {
     on<PaymentInitialEvent>(_onInitial);
     on<FetchPaymentSummary>(_fetchPaymentSummary);
     on<PaymentStartEvent>(_paymentInitiateApi);
@@ -105,14 +106,14 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
       "amount": onlinePayment,
       "externalRefNumber": "${random.nextInt(10)}",
       "customerName":
-          "${GetStorageHelper.read(SharedPreferenceConstants.sessionCustomerName)}",
+          "${getStorageHelper.read(SharedPreferenceConstants.sessionCustomerName)}",
       "customerEmail": "",
       "customerMobileNumber":
-          "${GetStorageHelper.read(SharedPreferenceConstants.sessionCustomerNumber)}",
+          "${getStorageHelper.read(SharedPreferenceConstants.sessionCustomerNumber)}",
       "is_emi": false,
       //"terminal_id": "10120",demo account
       "terminal_id":
-          "${GetStorageHelper.read(SharedPreferenceConstants.selectedTerminalId)}",
+          "${getStorageHelper.read(SharedPreferenceConstants.selectedTerminalId)}",
       "username": "2211202100",
       "appKey": "eaa762ba-08ac-41d6-b6d3-38f754ed1572",
       "pushTo": {"deviceId": "0821387918|ezetap_android"}

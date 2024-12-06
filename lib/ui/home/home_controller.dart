@@ -33,8 +33,9 @@ import 'package:get/get.dart';
 class HomeController extends GetxController {
   late final HomeRepository _homeRepository;
   final SharedPreferenceHelper sharedPreferenceHelper;
+  final GetStorageHelper getStorageHelper;
 
-  HomeController(this._homeRepository, this.sharedPreferenceHelper);
+  HomeController(this._homeRepository, this.sharedPreferenceHelper, this.getStorageHelper);
 
   Timer? _statusCheckTimer;
 
@@ -112,33 +113,33 @@ class HomeController extends GetxController {
   Future<void> readStorageData() async {
     portName.value = await sharedPreferenceHelper.getPortName() ?? '';
     selectedOutlet.value =
-        GetStorageHelper.read(SharedPreferenceConstants.selectedOutletName);
+        getStorageHelper.read(SharedPreferenceConstants.selectedOutletName);
     selectedOutletId =
-        GetStorageHelper.read(SharedPreferenceConstants.selectedOutletId);
+        getStorageHelper.read(SharedPreferenceConstants.selectedOutletId);
     selectedTerminalId =
-        GetStorageHelper.read(SharedPreferenceConstants.selectedTerminalId);
+        getStorageHelper.read(SharedPreferenceConstants.selectedTerminalId);
     selectedTerminal.value =
-        GetStorageHelper.read(SharedPreferenceConstants.selectedTerminalName);
+        getStorageHelper.read(SharedPreferenceConstants.selectedTerminalName);
     selectedPosMode.value =
-        GetStorageHelper.read(SharedPreferenceConstants.selectedPosMode);
+        getStorageHelper.read(SharedPreferenceConstants.selectedPosMode);
     customerProxyNumber.value =
-        GetStorageHelper.read(SharedPreferenceConstants.customerProxyNumber);
+        getStorageHelper.read(SharedPreferenceConstants.customerProxyNumber);
 
     registerId.value =
-        GetStorageHelper.read(SharedPreferenceConstants.registerId);
+        getStorageHelper.read(SharedPreferenceConstants.registerId);
 
     isQuantityEditEnabled.value =
-        GetStorageHelper.read(SharedPreferenceConstants.isQuantityEditEnabled);
+        getStorageHelper.read(SharedPreferenceConstants.isQuantityEditEnabled);
     isLineDeleteEnabled.value =
-        GetStorageHelper.read(SharedPreferenceConstants.isLineDeleteEnabled);
-    isEnableHoldCartEnabled.value = GetStorageHelper.read(
+        getStorageHelper.read(SharedPreferenceConstants.isLineDeleteEnabled);
+    isEnableHoldCartEnabled.value = getStorageHelper.read(
         SharedPreferenceConstants.isEnableHoldCartEnabled);
     isPriceEditEnabled.value =
-        GetStorageHelper.read(SharedPreferenceConstants.isPriceEditEnabled);
-    isSalesAssociateLinkEnabled.value = GetStorageHelper.read(
+        getStorageHelper.read(SharedPreferenceConstants.isPriceEditEnabled);
+    isSalesAssociateLinkEnabled.value = getStorageHelper.read(
         SharedPreferenceConstants.isSalesAssociateLinkEnabled);
     final userDetailsData =
-        GetStorageHelper.read(SharedPreferenceConstants.userDetails);
+        getStorageHelper.read(SharedPreferenceConstants.userDetails);
     if (userDetailsData != null && userDetailsData is Map<String, dynamic>) {
       userDetails.value = UserDetails.fromJson(userDetailsData);
       print(userDetails.value.toJson());
@@ -320,9 +321,9 @@ class HomeController extends GetxController {
           outletId: selectedOutletId));
       customerResponse.value = response;
 
-      GetStorageHelper.save(SharedPreferenceConstants.sessionCustomerNumber,
+      getStorageHelper.save(SharedPreferenceConstants.sessionCustomerNumber,
           "${customerResponse.value.phoneNumber?.countryCode}${customerResponse.value.phoneNumber?.number}");
-      GetStorageHelper.save(SharedPreferenceConstants.sessionCustomerName,
+      getStorageHelper.save(SharedPreferenceConstants.sessionCustomerName,
           customerResponse.value.customerName);
 
       if (cartId.value.isNotEmpty && isCustomerProxySelected.value) {
@@ -330,7 +331,7 @@ class HomeController extends GetxController {
         isCustomerProxySelected.value = false;
       } else {
         cartId.value = customerResponse.value.cartId.toString();
-        GetStorageHelper.save(SharedPreferenceConstants.cartId, cartId.value);
+        getStorageHelper.save(SharedPreferenceConstants.cartId, cartId.value);
         fetchCartDetails();
       }
     } catch (e) {
@@ -468,7 +469,7 @@ class HomeController extends GetxController {
           cartId.value,
           ResumeHoldCartRequest(
               terminalId:
-                  "${GetStorageHelper.read(SharedPreferenceConstants.selectedTerminalId)}",
+                  "${getStorageHelper.read(SharedPreferenceConstants.selectedTerminalId)}",
               holdCartId: id));
       generalSuccessResponse.value = response;
       if (generalSuccessResponse.value == true) {
@@ -516,13 +517,13 @@ class HomeController extends GetxController {
     try {
       var response = await _homeRepository.openRegister(RegisterOpenRequest(
           outletId:
-              "${GetStorageHelper.read(SharedPreferenceConstants.selectedOutletId)}",
+              "${getStorageHelper.read(SharedPreferenceConstants.selectedOutletId)}",
           terminalId:
-              "${GetStorageHelper.read(SharedPreferenceConstants.selectedTerminalId)}",
+              "${getStorageHelper.read(SharedPreferenceConstants.selectedTerminalId)}",
           userId: userId,
           floatCash: int.tryParse(openFloatPayment.value)));
       openRegisterResponse.value = response;
-      GetStorageHelper.save(SharedPreferenceConstants.registerId,
+      getStorageHelper.save(SharedPreferenceConstants.registerId,
           openRegisterResponse.value.registerId ?? "");
       registerId.value = openRegisterResponse.value.registerId ?? "";
       openFloatPayment.value = '';
@@ -540,11 +541,11 @@ class HomeController extends GetxController {
     try {
       var response = await _homeRepository.closeRegister(RegisterCloseRequest(
         outletId:
-            "${GetStorageHelper.read(SharedPreferenceConstants.selectedOutletId)}",
+            "${getStorageHelper.read(SharedPreferenceConstants.selectedOutletId)}",
         registerId:
-            "${GetStorageHelper.read(SharedPreferenceConstants.registerId)}",
+            "${getStorageHelper.read(SharedPreferenceConstants.registerId)}",
         terminalId:
-            "${GetStorageHelper.read(SharedPreferenceConstants.selectedTerminalId)}",
+            "${getStorageHelper.read(SharedPreferenceConstants.selectedTerminalId)}",
         userId: userId,
         cardTransactionSummary: TransactionSummary(
             chargeSlipCount: int.tryParse(cardPaymentCount.value),
@@ -566,7 +567,7 @@ class HomeController extends GetxController {
       ));
       closeRegisterResponse.value = response;
       if (closeRegisterResponse.value.success == true) {
-        GetStorageHelper.save(SharedPreferenceConstants.registerId, "");
+        getStorageHelper.save(SharedPreferenceConstants.registerId, "");
         registerId.value = "";
         upiPayment.value = '';
         upiPaymentCount.value = '';
@@ -606,7 +607,7 @@ class HomeController extends GetxController {
     try {
       var response = await _homeRepository.ordersOnHold(OrdersOnHoldRequest(
           outletId:
-              "${GetStorageHelper.read(SharedPreferenceConstants.selectedOutletId)}"));
+              "${getStorageHelper.read(SharedPreferenceConstants.selectedOutletId)}"));
       ordersOnHoldResponse.value = response;
       if (ordersOnHoldResponse.value.data != null) {
         ordersOnHold.clear();
@@ -630,7 +631,7 @@ class HomeController extends GetxController {
 
   void clearDataAndLogout() {
     sharedPreferenceHelper.clearAll();
-    GetStorageHelper.clear();
+    getStorageHelper.clear();
     Get.offAllNamed(PageRoutes.login);
   }
 }

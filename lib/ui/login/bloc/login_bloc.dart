@@ -19,6 +19,7 @@ import 'package:uuid/uuid.dart';
 class LoginBloc extends Bloc<LoginEvent, LoginState> {
   final LoginRepository _loginRepository;
   final SharedPreferenceHelper _sharedPreferenceHelper;
+  final GetStorageHelper getStorageHelper;
   List<OutletDetail> outletDetails = [];
   List<String> outletList = [];
   List<Terminal> terminalDetails = [];
@@ -54,7 +55,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     },
   };
 
-  LoginBloc(this._loginRepository, this._sharedPreferenceHelper)
+  LoginBloc(this._loginRepository, this._sharedPreferenceHelper, this.getStorageHelper)
       : super(LoginInitial()) {
     on<LoginInitialEvent>(_onLoginInitial);
     on<SelectPort>(_onPortSelection);
@@ -92,7 +93,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       SelectPrinter event, Emitter<LoginState> emit) async {
     for (var i in availablePrintersDetails) {
       if (event.printer == i.name) {
-        GetStorageHelper.save(
+        getStorageHelper.save(
             SharedPreferenceConstants.selectedPrinter, i);
       }
     }
@@ -116,7 +117,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
 
       _sharedPreferenceHelper.storeAuthToken(response.token);
       _sharedPreferenceHelper.storeUserID(response.userDetails.userId);
-      GetStorageHelper.save(
+      getStorageHelper.save(
           SharedPreferenceConstants.userDetails, response.userDetails);
 
       outletDetails = response.outletDetails;
@@ -124,9 +125,9 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
         outletList.add(i.name);
       }
       selectedOutletId = response.outletDetails.first.outletId;
-      GetStorageHelper.save(SharedPreferenceConstants.selectedOutletId,
+      getStorageHelper.save(SharedPreferenceConstants.selectedOutletId,
           response.outletDetails.first.outletId);
-      GetStorageHelper.save(SharedPreferenceConstants.selectedOutletName,
+      getStorageHelper.save(SharedPreferenceConstants.selectedOutletName,
           response.outletDetails.first.name);
       emit(LoginSuccess());
     } catch (error) {
@@ -139,11 +140,11 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     emit(LoginLoading());
     try {
       var selectedOutlet =
-          GetStorageHelper.read(SharedPreferenceConstants.selectedOutletId);
+          getStorageHelper.read(SharedPreferenceConstants.selectedOutletId);
       var selectedTerminal =
-          GetStorageHelper.read(SharedPreferenceConstants.selectedTerminalId);
+          getStorageHelper.read(SharedPreferenceConstants.selectedTerminalId);
       var selectedPosMode =
-          GetStorageHelper.read(SharedPreferenceConstants.selectedPosMode);
+          getStorageHelper.read(SharedPreferenceConstants.selectedPosMode);
       final LogoutResponse response = await _loginRepository.logout(
           request: LogoutRequest(
               outletId: selectedOutlet,
@@ -151,7 +152,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
               posMode: selectedPosMode));
 
       _sharedPreferenceHelper.clearAll();
-      GetStorageHelper.clear();
+      getStorageHelper.clear();
       emit(LogoutSuccess());
     } catch (error) {
       emit(LogoutFailure(error.toString()));
@@ -172,9 +173,9 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
           await _loginRepository.getOutletDetails(selectedOutletId);
 
       _sharedPreferenceHelper.storeSelectedOutlet(response.outletId ?? "");
-      GetStorageHelper.save(
+      getStorageHelper.save(
           SharedPreferenceConstants.selectedOutletName, event.outletName);
-      GetStorageHelper.save(
+      getStorageHelper.save(
           SharedPreferenceConstants.selectedOutletId, response.outletId);
       terminalDetails = response.terminals ?? [];
       terminalList.clear();
@@ -185,16 +186,16 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
           }
         }
         selectedTerminalId = response.terminals?.first.terminalId ?? '';
-        GetStorageHelper.save(SharedPreferenceConstants.selectedTerminalId,
+        getStorageHelper.save(SharedPreferenceConstants.selectedTerminalId,
             response.terminals?.first.terminalId);
-        GetStorageHelper.save(SharedPreferenceConstants.selectedTerminalName,
+        getStorageHelper.save(SharedPreferenceConstants.selectedTerminalName,
             response.terminals?.first.terminalName);
       }
       final allowedPosModes = response.allowedPosModes;
       if (allowedPosModes != null) {
         allowedPos.clear();
         allowedPos.addAll(allowedPosModes);
-        GetStorageHelper.save(
+        getStorageHelper.save(
             SharedPreferenceConstants.selectedPosMode, allowedPosModes.first);
       }
       emit(GetOutletDetailsSuccess());
@@ -205,7 +206,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
 
   _selectPosMode(SelectPosMode event, Emitter<LoginState> emit) {
     selectedPosMode = event.posMode;
-    GetStorageHelper.save(
+    getStorageHelper.save(
         SharedPreferenceConstants.selectedPosMode, event.posMode);
   }
 
@@ -216,9 +217,9 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       }
     }
     print('selected terminal ${event.terminalName}');
-    GetStorageHelper.save(
+    getStorageHelper.save(
         SharedPreferenceConstants.selectedTerminalName, event.terminalName);
-    GetStorageHelper.save(
+    getStorageHelper.save(
         SharedPreferenceConstants.selectedTerminalId, selectedTerminalId);
   }
 
@@ -234,21 +235,21 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
               userId: userId ?? '',
               posMode: selectedPosMode));
       _sharedPreferenceHelper.storeLoginStatus(true);
-      GetStorageHelper.save(SharedPreferenceConstants.customerProxyNumber,
+      getStorageHelper.save(SharedPreferenceConstants.customerProxyNumber,
           response.outletDetails?.outletCustomerProxyPhoneNumber);
-      GetStorageHelper.save(SharedPreferenceConstants.registerId,
+      getStorageHelper.save(SharedPreferenceConstants.registerId,
           response.registerDetails?.registerId ?? "");
-      GetStorageHelper.save(SharedPreferenceConstants.customerProxyNumber,
+      getStorageHelper.save(SharedPreferenceConstants.customerProxyNumber,
           response.outletDetails?.outletCustomerProxyPhoneNumber);
-      GetStorageHelper.save(SharedPreferenceConstants.isQuantityEditEnabled,
+      getStorageHelper.save(SharedPreferenceConstants.isQuantityEditEnabled,
           response.outletDetails?.quantityEditMode);
-      GetStorageHelper.save(SharedPreferenceConstants.isLineDeleteEnabled,
+      getStorageHelper.save(SharedPreferenceConstants.isLineDeleteEnabled,
           response.outletDetails?.lineDeleteMode);
-      GetStorageHelper.save(SharedPreferenceConstants.isEnableHoldCartEnabled,
+      getStorageHelper.save(SharedPreferenceConstants.isEnableHoldCartEnabled,
           response.outletDetails?.enableHoldCartMode);
-      GetStorageHelper.save(SharedPreferenceConstants.isPriceEditEnabled,
+      getStorageHelper.save(SharedPreferenceConstants.isPriceEditEnabled,
           response.outletDetails?.priceEditMode);
-      GetStorageHelper.save(
+      getStorageHelper.save(
           SharedPreferenceConstants.isSalesAssociateLinkEnabled,
           response.outletDetails?.salesAssociateLink);
 
