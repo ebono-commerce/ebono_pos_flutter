@@ -133,7 +133,6 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
             }
             if (state.isPaymentStatusSuccess) {
               onlinePaymentTextController.text = '';
-              Get.back();
             }
             if (state.isPlaceOrderSuccess) {
               paymentBloc.add(PaymentIdealEvent());
