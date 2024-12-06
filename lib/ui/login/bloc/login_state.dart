@@ -6,6 +6,8 @@ class ReadPortSuccess extends LoginState {}
 
 class PortSelectionSuccess extends LoginState {}
 
+class PrinterSelectionSuccess extends LoginState {}
+
 class LoginLoading extends LoginState {}
 
 class LoginSuccess extends LoginState {}

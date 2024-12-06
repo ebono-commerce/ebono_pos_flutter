@@ -1,4 +1,3 @@
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ebono_pos/constants/shared_preference_constants.dart';
 import 'package:ebono_pos/data_store/get_storage_helper.dart';
 import 'package:ebono_pos/data_store/shared_preference_helper.dart';
@@ -12,7 +11,9 @@ import 'package:ebono_pos/ui/login/model/logout_response.dart';
 import 'package:ebono_pos/ui/login/model/outlet_details_response.dart';
 import 'package:ebono_pos/ui/login/model/terminal_details_response.dart';
 import 'package:ebono_pos/ui/login/repository/login_repository.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:libserialport/libserialport.dart';
+import 'package:printing/printing.dart';
 import 'package:uuid/uuid.dart';
 
 class LoginBloc extends Bloc<LoginEvent, LoginState> {
@@ -27,6 +28,8 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
   String selectedPosMode = 'POS';
   List<String> allowedPos = [];
   List<String> availablePorts = [];
+  List<Printer> availablePrintersDetails = [];
+  List<String> availablePrinters = [];
 
   Map<String, Map<String, String>> allowedPosData = {
     'POS': {
@@ -55,6 +58,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       : super(LoginInitial()) {
     on<LoginInitialEvent>(_onLoginInitial);
     on<SelectPort>(_onPortSelection);
+    on<SelectPrinter>(_onPrinterSelection);
     on<LoginButtonPressed>(_onLoginButtonPressed);
     on<LogoutButtonPressed>(_onLogoutButtonPressed);
     on<GetOutletDetails>(_getOutletDetails);
@@ -66,6 +70,11 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
   Future<void> _onLoginInitial(
       LoginInitialEvent event, Emitter<LoginState> emit) async {
     availablePorts = SerialPort.availablePorts;
+    //Printer? selectedPrinter = await Printing.pickPrinter(context: context);
+    availablePrintersDetails = await Printing.listPrinters();
+    for (var i in availablePrintersDetails) {
+      availablePrinters.add(i.name);
+    }
     print('Available ports:');
     _sharedPreferenceHelper.storePortName(availablePorts.first);
 
@@ -77,6 +86,18 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     _sharedPreferenceHelper.storePortName(event.port);
 
     emit(PortSelectionSuccess());
+  }
+
+  Future<void> _onPrinterSelection(
+      SelectPrinter event, Emitter<LoginState> emit) async {
+    for (var i in availablePrintersDetails) {
+      if (event.printer == i.name) {
+        GetStorageHelper.save(
+            SharedPreferenceConstants.selectedPrinter, i);
+      }
+    }
+
+    emit(PrinterSelectionSuccess());
   }
 
   Future<void> _onLoginButtonPressed(
@@ -217,18 +238,19 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
           response.outletDetails?.outletCustomerProxyPhoneNumber);
       GetStorageHelper.save(SharedPreferenceConstants.registerId,
           response.registerDetails?.registerId ?? "");
+      GetStorageHelper.save(SharedPreferenceConstants.customerProxyNumber,
+          response.outletDetails?.outletCustomerProxyPhoneNumber);
+      GetStorageHelper.save(SharedPreferenceConstants.isQuantityEditEnabled,
+          response.outletDetails?.quantityEditMode);
+      GetStorageHelper.save(SharedPreferenceConstants.isLineDeleteEnabled,
+          response.outletDetails?.lineDeleteMode);
+      GetStorageHelper.save(SharedPreferenceConstants.isEnableHoldCartEnabled,
+          response.outletDetails?.enableHoldCartMode);
+      GetStorageHelper.save(SharedPreferenceConstants.isPriceEditEnabled,
+          response.outletDetails?.priceEditMode);
       GetStorageHelper.save(
-          SharedPreferenceConstants.customerProxyNumber, response.outletDetails?.outletCustomerProxyPhoneNumber);
-      GetStorageHelper.save(
-          SharedPreferenceConstants.isQuantityEditEnabled, response.outletDetails?.quantityEditMode);
-      GetStorageHelper.save(
-          SharedPreferenceConstants.isLineDeleteEnabled, response.outletDetails?.lineDeleteMode);
-      GetStorageHelper.save(
-          SharedPreferenceConstants.isEnableHoldCartEnabled, response.outletDetails?.enableHoldCartMode);
-      GetStorageHelper.save(
-          SharedPreferenceConstants.isPriceEditEnabled, response.outletDetails?.priceEditMode);
-      GetStorageHelper.save(
-          SharedPreferenceConstants.isSalesAssociateLinkEnabled, response.outletDetails?.salesAssociateLink);
+          SharedPreferenceConstants.isSalesAssociateLinkEnabled,
+          response.outletDetails?.salesAssociateLink);
 
       emit(SubmitTerminalDetailsSuccess());
     } catch (error) {
