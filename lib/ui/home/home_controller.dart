@@ -141,14 +141,19 @@ class HomeController extends GetxController {
     isSalesAssociateLinkEnabled.value = hiveStorageHelper.read(
         SharedPreferenceConstants.isSalesAssociateLinkEnabled);
 
-    final userDetailsData = hiveStorageHelper.read<Map<String, dynamic>>(SharedPreferenceConstants.userDetails);
 
+    final userData = hiveStorageHelper.read(SharedPreferenceConstants.userDetails);
 
-    if (userDetailsData != null) {
+    if (userData != null && userData is Map) {
+      // Convert Map<dynamic, dynamic> to Map<String, dynamic>
+      final userDetailsData = userData.map(
+            (key, value) => MapEntry(key.toString(), value),
+      );
+
       userDetails.value = UserDetails.fromJson(userDetailsData); // Deserialize JSON to UserDetails
       print(userDetails.value.toJson());
     } else {
-      userDetails.value =  UserDetails(fullName: '', userType: '', userId: '');
+      userDetails.value = UserDetails(fullName: '', userType: '', userId: '');
       print('No user details found');
     }
   }
