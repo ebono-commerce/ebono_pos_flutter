@@ -1,13 +1,17 @@
 import 'package:dio/dio.dart';
 import 'package:ebono_pos/api/api_constants.dart';
+import 'package:ebono_pos/data_store/get_storage_helper.dart';
+import 'package:ebono_pos/data_store/hive_storage_helper.dart';
 import 'package:ebono_pos/data_store/shared_preference_helper.dart';
 import 'package:ebono_pos/navigation/page_routes.dart';
 import 'package:get/get.dart';
 
 class AuthInterceptor extends Interceptor {
   final SharedPreferenceHelper _sharedPreferenceHelper;
+  final GetStorageHelper getStorageHelper;
+  final HiveStorageHelper hiveStorageHelper;
 
-  AuthInterceptor(this._sharedPreferenceHelper);
+  AuthInterceptor(this._sharedPreferenceHelper, this.getStorageHelper, this.hiveStorageHelper);
 
   @override
   Future<void> onRequest(
@@ -49,8 +53,9 @@ class AuthInterceptor extends Interceptor {
       print('Token expired or unauthorized');
       bool isLoggedIn = await _sharedPreferenceHelper.getLoginStatus() ?? false;
       if (isLoggedIn) {
-       /* _sharedPreferenceHelper.clearAll();
-        GetStorageHelper.clear();*/
+        _sharedPreferenceHelper.clearAll();
+        getStorageHelper.clear();
+        hiveStorageHelper.clear();
         Get.offAllNamed(PageRoutes.login);
       }
     }

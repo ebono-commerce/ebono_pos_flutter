@@ -1,5 +1,6 @@
 import 'package:ebono_pos/constants/custom_colors.dart';
 import 'package:ebono_pos/data_store/get_storage_helper.dart';
+import 'package:ebono_pos/data_store/hive_storage_helper.dart';
 import 'package:ebono_pos/data_store/shared_preference_helper.dart';
 import 'package:ebono_pos/navigation/page_routes.dart';
 import 'package:ebono_pos/ui/login/bloc/login_bloc.dart';
@@ -20,7 +21,7 @@ class LogoutButton extends StatefulWidget {
 class _LogoutButtonState extends State<LogoutButton> {
 
   final loginBloc = LoginBloc(
-      Get.find<LoginRepository>(), Get.find<SharedPreferenceHelper>(), Get.find<GetStorageHelper>());
+      Get.find<LoginRepository>(), Get.find<SharedPreferenceHelper>(), Get.find<GetStorageHelper>(), Get.find<HiveStorageHelper>());
 
   @override
   Widget build(BuildContext context) {

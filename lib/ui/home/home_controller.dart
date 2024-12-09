@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:ebono_pos/constants/shared_preference_constants.dart';
 import 'package:ebono_pos/data_store/get_storage_helper.dart';
+import 'package:ebono_pos/data_store/hive_storage_helper.dart';
 import 'package:ebono_pos/data_store/shared_preference_helper.dart';
 import 'package:ebono_pos/models/cart_response.dart';
 import 'package:ebono_pos/models/customer_response.dart';
@@ -34,8 +35,9 @@ class HomeController extends GetxController {
   late final HomeRepository _homeRepository;
   final SharedPreferenceHelper sharedPreferenceHelper;
   final GetStorageHelper getStorageHelper;
+  final HiveStorageHelper hiveStorageHelper;
 
-  HomeController(this._homeRepository, this.sharedPreferenceHelper, this.getStorageHelper);
+  HomeController(this._homeRepository, this.sharedPreferenceHelper, this.getStorageHelper, this.hiveStorageHelper);
 
   Timer? _statusCheckTimer;
 
@@ -113,39 +115,41 @@ class HomeController extends GetxController {
   Future<void> readStorageData() async {
     portName.value = await sharedPreferenceHelper.getPortName() ?? '';
     selectedOutlet.value =
-        getStorageHelper.read(SharedPreferenceConstants.selectedOutletName);
+        hiveStorageHelper.read(SharedPreferenceConstants.selectedOutletName);
     selectedOutletId =
-        getStorageHelper.read(SharedPreferenceConstants.selectedOutletId);
+        hiveStorageHelper.read(SharedPreferenceConstants.selectedOutletId);
     selectedTerminalId =
-        getStorageHelper.read(SharedPreferenceConstants.selectedTerminalId);
+        hiveStorageHelper.read(SharedPreferenceConstants.selectedTerminalId);
     selectedTerminal.value =
-        getStorageHelper.read(SharedPreferenceConstants.selectedTerminalName);
+        hiveStorageHelper.read(SharedPreferenceConstants.selectedTerminalName);
     selectedPosMode.value =
-        getStorageHelper.read(SharedPreferenceConstants.selectedPosMode);
+        hiveStorageHelper.read(SharedPreferenceConstants.selectedPosMode);
     customerProxyNumber.value =
-        getStorageHelper.read(SharedPreferenceConstants.customerProxyNumber);
+        hiveStorageHelper.read(SharedPreferenceConstants.customerProxyNumber);
 
     registerId.value =
-        getStorageHelper.read(SharedPreferenceConstants.registerId);
+        hiveStorageHelper.read(SharedPreferenceConstants.registerId);
 
     isQuantityEditEnabled.value =
-        getStorageHelper.read(SharedPreferenceConstants.isQuantityEditEnabled);
+        hiveStorageHelper.read(SharedPreferenceConstants.isQuantityEditEnabled);
     isLineDeleteEnabled.value =
-        getStorageHelper.read(SharedPreferenceConstants.isLineDeleteEnabled);
-    isEnableHoldCartEnabled.value = getStorageHelper.read(
+        hiveStorageHelper.read(SharedPreferenceConstants.isLineDeleteEnabled);
+    isEnableHoldCartEnabled.value = hiveStorageHelper.read(
         SharedPreferenceConstants.isEnableHoldCartEnabled);
     isPriceEditEnabled.value =
-        getStorageHelper.read(SharedPreferenceConstants.isPriceEditEnabled);
-    isSalesAssociateLinkEnabled.value = getStorageHelper.read(
+        hiveStorageHelper.read(SharedPreferenceConstants.isPriceEditEnabled);
+    isSalesAssociateLinkEnabled.value = hiveStorageHelper.read(
         SharedPreferenceConstants.isSalesAssociateLinkEnabled);
-    final userDetailsData =
-        getStorageHelper.read(SharedPreferenceConstants.userDetails);
-    if (userDetailsData != null && userDetailsData is Map<String, dynamic>) {
-      userDetails.value = UserDetails.fromJson(userDetailsData);
+
+    final userDetailsData = hiveStorageHelper.read<Map<String, dynamic>>(SharedPreferenceConstants.userDetails);
+
+
+    if (userDetailsData != null) {
+      userDetails.value = UserDetails.fromJson(userDetailsData); // Deserialize JSON to UserDetails
       print(userDetails.value.toJson());
     } else {
-      userDetails.value = userDetailsData;
-      print(userDetails.value.toJson());
+      userDetails.value =  UserDetails(fullName: '', userType: '', userId: '');
+      print('No user details found');
     }
   }
 
@@ -321,9 +325,9 @@ class HomeController extends GetxController {
           outletId: selectedOutletId));
       customerResponse.value = response;
 
-      getStorageHelper.save(SharedPreferenceConstants.sessionCustomerNumber,
+      hiveStorageHelper.save(SharedPreferenceConstants.sessionCustomerNumber,
           "${customerResponse.value.phoneNumber?.countryCode}${customerResponse.value.phoneNumber?.number}");
-      getStorageHelper.save(SharedPreferenceConstants.sessionCustomerName,
+      hiveStorageHelper.save(SharedPreferenceConstants.sessionCustomerName,
           customerResponse.value.customerName);
 
       if (cartId.value.isNotEmpty && isCustomerProxySelected.value) {
@@ -331,7 +335,7 @@ class HomeController extends GetxController {
         isCustomerProxySelected.value = false;
       } else {
         cartId.value = customerResponse.value.cartId.toString();
-        getStorageHelper.save(SharedPreferenceConstants.cartId, cartId.value);
+        hiveStorageHelper.save(SharedPreferenceConstants.cartId, cartId.value);
         fetchCartDetails();
       }
     } catch (e) {
@@ -469,7 +473,7 @@ class HomeController extends GetxController {
           cartId.value,
           ResumeHoldCartRequest(
               terminalId:
-                  "${getStorageHelper.read(SharedPreferenceConstants.selectedTerminalId)}",
+                  "${hiveStorageHelper.read(SharedPreferenceConstants.selectedTerminalId)}",
               holdCartId: id));
       generalSuccessResponse.value = response;
       if (generalSuccessResponse.value == true) {
@@ -517,13 +521,13 @@ class HomeController extends GetxController {
     try {
       var response = await _homeRepository.openRegister(RegisterOpenRequest(
           outletId:
-              "${getStorageHelper.read(SharedPreferenceConstants.selectedOutletId)}",
+              "${hiveStorageHelper.read(SharedPreferenceConstants.selectedOutletId)}",
           terminalId:
-              "${getStorageHelper.read(SharedPreferenceConstants.selectedTerminalId)}",
+              "${hiveStorageHelper.read(SharedPreferenceConstants.selectedTerminalId)}",
           userId: userId,
           floatCash: int.tryParse(openFloatPayment.value)));
       openRegisterResponse.value = response;
-      getStorageHelper.save(SharedPreferenceConstants.registerId,
+      hiveStorageHelper.save(SharedPreferenceConstants.registerId,
           openRegisterResponse.value.registerId ?? "");
       registerId.value = openRegisterResponse.value.registerId ?? "";
       openFloatPayment.value = '';
@@ -541,11 +545,11 @@ class HomeController extends GetxController {
     try {
       var response = await _homeRepository.closeRegister(RegisterCloseRequest(
         outletId:
-            "${getStorageHelper.read(SharedPreferenceConstants.selectedOutletId)}",
+            "${hiveStorageHelper.read(SharedPreferenceConstants.selectedOutletId)}",
         registerId:
-            "${getStorageHelper.read(SharedPreferenceConstants.registerId)}",
+            "${hiveStorageHelper.read(SharedPreferenceConstants.registerId)}",
         terminalId:
-            "${getStorageHelper.read(SharedPreferenceConstants.selectedTerminalId)}",
+            "${hiveStorageHelper.read(SharedPreferenceConstants.selectedTerminalId)}",
         userId: userId,
         cardTransactionSummary: TransactionSummary(
             chargeSlipCount: int.tryParse(cardPaymentCount.value),
@@ -567,7 +571,7 @@ class HomeController extends GetxController {
       ));
       closeRegisterResponse.value = response;
       if (closeRegisterResponse.value.success == true) {
-        getStorageHelper.save(SharedPreferenceConstants.registerId, "");
+        hiveStorageHelper.save(SharedPreferenceConstants.registerId, "");
         registerId.value = "";
         upiPayment.value = '';
         upiPaymentCount.value = '';
@@ -607,7 +611,7 @@ class HomeController extends GetxController {
     try {
       var response = await _homeRepository.ordersOnHold(OrdersOnHoldRequest(
           outletId:
-              "${getStorageHelper.read(SharedPreferenceConstants.selectedOutletId)}"));
+              "${hiveStorageHelper.read(SharedPreferenceConstants.selectedOutletId)}"));
       ordersOnHoldResponse.value = response;
       if (ordersOnHoldResponse.value.data != null) {
         ordersOnHold.clear();
@@ -632,6 +636,7 @@ class HomeController extends GetxController {
   void clearDataAndLogout() {
     sharedPreferenceHelper.clearAll();
     getStorageHelper.clear();
+    hiveStorageHelper.clear();
     Get.offAllNamed(PageRoutes.login);
   }
 }

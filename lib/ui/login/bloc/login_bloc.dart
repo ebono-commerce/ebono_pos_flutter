@@ -1,5 +1,6 @@
 import 'package:ebono_pos/constants/shared_preference_constants.dart';
 import 'package:ebono_pos/data_store/get_storage_helper.dart';
+import 'package:ebono_pos/data_store/hive_storage_helper.dart';
 import 'package:ebono_pos/data_store/shared_preference_helper.dart';
 import 'package:ebono_pos/ui/login/bloc/login_event.dart';
 import 'package:ebono_pos/ui/login/bloc/login_state.dart';
@@ -20,6 +21,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
   final LoginRepository _loginRepository;
   final SharedPreferenceHelper _sharedPreferenceHelper;
   final GetStorageHelper getStorageHelper;
+  final HiveStorageHelper hiveStorageHelper;
   List<OutletDetail> outletDetails = [];
   List<String> outletList = [];
   List<Terminal> terminalDetails = [];
@@ -55,7 +57,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     },
   };
 
-  LoginBloc(this._loginRepository, this._sharedPreferenceHelper, this.getStorageHelper)
+  LoginBloc(this._loginRepository, this._sharedPreferenceHelper, this.getStorageHelper, this.hiveStorageHelper)
       : super(LoginInitial()) {
     on<LoginInitialEvent>(_onLoginInitial);
     on<SelectPort>(_onPortSelection);
@@ -93,8 +95,8 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       SelectPrinter event, Emitter<LoginState> emit) async {
     for (var i in availablePrintersDetails) {
       if (event.printer == i.name) {
-        getStorageHelper.save(
-            SharedPreferenceConstants.selectedPrinter, i);
+        hiveStorageHelper.save(
+            SharedPreferenceConstants.selectedPrinter, i.toMap());
       }
     }
 
@@ -117,17 +119,17 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
 
       _sharedPreferenceHelper.storeAuthToken(response.token);
       _sharedPreferenceHelper.storeUserID(response.userDetails.userId);
-      getStorageHelper.save(
-          SharedPreferenceConstants.userDetails, response.userDetails);
+      hiveStorageHelper.save(
+          SharedPreferenceConstants.userDetails, response.userDetails.toJson());
 
       outletDetails = response.outletDetails;
       for (var i in outletDetails) {
         outletList.add(i.name);
       }
       selectedOutletId = response.outletDetails.first.outletId;
-      getStorageHelper.save(SharedPreferenceConstants.selectedOutletId,
+      hiveStorageHelper.save(SharedPreferenceConstants.selectedOutletId,
           response.outletDetails.first.outletId);
-      getStorageHelper.save(SharedPreferenceConstants.selectedOutletName,
+      hiveStorageHelper.save(SharedPreferenceConstants.selectedOutletName,
           response.outletDetails.first.name);
       emit(LoginSuccess());
     } catch (error) {
@@ -140,11 +142,11 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     emit(LoginLoading());
     try {
       var selectedOutlet =
-          getStorageHelper.read(SharedPreferenceConstants.selectedOutletId);
+          hiveStorageHelper.read(SharedPreferenceConstants.selectedOutletId);
       var selectedTerminal =
-          getStorageHelper.read(SharedPreferenceConstants.selectedTerminalId);
+          hiveStorageHelper.read(SharedPreferenceConstants.selectedTerminalId);
       var selectedPosMode =
-          getStorageHelper.read(SharedPreferenceConstants.selectedPosMode);
+          hiveStorageHelper.read(SharedPreferenceConstants.selectedPosMode);
       final LogoutResponse response = await _loginRepository.logout(
           request: LogoutRequest(
               outletId: selectedOutlet,
@@ -152,7 +154,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
               posMode: selectedPosMode));
 
       _sharedPreferenceHelper.clearAll();
-      getStorageHelper.clear();
+      hiveStorageHelper.clear();
       emit(LogoutSuccess());
     } catch (error) {
       emit(LogoutFailure(error.toString()));
@@ -173,9 +175,9 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
           await _loginRepository.getOutletDetails(selectedOutletId);
 
       _sharedPreferenceHelper.storeSelectedOutlet(response.outletId ?? "");
-      getStorageHelper.save(
+      hiveStorageHelper.save(
           SharedPreferenceConstants.selectedOutletName, event.outletName);
-      getStorageHelper.save(
+      hiveStorageHelper.save(
           SharedPreferenceConstants.selectedOutletId, response.outletId);
       terminalDetails = response.terminals ?? [];
       terminalList.clear();
@@ -186,16 +188,16 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
           }
         }
         selectedTerminalId = response.terminals?.first.terminalId ?? '';
-        getStorageHelper.save(SharedPreferenceConstants.selectedTerminalId,
+        hiveStorageHelper.save(SharedPreferenceConstants.selectedTerminalId,
             response.terminals?.first.terminalId);
-        getStorageHelper.save(SharedPreferenceConstants.selectedTerminalName,
+        hiveStorageHelper.save(SharedPreferenceConstants.selectedTerminalName,
             response.terminals?.first.terminalName);
       }
       final allowedPosModes = response.allowedPosModes;
       if (allowedPosModes != null) {
         allowedPos.clear();
         allowedPos.addAll(allowedPosModes);
-        getStorageHelper.save(
+        hiveStorageHelper.save(
             SharedPreferenceConstants.selectedPosMode, allowedPosModes.first);
       }
       emit(GetOutletDetailsSuccess());
@@ -206,7 +208,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
 
   _selectPosMode(SelectPosMode event, Emitter<LoginState> emit) {
     selectedPosMode = event.posMode;
-    getStorageHelper.save(
+    hiveStorageHelper.save(
         SharedPreferenceConstants.selectedPosMode, event.posMode);
   }
 
@@ -217,9 +219,9 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       }
     }
     print('selected terminal ${event.terminalName}');
-    getStorageHelper.save(
+    hiveStorageHelper.save(
         SharedPreferenceConstants.selectedTerminalName, event.terminalName);
-    getStorageHelper.save(
+    hiveStorageHelper.save(
         SharedPreferenceConstants.selectedTerminalId, selectedTerminalId);
   }
 
@@ -235,21 +237,21 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
               userId: userId ?? '',
               posMode: selectedPosMode));
       _sharedPreferenceHelper.storeLoginStatus(true);
-      getStorageHelper.save(SharedPreferenceConstants.customerProxyNumber,
+      hiveStorageHelper.save(SharedPreferenceConstants.customerProxyNumber,
           response.outletDetails?.outletCustomerProxyPhoneNumber);
-      getStorageHelper.save(SharedPreferenceConstants.registerId,
+      hiveStorageHelper.save(SharedPreferenceConstants.registerId,
           response.registerDetails?.registerId ?? "");
-      getStorageHelper.save(SharedPreferenceConstants.customerProxyNumber,
+      hiveStorageHelper.save(SharedPreferenceConstants.customerProxyNumber,
           response.outletDetails?.outletCustomerProxyPhoneNumber);
-      getStorageHelper.save(SharedPreferenceConstants.isQuantityEditEnabled,
+      hiveStorageHelper.save(SharedPreferenceConstants.isQuantityEditEnabled,
           response.outletDetails?.quantityEditMode);
-      getStorageHelper.save(SharedPreferenceConstants.isLineDeleteEnabled,
+      hiveStorageHelper.save(SharedPreferenceConstants.isLineDeleteEnabled,
           response.outletDetails?.lineDeleteMode);
-      getStorageHelper.save(SharedPreferenceConstants.isEnableHoldCartEnabled,
+      hiveStorageHelper.save(SharedPreferenceConstants.isEnableHoldCartEnabled,
           response.outletDetails?.enableHoldCartMode);
-      getStorageHelper.save(SharedPreferenceConstants.isPriceEditEnabled,
+      hiveStorageHelper.save(SharedPreferenceConstants.isPriceEditEnabled,
           response.outletDetails?.priceEditMode);
-      getStorageHelper.save(
+      hiveStorageHelper.save(
           SharedPreferenceConstants.isSalesAssociateLinkEnabled,
           response.outletDetails?.salesAssociateLink);
 

@@ -1,3 +1,4 @@
+import 'package:ebono_pos/data_store/hive_storage_helper.dart';
 import 'package:ebono_pos/navigation/navigation.dart';
 import 'package:ebono_pos/theme/theme_data.dart';
 import 'package:ebono_pos/utils/SDP.dart';
@@ -21,6 +22,7 @@ void main() async {
     await windowManager.show();
   });*/
   await GetStorage.init();
+  await HiveStorageHelper.init();
   runApp(const MyApp());
 }
 

@@ -93,10 +93,14 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                         onPressed: !state.isLoading
                             ? () async {
                                 try {
-                                  Printer? selectedPrinter =
-                                      paymentBloc.getStorageHelper.read(
-                                          SharedPreferenceConstants
-                                              .selectedPrinter);
+                                  Printer? selectedPrinter;
+
+                                  final printerData = paymentBloc.hiveStorageHelper.read<Map<dynamic, dynamic>>(
+                                    SharedPreferenceConstants.selectedPrinter,
+                                  );
+                                  if (printerData != null) {
+                                    selectedPrinter = Printer.fromMap(printerData); // Convert Map back to Printer
+                                  }
                                   homeController.initialResponse();
                                   if (selectedPrinter != null) {
                                     printOrderSummary(
@@ -139,10 +143,14 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                         onPressed: !state.isLoading
                             ? () async {
                                 try {
-                                  Printer? selectedPrinter =
-                                  paymentBloc.getStorageHelper.read(
-                                          SharedPreferenceConstants
-                                              .selectedPrinter);
+                                  Printer? selectedPrinter;
+
+                                  final printerData = paymentBloc.hiveStorageHelper.read<Map<dynamic, dynamic>>(
+                                    SharedPreferenceConstants.selectedPrinter,
+                                  );
+                                  if (printerData != null) {
+                                    selectedPrinter = Printer.fromMap(printerData); // Convert Map back to Printer
+                                  }
                                   homeController.initialResponse();
                                   if (selectedPrinter != null) {
                                     printOrderSummary(

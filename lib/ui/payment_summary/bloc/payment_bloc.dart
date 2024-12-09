@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:ebono_pos/constants/shared_preference_constants.dart';
 import 'package:ebono_pos/data_store/get_storage_helper.dart';
+import 'package:ebono_pos/data_store/hive_storage_helper.dart';
 import 'package:ebono_pos/ui/payment_summary/bloc/payment_event.dart';
 import 'package:ebono_pos/ui/payment_summary/bloc/payment_state.dart';
 import 'package:ebono_pos/ui/payment_summary/model/order_summary_response.dart';
@@ -21,6 +22,8 @@ import 'package:get/get.dart';
 class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
   final PaymentRepository _paymentRepository;
   final GetStorageHelper getStorageHelper;
+  final HiveStorageHelper hiveStorageHelper;
+
   Timer? _timer;
   late PaymentSummaryRequest paymentSummaryRequest;
   late PaymentSummaryResponse paymentSummaryResponse;
@@ -43,7 +46,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
   double balancePayable = 0;
   bool allowPlaceOrder = false;
 
-  PaymentBloc(this._paymentRepository, this.getStorageHelper) : super(PaymentState()) {
+  PaymentBloc(this._paymentRepository, this.getStorageHelper, this.hiveStorageHelper) : super(PaymentState()) {
     on<PaymentInitialEvent>(_onInitial);
     on<FetchPaymentSummary>(_fetchPaymentSummary);
     on<PaymentStartEvent>(_paymentInitiateApi);
@@ -106,14 +109,14 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
       "amount": onlinePayment,
       "externalRefNumber": "${random.nextInt(10)}",
       "customerName":
-          "${getStorageHelper.read(SharedPreferenceConstants.sessionCustomerName)}",
+          "${hiveStorageHelper.read(SharedPreferenceConstants.sessionCustomerName)}",
       "customerEmail": "",
       "customerMobileNumber":
-          "${getStorageHelper.read(SharedPreferenceConstants.sessionCustomerNumber)}",
+          "${hiveStorageHelper.read(SharedPreferenceConstants.sessionCustomerNumber)}",
       "is_emi": false,
       //"terminal_id": "10120",demo account
       "terminal_id":
-          "${getStorageHelper.read(SharedPreferenceConstants.selectedTerminalId)}",
+          "${hiveStorageHelper.read(SharedPreferenceConstants.selectedTerminalId)}",
       "username": "2211202100",
       "appKey": "eaa762ba-08ac-41d6-b6d3-38f754ed1572",
       "pushTo": {"deviceId": "0821387918|ezetap_android"}
