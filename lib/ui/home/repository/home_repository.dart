@@ -147,7 +147,8 @@ class HomeRepository {
         '${ApiConstants.clearFullCart}$cartId/clear',
         data: {},
       );
-      final generalResponse = generalSuccessResponseFromJson(jsonEncode(response));
+      final generalResponse =
+          generalSuccessResponseFromJson(jsonEncode(response));
       return generalResponse;
     } catch (e) {
       throw Exception('Failed to parse data');
@@ -169,16 +170,15 @@ class HomeRepository {
     }
   }
 
-  Future<GeneralSuccessResponse> resumeHoldCart(
+  Future<CartResponse> resumeHoldCart(
       String cartId, ResumeHoldCartRequest request) async {
     try {
       final response = await _apiHelper.post(
         ApiConstants.resumeHoldCart,
         data: request.toJson(),
       );
-      final generalResponse =
-          generalSuccessResponseFromJson(jsonEncode(response));
-      return generalResponse;
+      final cartResponse = cartResponseFromJson(jsonEncode(response));
+      return cartResponse;
     } catch (e) {
       throw Exception('Failed to parse data');
     }

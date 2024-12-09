@@ -469,8 +469,8 @@ class HomeController extends GetxController {
               terminalId:
                   "${GetStorageHelper.read(SharedPreferenceConstants.selectedTerminalId)}",
               holdCartId: id));
-      generalSuccessResponse.value = response;
-      if (generalSuccessResponse.value == true) {
+      cartResponse.value = response;
+      if (cartResponse.value != null) {
         clearHoldCartOrders();
         selectedTabButton.value = 2;
       }

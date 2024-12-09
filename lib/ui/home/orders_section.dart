@@ -11,6 +11,7 @@ import 'package:ebono_pos/ui/home/widgets/coupon_code_widget.dart';
 import 'package:ebono_pos/ui/home/widgets/multiple_mrp_widget.dart';
 import 'package:ebono_pos/ui/home/widgets/quick_action_buttons.dart';
 import 'package:ebono_pos/ui/payment_summary/model/payment_summary_request.dart';
+import 'package:ebono_pos/ui/search/search_widget.dart';
 import 'package:ebono_pos/utils/auth_modes.dart';
 import 'package:ebono_pos/utils/common_methods.dart';
 import 'package:ebono_pos/utils/dash_line.dart';
@@ -68,7 +69,6 @@ class _OrdersSectionState extends State<OrdersSection>
 
     WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-
       ever(homeController.scanProductsResponse, (value) {
         if (value.skuCode != null) {
           scanTextController.clear();
@@ -97,7 +97,6 @@ class _OrdersSectionState extends State<OrdersSection>
 
     super.initState();
   }
-
 
   /*@override
   void dispose() {
@@ -130,8 +129,8 @@ class _OrdersSectionState extends State<OrdersSection>
                         } else {
                           return _buildRegisterClosed(context,
                               onPressed: () async {
-                                homeController.selectedTabButton.value = 1;
-                              });
+                            homeController.selectedTabButton.value = 1;
+                          });
                         }
                       }),
                     )
@@ -160,9 +159,8 @@ class _OrdersSectionState extends State<OrdersSection>
                 );
               },
               onHoldCartPressed: () {
-                AuthModes enableHoldCartMode =
-                    AuthModeExtension.fromString(
-                        homeController.isEnableHoldCartEnabled.value);
+                AuthModes enableHoldCartMode = AuthModeExtension.fromString(
+                    homeController.isEnableHoldCartEnabled.value);
                 if (enableHoldCartMode == AuthModes.enabled) {
                   homeController.holdCartApiCall();
                 } else if (enableHoldCartMode == AuthModes.authorised) {
@@ -178,8 +176,8 @@ class _OrdersSectionState extends State<OrdersSection>
                     },
                   );
                 } else {
-                  Get.snackbar(
-                      'Action Disabled for this account', 'Please contact support');
+                  Get.snackbar('Action Disabled for this account',
+                      'Please contact support');
                 }
               },
               onSalesAssociatePressed: () {
@@ -209,9 +207,8 @@ class _OrdersSectionState extends State<OrdersSection>
                 );
               },
               onClearCartPressed: () {
-                AuthModes enableHoldCartMode =
-                    AuthModeExtension.fromString(
-                        homeController.isEnableHoldCartEnabled.value);
+                AuthModes enableHoldCartMode = AuthModeExtension.fromString(
+                    homeController.isEnableHoldCartEnabled.value);
                 if (enableHoldCartMode == AuthModes.enabled) {
                   homeController.clearFullCart();
                 } else if (enableHoldCartMode == AuthModes.authorised) {
@@ -227,8 +224,8 @@ class _OrdersSectionState extends State<OrdersSection>
                     },
                   );
                 } else {
-                  Get.snackbar(
-                      'Action Disabled for this account', 'Please contact support');
+                  Get.snackbar('Action Disabled for this account',
+                      'Please contact support');
                 }
               },
               onSearchItemsPressed: () {
@@ -239,7 +236,7 @@ class _OrdersSectionState extends State<OrdersSection>
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20.0),
                       ),
-                      child: MultipleMrpWidget(context),
+                      child: SearchWidget(context),
                     );
                   },
                 );
@@ -494,8 +491,8 @@ class _OrdersSectionState extends State<OrdersSection>
                   ),
                 );
               } else {
-                Get.snackbar(
-                    'Action Disabled for this account', 'Please contact support');
+                Get.snackbar('Action Disabled for this account',
+                    'Please contact support');
               }
             }),
       ),
@@ -670,33 +667,34 @@ class _OrdersSectionState extends State<OrdersSection>
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 8.0),
                           child: commonTextField(
-                            label: ' Enter Code, Quantity ',
-                            focusNode:
-                                (homeController.cartId.value.isNotEmpty &&
-                                        homeController.registerId.isNotEmpty)
-                                    ? scanFocusNode
-                                    : FocusNode(),
-                            readOnly: (homeController.cartId.value.isNotEmpty &&
-                                    homeController.registerId.isNotEmpty)
-                                ? false
-                                : true,
-                            controller:
-                                (homeController.cartId.value.isNotEmpty &&
-                                        homeController.registerId.isNotEmpty)
-                                    ? scanTextController
-                                    : TextEditingController(),
-                            onValueChanged: (text){
-                              if (activeFocusNode == scanFocusNode) {
-                                if (homeController.cartId.value.isNotEmpty &&
-                                    homeController.registerId.isNotEmpty) {
-                                  print("common field onValueChanged text: $text");
-                                  if (isValidOfferId(text)) {
-                                    homeController.scanApiCall(text.trim());
+                              label: ' Enter Code, Quantity ',
+                              focusNode:
+                                  (homeController.cartId.value.isNotEmpty &&
+                                          homeController.registerId.isNotEmpty)
+                                      ? scanFocusNode
+                                      : FocusNode(),
+                              readOnly:
+                                  (homeController.cartId.value.isNotEmpty &&
+                                          homeController.registerId.isNotEmpty)
+                                      ? false
+                                      : true,
+                              controller:
+                                  (homeController.cartId.value.isNotEmpty &&
+                                          homeController.registerId.isNotEmpty)
+                                      ? scanTextController
+                                      : TextEditingController(),
+                              onValueChanged: (text) {
+                                if (activeFocusNode == scanFocusNode) {
+                                  if (homeController.cartId.value.isNotEmpty &&
+                                      homeController.registerId.isNotEmpty) {
+                                    print(
+                                        "common field onValueChanged text: $text");
+                                    if (isValidOfferId(text)) {
+                                      homeController.scanApiCall(text.trim());
+                                    }
                                   }
                                 }
-                              }
-                            }
-                          ),
+                              }),
                         ),
                         CustomNumPad(
                           focusNode: activeFocusNode!,
