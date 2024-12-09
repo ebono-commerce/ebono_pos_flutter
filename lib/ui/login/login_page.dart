@@ -1,6 +1,5 @@
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:ebono_pos/constants/custom_colors.dart';
-import 'package:ebono_pos/data_store/get_storage_helper.dart';
 import 'package:ebono_pos/data_store/hive_storage_helper.dart';
 import 'package:ebono_pos/data_store/shared_preference_helper.dart';
 import 'package:ebono_pos/navigation/page_routes.dart';
@@ -37,7 +36,7 @@ class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
 
   final loginBloc = LoginBloc(
-      Get.find<LoginRepository>(), Get.find<SharedPreferenceHelper>(), Get.find<GetStorageHelper>(), Get.find<HiveStorageHelper>());
+      Get.find<LoginRepository>(), Get.find<SharedPreferenceHelper>(), Get.find<HiveStorageHelper>());
 
   final GlobalKey<DropdownSearchState> printerDropDownKey =
   GlobalKey<DropdownSearchState>();

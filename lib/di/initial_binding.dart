@@ -1,6 +1,5 @@
 import 'package:ebono_pos/api/api_constants.dart';
 import 'package:ebono_pos/api/api_helper.dart';
-import 'package:ebono_pos/data_store/get_storage_helper.dart';
 import 'package:ebono_pos/data_store/hive_storage_helper.dart';
 import 'package:ebono_pos/data_store/shared_preference_helper.dart';
 import 'package:ebono_pos/ui/home/home_controller.dart';
@@ -14,12 +13,11 @@ class InitialBinding extends Bindings {
   void dependencies() {
     // Register SharedPreferenceHelper as a singleton
     Get.put<SharedPreferenceHelper>(SharedPreferenceHelper());
-    Get.put<GetStorageHelper>(GetStorageHelper());
     Get.put<HiveStorageHelper>(HiveStorageHelper());
 
     // Register ApiHelper as a singleton
     Get.put<ApiHelper>(
-        ApiHelper(ApiConstants.baseUrl, Get.find<SharedPreferenceHelper>(), Get.find<GetStorageHelper>(), Get.find<HiveStorageHelper>()));
+        ApiHelper(ApiConstants.baseUrl, Get.find<SharedPreferenceHelper>(), Get.find<HiveStorageHelper>()));
 
     //repo
     Get.put<LoginRepository>(LoginRepository(Get.find<ApiHelper>()));
@@ -32,6 +30,6 @@ class InitialBinding extends Bindings {
     // Register HomeController as a singleton
 
     Get.lazyPut<HomeController>(() => HomeController(Get.find<HomeRepository>(),
-        Get.find<SharedPreferenceHelper>(), Get.find<GetStorageHelper>(), Get.find<HiveStorageHelper>()));
+        Get.find<SharedPreferenceHelper>(), Get.find<HiveStorageHelper>()));
   }
 }

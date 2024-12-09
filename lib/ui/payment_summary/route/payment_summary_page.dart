@@ -1,5 +1,4 @@
 import 'package:ebono_pos/constants/custom_colors.dart';
-import 'package:ebono_pos/data_store/get_storage_helper.dart';
 import 'package:ebono_pos/data_store/hive_storage_helper.dart';
 import 'package:ebono_pos/navigation/page_routes.dart';
 import 'package:ebono_pos/ui/Common_button.dart';
@@ -30,7 +29,7 @@ class PaymentSummaryScreen extends StatefulWidget {
 }
 
 class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
-  final paymentBloc = Get.put(PaymentBloc(Get.find<PaymentRepository>(), Get.find<GetStorageHelper>(), Get.find<HiveStorageHelper>()));
+  final paymentBloc = Get.put(PaymentBloc(Get.find<PaymentRepository>(), Get.find<HiveStorageHelper>()));
   late ThemeData theme;
   String input = '';
   HomeController homeController = Get.find<HomeController>();

@@ -3,7 +3,6 @@ import 'dart:io';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:ebono_pos/constants/shared_preference_constants.dart';
-import 'package:ebono_pos/data_store/get_storage_helper.dart';
 import 'package:ebono_pos/data_store/hive_storage_helper.dart';
 import 'package:ebono_pos/data_store/shared_preference_helper.dart';
 import 'package:ebono_pos/models/cart_response.dart';
@@ -34,10 +33,9 @@ import 'package:get/get.dart';
 class HomeController extends GetxController {
   late final HomeRepository _homeRepository;
   final SharedPreferenceHelper sharedPreferenceHelper;
-  final GetStorageHelper getStorageHelper;
   final HiveStorageHelper hiveStorageHelper;
 
-  HomeController(this._homeRepository, this.sharedPreferenceHelper, this.getStorageHelper, this.hiveStorageHelper);
+  HomeController(this._homeRepository, this.sharedPreferenceHelper, this.hiveStorageHelper);
 
   Timer? _statusCheckTimer;
 
@@ -640,7 +638,6 @@ class HomeController extends GetxController {
 
   void clearDataAndLogout() {
     sharedPreferenceHelper.clearAll();
-    getStorageHelper.clear();
     hiveStorageHelper.clear();
     Get.offAllNamed(PageRoutes.login);
   }

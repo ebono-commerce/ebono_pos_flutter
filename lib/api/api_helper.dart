@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart' as dio;
-import 'package:ebono_pos/data_store/get_storage_helper.dart';
 import 'package:ebono_pos/data_store/hive_storage_helper.dart';
 import 'package:ebono_pos/data_store/shared_preference_helper.dart';
 
@@ -9,13 +8,12 @@ class ApiHelper {
   late dio.Dio _dio;
   final String _baseUrl;
   final SharedPreferenceHelper _sharedPreferenceHelper;
-  final GetStorageHelper getStorageHelper;
   final HiveStorageHelper hiveStorageHelper;
   // Singleton instance
   static ApiHelper? _instance;
 
   // Private constructor
-  ApiHelper._internal(this._baseUrl, this._sharedPreferenceHelper, this.getStorageHelper, this.hiveStorageHelper) {
+  ApiHelper._internal(this._baseUrl, this._sharedPreferenceHelper, this.hiveStorageHelper) {
     _dio = dio.Dio(dio.BaseOptions(
       baseUrl: _baseUrl,
       connectTimeout: const Duration(seconds: 30),
@@ -26,7 +24,7 @@ class ApiHelper {
       }
     ));
 
-    _dio.interceptors.add(AuthInterceptor(_sharedPreferenceHelper, getStorageHelper, hiveStorageHelper));
+    _dio.interceptors.add(AuthInterceptor(_sharedPreferenceHelper, hiveStorageHelper));
 
     _dio.interceptors.addAll([
       dio.LogInterceptor(
@@ -40,8 +38,8 @@ class ApiHelper {
 
   // Factory constructor to return the same instance
   factory ApiHelper(
-      String baseUrl, SharedPreferenceHelper sharedPreferenceHelper, GetStorageHelper getStorageHelper, HiveStorageHelper hiveStorageHelper) {
-    _instance ??= ApiHelper._internal(baseUrl, sharedPreferenceHelper, getStorageHelper, hiveStorageHelper);
+      String baseUrl, SharedPreferenceHelper sharedPreferenceHelper, HiveStorageHelper hiveStorageHelper) {
+    _instance ??= ApiHelper._internal(baseUrl, sharedPreferenceHelper, hiveStorageHelper);
     return _instance!;
   }
 

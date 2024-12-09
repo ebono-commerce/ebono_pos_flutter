@@ -1,5 +1,4 @@
 import 'package:ebono_pos/constants/shared_preference_constants.dart';
-import 'package:ebono_pos/data_store/get_storage_helper.dart';
 import 'package:ebono_pos/data_store/hive_storage_helper.dart';
 import 'package:ebono_pos/data_store/shared_preference_helper.dart';
 import 'package:ebono_pos/ui/login/bloc/login_event.dart';
@@ -20,7 +19,6 @@ import 'package:uuid/uuid.dart';
 class LoginBloc extends Bloc<LoginEvent, LoginState> {
   final LoginRepository _loginRepository;
   final SharedPreferenceHelper _sharedPreferenceHelper;
-  final GetStorageHelper getStorageHelper;
   final HiveStorageHelper hiveStorageHelper;
   List<OutletDetail> outletDetails = [];
   List<String> outletList = [];
@@ -57,7 +55,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     },
   };
 
-  LoginBloc(this._loginRepository, this._sharedPreferenceHelper, this.getStorageHelper, this.hiveStorageHelper)
+  LoginBloc(this._loginRepository, this._sharedPreferenceHelper, this.hiveStorageHelper)
       : super(LoginInitial()) {
     on<LoginInitialEvent>(_onLoginInitial);
     on<SelectPort>(_onPortSelection);
