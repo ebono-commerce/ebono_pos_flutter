@@ -58,6 +58,7 @@ class PaymentRepository {
           paymentStatusResponseFromJson(jsonEncode(response));
       return paymentStatusResponse;
     } catch (e) {
+      print('payment status api error $e');
       throw Exception(e);
     }
   }

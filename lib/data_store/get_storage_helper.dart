@@ -1,30 +1,42 @@
 import 'package:get_storage/get_storage.dart';
 
 class GetStorageHelper {
-  static final GetStorage _storage = GetStorage();
+  // Private constructor to prevent external instantiation
+  GetStorageHelper._internal();
+
+  // Static instance for the singleton
+  static final GetStorageHelper _instance = GetStorageHelper._internal();
+
+  // Factory constructor to return the singleton instance
+  factory GetStorageHelper() {
+    return _instance;
+  }
+
+  // The GetStorage instance
+  final GetStorage _storage = GetStorage();
 
   // Save a value
-  static Future<void> save(String key, dynamic value) async {
+  Future<void> save(String key, dynamic value) async {
     await _storage.write(key, value);
   }
 
   // Retrieve a value
-  static T? read<T>(String key) {
+  T? read<T>(String key) {
     return _storage.read<T>(key);
   }
 
   // Check if a key exists
-  static bool has(String key) {
+  bool has(String key) {
     return _storage.hasData(key);
   }
 
   // Remove a specific key
-  static Future<void> remove(String key) async {
+  Future<void> remove(String key) async {
     await _storage.remove(key);
   }
 
   // Clear all data
-  static Future<void> clear() async {
+  Future<void> clear() async {
     await _storage.erase();
   }
 }

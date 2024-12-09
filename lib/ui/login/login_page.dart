@@ -1,7 +1,6 @@
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:ebono_pos/constants/custom_colors.dart';
-import 'package:ebono_pos/constants/shared_preference_constants.dart';
-import 'package:ebono_pos/data_store/get_storage_helper.dart';
+import 'package:ebono_pos/data_store/hive_storage_helper.dart';
 import 'package:ebono_pos/data_store/shared_preference_helper.dart';
 import 'package:ebono_pos/navigation/page_routes.dart';
 import 'package:ebono_pos/ui/common_text_field.dart';
@@ -14,7 +13,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
-import 'package:printing/printing.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -38,9 +36,13 @@ class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
 
   final loginBloc = LoginBloc(
-      Get.find<LoginRepository>(), Get.find<SharedPreferenceHelper>());
+      Get.find<LoginRepository>(), Get.find<SharedPreferenceHelper>(), Get.find<HiveStorageHelper>());
 
-  final GlobalKey<DropdownSearchState> dropDownKey =
+  final GlobalKey<DropdownSearchState> printerDropDownKey =
+  GlobalKey<DropdownSearchState>();
+  final GlobalKey<DropdownSearchState> portDropDownKey =
+  GlobalKey<DropdownSearchState>();
+  final GlobalKey<DropdownSearchState> outletDropDownKey =
       GlobalKey<DropdownSearchState>();
   final GlobalKey<DropdownSearchState> terminalDropDownKey =
       GlobalKey<DropdownSearchState>();
@@ -130,7 +132,7 @@ class _LoginPageState extends State<LoginPage> {
                     mainAxisSize: MainAxisSize.max,
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      state is PortSelectionSuccess ? SizedBox() : SizedBox(),
+                      state is PortSelectionSuccess || state is PrinterSelectionSuccess ? SizedBox() : SizedBox(),
                       Row(
                         children: [
                           Flexible(flex: 3, child: welcomeWidget(context)),
@@ -154,7 +156,7 @@ class _LoginPageState extends State<LoginPage> {
                           Flexible(flex: 1, child: SizedBox())
                         ],
                       ),
-                      state is PortSelectionSuccess || state is LoginFailure
+                      state is PortSelectionSuccess || state is PrinterSelectionSuccess || state is LoginFailure
                           ? Container(
                               width: MediaQuery.of(context).size.width,
                               color: Colors.white,
@@ -386,11 +388,11 @@ class _LoginPageState extends State<LoginPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             DropdownSearch<String>(
-              key: dropDownKey,
+              key: outletDropDownKey,
               items: (filter, infiniteScrollProps) => outletDetails,
               decoratorProps: DropDownDecoratorProps(
                   decoration: textFieldDecoration(
-                      isFocused: dropDownKey.currentState?.isFocused == true,
+                      isFocused: outletDropDownKey.currentState?.isFocused == true,
                       label: 'Enter Store Id')),
               onChanged: (value) {
                 if (value != null) {
@@ -588,7 +590,9 @@ class _LoginPageState extends State<LoginPage> {
 
   Widget portSelectionWidget(BuildContext context, LoginBloc loginBloc) {
     var availablePorts = loginBloc.availablePorts;
-
+    var availablePrinters = loginBloc.availablePrinters;
+    var selectedPort = availablePorts.isNotEmpty?availablePorts.first:'';
+    var selectedPrinter = availablePrinters.isNotEmpty?availablePrinters.first:'';
     return Card(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(15.0),
@@ -601,24 +605,49 @@ class _LoginPageState extends State<LoginPage> {
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            availablePrinters.isNotEmpty
+                ? DropdownSearch<String>(
+                    key: printerDropDownKey,
+                    items: (filter, infiniteScrollProps) => availablePrinters,
+                    decoratorProps: DropDownDecoratorProps(
+                        decoration: textFieldDecoration(
+                            isFocused:
+                                printerDropDownKey.currentState?.isFocused == true,
+                            label: 'Select the thermal printer')),
+                    onChanged: (value) async {
+                      if (value != null) {
+                        selectedPrinter = value;
+                      }
+                    },
+                    suffixProps: DropdownSuffixProps(
+                        dropdownButtonProps: DropdownButtonProps(
+                      iconOpened: Icon(Icons.keyboard_arrow_up),
+                      iconClosed: Icon(Icons.keyboard_arrow_down),
+                    )),
+                    selectedItem: availablePrinters.first,
+                    popupProps: PopupProps.menu(
+                      showSearchBox: false,
+                      fit: FlexFit.loose,
+                      showSelectedItems: true,
+                    ),
+                    //dropdownBuilder: (ctx, selectedItem) => Text(selectedItem!.name),
+                  )
+                : Text('No printer found',
+                    style: theme.textTheme.bodyLarge
+                        ?.copyWith(color: Colors.black45)),
+            SizedBox(height: 20),
             availablePorts.isNotEmpty
                 ? DropdownSearch<String>(
-                    key: dropDownKey,
+                    key: portDropDownKey,
                     items: (filter, infiniteScrollProps) => availablePorts,
                     decoratorProps: DropDownDecoratorProps(
                         decoration: textFieldDecoration(
                             isFocused:
-                                dropDownKey.currentState?.isFocused == true,
+                                portDropDownKey.currentState?.isFocused == true,
                             label: 'Select weighing scale port')),
                     onChanged: (value) async {
                       if (value != null) {
-                        Future.delayed(Duration(milliseconds: 400), () {
-                          loginBloc.add(
-                            SelectPort(value),
-                          );
-                        });
-                        Printer? selectedPrinter = await Printing.pickPrinter(context: context);
-                        GetStorageHelper.save(SharedPreferenceConstants.selectedPrinter, selectedPrinter);
+                        selectedPort = value;
                       }
                     },
                     suffixProps: DropdownSuffixProps(
@@ -657,19 +686,26 @@ class _LoginPageState extends State<LoginPage> {
                   elevation: 6,
                 ),
                 onPressed: () {
-                  if (availablePorts.isNotEmpty) {
-                    Future.delayed(Duration(milliseconds: 400), () {
+                  Future.delayed(Duration(milliseconds: 400), () {
+                    if (availablePorts.isNotEmpty) {
                       loginBloc.add(
-                        SelectPort(availablePorts.first),
+                        SelectPort(selectedPort),
                       );
-                    });
-                  } else {
-                    Future.delayed(Duration(milliseconds: 400), () {
+                    } else {
                       loginBloc.add(
                         SelectPort(''),
                       );
-                    });
-                  }
+                    }
+                    if (availablePrinters.isNotEmpty) {
+                      loginBloc.add(
+                        SelectPrinter(selectedPrinter),
+                      );
+                    } else {
+                      loginBloc.add(
+                        SelectPrinter(''),
+                      );
+                    }
+                  });
                 },
                 child: Text(
                   'Continue',

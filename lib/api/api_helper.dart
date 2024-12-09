@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart' as dio;
+import 'package:ebono_pos/data_store/hive_storage_helper.dart';
 import 'package:ebono_pos/data_store/shared_preference_helper.dart';
 
 import 'auth_interceptor.dart';
@@ -7,12 +8,12 @@ class ApiHelper {
   late dio.Dio _dio;
   final String _baseUrl;
   final SharedPreferenceHelper _sharedPreferenceHelper;
-
+  final HiveStorageHelper hiveStorageHelper;
   // Singleton instance
   static ApiHelper? _instance;
 
   // Private constructor
-  ApiHelper._internal(this._baseUrl, this._sharedPreferenceHelper) {
+  ApiHelper._internal(this._baseUrl, this._sharedPreferenceHelper, this.hiveStorageHelper) {
     _dio = dio.Dio(dio.BaseOptions(
       baseUrl: _baseUrl,
       connectTimeout: const Duration(seconds: 30),
@@ -23,7 +24,7 @@ class ApiHelper {
       }
     ));
 
-    _dio.interceptors.add(AuthInterceptor(_sharedPreferenceHelper));
+    _dio.interceptors.add(AuthInterceptor(_sharedPreferenceHelper, hiveStorageHelper));
 
     _dio.interceptors.addAll([
       dio.LogInterceptor(
@@ -37,8 +38,8 @@ class ApiHelper {
 
   // Factory constructor to return the same instance
   factory ApiHelper(
-      String baseUrl, SharedPreferenceHelper sharedPreferenceHelper) {
-    _instance ??= ApiHelper._internal(baseUrl, sharedPreferenceHelper);
+      String baseUrl, SharedPreferenceHelper sharedPreferenceHelper, HiveStorageHelper hiveStorageHelper) {
+    _instance ??= ApiHelper._internal(baseUrl, sharedPreferenceHelper, hiveStorageHelper);
     return _instance!;
   }
 
@@ -142,12 +143,20 @@ class ApiHelper {
         case dio.DioExceptionType.badResponse:
           final statusCode = error.response?.statusCode;
           final errorData = error.response?.data;
-          final errorMessage = errorData is Map<String, dynamic>
-              ? errorData['message'] ?? 'Unknown error'
-              : 'Unknown error';
-          return
-              // Exception("Received invalid status code: $statusCode. Error: $errorMessage");
-              Exception("$statusCode | $errorMessage");
+          String errorMessage = 'Unknown error';
+          if (errorData is Map<String, dynamic>) {
+            final errors = errorData["errors"];
+            if (errors is List && errors.isNotEmpty) {
+              final firstError = errors.first;
+              if (firstError is Map<String, dynamic>) {
+                errorMessage = firstError["message"] ?? 'Unknown error';
+              }
+            }
+          }
+
+          return Exception("$statusCode | $errorMessage");
+
+
 
         case dio.DioExceptionType.connectionError:
           return Exception(

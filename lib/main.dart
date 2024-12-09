@@ -1,9 +1,9 @@
+import 'package:ebono_pos/data_store/hive_storage_helper.dart';
 import 'package:ebono_pos/navigation/navigation.dart';
 import 'package:ebono_pos/theme/theme_data.dart';
 import 'package:ebono_pos/utils/SDP.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart';
 import 'package:window_manager/window_manager.dart';
 
 import 'di/initial_binding.dart';
@@ -21,7 +21,7 @@ void main() async {
     await windowManager.setFullScreen(true); // Make it full-screen
     await windowManager.show();
   });
-  await GetStorage.init();
+  await HiveStorageHelper.init();
   runApp(const MyApp());
 }
 

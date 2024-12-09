@@ -61,7 +61,7 @@ class PaymentMethod {
   Map<String, dynamic> toJson() => {
     "payment_option_id": paymentOptionId,
     "psp_id": pspId,
-    "request_id": requestId,
+    if (requestId != null) "request_id": requestId,
     if (transactionReferenceId != null) "transaction_reference_id": transactionReferenceId,
     "amount": amount,
     "method_detail": methodDetail == null ? [] : List<dynamic>.from(methodDetail!.map((x) => x.toJson())),

@@ -7,6 +7,11 @@ class SelectPort extends LoginEvent {
   SelectPort(this.port);
 }
 
+class SelectPrinter extends LoginEvent {
+  final String printer;
+  SelectPrinter(this.printer);
+}
+
 class LoginButtonPressed extends LoginEvent {
   final String loginId;
   final String password;

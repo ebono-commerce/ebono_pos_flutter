@@ -14,6 +14,7 @@ class PaymentState {
   final String? errorMessage;
   final double? balancePayableAmount;
   final bool isOnlinePaymentSuccess;
+  final bool allowPlaceOrder;
 
   const PaymentState({
     this.initialState = false,
@@ -31,6 +32,7 @@ class PaymentState {
     this.orderStatus,
     this.balancePayableAmount,
     this.isOnlinePaymentSuccess = false,
+    this.allowPlaceOrder = false,
   });
 
   PaymentState copyWith({
@@ -49,6 +51,7 @@ class PaymentState {
     String? orderStatus,
     double? balancePayableAmount,
     bool? isOnlinePaymentSuccess,
+    bool? allowPlaceOrder,
   }) {
     return PaymentState(
       initialState: initialState ?? this.initialState,
@@ -73,6 +76,8 @@ class PaymentState {
       balancePayableAmount: balancePayableAmount ?? this.balancePayableAmount,
       isOnlinePaymentSuccess:
           isOnlinePaymentSuccess ?? this.isOnlinePaymentSuccess,
+      allowPlaceOrder:
+      allowPlaceOrder ?? this.allowPlaceOrder,
     );
   }
 }

@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:ebono_pos/constants/custom_colors.dart';
 import 'package:ebono_pos/constants/shared_preference_constants.dart';
-import 'package:ebono_pos/data_store/get_storage_helper.dart';
 import 'package:ebono_pos/ui/Common_button.dart';
 import 'package:ebono_pos/ui/home/home_controller.dart';
 import 'package:ebono_pos/ui/payment_summary/bloc/payment_bloc.dart';
@@ -93,15 +92,33 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                             padding: EdgeInsets.all(12)),
                         onPressed: !state.isLoading
                             ? () async {
-                                Printer? selectedPrinter =
-                                    GetStorageHelper.read(
-                                        SharedPreferenceConstants
-                                            .selectedPrinter);
-                                homeController.initialResponse();
-                                printOrderSummary(
-                                    OrderSummaryResponse.fromJson(
-                                        json.decode(jsonData)),
-                                    selectedPrinter!);
+                                try {
+                                  Printer? selectedPrinter;
+
+                                  final printerData = paymentBloc.hiveStorageHelper.read<Map<dynamic, dynamic>>(
+                                    SharedPreferenceConstants.selectedPrinter,
+                                  );
+                                  if (printerData != null) {
+                                    selectedPrinter = Printer.fromMap(printerData); // Convert Map back to Printer
+                                  }
+                                  homeController.initialResponse();
+                                  if (selectedPrinter != null) {
+                                    printOrderSummary(
+                                        paymentBloc.orderSummaryResponse,
+                                        selectedPrinter);
+                                  } else {
+                                    selectedPrinter =
+                                        await Printing.pickPrinter(
+                                            context: context);
+                                    if (selectedPrinter != null) {
+                                      printOrderSummary(
+                                          paymentBloc.orderSummaryResponse,
+                                          selectedPrinter);
+                                    }
+                                  }
+                                } on Exception catch (e) {
+                                  print(e);
+                                }
                                 Get.back();
                                 Get.back();
                               }
@@ -125,15 +142,35 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                       child: ElevatedButton(
                         onPressed: !state.isLoading
                             ? () async {
-                                Printer? selectedPrinter =
-                                    GetStorageHelper.read(
-                                        SharedPreferenceConstants
-                                            .selectedPrinter);
-                                homeController.initialResponse();
-                                printOrderSummary(
-                                    OrderSummaryResponse.fromJson(
-                                        json.decode(jsonData)),
-                                    selectedPrinter!);
+                                try {
+                                  Printer? selectedPrinter;
+
+                                  final printerData = paymentBloc.hiveStorageHelper.read<Map<dynamic, dynamic>>(
+                                    SharedPreferenceConstants.selectedPrinter,
+                                  );
+                                  if (printerData != null) {
+                                    selectedPrinter = Printer.fromMap(printerData); // Convert Map back to Printer
+                                  }
+                                  homeController.initialResponse();
+                                  if (selectedPrinter != null) {
+                                    printOrderSummary(
+                                        OrderSummaryResponse.fromJson(
+                                            json.decode(jsonData)),
+                                        selectedPrinter);
+                                  } else {
+                                    selectedPrinter =
+                                        await Printing.pickPrinter(
+                                            context: context);
+                                    if (selectedPrinter != null) {
+                                      printOrderSummary(
+                                          OrderSummaryResponse.fromJson(
+                                              json.decode(jsonData)),
+                                          selectedPrinter);
+                                    }
+                                  }
+                                } on Exception catch (e) {
+                                  print(e);
+                                }
                                 Get.back();
                                 Get.back();
                               }
