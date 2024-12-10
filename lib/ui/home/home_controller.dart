@@ -478,8 +478,8 @@ class HomeController extends GetxController {
               terminalId:
                   "${hiveStorageHelper.read(SharedPreferenceConstants.selectedTerminalId)}",
               holdCartId: id));
-      generalSuccessResponse.value = response;
-      if (generalSuccessResponse.value == true) {
+      cartResponse.value = response;
+      if (cartResponse.value != null) {
         clearHoldCartOrders();
         selectedTabButton.value = 2;
       }
