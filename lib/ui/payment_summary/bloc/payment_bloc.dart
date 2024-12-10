@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:ebono_pos/constants/shared_preference_constants.dart';
@@ -44,7 +45,8 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
   double balancePayable = 0;
   bool allowPlaceOrder = false;
 
-  PaymentBloc(this._paymentRepository, this.hiveStorageHelper) : super(PaymentState()) {
+  PaymentBloc(this._paymentRepository, this.hiveStorageHelper)
+      : super(PaymentState()) {
     on<PaymentInitialEvent>(_onInitial);
     on<FetchPaymentSummary>(_fetchPaymentSummary);
     on<PaymentStartEvent>(_paymentInitiateApi);
@@ -189,11 +191,10 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
             ));
           } else {
             emit(state.copyWith(
-              stopTimer: true,
-              showPaymentPopup: false,
-              isOnlinePaymentSuccess: false,
-              isPaymentCancelSuccess: true
-            ));
+                stopTimer: true,
+                showPaymentPopup: false,
+                isOnlinePaymentSuccess: false,
+                isPaymentCancelSuccess: true));
           }
           Get.back();
           Get.snackbar('Payment status ${paymentStatusResponse.status}',
@@ -209,8 +210,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
               stopTimer: true,
               showPaymentPopup: false,
               isOnlinePaymentSuccess: false,
-              isPaymentCancelSuccess: true
-          ));
+              isPaymentCancelSuccess: true));
           Get.back();
           Get.snackbar('Payment status', '${paymentStatusResponse.message}');
           break;
@@ -220,8 +220,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
               stopTimer: true,
               showPaymentPopup: false,
               isOnlinePaymentSuccess: false,
-              isPaymentCancelSuccess: true
-          ));
+              isPaymentCancelSuccess: true));
           Get.snackbar('Payment status', '${paymentStatusResponse.message}');
           break;
         case "P2P_ORIGINAL_P2P_REQUEST_IS_MISSING":
@@ -357,12 +356,23 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
           isPaymentStatusSuccess: false,
           showPaymentPopup: false,
           isPaymentStartSuccess: false));
+      listenToOrderInvoiceSSE("9000000068");
     } catch (error) {
       emit(state.copyWith(
           isLoading: false,
           isPlaceOrderError: true,
           errorMessage: error.toString()));
     }
+  }
+
+  listenToOrderInvoiceSSE(String orderId) {
+    _paymentRepository.listenToPaymentUpdates(orderId).listen((event) {
+      print("event data from sse");
+      orderSummaryResponse = orderSummaryResponseFromJson(jsonEncode(event.data));
+      print(event.data.toString());
+      print(event.toString());
+
+    });
   }
 
   @override

@@ -27,4 +27,5 @@ class ApiConstants {
   static final closeRegister = 'account/api/v1/pos/register-close';
   static final ordersOnHold = 'checkout/api/v1/pos/cart/hold/fetch';
   static final placeOrder = 'checkout/api/v1/pos/place-order';
+  static final orderInvoiceSSE = 'account/api/v1/pos/sse';
 }

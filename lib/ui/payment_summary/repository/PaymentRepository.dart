@@ -11,6 +11,7 @@ import 'package:ebono_pos/ui/payment_summary/model/payment_status_response.dart'
 import 'package:ebono_pos/ui/payment_summary/model/payment_summary_request.dart';
 import 'package:ebono_pos/ui/payment_summary/model/payment_summary_response.dart';
 import 'package:ebono_pos/ui/payment_summary/model/place_order_request.dart';
+import 'package:flutter_client_sse/flutter_client_sse.dart';
 
 class PaymentRepository {
   final ApiHelper _apiHelper;
@@ -89,5 +90,10 @@ class PaymentRepository {
     } catch (e) {
       throw Exception(e);
     }
+  }
+
+  Stream<SSEModel> listenToPaymentUpdates(String orderId) {
+    final endpoint = '${ApiConstants.orderInvoiceSSE}?order_number=$orderId';
+    return _apiHelper.subscribeToSSE(endpoint);
   }
 }

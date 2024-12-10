@@ -1,6 +1,8 @@
 import 'package:dio/dio.dart' as dio;
 import 'package:ebono_pos/data_store/hive_storage_helper.dart';
 import 'package:ebono_pos/data_store/shared_preference_helper.dart';
+import 'package:flutter_client_sse/constants/sse_request_type_enum.dart';
+import 'package:flutter_client_sse/flutter_client_sse.dart';
 
 import 'auth_interceptor.dart';
 
@@ -41,6 +43,23 @@ class ApiHelper {
       String baseUrl, SharedPreferenceHelper sharedPreferenceHelper, HiveStorageHelper hiveStorageHelper) {
     _instance ??= ApiHelper._internal(baseUrl, sharedPreferenceHelper, hiveStorageHelper);
     return _instance!;
+  }
+
+
+  // SSE Subscription
+  Stream<SSEModel> subscribeToSSE(String endpoint, {Map<String, String>? headers, SSERequestType method = SSERequestType.GET}) {
+    //final url = '$_baseUrl$endpoint';
+final url = 'https://api-staging.ebono.com/s/$endpoint';
+    print("SSE Request URL: $url");
+
+    return SSEClient.subscribeToSSE(
+      url: url,
+     /* header: headers ?? {
+        'Content-Type': 'application/json',
+      },*/
+      method: SSERequestType.GET,
+      header: {},
+    );
   }
 
   // GET request
