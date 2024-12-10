@@ -138,9 +138,14 @@ class DigitalWeighingScale implements DigitalWeighingScaleImplementation {
         subscription = serialPortReader!.stream.listen((data) async {
           decodedWeight += utf8.decode(data);
           if(decodedWeight.length >= 9){
-            weight = double.parse(decodedWeight);
+            print('decoded weight $decodedWeight');
+            try {
+              weight = double.parse(decodedWeight.trim());
+            } on Exception catch (e) {
+              // TODO
+            }
             weightController.value = weight;
-            print('decoded weight $weight');
+            print('parsed weight $weight');
             Get.snackbar('Reading from port $digitalScalePort', 'detected weight $weight');
             decodedWeight = '';
           }

@@ -327,6 +327,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
           paymentOptionId: cashPaymentOption?.paymentOptionId,
           pspId: cashPaymentOption?.pspId,
           requestId: paymentSummaryRequest.cartId,
+          transactionReferenceId: paymentSummaryRequest.cartId,
           amount: double.parse(cashPayment),
         ));
       }
