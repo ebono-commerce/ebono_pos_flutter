@@ -11,22 +11,24 @@ class ApiHelper {
   final String _baseUrl;
   final SharedPreferenceHelper _sharedPreferenceHelper;
   final HiveStorageHelper hiveStorageHelper;
+
   // Singleton instance
   static ApiHelper? _instance;
 
   // Private constructor
-  ApiHelper._internal(this._baseUrl, this._sharedPreferenceHelper, this.hiveStorageHelper) {
+  ApiHelper._internal(
+      this._baseUrl, this._sharedPreferenceHelper, this.hiveStorageHelper) {
     _dio = dio.Dio(dio.BaseOptions(
-      baseUrl: _baseUrl,
-      connectTimeout: const Duration(seconds: 30),
-      receiveTimeout: const Duration(seconds: 30),
-      headers: {
-        'Content-Type': 'application/json',
-        'x-channel-id': 'STORE',
-      }
-    ));
+        baseUrl: _baseUrl,
+        connectTimeout: const Duration(seconds: 30),
+        receiveTimeout: const Duration(seconds: 30),
+        headers: {
+          'Content-Type': 'application/json',
+          'x-channel-id': 'STORE',
+        }));
 
-    _dio.interceptors.add(AuthInterceptor(_sharedPreferenceHelper, hiveStorageHelper));
+    _dio.interceptors
+        .add(AuthInterceptor(_sharedPreferenceHelper, hiveStorageHelper));
 
     _dio.interceptors.addAll([
       dio.LogInterceptor(
@@ -40,21 +42,25 @@ class ApiHelper {
 
   // Factory constructor to return the same instance
   factory ApiHelper(
-      String baseUrl, SharedPreferenceHelper sharedPreferenceHelper, HiveStorageHelper hiveStorageHelper) {
-    _instance ??= ApiHelper._internal(baseUrl, sharedPreferenceHelper, hiveStorageHelper);
+      String baseUrl,
+      SharedPreferenceHelper sharedPreferenceHelper,
+      HiveStorageHelper hiveStorageHelper) {
+    _instance ??=
+        ApiHelper._internal(baseUrl, sharedPreferenceHelper, hiveStorageHelper);
     return _instance!;
   }
 
-
   // SSE Subscription
-  Stream<SSEModel> subscribeToSSE(String endpoint, {Map<String, String>? headers, SSERequestType method = SSERequestType.GET}) {
+  Stream<SSEModel> subscribeToSSE(String endpoint,
+      {Map<String, String>? headers,
+      SSERequestType method = SSERequestType.GET}) {
     //final url = '$_baseUrl$endpoint';
-final url = 'https://api-staging.ebono.com/s/$endpoint';
+    final url = 'https://api-staging.ebono.com/s/$endpoint';
     print("SSE Request URL: $url");
 
     return SSEClient.subscribeToSSE(
       url: url,
-     /* header: headers ?? {
+      /* header: headers ?? {
         'Content-Type': 'application/json',
       },*/
       method: SSERequestType.GET,
@@ -174,8 +180,6 @@ final url = 'https://api-staging.ebono.com/s/$endpoint';
           }
 
           return Exception("$statusCode | $errorMessage");
-
-
 
         case dio.DioExceptionType.connectionError:
           return Exception(

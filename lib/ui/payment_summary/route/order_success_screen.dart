@@ -1,13 +1,9 @@
-import 'dart:convert';
-
 import 'package:ebono_pos/constants/custom_colors.dart';
 import 'package:ebono_pos/constants/shared_preference_constants.dart';
 import 'package:ebono_pos/ui/Common_button.dart';
 import 'package:ebono_pos/ui/home/home_controller.dart';
 import 'package:ebono_pos/ui/payment_summary/bloc/payment_bloc.dart';
 import 'package:ebono_pos/ui/payment_summary/bloc/payment_state.dart';
-import 'package:ebono_pos/ui/payment_summary/model/order_summary_response.dart';
-import 'package:ebono_pos/ui/payment_summary/model/receipt_json.dart';
 import 'package:ebono_pos/ui/payment_summary/route/print_receipt.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -154,8 +150,7 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                                   homeController.initialResponse();
                                   if (selectedPrinter != null) {
                                     printOrderSummary(
-                                        OrderSummaryResponse.fromJson(
-                                            json.decode(jsonData)),
+                                        paymentBloc.orderSummaryResponse,
                                         selectedPrinter);
                                   } else {
                                     selectedPrinter =
@@ -163,8 +158,7 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                                             context: context);
                                     if (selectedPrinter != null) {
                                       printOrderSummary(
-                                          OrderSummaryResponse.fromJson(
-                                              json.decode(jsonData)),
+                                          paymentBloc.orderSummaryResponse,
                                           selectedPrinter);
                                     }
                                   }
