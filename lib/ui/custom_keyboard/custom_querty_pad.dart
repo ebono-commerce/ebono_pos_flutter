@@ -171,14 +171,14 @@ class _CustomQwertyPadState extends State<CustomQwertyPad> {
         margin: EdgeInsets.all(5.0),
         decoration: BoxDecoration(
           color: Color(0xFFF0F4F4),
-          border: Border.all(color: Color(0xFFF0F4F4)),
+          // border: Border.all(color: Color(0xFFF0F4F4)),
           borderRadius: BorderRadius.circular(10.0),
         ),
         child: Center(
           child: Image.asset(
             img,
-            width: 20,
-            height: 20,
+            width: 25,
+            height: 25, // old 20 x20
           ),
         ),
       ),
@@ -252,7 +252,7 @@ class _CustomQwertyPadState extends State<CustomQwertyPad> {
           child: Image.asset(
             img,
             width: 20,
-            height: 90,
+            height: 100, // old 90
           ),
         ),
       ),

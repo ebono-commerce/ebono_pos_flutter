@@ -20,6 +20,30 @@ class _SearchWidgetState extends State<SearchWidget> {
   final TextEditingController _qwertyPadController = TextEditingController();
   final FocusNode searchFocusNode = FocusNode();
   FocusNode? activeFocusNode;
+  bool isGridView = false;
+  final ScrollController _scrollController = ScrollController();
+
+  void toggleView() {
+    setState(() {
+      isGridView = !isGridView;
+    });
+  }
+
+  void scrollToBottom() {
+    _scrollController.animateTo(
+      _scrollController.position.maxScrollExtent,
+      duration: Duration(seconds: 1),
+      curve: Curves.easeInOut,
+    );
+  }
+
+  void scrollToTop() {
+    _scrollController.animateTo(
+      _scrollController.position.minScrollExtent,
+      duration: Duration(seconds: 1),
+      curve: Curves.easeInOut,
+    );
+  }
 
   @override
   void initState() {
@@ -57,10 +81,13 @@ class _SearchWidgetState extends State<SearchWidget> {
         const SizedBox(height: 40),
         SizedBox(
           width: 900,
-          height: 300,
+          height: 350,
           child: Row(
             children: [
-              Expanded(child: _buildTableView1(context, homeController)),
+              Expanded(
+                  child: isGridView
+                      ? _buildListView(context, homeController)
+                      : _buildGridView(context, homeController)),
               SizedBox(
                 width: 100,
                 child: Column(
@@ -70,13 +97,17 @@ class _SearchWidgetState extends State<SearchWidget> {
                     ),
                     _buildCloseButton(),
                     SizedBox(
-                      height: 10,
+                      height: 5,
                     ),
                     _buildUpButton(),
                     SizedBox(
-                      height: 10,
+                      height: 5,
                     ),
                     _buildDownButton(),
+                    SizedBox(
+                      height: 5,
+                    ),
+                    _buildGridNListButton(),
                     Spacer(),
                     _buildClearButton(),
                     SizedBox(
@@ -111,98 +142,13 @@ class _SearchWidgetState extends State<SearchWidget> {
     );
   }
 
-  Widget _buildTextField({
-    required String label,
-    required TextEditingController controller,
-    required FocusNode focusNode,
-    required ValueChanged<String> onChanged,
-    bool readOnly = false,
-    Widget? suffixIcon,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(10),
-      child: TextField(
-        controller: controller,
-        focusNode: focusNode,
-        onChanged: onChanged,
-        readOnly: readOnly,
-        decoration: _buildInputDecoration(label, suffixIcon),
-      ),
-    );
-  }
-
-  Widget _buildSelectButton() {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 5, vertical: 1),
-      width: 100,
-      child: ElevatedButton(
-        onPressed: () {},
-        style: ElevatedButton.styleFrom(
-          elevation: 1,
-          padding: const EdgeInsets.symmetric(horizontal: 1, vertical: 1),
-          shape: RoundedRectangleBorder(
-            side: BorderSide(
-              color:
-                  //  homeController.customerName.isNotEmpty?
-                  CustomColors.secondaryColor
-              // : CustomColors.cardBackground
-              ,
-            ),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          backgroundColor:
-              // homeController.customerName.isNotEmpty? CustomColors.secondaryColor:
-              CustomColors.secondaryColor,
-        ),
-        child: Center(
-          child: Icon(
-            Icons.search,
-            color: CustomColors.black,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildCloseButton() {
+  Widget _buildGridNListButton() {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
       width: 100,
+      height: 60,
       child: ElevatedButton(
-        onPressed: () {},
-        style: ElevatedButton.styleFrom(
-          elevation: 1,
-          padding: const EdgeInsets.symmetric(horizontal: 1, vertical: 1),
-          shape: RoundedRectangleBorder(
-            side: BorderSide(
-              color: CustomColors.red,
-            ),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          backgroundColor: CustomColors.red,
-        ),
-        child: Center(
-          child: Text(
-            "Close",
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            softWrap: true,
-            style: Theme.of(context)
-                .textTheme
-                .titleSmall
-                ?.copyWith(fontWeight: FontWeight.w500, color: Colors.white),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildClearButton() {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 5, vertical: 1),
-      width: 100,
-      child: ElevatedButton(
-        onPressed: () {},
+        onPressed: toggleView,
         style: ElevatedButton.styleFrom(
           elevation: 1,
           padding: const EdgeInsets.symmetric(horizontal: 1, vertical: 1),
@@ -215,77 +161,37 @@ class _SearchWidgetState extends State<SearchWidget> {
           backgroundColor: Colors.white,
         ),
         child: Center(
-          child: Text(
-            "Clear",
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            softWrap: true,
-            style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                fontWeight: FontWeight.w500, color: CustomColors.primaryColor),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDownButton() {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-      width: 100,
-      child: ElevatedButton(
-        onPressed: () {},
-        style: ElevatedButton.styleFrom(
-          elevation: 1,
-          padding: const EdgeInsets.symmetric(horizontal: 1, vertical: 1),
-          shape: RoundedRectangleBorder(
-            side: BorderSide(
-              color: CustomColors.primaryColor,
+          child: SizedBox(
+            width: 80,
+            child: Row(
+              children: [
+                Icon(
+                  isGridView ? Icons.grid_on : Icons.list,
+                  size: 20,
+                  color: CustomColors.primaryColor,
+                ),
+                SizedBox(
+                  width: 10,
+                ),
+                Text(
+                  isGridView ? "Images" : "List",
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  softWrap: true,
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w500,
+                      color: CustomColors.primaryColor),
+                )
+              ],
             ),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          backgroundColor: Colors.white,
-        ),
-        child: Center(
-          child: Icon(
-            Icons.expand_more,
-            size: 30,
-            color: CustomColors.primaryColor,
           ),
         ),
       ),
     );
   }
 
-  Widget _buildUpButton() {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-      width: 100,
-      child: ElevatedButton(
-        onPressed: () {},
-        style: ElevatedButton.styleFrom(
-          elevation: 1,
-          padding: const EdgeInsets.symmetric(horizontal: 1, vertical: 1),
-          shape: RoundedRectangleBorder(
-            side: BorderSide(
-              color: CustomColors.primaryColor,
-            ),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          backgroundColor: Colors.white,
-        ),
-        child: Center(
-          child: Icon(
-            Icons.expand_less,
-            size: 30,
-            color: CustomColors.primaryColor,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTableView1(BuildContext context, HomeController homeController) {
-    List<int> searchItems = List.generate(2, (index) => index + 1);
+  Widget _buildListView(BuildContext context, HomeController homeController) {
+    List<int> searchItems = List.generate(20, (index) => index + 1);
     return Container(
       padding: EdgeInsets.only(bottom: 2),
       margin: EdgeInsets.all(10),
@@ -304,7 +210,7 @@ class _SearchWidgetState extends State<SearchWidget> {
           Table(
             columnWidths: {
               0: FlexColumnWidth(1),
-              1: FlexColumnWidth(2),
+              1: FlexColumnWidth(3),
               2: FlexColumnWidth(1),
               3: FlexColumnWidth(1),
             },
@@ -365,55 +271,31 @@ class _SearchWidgetState extends State<SearchWidget> {
                       )),
                 ],
               ),
-              ...searchItems.map((itemData) {
-                return TableRow(
-                  decoration: BoxDecoration(
-                      border:
-                          Border.all(color: Colors.grey.shade300, width: 1)),
-                  children: [
-                    Container(
-                      color: Colors.white,
-                      padding: const EdgeInsets.all(10.0),
-                      child: Padding(
-                          padding: const EdgeInsets.all(1.0),
-                          child: Text(
-                            "999999999",
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            softWrap: true,
-                            style: Theme.of(context)
-                                .textTheme
-                                .labelLarge
-                                ?.copyWith(
-                                    fontWeight: FontWeight.w500,
-                                    color: CustomColors.black),
-                          )),
-                    ),
-                    Container(
-                      color: Colors.white,
-                      padding: const EdgeInsets.all(10.0),
-                      child: Padding(
-                          padding: const EdgeInsets.all(1.0),
-                          child: Text(
-                            "Dawat basmati rice 1kg Dawat basmati rice 1kg",
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            softWrap: true,
-                            style: Theme.of(context)
-                                .textTheme
-                                .labelLarge
-                                ?.copyWith(
-                                    fontWeight: FontWeight.w500,
-                                    color: CustomColors.black),
-                          )),
-                    ),
-                    Container(
+            ],
+          ),
+          Expanded(
+            child: SingleChildScrollView(
+              controller: _scrollController,
+              child: Table(
+                columnWidths: {
+                  0: FlexColumnWidth(1),
+                  1: FlexColumnWidth(3),
+                  2: FlexColumnWidth(1),
+                  3: FlexColumnWidth(1),
+                },
+                children: searchItems.map((itemData) {
+                  return TableRow(
+                    decoration: BoxDecoration(
+                        border:
+                            Border.all(color: Colors.grey.shade300, width: 1)),
+                    children: [
+                      Container(
                         color: Colors.white,
-                        padding: const EdgeInsets.all(10.0),
+                        padding: const EdgeInsets.all(8.0),
                         child: Padding(
-                            padding: const EdgeInsets.all(1.0),
+                            padding: const EdgeInsets.all(10.0),
                             child: Text(
-                              'Grocery',
+                              "999999999",
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               softWrap: true,
@@ -423,31 +305,395 @@ class _SearchWidgetState extends State<SearchWidget> {
                                   ?.copyWith(
                                       fontWeight: FontWeight.w500,
                                       color: CustomColors.black),
-                            ))),
-                    Container(
-                      color: Colors.white,
-                      padding: const EdgeInsets.all(10.0),
-                      child: Padding(
-                          padding: const EdgeInsets.all(1.0),
-                          child: Text(
-                            "99999.99",
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            softWrap: true,
-                            style: Theme.of(context)
-                                .textTheme
-                                .labelLarge
-                                ?.copyWith(
-                                    fontWeight: FontWeight.w500,
-                                    color: CustomColors.black),
-                          )),
-                    ),
-                  ],
-                );
-              })
-            ],
+                            )),
+                      ),
+                      Container(
+                        color: Colors.white,
+                        padding: const EdgeInsets.all(8.0),
+                        child: Padding(
+                            padding: const EdgeInsets.all(10.0),
+                            child: Text(
+                              "Dawat basmati rice 1kg Dawat basmati rice 1kg",
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              softWrap: true,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .labelLarge
+                                  ?.copyWith(
+                                      fontWeight: FontWeight.w500,
+                                      color: CustomColors.black),
+                            )),
+                      ),
+                      Container(
+                          color: Colors.white,
+                          padding: const EdgeInsets.all(8.0),
+                          child: Padding(
+                              padding: const EdgeInsets.all(10.0),
+                              child: Text(
+                                'Grocery',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                softWrap: true,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .labelLarge
+                                    ?.copyWith(
+                                        fontWeight: FontWeight.w500,
+                                        color: CustomColors.black),
+                              ))),
+                      Container(
+                        color: Colors.white,
+                        padding: const EdgeInsets.all(8.0),
+                        child: Padding(
+                            padding: const EdgeInsets.all(10.0),
+                            child: Text(
+                              "99999.99",
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              softWrap: true,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .labelLarge
+                                  ?.copyWith(
+                                      fontWeight: FontWeight.w500,
+                                      color: CustomColors.black),
+                            )),
+                      ),
+                    ],
+                  );
+                }).toList(),
+              ),
+            ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildGridView(BuildContext context, HomeController homeController) {
+    List<int> searchItems = List.generate(20, (index) => index + 1);
+    return Container(
+        padding: EdgeInsets.only(bottom: 2),
+        margin: EdgeInsets.all(10),
+        decoration: BoxDecoration(
+            border: Border.all(
+              color: Colors.grey.shade300,
+            ),
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(10),
+              topRight: Radius.circular(10),
+              bottomLeft: Radius.circular(10),
+              bottomRight: Radius.circular(10),
+            )),
+        child: SizedBox(
+          child: GridView.builder(
+            physics: ScrollPhysics(),
+            controller: _scrollController,
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 3,
+              childAspectRatio: 3.2,
+              mainAxisSpacing: 2.0,
+              crossAxisSpacing: 2.0,
+            ),
+            itemCount: searchItems.length,
+            itemBuilder: (context, index) {
+              return buildCard();
+            },
+          ),
+        ));
+  }
+
+  Widget buildCard() {
+    return Card(
+        elevation: 0,
+        color: Colors.white,
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+            side: BorderSide(
+              color: CustomColors.cardBackground,
+              //Border color
+              width: 1, // Border width
+            )),
+        child: Padding(
+          padding: const EdgeInsets.all(10.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: Image.network(
+                  'https://via.placeholder.com/100',
+                  width: 50,
+                  height: 50,
+                  fit: BoxFit.cover,
+                ),
+              ),
+              SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Ratnagiri Alphonso...",
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      softWrap: true,
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w500,
+                          fontSize: 12,
+                          color: CustomColors.black),
+                    ),
+                    SizedBox(height: 1),
+                    Row(
+                      children: [
+                        Text(
+                          "Code: ",
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          softWrap: true,
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleSmall
+                              ?.copyWith(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w500,
+                                  color: CustomColors.greyFont),
+                        ),
+                        SizedBox(width: 5),
+                        Text(
+                          "123456789",
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          softWrap: true,
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleSmall
+                              ?.copyWith(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w700,
+                                  color: CustomColors.black),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 1),
+                    Row(
+                      children: [
+                        Text(
+                          "Price: ",
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          softWrap: true,
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleSmall
+                              ?.copyWith(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w500,
+                                  color: CustomColors.greyFont),
+                        ),
+                        SizedBox(width: 5),
+                        Text(
+                          "₹1200",
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          softWrap: true,
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleSmall
+                              ?.copyWith(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w700,
+                                  color: CustomColors.black),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ));
+  }
+
+  Widget _buildTextField({
+    required String label,
+    required TextEditingController controller,
+    required FocusNode focusNode,
+    required ValueChanged<String> onChanged,
+    bool readOnly = false,
+    Widget? suffixIcon,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(10),
+      child: TextField(
+        controller: controller,
+        focusNode: focusNode,
+        onChanged: onChanged,
+        readOnly: readOnly,
+        decoration: _buildInputDecoration(label, suffixIcon),
+      ),
+    );
+  }
+
+  Widget _buildSelectButton() {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+      width: 100,
+      // height: 50,
+      child: ElevatedButton(
+        onPressed: () {},
+        style: ElevatedButton.styleFrom(
+          elevation: 1,
+          padding: const EdgeInsets.symmetric(horizontal: 1, vertical: 1),
+          shape: RoundedRectangleBorder(
+            side: BorderSide(
+              color:
+                  //  homeController.customerName.isNotEmpty?
+                  CustomColors.secondaryColor
+              // : CustomColors.cardBackground
+              ,
+            ),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          backgroundColor:
+              // homeController.customerName.isNotEmpty? CustomColors.secondaryColor:
+              CustomColors.secondaryColor,
+        ),
+        child: Center(
+          child: Icon(
+            Icons.search,
+            color: CustomColors.black,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCloseButton() {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+      width: 100,
+      height: 60,
+      child: ElevatedButton(
+        onPressed: () {
+          Get.back();
+        },
+        style: ElevatedButton.styleFrom(
+          elevation: 1,
+          padding: const EdgeInsets.symmetric(horizontal: 1, vertical: 1),
+          shape: RoundedRectangleBorder(
+            side: BorderSide(
+              color: CustomColors.red,
+            ),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          backgroundColor: CustomColors.red,
+        ),
+        child: Center(
+          child: Text(
+            "Close",
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            softWrap: true,
+            style: Theme.of(context)
+                .textTheme
+                .titleSmall
+                ?.copyWith(fontWeight: FontWeight.w500, color: Colors.white),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildClearButton() {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+      width: 100,
+      height: 60,
+      child: ElevatedButton(
+        onPressed: () {},
+        style: ElevatedButton.styleFrom(
+          elevation: 1,
+          padding: const EdgeInsets.symmetric(horizontal: 1, vertical: 1),
+          shape: RoundedRectangleBorder(
+            side: BorderSide(
+              color: CustomColors.primaryColor,
+            ),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          backgroundColor: Colors.white,
+        ),
+        child: Center(
+          child: Text(
+            "Clear",
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            softWrap: true,
+            style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.w500, color: CustomColors.primaryColor),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDownButton() {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+      width: 100,
+      height: 60,
+      child: ElevatedButton(
+        onPressed: scrollToBottom,
+        style: ElevatedButton.styleFrom(
+          elevation: 1,
+          padding: const EdgeInsets.symmetric(horizontal: 1, vertical: 1),
+          shape: RoundedRectangleBorder(
+            side: BorderSide(
+              color: CustomColors.primaryColor,
+            ),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          backgroundColor: Colors.white,
+        ),
+        child: Center(
+          child: Icon(
+            Icons.expand_more,
+            size: 30,
+            color: CustomColors.primaryColor,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildUpButton() {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+      width: 100,
+      height: 60,
+      child: ElevatedButton(
+        onPressed: scrollToTop,
+        style: ElevatedButton.styleFrom(
+          elevation: 1,
+          padding: const EdgeInsets.symmetric(horizontal: 1, vertical: 1),
+          shape: RoundedRectangleBorder(
+            side: BorderSide(
+              color: CustomColors.primaryColor,
+            ),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          backgroundColor: Colors.white,
+        ),
+        child: Center(
+          child: Icon(
+            Icons.expand_less,
+            size: 30,
+            color: CustomColors.primaryColor,
+          ),
+        ),
       ),
     );
   }
