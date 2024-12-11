@@ -33,6 +33,7 @@ dependencies:
   window_manager: ^0.4.3
   hive: ^2.2.3
   hive_flutter: ^1.1.0
+  flutter_client_sse: ^2.0.3
 
 
 dev_dependencies:

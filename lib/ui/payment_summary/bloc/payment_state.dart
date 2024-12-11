@@ -15,6 +15,7 @@ class PaymentState {
   final double? balancePayableAmount;
   final bool isOnlinePaymentSuccess;
   final bool allowPlaceOrder;
+  final bool allowPrintInvoice;
 
   const PaymentState({
     this.initialState = false,
@@ -33,6 +34,7 @@ class PaymentState {
     this.balancePayableAmount,
     this.isOnlinePaymentSuccess = false,
     this.allowPlaceOrder = false,
+    this.allowPrintInvoice = false,
   });
 
   PaymentState copyWith({
@@ -52,6 +54,7 @@ class PaymentState {
     double? balancePayableAmount,
     bool? isOnlinePaymentSuccess,
     bool? allowPlaceOrder,
+    bool? allowPrintInvoice,
   }) {
     return PaymentState(
       initialState: initialState ?? this.initialState,
@@ -78,6 +81,8 @@ class PaymentState {
           isOnlinePaymentSuccess ?? this.isOnlinePaymentSuccess,
       allowPlaceOrder:
       allowPlaceOrder ?? this.allowPlaceOrder,
+      allowPrintInvoice:
+      allowPrintInvoice ?? this.allowPrintInvoice,
     );
   }
 }

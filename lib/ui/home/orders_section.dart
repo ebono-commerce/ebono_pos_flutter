@@ -1,4 +1,5 @@
 import 'package:ebono_pos/constants/custom_colors.dart';
+import 'package:ebono_pos/data_store/shared_preference_helper.dart';
 import 'package:ebono_pos/models/cart_response.dart';
 import 'package:ebono_pos/navigation/page_routes.dart';
 import 'package:ebono_pos/ui/common_text_field.dart';
@@ -11,6 +12,7 @@ import 'package:ebono_pos/ui/home/widgets/coupon_code_widget.dart';
 import 'package:ebono_pos/ui/home/widgets/multiple_mrp_widget.dart';
 import 'package:ebono_pos/ui/home/widgets/quick_action_buttons.dart';
 import 'package:ebono_pos/ui/payment_summary/model/payment_summary_request.dart';
+import 'package:ebono_pos/ui/payment_summary/weighing_scale_service.dart';
 import 'package:ebono_pos/ui/search/search_widget.dart';
 import 'package:ebono_pos/utils/auth_modes.dart';
 import 'package:ebono_pos/utils/common_methods.dart';
@@ -34,9 +36,25 @@ class _OrdersSectionState extends State<OrdersSection>
   final TextEditingController scanTextController = TextEditingController();
   HomeController homeController = Get.find<HomeController>();
   FocusNode? activeFocusNode;
+  late WeighingScaleService weighingScaleService = Get.find<WeighingScaleService>();
 
   @override
   void initState() {
+    if (mounted) {
+      try {
+        weighingScaleService = Get.find<WeighingScaleService>();
+        print("WeighingScaleService initialized.");
+      } catch (e) {
+        print("WeighingScaleService not found: $e");
+        if (!Get.isRegistered<WeighingScaleService>()) {
+          weighingScaleService =  Get.put<WeighingScaleService>(WeighingScaleService(Get.find<SharedPreferenceHelper>()));
+        }
+        else{
+          Get.delete<WeighingScaleService>();
+          weighingScaleService =  Get.put<WeighingScaleService>(WeighingScaleService(Get.find<SharedPreferenceHelper>()));
+        }
+      }
+    }
     activeFocusNode = scanFocusNode;
     scanFocusNode.addListener(() {
       setState(() {
@@ -69,6 +87,7 @@ class _OrdersSectionState extends State<OrdersSection>
 
     WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
+
       ever(homeController.scanProductsResponse, (value) {
         if (value.skuCode != null) {
           scanTextController.clear();
@@ -97,6 +116,7 @@ class _OrdersSectionState extends State<OrdersSection>
 
     super.initState();
   }
+
 
   /*@override
   void dispose() {
@@ -129,8 +149,8 @@ class _OrdersSectionState extends State<OrdersSection>
                         } else {
                           return _buildRegisterClosed(context,
                               onPressed: () async {
-                            homeController.selectedTabButton.value = 1;
-                          });
+                                homeController.selectedTabButton.value = 1;
+                              });
                         }
                       }),
                     )
@@ -159,8 +179,9 @@ class _OrdersSectionState extends State<OrdersSection>
                 );
               },
               onHoldCartPressed: () {
-                AuthModes enableHoldCartMode = AuthModeExtension.fromString(
-                    homeController.isEnableHoldCartEnabled.value);
+                AuthModes enableHoldCartMode =
+                    AuthModeExtension.fromString(
+                        homeController.isEnableHoldCartEnabled.value);
                 if (enableHoldCartMode == AuthModes.enabled) {
                   homeController.holdCartApiCall();
                 } else if (enableHoldCartMode == AuthModes.authorised) {
@@ -176,8 +197,8 @@ class _OrdersSectionState extends State<OrdersSection>
                     },
                   );
                 } else {
-                  Get.snackbar('Action Disabled for this account',
-                      'Please contact support');
+                  Get.snackbar(
+                      'Action Disabled for this account', 'Please contact support');
                 }
               },
               onSalesAssociatePressed: () {
@@ -207,8 +228,9 @@ class _OrdersSectionState extends State<OrdersSection>
                 );
               },
               onClearCartPressed: () {
-                AuthModes enableHoldCartMode = AuthModeExtension.fromString(
-                    homeController.isEnableHoldCartEnabled.value);
+                AuthModes enableHoldCartMode =
+                    AuthModeExtension.fromString(
+                        homeController.isEnableHoldCartEnabled.value);
                 if (enableHoldCartMode == AuthModes.enabled) {
                   homeController.clearFullCart();
                 } else if (enableHoldCartMode == AuthModes.authorised) {
@@ -224,8 +246,8 @@ class _OrdersSectionState extends State<OrdersSection>
                     },
                   );
                 } else {
-                  Get.snackbar('Action Disabled for this account',
-                      'Please contact support');
+                  Get.snackbar(
+                      'Action Disabled for this account', 'Please contact support');
                 }
               },
               onInventoryInquiryPressed: (){
@@ -434,10 +456,10 @@ class _OrdersSectionState extends State<OrdersSection>
       });
     });
 
-    ever(homeController.weight, (value) {
+    ever(weighingScaleService.weight, (value) {
       if (value != 0.0 && itemData.weightFocusNode?.hasFocus == true) {
         itemData.weightController?.text =
-            homeController.weight.value.toString();
+            weighingScaleService.weight.value.toString();
         //homeController.weight.value = 0.0;
       }
     });
@@ -494,8 +516,8 @@ class _OrdersSectionState extends State<OrdersSection>
                   ),
                 );
               } else {
-                Get.snackbar('Action Disabled for this account',
-                    'Please contact support');
+                Get.snackbar(
+                    'Action Disabled for this account', 'Please contact support');
               }
             }),
       ),
@@ -670,34 +692,33 @@ class _OrdersSectionState extends State<OrdersSection>
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 8.0),
                           child: commonTextField(
-                              label: ' Enter Code, Quantity ',
-                              focusNode:
-                                  (homeController.cartId.value.isNotEmpty &&
-                                          homeController.registerId.isNotEmpty)
-                                      ? scanFocusNode
-                                      : FocusNode(),
-                              readOnly:
-                                  (homeController.cartId.value.isNotEmpty &&
-                                          homeController.registerId.isNotEmpty)
-                                      ? false
-                                      : true,
-                              controller:
-                                  (homeController.cartId.value.isNotEmpty &&
-                                          homeController.registerId.isNotEmpty)
-                                      ? scanTextController
-                                      : TextEditingController(),
-                              onValueChanged: (text) {
-                                if (activeFocusNode == scanFocusNode) {
-                                  if (homeController.cartId.value.isNotEmpty &&
-                                      homeController.registerId.isNotEmpty) {
-                                    print(
-                                        "common field onValueChanged text: $text");
-                                    if (isValidOfferId(text)) {
-                                      homeController.scanApiCall(text.trim());
-                                    }
+                            label: ' Enter Code, Quantity ',
+                            focusNode:
+                                (homeController.cartId.value.isNotEmpty &&
+                                        homeController.registerId.isNotEmpty)
+                                    ? scanFocusNode
+                                    : FocusNode(),
+                            readOnly: (homeController.cartId.value.isNotEmpty &&
+                                    homeController.registerId.isNotEmpty)
+                                ? false
+                                : true,
+                            controller:
+                                (homeController.cartId.value.isNotEmpty &&
+                                        homeController.registerId.isNotEmpty)
+                                    ? scanTextController
+                                    : TextEditingController(),
+                            onValueChanged: (text){
+                              if (activeFocusNode == scanFocusNode) {
+                                if (homeController.cartId.value.isNotEmpty &&
+                                    homeController.registerId.isNotEmpty) {
+                                  print("common field onValueChanged text: $text");
+                                  if (isValidOfferId(text)) {
+                                    homeController.scanApiCall(text.trim());
                                   }
                                 }
-                              }),
+                              }
+                            }
+                          ),
                         ),
                         CustomNumPad(
                           focusNode: activeFocusNode!,
@@ -1110,7 +1131,7 @@ class _OrdersSectionState extends State<OrdersSection>
                           color: CustomColors.primaryColor, width: 1.5),
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    backgroundColor: Color(0xFFF0F4F4),
+                    backgroundColor: CustomColors.keyBoardBgColor,
                   ),
                   child: Text(
                     "    No, Cancel    ",

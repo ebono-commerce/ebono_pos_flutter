@@ -1,5 +1,5 @@
-import 'package:get/get.dart';
 import 'package:ebono_pos/utils/digital_weighing_scale.dart';
+import 'package:get/get.dart';
 
 class WeightController extends GetxController {
   RxDouble weight = 0.0.obs; // Observable weight value
@@ -10,7 +10,6 @@ class WeightController extends GetxController {
       digitalWeighingScale = DigitalWeighingScale(
         digitalScalePort: port,
         digitalScaleRate: rate,
-        digitalScaleTimeout: timeout,
         weightController: weight,
       );
       digitalWeighingScale.getWeight();
@@ -19,3 +18,4 @@ class WeightController extends GetxController {
     }
   }
 }
+

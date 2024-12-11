@@ -6,6 +6,7 @@ import 'package:ebono_pos/ui/login/bloc/login_bloc.dart';
 import 'package:ebono_pos/ui/login/bloc/login_event.dart';
 import 'package:ebono_pos/ui/login/bloc/login_state.dart';
 import 'package:ebono_pos/ui/login/repository/login_repository.dart';
+import 'package:ebono_pos/ui/payment_summary/weighing_scale_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
@@ -30,6 +31,9 @@ class _LogoutButtonState extends State<LogoutButton> {
         listener: (context, state) {
           if (state is LogoutSuccess) {
             Get.snackbar("Logout", 'Success');
+            if (Get.isRegistered<WeighingScaleService>()) {
+              Get.delete<WeighingScaleService>();
+            }
             Get.offAllNamed(PageRoutes.login);
           } else if (state is LogoutFailure) {
             Get.snackbar("Logout Error", state.error);

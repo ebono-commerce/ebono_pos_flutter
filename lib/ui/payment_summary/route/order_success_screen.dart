@@ -1,13 +1,9 @@
-import 'dart:convert';
-
 import 'package:ebono_pos/constants/custom_colors.dart';
 import 'package:ebono_pos/constants/shared_preference_constants.dart';
 import 'package:ebono_pos/ui/Common_button.dart';
 import 'package:ebono_pos/ui/home/home_controller.dart';
 import 'package:ebono_pos/ui/payment_summary/bloc/payment_bloc.dart';
 import 'package:ebono_pos/ui/payment_summary/bloc/payment_state.dart';
-import 'package:ebono_pos/ui/payment_summary/model/order_summary_response.dart';
-import 'package:ebono_pos/ui/payment_summary/model/receipt_json.dart';
 import 'package:ebono_pos/ui/payment_summary/route/print_receipt.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -51,7 +47,7 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                 height: 10,
               ),
               Lottie.asset(
-                state.isLoading
+                state.isLoading || !state.allowPrintInvoice
                     ? 'assets/lottie/loading.json'
                     : 'assets/lottie/success.json',
                 width: 200,
@@ -65,7 +61,7 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                 height: 10,
               ),
               Text(
-                state.isLoading
+                state.isLoading || !state.allowPrintInvoice
                     ? "Generating Invoice"
                     : "Invoice Generated Successfully!",
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
@@ -95,11 +91,14 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                                 try {
                                   Printer? selectedPrinter;
 
-                                  final printerData = paymentBloc.hiveStorageHelper.read<Map<dynamic, dynamic>>(
+                                  final printerData = paymentBloc
+                                      .hiveStorageHelper
+                                      .read<Map<dynamic, dynamic>>(
                                     SharedPreferenceConstants.selectedPrinter,
                                   );
                                   if (printerData != null) {
-                                    selectedPrinter = Printer.fromMap(printerData); // Convert Map back to Printer
+                                    selectedPrinter = Printer.fromMap(
+                                        printerData); // Convert Map back to Printer
                                   }
                                   homeController.initialResponse();
                                   if (selectedPrinter != null) {
@@ -140,22 +139,24 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                       padding:
                           EdgeInsets.symmetric(horizontal: 5.0, vertical: 10),
                       child: ElevatedButton(
-                        onPressed: !state.isLoading
+                        onPressed: !state.isLoading && state.allowPrintInvoice
                             ? () async {
                                 try {
                                   Printer? selectedPrinter;
 
-                                  final printerData = paymentBloc.hiveStorageHelper.read<Map<dynamic, dynamic>>(
+                                  final printerData = paymentBloc
+                                      .hiveStorageHelper
+                                      .read<Map<dynamic, dynamic>>(
                                     SharedPreferenceConstants.selectedPrinter,
                                   );
                                   if (printerData != null) {
-                                    selectedPrinter = Printer.fromMap(printerData); // Convert Map back to Printer
+                                    selectedPrinter = Printer.fromMap(
+                                        printerData); // Convert Map back to Printer
                                   }
                                   homeController.initialResponse();
                                   if (selectedPrinter != null) {
                                     printOrderSummary(
-                                        OrderSummaryResponse.fromJson(
-                                            json.decode(jsonData)),
+                                        paymentBloc.invoiceSummaryResponse,
                                         selectedPrinter);
                                   } else {
                                     selectedPrinter =
@@ -163,8 +164,7 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                                             context: context);
                                     if (selectedPrinter != null) {
                                       printOrderSummary(
-                                          OrderSummaryResponse.fromJson(
-                                              json.decode(jsonData)),
+                                          paymentBloc.invoiceSummaryResponse,
                                           selectedPrinter);
                                     }
                                   }
@@ -184,7 +184,7 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                                 color: CustomColors.primaryColor, width: 1.5),
                             borderRadius: BorderRadius.circular(10),
                           ),
-                          backgroundColor: Color(0xFFF0F4F4),
+                          backgroundColor: CustomColors.keyBoardBgColor,
                         ),
                         child: Center(
                           child: Text(
@@ -225,7 +225,7 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                                 color: CustomColors.primaryColor, width: 1.5),
                             borderRadius: BorderRadius.circular(10),
                           ),
-                          backgroundColor: Color(0xFFF0F4F4),
+                          backgroundColor: CustomColors.keyBoardBgColor,
                         ),
                         child: Center(
                           child: Text(

@@ -9,6 +9,7 @@ import 'package:ebono_pos/ui/login/bloc/login_bloc.dart';
 import 'package:ebono_pos/ui/login/bloc/login_event.dart';
 import 'package:ebono_pos/ui/login/bloc/login_state.dart';
 import 'package:ebono_pos/ui/login/repository/login_repository.dart';
+import 'package:ebono_pos/ui/payment_summary/weighing_scale_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
@@ -35,13 +36,13 @@ class _LoginPageState extends State<LoginPage> {
 
   final _formKey = GlobalKey<FormState>();
 
-  final loginBloc = LoginBloc(
-      Get.find<LoginRepository>(), Get.find<SharedPreferenceHelper>(), Get.find<HiveStorageHelper>());
+  final loginBloc = LoginBloc(Get.find<LoginRepository>(),
+      Get.find<SharedPreferenceHelper>(), Get.find<HiveStorageHelper>());
 
   final GlobalKey<DropdownSearchState> printerDropDownKey =
-  GlobalKey<DropdownSearchState>();
+      GlobalKey<DropdownSearchState>();
   final GlobalKey<DropdownSearchState> portDropDownKey =
-  GlobalKey<DropdownSearchState>();
+      GlobalKey<DropdownSearchState>();
   final GlobalKey<DropdownSearchState> outletDropDownKey =
       GlobalKey<DropdownSearchState>();
   final GlobalKey<DropdownSearchState> terminalDropDownKey =
@@ -104,8 +105,21 @@ class _LoginPageState extends State<LoginPage> {
       body: BlocProvider(
         create: (context) => loginBloc,
         child: BlocListener<LoginBloc, LoginState>(
-          listener: (context, state) {
-            if (state is LoginSuccess) {
+          listener: (context, state) async {
+            if (state is PortSelectionSuccess) {
+              try {
+                print("Initializing WeighingScaleService...");
+                if (!Get.isRegistered<WeighingScaleService>()) {
+                  Get.put<WeighingScaleService>(WeighingScaleService(Get.find<SharedPreferenceHelper>()));
+                }
+
+                print("WeighingScaleService initialized successfully!");
+              } catch (e) {
+                print("Error initializing WeighingScaleService: $e");
+                Get.snackbar(
+                    "Error", "Failed to initialize weighing scale service");
+              }
+            } else if (state is LoginSuccess) {
               loginBloc.add(
                 GetOutletDetails(loginBloc.outletList.first),
               );
@@ -117,7 +131,7 @@ class _LoginPageState extends State<LoginPage> {
             } else if (state is GetOutletDetailsFailure) {
               Get.snackbar("Error", state.error);
             } else if (state is SubmitTerminalDetailsSuccess) {
-              Get.toNamed(PageRoutes.home);
+              Get.offAllNamed(PageRoutes.home);
             } else if (state is SubmitTerminalDetailsFailure) {
               Get.snackbar("Error", state.error);
             }
@@ -132,7 +146,10 @@ class _LoginPageState extends State<LoginPage> {
                     mainAxisSize: MainAxisSize.max,
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      state is PortSelectionSuccess || state is PrinterSelectionSuccess ? SizedBox() : SizedBox(),
+                      state is PortSelectionSuccess ||
+                              state is PrinterSelectionSuccess
+                          ? SizedBox()
+                          : SizedBox(),
                       Row(
                         children: [
                           Flexible(flex: 3, child: welcomeWidget(context)),
@@ -156,7 +173,9 @@ class _LoginPageState extends State<LoginPage> {
                           Flexible(flex: 1, child: SizedBox())
                         ],
                       ),
-                      state is PortSelectionSuccess || state is PrinterSelectionSuccess || state is LoginFailure
+                      state is PortSelectionSuccess ||
+                              state is PrinterSelectionSuccess ||
+                              state is LoginFailure
                           ? Container(
                               width: MediaQuery.of(context).size.width,
                               color: Colors.white,
@@ -392,7 +411,8 @@ class _LoginPageState extends State<LoginPage> {
               items: (filter, infiniteScrollProps) => outletDetails,
               decoratorProps: DropDownDecoratorProps(
                   decoration: textFieldDecoration(
-                      isFocused: outletDropDownKey.currentState?.isFocused == true,
+                      isFocused:
+                          outletDropDownKey.currentState?.isFocused == true,
                       label: 'Enter Store Id')),
               onChanged: (value) {
                 if (value != null) {
@@ -461,21 +481,24 @@ class _LoginPageState extends State<LoginPage> {
             SizedBox(height: 20),
 
             // Store Mode Selection
-            Wrap(
-              crossAxisAlignment: WrapCrossAlignment.start,
-              alignment: WrapAlignment.start,
-              children: allowedPosDetails
-                  .where((modeKey) =>
-                      loginBloc.allowedPosData.containsKey(modeKey))
-                  .map((modeKey) => storeModeWidget(
-                        imagePath:
-                            loginBloc.allowedPosData[modeKey]!['imagePath']!,
-                        label: loginBloc.allowedPosData[modeKey]!['label']!,
-                        context: context,
-                        mode: loginBloc.allowedPosData[modeKey]!['mode']!,
-                      ))
-                  .toList(),
-            ),
+            allowedPosDetails.isNotEmpty
+                ? Wrap(
+                    crossAxisAlignment: WrapCrossAlignment.start,
+                    alignment: WrapAlignment.start,
+                    children: allowedPosDetails
+                        .where((modeKey) =>
+                            loginBloc.allowedPosData.containsKey(modeKey))
+                        .map((modeKey) => storeModeWidget(
+                              imagePath: loginBloc
+                                  .allowedPosData[modeKey]!['imagePath']!,
+                              label:
+                                  loginBloc.allowedPosData[modeKey]!['label']!,
+                              context: context,
+                              mode: loginBloc.allowedPosData[modeKey]!['mode']!,
+                            ))
+                        .toList(),
+                  )
+                : SizedBox(),
             SizedBox(height: 20),
             terminalDetails.isNotEmpty
                 ? DropdownSearch<String>(
@@ -591,8 +614,9 @@ class _LoginPageState extends State<LoginPage> {
   Widget portSelectionWidget(BuildContext context, LoginBloc loginBloc) {
     var availablePorts = loginBloc.availablePorts;
     var availablePrinters = loginBloc.availablePrinters;
-    var selectedPort = availablePorts.isNotEmpty?availablePorts.first:'';
-    var selectedPrinter = availablePrinters.isNotEmpty?availablePrinters.first:'';
+    var selectedPort = availablePorts.isNotEmpty ? availablePorts.first : '';
+    var selectedPrinter =
+        availablePrinters.isNotEmpty ? availablePrinters.first : '';
     return Card(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(15.0),
@@ -612,7 +636,8 @@ class _LoginPageState extends State<LoginPage> {
                     decoratorProps: DropDownDecoratorProps(
                         decoration: textFieldDecoration(
                             isFocused:
-                                printerDropDownKey.currentState?.isFocused == true,
+                                printerDropDownKey.currentState?.isFocused ==
+                                    true,
                             label: 'Select the thermal printer')),
                     onChanged: (value) async {
                       if (value != null) {

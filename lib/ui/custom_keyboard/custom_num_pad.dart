@@ -1,3 +1,4 @@
+import 'package:ebono_pos/constants/custom_colors.dart';
 import 'package:flutter/material.dart';
 
 class CustomNumPad extends StatefulWidget {
@@ -143,8 +144,8 @@ class _CustomNumPadState extends State<CustomNumPad> {
         padding: EdgeInsets.all(20.0),
         margin: EdgeInsets.all(5.0),
         decoration: BoxDecoration(
-          color: Color(0xFFF0F4F4),
-          border: Border.all(color: Color(0xFFF0F4F4)),
+          color: CustomColors.keyBoardBgColor,
+          border: Border.all(color: CustomColors.keyBoardBgColor),
           borderRadius: BorderRadius.circular(10.0),
         ),
         child: Center(
@@ -168,8 +169,8 @@ class _CustomNumPadState extends State<CustomNumPad> {
         padding: EdgeInsets.all(20.0),
         margin: EdgeInsets.all(5.0),
         decoration: BoxDecoration(
-          color: Color(0xFFF0F4F4),
-          border: Border.all(color: Color(0xFFF0F4F4)),
+          color: CustomColors.keyBoardBgColor,
+          border: Border.all(color: CustomColors.keyBoardBgColor),
           borderRadius: BorderRadius.circular(10.0),
         ),
         child: Center(
@@ -193,8 +194,8 @@ class _CustomNumPadState extends State<CustomNumPad> {
         padding: EdgeInsets.all(20.0),
         margin: EdgeInsets.all(5.0),
         decoration: BoxDecoration(
-          color: Color(0xFFF0F4F4),
-          border: Border.all(color: Color(0xFFF0F4F4)),
+          color: CustomColors.keyBoardBgColor,
+          border: Border.all(color: CustomColors.keyBoardBgColor),
           borderRadius: BorderRadius.circular(10.0),
         ),
         child: Center(
@@ -217,8 +218,8 @@ class _CustomNumPadState extends State<CustomNumPad> {
         padding: EdgeInsets.symmetric(vertical: 50.0, horizontal: 1),
         margin: EdgeInsets.all(5.0),
         decoration: BoxDecoration(
-          color: Color(0xFFF0F4F4),
-          border: Border.all(color: Color(0xFFF0F4F4)),
+          color: CustomColors.keyBoardBgColor,
+          border: Border.all(color: CustomColors.keyBoardBgColor),
           borderRadius: BorderRadius.circular(10.0),
         ),
         child: Center(
@@ -245,8 +246,8 @@ class _CustomNumPadState extends State<CustomNumPad> {
         padding: EdgeInsets.all(10.0),
         margin: EdgeInsets.all(5.0),
         decoration: BoxDecoration(
-          color: Color(0xFFF0F4F4),
-          border: Border.all(color: Color(0xFFF0F4F4)),
+          color: CustomColors.keyBoardBgColor,
+          border: Border.all(color: CustomColors.keyBoardBgColor),
           borderRadius: BorderRadius.circular(10.0),
         ),
         child: Center(

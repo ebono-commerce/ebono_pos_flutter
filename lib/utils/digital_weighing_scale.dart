@@ -10,7 +10,6 @@ class DigitalWeighingScale implements DigitalWeighingScaleImplementation {
 
   final String digitalScalePort;
   final int digitalScaleRate;
-  final int digitalScaleTimeout;
   final RxDouble weightController;
 
   late SerialPort serialPort;
@@ -25,7 +24,6 @@ class DigitalWeighingScale implements DigitalWeighingScaleImplementation {
   DigitalWeighingScale._({
     required this.digitalScalePort,
     required this.digitalScaleRate,
-    required this.digitalScaleTimeout,
     required this.weightController,
   }) {
     print('selected port: $digitalScalePort');
@@ -37,13 +35,11 @@ class DigitalWeighingScale implements DigitalWeighingScaleImplementation {
   factory DigitalWeighingScale({
     required String digitalScalePort,
     required int digitalScaleRate,
-    required int digitalScaleTimeout,
     required RxDouble weightController,
   }) {
     return _instance ??= DigitalWeighingScale._(
       digitalScalePort: digitalScalePort,
       digitalScaleRate: digitalScaleRate,
-      digitalScaleTimeout: digitalScaleTimeout,
       weightController: weightController,
     );
   }
@@ -138,9 +134,14 @@ class DigitalWeighingScale implements DigitalWeighingScaleImplementation {
         subscription = serialPortReader!.stream.listen((data) async {
           decodedWeight += utf8.decode(data);
           if(decodedWeight.length >= 9){
-            weight = double.parse(decodedWeight);
+            print('decoded weight $decodedWeight');
+            try {
+              weight = double.parse(decodedWeight.trim());
+            } on Exception catch (e) {
+              // TODO
+            }
             weightController.value = weight;
-            print('decoded weight $weight');
+            print('parsed weight $weight');
             Get.snackbar('Reading from port $digitalScalePort', 'detected weight $weight');
             decodedWeight = '';
           }

@@ -26,6 +26,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
   late PaymentSummaryRequest paymentSummaryRequest;
   late PaymentSummaryResponse paymentSummaryResponse;
   late OrderSummaryResponse orderSummaryResponse;
+  late OrderSummaryResponse invoiceSummaryResponse;
 
   // payment EDC
 
@@ -43,8 +44,10 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
   double totalPayable = 0;
   double balancePayable = 0;
   bool allowPlaceOrder = false;
+  bool allowPrintInvoice = false;
 
-  PaymentBloc(this._paymentRepository, this.hiveStorageHelper) : super(PaymentState()) {
+  PaymentBloc(this._paymentRepository, this.hiveStorageHelper)
+      : super(PaymentState()) {
     on<PaymentInitialEvent>(_onInitial);
     on<FetchPaymentSummary>(_fetchPaymentSummary);
     on<PaymentStartEvent>(_paymentInitiateApi);
@@ -189,11 +192,10 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
             ));
           } else {
             emit(state.copyWith(
-              stopTimer: true,
-              showPaymentPopup: false,
-              isOnlinePaymentSuccess: false,
-              isPaymentCancelSuccess: true
-            ));
+                stopTimer: true,
+                showPaymentPopup: false,
+                isOnlinePaymentSuccess: false,
+                isPaymentCancelSuccess: true));
           }
           Get.back();
           Get.snackbar('Payment status ${paymentStatusResponse.status}',
@@ -209,8 +211,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
               stopTimer: true,
               showPaymentPopup: false,
               isOnlinePaymentSuccess: false,
-              isPaymentCancelSuccess: true
-          ));
+              isPaymentCancelSuccess: true));
           Get.back();
           Get.snackbar('Payment status', '${paymentStatusResponse.message}');
           break;
@@ -220,8 +221,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
               stopTimer: true,
               showPaymentPopup: false,
               isOnlinePaymentSuccess: false,
-              isPaymentCancelSuccess: true
-          ));
+              isPaymentCancelSuccess: true));
           Get.snackbar('Payment status', '${paymentStatusResponse.message}');
           break;
         case "P2P_ORIGINAL_P2P_REQUEST_IS_MISSING":
@@ -328,6 +328,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
           paymentOptionId: cashPaymentOption?.paymentOptionId,
           pspId: cashPaymentOption?.pspId,
           requestId: paymentSummaryRequest.cartId,
+          transactionReferenceId: paymentSummaryRequest.cartId,
           amount: double.parse(cashPayment),
         ));
       }
@@ -357,12 +358,44 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
           isPaymentStatusSuccess: false,
           showPaymentPopup: false,
           isPaymentStartSuccess: false));
+      if(orderSummaryResponse.orderNumber != null && orderSummaryResponse.orderNumber?.isNotEmpty == true){
+        emit(state.copyWith(
+          isLoading: true,
+          allowPrintInvoice: false,));
+        listenToOrderInvoiceSSE(orderSummaryResponse.orderNumber!);
+      }
     } catch (error) {
       emit(state.copyWith(
           isLoading: false,
           isPlaceOrderError: true,
           errorMessage: error.toString()));
     }
+  }
+
+  listenToOrderInvoiceSSE(String orderId) {
+    _paymentRepository.listenToPaymentUpdates(orderId).listen((event) {
+      print("event data from sse ${event.data}");
+      if (event.data != null && event.data?.isNotEmpty == true) {
+        print("event data from sse");
+        try {
+          invoiceSummaryResponse = orderSummaryResponseFromJson(event.data!);
+          if(invoiceSummaryResponse.invoiceNumber != null){
+            allowPrintInvoice = true;
+            emit(state.copyWith(
+              isLoading: false,
+              allowPrintInvoice: true,));
+          }
+          else{
+            emit(state.copyWith(
+              isLoading: true,
+              allowPrintInvoice: false,));
+          }
+        } on Exception catch (e) {
+          print('error in sse event parsing: $e');
+        }
+      }
+
+    });
   }
 
   @override
