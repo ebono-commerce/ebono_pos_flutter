@@ -28,7 +28,7 @@ class _OrderOnHoldState extends State<OrderOnHold> with WidgetsBindingObserver {
     }
     homeController.ordersOnHoldApiCall();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {});
+    //WidgetsBinding.instance.addPostFrameCallback((_) {});
 
     super.initState();
   }
@@ -53,7 +53,8 @@ class _OrderOnHoldState extends State<OrderOnHold> with WidgetsBindingObserver {
     return Scaffold(
         backgroundColor: Colors.white,
         body: Center(
-          child: Row(
+            child: Obx(
+          () => Row(
             children: [
               Expanded(
                 flex: 5,
@@ -89,7 +90,7 @@ class _OrderOnHoldState extends State<OrderOnHold> with WidgetsBindingObserver {
               ),
             ],
           ),
-        ));
+        )));
   }
 
   Widget _buildNumberPadSection(HomeController homeController) {

@@ -12,6 +12,7 @@ import 'package:ebono_pos/ui/home/widgets/multiple_mrp_widget.dart';
 import 'package:ebono_pos/ui/home/widgets/quick_action_buttons.dart';
 import 'package:ebono_pos/ui/payment_summary/model/payment_summary_request.dart';
 import 'package:ebono_pos/ui/payment_summary/weighing_scale_service.dart';
+import 'package:ebono_pos/ui/search/search_widget.dart';
 import 'package:ebono_pos/utils/auth_modes.dart';
 import 'package:ebono_pos/utils/common_methods.dart';
 import 'package:ebono_pos/utils/dash_line.dart';
@@ -244,7 +245,7 @@ class _OrdersSectionState extends State<OrdersSection>
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20.0),
                       ),
-                      child: MultipleMrpWidget(context),
+                      child: SearchWidget(context),
                     );
                   },
                 );
