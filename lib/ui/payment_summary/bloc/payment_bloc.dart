@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:math';
 
 import 'package:ebono_pos/constants/shared_preference_constants.dart';
@@ -379,7 +378,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
       if (event.data != null && event.data?.isNotEmpty == true) {
         print("event data from sse");
         try {
-          invoiceSummaryResponse = orderSummaryResponseFromJson(jsonEncode(event.data));
+          invoiceSummaryResponse = orderSummaryResponseFromJson(event.data!);
           if(invoiceSummaryResponse.invoiceNumber != null){
             allowPrintInvoice = true;
             emit(state.copyWith(

@@ -1,10 +1,6 @@
-// To parse this JSON data, do
-//
-//     final orderSummaryResponse = orderSummaryResponseFromJson(jsonString);
-
 import 'dart:convert';
 
-OrderSummaryResponse orderSummaryResponseFromJson(String str) => OrderSummaryResponse.fromJson(json.decode(str));
+OrderSummaryResponse orderSummaryResponseFromJson(str) => OrderSummaryResponse.fromJson(json.decode(str));
 
 String orderSummaryResponseToJson(OrderSummaryResponse data) => json.encode(data.toJson());
 
@@ -213,7 +209,7 @@ class InvoiceLine {
 }
 
 class Quantity {
-  String? quantityNumber;
+  dynamic? quantityNumber;
   String? quantityUom;
 
   Quantity({
@@ -281,16 +277,16 @@ class TaxDetails {
 }
 
 class TaxesLine {
-  String? taxPercentage;
-  String? taxValue;
-  String? cgstValue;
-  String? cgstPercentage;
-  String? sgstValue;
-  String? sgstPercentage;
-  String? igstValue;
-  String? igstPercentage;
-  String? cessValue;
-  String? cessPercentage;
+  dynamic? taxPercentage;
+  dynamic? taxValue;
+  dynamic? cgstValue;
+  dynamic? cgstPercentage;
+  dynamic? sgstValue;
+  dynamic? sgstPercentage;
+  dynamic? igstValue;
+  dynamic? igstPercentage;
+  dynamic? cessValue;
+  dynamic? cessPercentage;
 
   TaxesLine({
     this.taxPercentage,
@@ -333,11 +329,11 @@ class TaxesLine {
 }
 
 class TaxesTotals {
-  String? totalTax;
-  String? totalCgst;
-  String? totalSgst;
-  String? totalIgst;
-  String? totalCess;
+  dynamic? totalTax;
+  dynamic? totalCgst;
+  dynamic? totalSgst;
+  dynamic? totalIgst;
+  dynamic? totalCess;
 
   TaxesTotals({
     this.totalTax,
