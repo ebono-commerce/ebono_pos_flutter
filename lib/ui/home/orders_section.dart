@@ -1131,7 +1131,7 @@ class _OrdersSectionState extends State<OrdersSection>
                           color: CustomColors.primaryColor, width: 1.5),
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    backgroundColor: Color(0xFFF0F4F4),
+                    backgroundColor: CustomColors.keyBoardBgColor,
                   ),
                   child: Text(
                     "    No, Cancel    ",

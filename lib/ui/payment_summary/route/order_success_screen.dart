@@ -91,11 +91,14 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                                 try {
                                   Printer? selectedPrinter;
 
-                                  final printerData = paymentBloc.hiveStorageHelper.read<Map<dynamic, dynamic>>(
+                                  final printerData = paymentBloc
+                                      .hiveStorageHelper
+                                      .read<Map<dynamic, dynamic>>(
                                     SharedPreferenceConstants.selectedPrinter,
                                   );
                                   if (printerData != null) {
-                                    selectedPrinter = Printer.fromMap(printerData); // Convert Map back to Printer
+                                    selectedPrinter = Printer.fromMap(
+                                        printerData); // Convert Map back to Printer
                                   }
                                   homeController.initialResponse();
                                   if (selectedPrinter != null) {
@@ -136,21 +139,24 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                       padding:
                           EdgeInsets.symmetric(horizontal: 5.0, vertical: 10),
                       child: ElevatedButton(
-                        onPressed: !state.isLoading
+                        onPressed: !state.isLoading && state.allowPrintInvoice
                             ? () async {
                                 try {
                                   Printer? selectedPrinter;
 
-                                  final printerData = paymentBloc.hiveStorageHelper.read<Map<dynamic, dynamic>>(
+                                  final printerData = paymentBloc
+                                      .hiveStorageHelper
+                                      .read<Map<dynamic, dynamic>>(
                                     SharedPreferenceConstants.selectedPrinter,
                                   );
                                   if (printerData != null) {
-                                    selectedPrinter = Printer.fromMap(printerData); // Convert Map back to Printer
+                                    selectedPrinter = Printer.fromMap(
+                                        printerData); // Convert Map back to Printer
                                   }
                                   homeController.initialResponse();
                                   if (selectedPrinter != null) {
                                     printOrderSummary(
-                                        paymentBloc.orderSummaryResponse,
+                                        paymentBloc.invoiceSummaryResponse,
                                         selectedPrinter);
                                   } else {
                                     selectedPrinter =
@@ -158,7 +164,7 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                                             context: context);
                                     if (selectedPrinter != null) {
                                       printOrderSummary(
-                                          paymentBloc.orderSummaryResponse,
+                                          paymentBloc.invoiceSummaryResponse,
                                           selectedPrinter);
                                     }
                                   }
@@ -178,7 +184,7 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                                 color: CustomColors.primaryColor, width: 1.5),
                             borderRadius: BorderRadius.circular(10),
                           ),
-                          backgroundColor: Color(0xFFF0F4F4),
+                          backgroundColor: CustomColors.keyBoardBgColor,
                         ),
                         child: Center(
                           child: Text(
@@ -219,7 +225,7 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                                 color: CustomColors.primaryColor, width: 1.5),
                             borderRadius: BorderRadius.circular(10),
                           ),
-                          backgroundColor: Color(0xFFF0F4F4),
+                          backgroundColor: CustomColors.keyBoardBgColor,
                         ),
                         child: Center(
                           child: Text(

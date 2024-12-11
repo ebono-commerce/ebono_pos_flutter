@@ -1,7 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:ebono_pos/constants/custom_colors.dart';
-
-import 'add_customer_widget.dart';
+import 'package:flutter/material.dart';
 
 class QuickActionButtons extends StatelessWidget {
   final VoidCallback? onCustomerPressed;
@@ -68,7 +66,7 @@ class QuickActionButtons extends StatelessWidget {
             side: BorderSide(color: CustomColors.primaryColor, width: 1.5),
             borderRadius: BorderRadius.circular(10),
           ),
-          backgroundColor: Color(0xFFF0F4F4),
+          backgroundColor: CustomColors.keyBoardBgColor,
         ),
         child: Center(
           child: Text(

@@ -145,25 +145,25 @@ class PhoneNumber {
 }
 
 class DiscountTotal {
-  int? centAmount;
   String? currency;
+  int? centAmount;
   int? fraction;
 
   DiscountTotal({
-    this.centAmount,
     this.currency,
+    this.centAmount,
     this.fraction,
   });
 
   factory DiscountTotal.fromJson(Map<String, dynamic> json) => DiscountTotal(
-    centAmount: json["cent_amount"],
     currency: json["currency"],
+    centAmount: json["cent_amount"],
     fraction: json["fraction"],
   );
 
   Map<String, dynamic> toJson() => {
-    "cent_amount": centAmount,
     "currency": currency,
+    "cent_amount": centAmount,
     "fraction": fraction,
   };
 }

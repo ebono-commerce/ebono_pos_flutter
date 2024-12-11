@@ -27,6 +27,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
   late PaymentSummaryRequest paymentSummaryRequest;
   late PaymentSummaryResponse paymentSummaryResponse;
   late OrderSummaryResponse orderSummaryResponse;
+  late OrderSummaryResponse invoiceSummaryResponse;
 
   // payment EDC
 
@@ -44,6 +45,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
   double totalPayable = 0;
   double balancePayable = 0;
   bool allowPlaceOrder = false;
+  bool allowPrintInvoice = false;
 
   PaymentBloc(this._paymentRepository, this.hiveStorageHelper)
       : super(PaymentState()) {
@@ -358,6 +360,9 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
           showPaymentPopup: false,
           isPaymentStartSuccess: false));
       if(orderSummaryResponse.orderNumber != null && orderSummaryResponse.orderNumber?.isNotEmpty == true){
+        emit(state.copyWith(
+          isLoading: true,
+          allowPrintInvoice: false,));
         listenToOrderInvoiceSSE(orderSummaryResponse.orderNumber!);
       }
     } catch (error) {
@@ -370,10 +375,26 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
 
   listenToOrderInvoiceSSE(String orderId) {
     _paymentRepository.listenToPaymentUpdates(orderId).listen((event) {
-      print("event data from sse");
-      orderSummaryResponse = orderSummaryResponseFromJson(jsonEncode(event.data));
-      print(event.data.toString());
-      print(event.toString());
+      print("event data from sse ${event.data}");
+      if (event.data != null && event.data?.isNotEmpty == true) {
+        print("event data from sse");
+        try {
+          invoiceSummaryResponse = orderSummaryResponseFromJson(jsonEncode(event.data));
+          if(invoiceSummaryResponse.invoiceNumber != null){
+            allowPrintInvoice = true;
+            emit(state.copyWith(
+              isLoading: false,
+              allowPrintInvoice: true,));
+          }
+          else{
+            emit(state.copyWith(
+              isLoading: true,
+              allowPrintInvoice: false,));
+          }
+        } on Exception catch (e) {
+          print('error in sse event parsing: $e');
+        }
+      }
 
     });
   }

@@ -1,3 +1,4 @@
+import 'package:ebono_pos/constants/custom_colors.dart';
 import 'package:flutter/material.dart';
 
 class CustomQwertyPad extends StatefulWidget {
@@ -170,7 +171,7 @@ class _CustomQwertyPadState extends State<CustomQwertyPad> {
         padding: EdgeInsets.all(20.0),
         margin: EdgeInsets.all(5.0),
         decoration: BoxDecoration(
-          color: Color(0xFFF0F4F4),
+          color: CustomColors.keyBoardBgColor,
           // border: Border.all(color: Color(0xFFF0F4F4)),
           borderRadius: BorderRadius.circular(10.0),
         ),
@@ -194,8 +195,8 @@ class _CustomQwertyPadState extends State<CustomQwertyPad> {
         padding: EdgeInsets.all(15.0),
         margin: EdgeInsets.all(5.0),
         decoration: BoxDecoration(
-          color: Color(0xFFF0F4F4),
-          border: Border.all(color: Color(0xFFF0F4F4)),
+          color: CustomColors.keyBoardBgColor,
+          border: Border.all(color: CustomColors.keyBoardBgColor),
           borderRadius: BorderRadius.circular(10.0),
         ),
         child: Center(
@@ -218,8 +219,8 @@ class _CustomQwertyPadState extends State<CustomQwertyPad> {
         padding: EdgeInsets.all(20.0),
         margin: EdgeInsets.all(5.0),
         decoration: BoxDecoration(
-          color: Color(0xFFF0F4F4),
-          border: Border.all(color: Color(0xFFF0F4F4)),
+          color: CustomColors.keyBoardBgColor,
+          border: Border.all(color: CustomColors.keyBoardBgColor),
           borderRadius: BorderRadius.circular(10.0),
         ),
         child: Center(
@@ -244,8 +245,8 @@ class _CustomQwertyPadState extends State<CustomQwertyPad> {
         padding: EdgeInsets.all(20.0),
         margin: EdgeInsets.all(5.0),
         decoration: BoxDecoration(
-          color: Color(0xFFF0F4F4),
-          border: Border.all(color: Color(0xFFF0F4F4)),
+          color: CustomColors.keyBoardBgColor,
+          border: Border.all(color: CustomColors.keyBoardBgColor),
           borderRadius: BorderRadius.circular(10.0),
         ),
         child: Center(
@@ -268,8 +269,8 @@ class _CustomQwertyPadState extends State<CustomQwertyPad> {
         padding: EdgeInsets.all(10.0),
         margin: EdgeInsets.all(5.0),
         decoration: BoxDecoration(
-          color: Color(0xFFF0F4F4),
-          border: Border.all(color: Color(0xFFF0F4F4)),
+          color: CustomColors.keyBoardBgColor,
+          border: Border.all(color: CustomColors.keyBoardBgColor),
           borderRadius: BorderRadius.circular(10.0),
         ),
         child: Center(
