@@ -10,7 +10,6 @@ class DigitalWeighingScale implements DigitalWeighingScaleImplementation {
 
   final String digitalScalePort;
   final int digitalScaleRate;
-  final int digitalScaleTimeout;
   final RxDouble weightController;
 
   late SerialPort serialPort;
@@ -25,7 +24,6 @@ class DigitalWeighingScale implements DigitalWeighingScaleImplementation {
   DigitalWeighingScale._({
     required this.digitalScalePort,
     required this.digitalScaleRate,
-    required this.digitalScaleTimeout,
     required this.weightController,
   }) {
     print('selected port: $digitalScalePort');
@@ -37,13 +35,11 @@ class DigitalWeighingScale implements DigitalWeighingScaleImplementation {
   factory DigitalWeighingScale({
     required String digitalScalePort,
     required int digitalScaleRate,
-    required int digitalScaleTimeout,
     required RxDouble weightController,
   }) {
     return _instance ??= DigitalWeighingScale._(
       digitalScalePort: digitalScalePort,
       digitalScaleRate: digitalScaleRate,
-      digitalScaleTimeout: digitalScaleTimeout,
       weightController: weightController,
     );
   }

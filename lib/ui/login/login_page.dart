@@ -9,6 +9,7 @@ import 'package:ebono_pos/ui/login/bloc/login_bloc.dart';
 import 'package:ebono_pos/ui/login/bloc/login_event.dart';
 import 'package:ebono_pos/ui/login/bloc/login_state.dart';
 import 'package:ebono_pos/ui/login/repository/login_repository.dart';
+import 'package:ebono_pos/ui/payment_summary/weighing_scale_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
@@ -104,7 +105,7 @@ class _LoginPageState extends State<LoginPage> {
       body: BlocProvider(
         create: (context) => loginBloc,
         child: BlocListener<LoginBloc, LoginState>(
-          listener: (context, state) {
+          listener: (context, state) async {
             if (state is LoginSuccess) {
               loginBloc.add(
                 GetOutletDetails(loginBloc.outletList.first),
@@ -117,7 +118,15 @@ class _LoginPageState extends State<LoginPage> {
             } else if (state is GetOutletDetailsFailure) {
               Get.snackbar("Error", state.error);
             } else if (state is SubmitTerminalDetailsSuccess) {
-              Get.toNamed(PageRoutes.home);
+              try {
+                print("Initializing WeighingScaleService...");
+                await Get.putAsync(() => WeighingScaleService(Get.find<SharedPreferenceHelper>()).init());
+                print("WeighingScaleService initialized successfully!");
+                Get.offAllNamed(PageRoutes.home);
+              } catch (e) {
+                print("Error initializing WeighingScaleService: $e");
+                Get.snackbar("Error", "Failed to initialize weighing scale service");
+              }
             } else if (state is SubmitTerminalDetailsFailure) {
               Get.snackbar("Error", state.error);
             }

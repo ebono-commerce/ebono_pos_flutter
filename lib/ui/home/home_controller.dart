@@ -161,7 +161,6 @@ class HomeController extends GetxController {
       digitalWeighingScale = DigitalWeighingScale(
         digitalScalePort: portName.value,
         digitalScaleRate: rate,
-        digitalScaleTimeout: timeout,
         weightController: weight,
       );
       digitalWeighingScale.getWeight();
