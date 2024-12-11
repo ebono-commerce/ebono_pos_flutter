@@ -26,7 +26,6 @@ import 'package:ebono_pos/ui/home/model/update_cart.dart';
 import 'package:ebono_pos/ui/home/repository/home_repository.dart';
 import 'package:ebono_pos/ui/login/model/login_response.dart';
 import 'package:ebono_pos/ui/payment_summary/model/health_check_response.dart';
-import 'package:ebono_pos/utils/digital_weighing_scale.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -74,10 +73,10 @@ class HomeController extends GetxController {
   String selectedOutletId = '';
   String selectedTerminalId = '';
   RxString customerProxyNumber = ''.obs;
-  RxDouble weight = 0.0.obs; // Observable weight value
+ /* RxDouble weight = 0.0.obs; // Observable weight value
   late DigitalWeighingScale digitalWeighingScale;
   final int rate = 9600;
-  final int timeout = 1000;
+  final int timeout = 1000;*/
   var generalSuccessResponse = GeneralSuccessResponse().obs;
   var healthCheckResponse = HealthCheckResponse().obs;
 
@@ -104,7 +103,7 @@ class HomeController extends GetxController {
     _checkConnectivity();
     await readStorageData();
     if (Platform.isLinux) {
-      initializeWeighingScale();
+     // initializeWeighingScale();
     }
   //  initialResponse();
     super.onInit();
@@ -156,7 +155,7 @@ class HomeController extends GetxController {
     }
   }
 
-  void initializeWeighingScale() {
+  /*void initializeWeighingScale() {
     try {
       digitalWeighingScale = DigitalWeighingScale(
         digitalScalePort: portName.value,
@@ -167,7 +166,7 @@ class HomeController extends GetxController {
     } on Exception catch (e) {
       print(e);
     }
-  }
+  }*/
 
   Future<void> _checkConnectivity() async {
     ConnectivityResult result;
@@ -631,7 +630,7 @@ class HomeController extends GetxController {
   @override
   void onClose() {
     _statusCheckTimer?.cancel();
-    digitalWeighingScale.dispose();
+   // digitalWeighingScale.dispose();
     super.onClose();
   }
 

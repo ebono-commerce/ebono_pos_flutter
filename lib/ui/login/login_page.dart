@@ -106,11 +106,24 @@ class _LoginPageState extends State<LoginPage> {
         create: (context) => loginBloc,
         child: BlocListener<LoginBloc, LoginState>(
           listener: (context, state) async {
-            if (state is LoginSuccess) {
+            if(state is PortSelectionSuccess){
+              try {
+                print("Initializing WeighingScaleService...");
+                if (!Get.isRegistered<WeighingScaleService>()) {
+                  await Get.putAsync(() => WeighingScaleService(Get.find<SharedPreferenceHelper>()).init());
+                }
+                print("WeighingScaleService initialized successfully!");
+              } catch (e) {
+                print("Error initializing WeighingScaleService: $e");
+                Get.snackbar("Error", "Failed to initialize weighing scale service");
+              }
+            }
+            else if (state is LoginSuccess) {
               loginBloc.add(
                 GetOutletDetails(loginBloc.outletList.first),
               );
-            } else if (state is LoginFailure) {
+            }
+            else if (state is LoginFailure) {
               Get.snackbar("Login Error ui", state.error);
             } else if (state is GetOutletDetailsSuccess) {
               Get.snackbar(
@@ -118,15 +131,7 @@ class _LoginPageState extends State<LoginPage> {
             } else if (state is GetOutletDetailsFailure) {
               Get.snackbar("Error", state.error);
             } else if (state is SubmitTerminalDetailsSuccess) {
-              try {
-                print("Initializing WeighingScaleService...");
-                await Get.putAsync(() => WeighingScaleService(Get.find<SharedPreferenceHelper>()).init());
-                print("WeighingScaleService initialized successfully!");
-                Get.offAllNamed(PageRoutes.home);
-              } catch (e) {
-                print("Error initializing WeighingScaleService: $e");
-                Get.snackbar("Error", "Failed to initialize weighing scale service");
-              }
+              Get.offAllNamed(PageRoutes.home);
             } else if (state is SubmitTerminalDetailsFailure) {
               Get.snackbar("Error", state.error);
             }

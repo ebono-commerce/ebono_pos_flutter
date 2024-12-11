@@ -11,6 +11,7 @@ import 'package:ebono_pos/ui/home/widgets/coupon_code_widget.dart';
 import 'package:ebono_pos/ui/home/widgets/multiple_mrp_widget.dart';
 import 'package:ebono_pos/ui/home/widgets/quick_action_buttons.dart';
 import 'package:ebono_pos/ui/payment_summary/model/payment_summary_request.dart';
+import 'package:ebono_pos/ui/payment_summary/weighing_scale_service.dart';
 import 'package:ebono_pos/utils/auth_modes.dart';
 import 'package:ebono_pos/utils/common_methods.dart';
 import 'package:ebono_pos/utils/dash_line.dart';
@@ -33,6 +34,7 @@ class _OrdersSectionState extends State<OrdersSection>
   final TextEditingController scanTextController = TextEditingController();
   HomeController homeController = Get.find<HomeController>();
   FocusNode? activeFocusNode;
+  final WeighingScaleService weighingScaleService = Get.find<WeighingScaleService>();
 
   @override
   void initState() {
@@ -437,10 +439,10 @@ class _OrdersSectionState extends State<OrdersSection>
       });
     });
 
-    ever(homeController.weight, (value) {
+    ever(weighingScaleService.weight, (value) {
       if (value != 0.0 && itemData.weightFocusNode?.hasFocus == true) {
         itemData.weightController?.text =
-            homeController.weight.value.toString();
+            weighingScaleService.weight.value.toString();
         //homeController.weight.value = 0.0;
       }
     });
