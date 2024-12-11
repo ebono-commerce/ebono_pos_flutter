@@ -1,4 +1,5 @@
 import 'package:ebono_pos/constants/custom_colors.dart';
+import 'package:ebono_pos/data_store/shared_preference_helper.dart';
 import 'package:ebono_pos/models/cart_response.dart';
 import 'package:ebono_pos/navigation/page_routes.dart';
 import 'package:ebono_pos/ui/common_text_field.dart';
@@ -35,10 +36,25 @@ class _OrdersSectionState extends State<OrdersSection>
   final TextEditingController scanTextController = TextEditingController();
   HomeController homeController = Get.find<HomeController>();
   FocusNode? activeFocusNode;
-  final WeighingScaleService weighingScaleService = Get.find<WeighingScaleService>();
+  late WeighingScaleService weighingScaleService = Get.find<WeighingScaleService>();
 
   @override
   void initState() {
+    if (mounted) {
+      try {
+        weighingScaleService = Get.find<WeighingScaleService>();
+        print("WeighingScaleService initialized.");
+      } catch (e) {
+        print("WeighingScaleService not found: $e");
+        if (!Get.isRegistered<WeighingScaleService>()) {
+          weighingScaleService =  Get.put<WeighingScaleService>(WeighingScaleService(Get.find<SharedPreferenceHelper>()));
+        }
+        else{
+          Get.delete<WeighingScaleService>();
+          weighingScaleService =  Get.put<WeighingScaleService>(WeighingScaleService(Get.find<SharedPreferenceHelper>()));
+        }
+      }
+    }
     activeFocusNode = scanFocusNode;
     scanFocusNode.addListener(() {
       setState(() {

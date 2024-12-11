@@ -357,7 +357,9 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
           isPaymentStatusSuccess: false,
           showPaymentPopup: false,
           isPaymentStartSuccess: false));
-      listenToOrderInvoiceSSE("9000000068");
+      if(orderSummaryResponse.orderNumber != null && orderSummaryResponse.orderNumber?.isNotEmpty == true){
+        listenToOrderInvoiceSSE(orderSummaryResponse.orderNumber!);
+      }
     } catch (error) {
       emit(state.copyWith(
           isLoading: false,

@@ -255,7 +255,7 @@ class OutletAddress {
   Map<String, dynamic> toJson() => {
     "name": name,
     "full_address": fullAddress,
-    "phone_number": phoneNumber,
+    "phone_number": phoneNumber?.toJson(),
     "gstin_number": gstinNumber,
   };
 }

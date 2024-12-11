@@ -11,7 +11,13 @@ class WeighingScaleService extends GetxService {
 
   WeighingScaleService(this.sharedPreferenceHelper);
 
-  Future<WeighingScaleService> init() async {
+  @override
+  Future<void> onInit() async {
+   await initWeighingScale();
+    super.onInit();
+  }
+
+  Future<WeighingScaleService> initWeighingScale() async {
     try {
       final portName = await sharedPreferenceHelper.getPortName() ?? '';
 
@@ -38,6 +44,7 @@ class WeighingScaleService extends GetxService {
       print("Error disposing weighing scale: $e");
     }
   }
+
 
   @override
   void onClose() {

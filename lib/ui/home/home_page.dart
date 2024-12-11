@@ -29,7 +29,6 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     if (mounted) {
       try {
-        // Try to find the controller after the frame is drawn
         homeController = Get.find<HomeController>();
         print("HomeController initialized.");
       } catch (e) {
