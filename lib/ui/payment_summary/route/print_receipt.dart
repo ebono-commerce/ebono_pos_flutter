@@ -69,21 +69,22 @@ Future<Uint8List> generatePdf(OrderSummaryResponse data) async {
                     pw.Text(
                       data.outletAddress?.fullAddress ?? '',
                       style: pw.TextStyle(
-                        fontSize: 6,
+                        fontSize: 8,
                         font: font,
                       ),
                     ),
                     pw.Text(
                       'Phone Number: +91 ${data.outletAddress?.phoneNumber?.number}',
                       style: pw.TextStyle(
-                        fontSize: 6,
+                        fontSize: 8,
                         font: font,
+                        fontWeight: pw.FontWeight.bold,
                       ),
                     ),
                     pw.Text(
                       'GSTIN: ${data.outletAddress?.gstinNumber}',
                       style: pw.TextStyle(
-                        fontSize: 6,
+                        fontSize: 8,
                         font: font,
                       ),
                     ),
@@ -99,7 +100,7 @@ Future<Uint8List> generatePdf(OrderSummaryResponse data) async {
                         pw.Text(
                           'Invoice No: ${data.invoiceNumber}',
                           style: pw.TextStyle(
-                            fontSize: 6,
+                            fontSize: 8,
                             fontWeight: pw.FontWeight.bold,
                             font: font,
                           ),
@@ -108,7 +109,7 @@ Future<Uint8List> generatePdf(OrderSummaryResponse data) async {
                         pw.Text(
                           'Invoice Date: ${data.invoiceDate}',
                           style: pw.TextStyle(
-                            fontSize: 6,
+                            fontSize: 8,
                             font: font,
                           ),
                         ),
@@ -116,21 +117,21 @@ Future<Uint8List> generatePdf(OrderSummaryResponse data) async {
                         pw.Text(
                           'Order No: ${data.orderNumber}',
                           style: pw.TextStyle(
-                            fontSize: 6,
+                            fontSize: 8,
                             font: font,
                           ),
                         ),
                       pw.Text(
                         'Order Date: ${data.orderDate}',
                         style: pw.TextStyle(
-                          fontSize: 6,
+                          fontSize: 8,
                           font: font,
                         ),
                       ),
                       pw.Text(
                         'Payment Method: ${data.paymentMethods.toString()}',
                         style: pw.TextStyle(
-                          fontSize: 6,
+                          fontSize: 8,
                           font: font,
                         ),
                       ),

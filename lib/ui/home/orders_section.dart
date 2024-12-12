@@ -545,9 +545,7 @@ class _OrdersSectionState extends State<OrdersSection>
       } else {
         {
           skuTitle = scanData.skuTitle ?? '';
-          skuQty = scanData.salesUom?.isNotEmpty == true
-              ? '1'
-              : '';
+          skuQty = scanData.salesUom?.isNotEmpty == true ? '1' : '';
           skuQtyUom = scanData.salesUom?.isNotEmpty == true
               ? scanData.salesUom ?? ''
               : '';
@@ -708,7 +706,11 @@ class _OrdersSectionState extends State<OrdersSection>
                           padding: const EdgeInsets.symmetric(horizontal: 8.0),
                           child: commonTextField(
                               label: homeController.isQuantitySelected.value
-                                  ? ' Enter Quantity'
+                                  ? homeController.selectedItemData.value.item
+                                              ?.isWeighedItem ==
+                                          true
+                                      ? 'Enter Weight'
+                                      : ' Enter Quantity'
                                   : 'Enter Code',
                               focusNode:
                                   (homeController.cartId.value.isNotEmpty &&

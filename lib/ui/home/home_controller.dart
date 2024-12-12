@@ -351,10 +351,38 @@ class HomeController extends GetxController {
       var response =
           await _homeRepository.getCart(CartRequest(cartId: cartId.value));
       cartResponse.value = response;
-      if (cartResponse.value.cartLines != null) {
+      if (cartResponse.value.cartLines != null && cartResponse.value.cartLines?.isNotEmpty == true) {
         for (var element in cartResponse.value.cartLines!) {
           addCartLine(element);
         }
+        if(response.cartLines?.first.item?.isWeighedItem == true){
+            if(response.cartLines?.first.quantity?.quantityNumber == 0){
+              isQuantitySelected.value = true;
+            }
+            selectedItemData.value =  CartLine(
+              cartLineId: response.cartLines?.first.cartLineId,
+              item: response.cartLines?.first.item,
+              quantity:response.cartLines?.first.quantity,
+              unitPrice: response.cartLines?.first.unitPrice,
+              mrp: response.cartLines?.first.mrp,
+              lineTotal:response.cartLines?.first.lineTotal,
+              applicableCartAdjustments: response.cartLines?.first.applicableCartAdjustments,
+              audit: response.cartLines?.first.audit,
+              weightController: TextEditingController(
+                  text: response.cartLines?.first.quantity?.quantityNumber.toString()),
+              weightFocusNode: FocusNode(),
+              quantityTextController: TextEditingController(
+                  text: response.cartLines?.first.quantity?.quantityNumber.toString()),
+              quantityFocusNode: FocusNode(),
+              priceTextController: TextEditingController(
+                  text: response.cartLines?.first.quantity?.quantityNumber.toString()),
+              priceFocusNode: FocusNode(),
+            );
+        }
+      }
+      else{
+        selectedItemData.value = CartLine();
+        isQuantitySelected.value = false;
       }
     } catch (e) {
       print("Error $e");
