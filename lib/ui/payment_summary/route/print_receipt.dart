@@ -329,7 +329,7 @@ Future<Uint8List> generatePdf(OrderSummaryResponse data) async {
                   ),
                   pw.Text(
                     getActualPrice(
-                        data.mrpSavings?.centAmount, data.mrpSavings?.fraction),
+                        data.mrpTotal?.centAmount, data.mrpTotal?.fraction),
                     style: pw.TextStyle(
                       fontSize: 8,
                       font: font,
@@ -379,7 +379,7 @@ Future<Uint8List> generatePdf(OrderSummaryResponse data) async {
                 ),
               ),
               pw.Divider(),
-              if (data.taxDetails?.taxesLines?.isNotEmpty == true)
+              if (data.taxDetails?.taxLines?.isNotEmpty == true)
                 pw.Column(
                   crossAxisAlignment: pw.CrossAxisAlignment.start,
                   children: [
@@ -439,7 +439,7 @@ Future<Uint8List> generatePdf(OrderSummaryResponse data) async {
                     ),
                     pw.Divider(),
                     // Item rows
-                    ...?data.taxDetails?.taxesLines?.map((item) => pw.Column(
+                    ...?data.taxDetails?.taxLines?.map((item) => pw.Column(
                           crossAxisAlignment: pw.CrossAxisAlignment.start,
                           children: [
                             pw.Row(
@@ -455,30 +455,14 @@ Future<Uint8List> generatePdf(OrderSummaryResponse data) async {
                                 ),
                                 pw.Column(children: [
                                   pw.Text(
-                                    item.cgstPercentage ?? '',
+                                    item.cgstValue ?? '',
                                     style: pw.TextStyle(
                                       fontSize: 8,
                                       font: font,
                                     ),
                                   ),
                                   pw.Text(
-                                    '₹ ${item.cgstValue}',
-                                    style: pw.TextStyle(
-                                      fontSize: 8,
-                                      font: font,
-                                    ),
-                                  ),
-                                ]),
-                                pw.Column(children: [
-                                  pw.Text(
-                                    item.sgstPercentage ?? '',
-                                    style: pw.TextStyle(
-                                      fontSize: 8,
-                                      font: font,
-                                    ),
-                                  ),
-                                  pw.Text(
-                                    '₹ ${item.sgstValue}',
+                                    '(${item.cgstPercentage}%)',
                                     style: pw.TextStyle(
                                       fontSize: 8,
                                       font: font,
@@ -487,14 +471,14 @@ Future<Uint8List> generatePdf(OrderSummaryResponse data) async {
                                 ]),
                                 pw.Column(children: [
                                   pw.Text(
-                                    item.igstPercentage ?? '',
+                                    item.sgstValue ?? '',
                                     style: pw.TextStyle(
                                       fontSize: 8,
                                       font: font,
                                     ),
                                   ),
                                   pw.Text(
-                                    '₹ ${item.igstValue}',
+                                    '(${item.sgstPercentage}%)',
                                     style: pw.TextStyle(
                                       fontSize: 8,
                                       font: font,
@@ -503,14 +487,30 @@ Future<Uint8List> generatePdf(OrderSummaryResponse data) async {
                                 ]),
                                 pw.Column(children: [
                                   pw.Text(
-                                    item.cessPercentage ?? '',
+                                    item.igstValue ?? '',
                                     style: pw.TextStyle(
                                       fontSize: 8,
                                       font: font,
                                     ),
                                   ),
                                   pw.Text(
-                                    '₹ ${item.cessValue}',
+                                    '(${item.igstPercentage}%)',
+                                    style: pw.TextStyle(
+                                      fontSize: 8,
+                                      font: font,
+                                    ),
+                                  ),
+                                ]),
+                                pw.Column(children: [
+                                  pw.Text(
+                                    item.cessValue ?? '',
+                                    style: pw.TextStyle(
+                                      fontSize: 8,
+                                      font: font,
+                                    ),
+                                  ),
+                                  pw.Text(
+                                    '(${item.cessPercentage}%)',
                                     style: pw.TextStyle(
                                       fontSize: 8,
                                       font: font,
@@ -542,35 +542,35 @@ Future<Uint8List> generatePdf(OrderSummaryResponse data) async {
                           ),
                         ),
                         pw.Text(
-                          '₹ ${data.taxDetails?.taxesTotals?.totalCgst}',
+                          '₹ ${data.taxDetails?.taxTotals?.totalCgst}',
                           style: pw.TextStyle(
                             fontSize: 8,
                             font: font,
                           ),
                         ),
                         pw.Text(
-                          '₹ ${data.taxDetails?.taxesTotals?.totalSgst}',
+                          '₹ ${data.taxDetails?.taxTotals?.totalSgst}',
                           style: pw.TextStyle(
                             fontSize: 8,
                             font: font,
                           ),
                         ),
                         pw.Text(
-                          '₹ ${data.taxDetails?.taxesTotals?.totalIgst}',
+                          '₹ ${data.taxDetails?.taxTotals?.totalIgst}',
                           style: pw.TextStyle(
                             fontSize: 8,
                             font: font,
                           ),
                         ),
                         pw.Text(
-                          '₹ ${data.taxDetails?.taxesTotals?.totalCess}',
+                          '₹ ${data.taxDetails?.taxTotals?.totalCess}',
                           style: pw.TextStyle(
                             fontSize: 8,
                             font: font,
                           ),
                         ),
                         pw.Text(
-                          '₹ ${data.taxDetails?.taxesTotals?.totalTax}',
+                          '₹ ${data.taxDetails?.taxTotals?.totalTax}',
                           style: pw.TextStyle(
                             fontSize: 8,
                             font: font,

@@ -15,6 +15,7 @@ class OrderSummaryResponse {
   List<InvoiceLine>? invoiceLines;
   TaxDetails? taxDetails;
   String? totalsInWords;
+  DiscountTotal? mrpTotal;
   DiscountTotal? grandTotal;
   DiscountTotal? mrpSavings;
   DiscountTotal? discountTotal;
@@ -34,6 +35,7 @@ class OrderSummaryResponse {
     this.taxDetails,
     this.totalsInWords,
     this.grandTotal,
+    this.mrpTotal,
     this.mrpSavings,
     this.discountTotal,
     this.taxTotal,
@@ -53,6 +55,7 @@ class OrderSummaryResponse {
     taxDetails: json["tax_details"] == null ? null : TaxDetails.fromJson(json["tax_details"]),
     totalsInWords: json["totals_in_words"],
     grandTotal: json["grand_total"] == null ? null : DiscountTotal.fromJson(json["grand_total"]),
+    mrpTotal: json["mrp_total"] == null ? null : DiscountTotal.fromJson(json["mrp_total"]),
     mrpSavings: json["mrp_savings"] == null ? null : DiscountTotal.fromJson(json["mrp_savings"]),
     discountTotal: json["discount_total"] == null ? null : DiscountTotal.fromJson(json["discount_total"]),
     taxTotal: json["tax_total"] == null ? null : DiscountTotal.fromJson(json["tax_total"]),
@@ -72,6 +75,7 @@ class OrderSummaryResponse {
     "tax_details": taxDetails?.toJson(),
     "totals_in_words": totalsInWords,
     "grand_total": grandTotal?.toJson(),
+    "mrp_total": mrpTotal?.toJson(),
     "mrp_savings": mrpSavings?.toJson(),
     "discount_total": discountTotal?.toJson(),
     "tax_total": taxTotal?.toJson(),
@@ -257,22 +261,22 @@ class OutletAddress {
 }
 
 class TaxDetails {
-  List<TaxesLine>? taxesLines;
-  TaxesTotals? taxesTotals;
+  List<TaxesLine>? taxLines;
+  TaxesTotals? taxTotals;
 
   TaxDetails({
-    this.taxesLines,
-    this.taxesTotals,
+    this.taxLines,
+    this.taxTotals,
   });
 
   factory TaxDetails.fromJson(Map<String, dynamic> json) => TaxDetails(
-    taxesLines: json["taxes_lines"] == null ? [] : List<TaxesLine>.from(json["taxes_lines"]!.map((x) => TaxesLine.fromJson(x))),
-    taxesTotals: json["taxes_totals"] == null ? null : TaxesTotals.fromJson(json["taxes_totals"]),
+    taxLines: json["tax_lines"] == null ? [] : List<TaxesLine>.from(json["tax_lines"]!.map((x) => TaxesLine.fromJson(x))),
+    taxTotals: json["tax_totals"] == null ? null : TaxesTotals.fromJson(json["tax_totals"]),
   );
 
   Map<String, dynamic> toJson() => {
-    "taxes_lines": taxesLines == null ? [] : List<dynamic>.from(taxesLines!.map((x) => x.toJson())),
-    "taxes_totals": taxesTotals?.toJson(),
+    "tax_lines": taxLines == null ? [] : List<dynamic>.from(taxLines!.map((x) => x.toJson())),
+    "tax_totals": taxTotals?.toJson(),
   };
 }
 
