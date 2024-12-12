@@ -96,6 +96,7 @@ class HomeController extends GetxController {
   var selectedItemData = CartLine().obs;
   var lastRoute = PageRoutes.paymentSummary.obs;
   var isCustomerProxySelected = false.obs;
+  var isQuantitySelected = false.obs;
 
   @override
   void onInit() async {
@@ -208,7 +209,6 @@ class HomeController extends GetxController {
       item: cartLine.item,
       quantity: cartLine.quantity,
       unitPrice: cartLine.unitPrice,
-      isWeighedItem: cartLine.isWeighedItem,
       mrp: cartLine.mrp,
       lineTotal: cartLine.lineTotal,
       applicableCartAdjustments: cartLine.applicableCartAdjustments,
@@ -287,7 +287,7 @@ class HomeController extends GetxController {
       if (cartId.value != "" && (response.priceList?.length ?? 0) <= 1) {
         addToCartApiCall(
             scanProductsResponse.value.skuCode,
-            1,
+            scanProductsResponse.value.isWeighedItem == true? 0 : 1,
             scanProductsResponse.value.priceList!.first.mrpId,
             scanProductsResponse.value.salesUom,
             cartId.value);

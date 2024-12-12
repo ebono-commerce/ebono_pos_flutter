@@ -18,7 +18,7 @@ void main() async {
     titleBarStyle: TitleBarStyle.hidden, // Hide the title bar
   );
   windowManager.waitUntilReadyToShow(windowOptions, () async {
-    await windowManager.setFullScreen(true); // Make it full-screen
+    await windowManager.setFullScreen(false); // Make it full-screen
     await windowManager.show();
   });
   await HiveStorageHelper.init();

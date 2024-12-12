@@ -31,12 +31,11 @@ class OrdersSection extends StatefulWidget {
 
 class _OrdersSectionState extends State<OrdersSection>
     with WidgetsBindingObserver {
+  final FocusNode numPadFocusNode = FocusNode();
   final TextEditingController numPadTextController = TextEditingController();
-  final FocusNode scanFocusNode = FocusNode();
-  final TextEditingController scanTextController = TextEditingController();
   HomeController homeController = Get.find<HomeController>();
-  FocusNode? activeFocusNode;
-  late WeighingScaleService weighingScaleService = Get.find<WeighingScaleService>();
+  late WeighingScaleService weighingScaleService =
+      Get.find<WeighingScaleService>();
 
   @override
   void initState() {
@@ -47,51 +46,48 @@ class _OrdersSectionState extends State<OrdersSection>
       } catch (e) {
         print("WeighingScaleService not found: $e");
         if (!Get.isRegistered<WeighingScaleService>()) {
-          weighingScaleService =  Get.put<WeighingScaleService>(WeighingScaleService(Get.find<SharedPreferenceHelper>()));
-        }
-        else{
+          weighingScaleService = Get.put<WeighingScaleService>(
+              WeighingScaleService(Get.find<SharedPreferenceHelper>()));
+        } else {
           Get.delete<WeighingScaleService>();
-          weighingScaleService =  Get.put<WeighingScaleService>(WeighingScaleService(Get.find<SharedPreferenceHelper>()));
+          weighingScaleService = Get.put<WeighingScaleService>(
+              WeighingScaleService(Get.find<SharedPreferenceHelper>()));
         }
       }
     }
-    activeFocusNode = scanFocusNode;
-    scanFocusNode.addListener(() {
-      setState(() {
-        if (scanFocusNode.hasFocus) {
-          activeFocusNode = scanFocusNode;
+    ever(homeController.isQuantitySelected, (value) {
+      if (value) {
+        if (!numPadFocusNode.hasFocus) {
+          numPadFocusNode.requestFocus();
         }
-        numPadTextController.text = scanTextController.text;
-      });
+      }
     });
 
-    numPadTextController.addListener(() {
-      setState(() {
-        if (activeFocusNode == scanFocusNode) {
-          scanTextController.text = numPadTextController.text;
-        }
-      });
+    ever(weighingScaleService.weight, (value) {
+      if (!numPadFocusNode.hasFocus) {
+        numPadFocusNode.requestFocus();
+      }
+      numPadTextController.text = value.toString();
     });
 
     ever(homeController.customerResponse, (value) {
       if (value.phoneNumber != null) {
-        scanFocusNode.requestFocus();
+        numPadFocusNode.requestFocus();
       }
     });
 
     ever(homeController.cartResponse, (value) {
-      if (!scanFocusNode.hasFocus) {
-        scanFocusNode.requestFocus();
+      if (!numPadFocusNode.hasFocus) {
+        numPadFocusNode.requestFocus();
       }
     });
 
     WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-
       ever(homeController.scanProductsResponse, (value) {
         if (value.skuCode != null) {
-          scanTextController.clear();
-          scanFocusNode.requestFocus();
+          numPadTextController.clear();
+          numPadFocusNode.requestFocus();
         }
 
         if ((value.priceList?.length ?? 0) > 1) {
@@ -117,15 +113,6 @@ class _OrdersSectionState extends State<OrdersSection>
     super.initState();
   }
 
-
-  /*@override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    _numPadFocusNode.dispose();
-    _numPadTextController.dispose();
-    super.dispose();
-  }*/
-
   @override
   Widget build(BuildContext context) {
     return Center(
@@ -149,8 +136,8 @@ class _OrdersSectionState extends State<OrdersSection>
                         } else {
                           return _buildRegisterClosed(context,
                               onPressed: () async {
-                                homeController.selectedTabButton.value = 1;
-                              });
+                            homeController.selectedTabButton.value = 1;
+                          });
                         }
                       }),
                     )
@@ -179,9 +166,8 @@ class _OrdersSectionState extends State<OrdersSection>
                 );
               },
               onHoldCartPressed: () {
-                AuthModes enableHoldCartMode =
-                    AuthModeExtension.fromString(
-                        homeController.isEnableHoldCartEnabled.value);
+                AuthModes enableHoldCartMode = AuthModeExtension.fromString(
+                    homeController.isEnableHoldCartEnabled.value);
                 if (enableHoldCartMode == AuthModes.enabled) {
                   homeController.holdCartApiCall();
                 } else if (enableHoldCartMode == AuthModes.authorised) {
@@ -197,8 +183,8 @@ class _OrdersSectionState extends State<OrdersSection>
                     },
                   );
                 } else {
-                  Get.snackbar(
-                      'Action Disabled for this account', 'Please contact support');
+                  Get.snackbar('Action Disabled for this account',
+                      'Please contact support');
                 }
               },
               onSalesAssociatePressed: () {
@@ -228,9 +214,8 @@ class _OrdersSectionState extends State<OrdersSection>
                 );
               },
               onClearCartPressed: () {
-                AuthModes enableHoldCartMode =
-                    AuthModeExtension.fromString(
-                        homeController.isEnableHoldCartEnabled.value);
+                AuthModes enableHoldCartMode = AuthModeExtension.fromString(
+                    homeController.isEnableHoldCartEnabled.value);
                 if (enableHoldCartMode == AuthModes.enabled) {
                   homeController.clearFullCart();
                 } else if (enableHoldCartMode == AuthModes.authorised) {
@@ -246,11 +231,11 @@ class _OrdersSectionState extends State<OrdersSection>
                     },
                   );
                 } else {
-                  Get.snackbar(
-                      'Action Disabled for this account', 'Please contact support');
+                  Get.snackbar('Action Disabled for this account',
+                      'Please contact support');
                 }
               },
-              onInventoryInquiryPressed: (){
+              onInventoryInquiryPressed: () {
                 homeController.clearDataAndLogout();
               },
               onSearchItemsPressed: () {
@@ -276,13 +261,14 @@ class _OrdersSectionState extends State<OrdersSection>
   TableRow _buildTableHeader() {
     return TableRow(
       decoration: BoxDecoration(
-          color: Colors.grey.shade300,
+          color: Colors.grey.shade100,
+          border: Border.all(color: Colors.grey.shade500),
           borderRadius: BorderRadius.only(
             topLeft: Radius.circular(10),
             topRight: Radius.circular(10),
             bottomLeft: Radius.circular(0),
             bottomRight: Radius.circular(0),
-          )), // Header background color
+          )),
       children: [
         Padding(
             padding: const EdgeInsets.all(10.0),
@@ -308,13 +294,6 @@ class _OrdersSectionState extends State<OrdersSection>
         Padding(
             padding: const EdgeInsets.all(10.0),
             child: Text(
-              " ",
-              style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                  fontWeight: FontWeight.w100, color: CustomColors.greyFont),
-            )),
-        Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: Text(
               "MRP ₹",
               style: Theme.of(context).textTheme.labelMedium?.copyWith(
                   fontWeight: FontWeight.w100, color: CustomColors.greyFont),
@@ -332,13 +311,12 @@ class _OrdersSectionState extends State<OrdersSection>
   }
 
   final Map<int, TableColumnWidth> columnWidths = const {
-    0: FlexColumnWidth(2),
-    1: FlexColumnWidth(3),
+    0: FlexColumnWidth(3),
+    1: FlexColumnWidth(6),
     2: FlexColumnWidth(2),
-    3: FlexColumnWidth(1),
-    4: FlexColumnWidth(2),
-    5: FlexColumnWidth(2),
-    6: FlexColumnWidth(1),
+    3: FlexColumnWidth(3),
+    4: FlexColumnWidth(3),
+    5: FlexColumnWidth(1),
   };
 
   Widget _buildTableView() {
@@ -373,114 +351,121 @@ class _OrdersSectionState extends State<OrdersSection>
   TableRow _buildTableRow(CartLine itemData) {
     return TableRow(
       decoration: BoxDecoration(
+        color: (homeController.selectedItemData.value.cartLineId ==
+                    itemData.cartLineId &&
+                homeController.isQuantitySelected.value)
+            ? CustomColors.accentColor
+            : Colors.white,
         border: Border.all(color: Colors.grey.shade300, width: 1),
       ),
       children: [
-        _buildTableCell(itemData.item?.skuCode ?? '',
-            maxLines: 1, outerPadding: 8.0, innerPadding: 10.0),
-        _buildTableCell(itemData.item?.skuTitle ?? '',
-            maxLines: 2, outerPadding: 4.0, innerPadding: 2.0),
-        _buildEditableQuantityCell(itemData,
-            outerPadding: 8.0, innerPadding: 10.0),
-        _buildUnitCell(itemData, outerPadding: 4.0, innerPadding: 4.0),
+        _buildTableCell(itemData.item?.skuCode ?? '', maxLines: 1, width: 100),
+        _buildTableCell(itemData.item?.skuTitle ?? '', maxLines: 2, width: 280),
+        _buildQuantityCell(itemData),
         _buildTableCell(
             getActualPrice(itemData.mrp?.centAmount, itemData.mrp?.fraction),
-            outerPadding: 8.0,
-            innerPadding: 10.0),
+            width: 100),
         _buildTableCell(
             getActualPrice(
                 itemData.unitPrice?.centAmount, itemData.unitPrice?.fraction),
-            outerPadding: 8.0,
-            innerPadding: 10.0),
+            width: 100),
         _buildDeleteButton(itemData),
       ],
     );
   }
 
   Widget _buildTableCell(String text,
-      {int maxLines = 1,
-      required double outerPadding,
-      required double innerPadding}) {
+      {int maxLines = 1, required double width}) {
     return Container(
-      color: Colors.white,
-      padding: EdgeInsets.all(outerPadding),
-      child: Padding(
-        padding: EdgeInsets.all(innerPadding),
-        child: Text(
-          text,
-          maxLines: maxLines,
-          overflow: TextOverflow.ellipsis,
-          softWrap: true,
-          style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                fontWeight: FontWeight.w500,
-                color: CustomColors.black,
+      padding: EdgeInsets.all(8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: width,
+            child: Padding(
+              padding: EdgeInsets.only(top: 10, bottom: 10, right: 10),
+              child: Text(
+                text,
+                maxLines: maxLines,
+                overflow: TextOverflow.ellipsis,
+                softWrap: true,
+                textAlign: TextAlign.start,
+                style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                      fontWeight: FontWeight.w500,
+                      color: CustomColors.black,
+                    ),
               ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildEditableTextField(CartLine itemData) {
-    return Container(
-      color: Colors.white,
-      padding: const EdgeInsets.all(2.0),
-      child: Padding(
-        padding: const EdgeInsets.all(1.0),
-        child: commonTextField(
-          label: '',
-          focusNode: itemData.weightFocusNode ?? FocusNode(),
-          readOnly: false,
-          controller: itemData.weightController ?? TextEditingController(),
-          suffixLabel: null,
-          suffixWidget: InkWell(
-            onTap: () {
-              itemData.weightFocusNode?.requestFocus();
-            },
-            child: const Text(''),
+            ),
           ),
-          onValueChanged: (value) {
-            print('on value change');
-          },
-        ),
+          maxLines == 1
+              ? Container(
+                  color: CustomColors.borderColor,
+                  height: 30,
+                  width: 1,
+                )
+              : SizedBox(),
+        ],
       ),
     );
   }
 
-  Widget _buildEditableQuantityCell(CartLine itemData,
-      {required double outerPadding, required double innerPadding}) {
-    numPadTextController.addListener(() {
-      setState(() {
-        if (activeFocusNode == itemData.weightFocusNode) {
-          itemData.weightController?.text = numPadTextController.text;
-        }
-      });
-    });
-
-    ever(weighingScaleService.weight, (value) {
-      if (value != 0.0 && itemData.weightFocusNode?.hasFocus == true) {
-        itemData.weightController?.text =
-            weighingScaleService.weight.value.toString();
-        //homeController.weight.value = 0.0;
-      }
-    });
-
-    itemData.weightFocusNode?.addListener(() {
-      setState(() {
-        if (itemData.weightFocusNode?.hasFocus == true) {
-          homeController.selectedItemData.value = itemData;
-          activeFocusNode = itemData.weightFocusNode;
-        }
-        numPadTextController.text = itemData.weightController?.text ?? '';
-      });
-    });
-    return _buildEditableTextField(itemData);
-  }
-
-  Widget _buildUnitCell(CartLine itemData,
-      {required double outerPadding, required double innerPadding}) {
-    String unitText = itemData.quantity?.quantityUom ?? '';
-    return _buildTableCell(unitText,
-        outerPadding: outerPadding, innerPadding: innerPadding);
+  Widget _buildQuantityCell(
+    CartLine itemData,
+  ) {
+    return InkWell(
+      onTap: () {
+        homeController.selectedItemData.value = itemData;
+        homeController.isQuantitySelected.value = true;
+        //activeFocusNode = itemData.weightFocusNode;
+        //scanTextController.text = itemData.quantity!.quantityNumber.toString();
+        numPadTextController.text =
+            itemData.quantity!.quantityNumber.toString();
+      },
+      child: Container(
+        padding: EdgeInsets.all(8),
+        child: Row(
+          children: [
+            SizedBox(
+              width: 80,
+              child: Padding(
+                padding: EdgeInsets.only(top: 10, bottom: 10, right: 10),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Text(
+                      '${(itemData.item?.isWeighedItem == true) ? (itemData.quantity?.quantityNumber) : (itemData.quantity?.quantityNumber?.toInt())}',
+                      style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                            fontWeight: FontWeight.w500,
+                            color: CustomColors.black,
+                          ),
+                    ),
+                    SizedBox(
+                      width: 8,
+                    ),
+                    Text(
+                      '${itemData.quantity?.quantityUom}',
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                            fontWeight: FontWeight.w500,
+                            color: CustomColors.greyFont,
+                          ),
+                    ),
+                    SizedBox(
+                      width: 8,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            Container(
+              color: CustomColors.borderColor,
+              height: 30,
+              width: 1,
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _buildDeleteButton(CartLine itemData) {
@@ -490,6 +475,7 @@ class _OrdersSectionState extends State<OrdersSection>
         padding: const EdgeInsets.all(0),
         width: 50,
         decoration: BoxDecoration(
+          color: Colors.white,
           border: Border.all(color: CustomColors.red, width: 1),
           borderRadius: BorderRadius.circular(10),
         ),
@@ -516,8 +502,8 @@ class _OrdersSectionState extends State<OrdersSection>
                   ),
                 );
               } else {
-                Get.snackbar(
-                    'Action Disabled for this account', 'Please contact support');
+                Get.snackbar('Action Disabled for this account',
+                    'Please contact support');
               }
             }),
       ),
@@ -538,6 +524,42 @@ class _OrdersSectionState extends State<OrdersSection>
     return Obx(() {
       var scanData = homeController.scanProductsResponse.value;
       var cartData = homeController.cartResponse.value;
+      String skuTitle = '';
+      String skuQty = '';
+      String skuQtyUom = '';
+      String skuPrice = '';
+      String skuUrl = '';
+
+      if (homeController.isQuantitySelected.value) {
+        skuTitle = homeController.selectedItemData.value.item?.skuTitle ?? '';
+        skuQty = homeController.selectedItemData.value.quantity?.quantityNumber
+                .toString() ??
+            '';
+        skuQtyUom =
+            homeController.selectedItemData.value.quantity?.quantityUom ?? '';
+        skuPrice = getActualPrice(
+            homeController.selectedItemData.value.unitPrice?.centAmount,
+            homeController.selectedItemData.value.unitPrice?.fraction);
+        skuUrl =
+            homeController.selectedItemData.value.item?.primaryImageUrl ?? '';
+      } else {
+        {
+          skuTitle = scanData.skuTitle ?? '';
+          skuQty = scanData.salesUom?.isNotEmpty == true
+              ? '1'
+              : '';
+          skuQtyUom = scanData.salesUom?.isNotEmpty == true
+              ? scanData.salesUom ?? ''
+              : '';
+          skuPrice = scanData.priceList?[0].mrp != null
+              ? getActualPrice(
+                  scanData.priceList?[0].mrp!.centAmount,
+                  scanData.priceList?[0].mrp!.fraction,
+                )
+              : ' - ';
+          skuUrl = scanData.mediaUrl ?? '';
+        }
+      }
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 5),
         child: Column(
@@ -573,8 +595,8 @@ class _OrdersSectionState extends State<OrdersSection>
                                 Container(
                                   padding: EdgeInsets.only(right: 2),
                                   child: Text(
-                                      scanData.skuTitle?.isNotEmpty == true
-                                          ? '${scanData.skuTitle}'
+                                      skuTitle.isNotEmpty == true
+                                          ? skuTitle
                                           : " - ",
                                       maxLines: 2,
                                       softWrap: true,
@@ -597,9 +619,8 @@ class _OrdersSectionState extends State<OrdersSection>
                                             fontWeight: FontWeight.w400),
                                       ),
                                       TextSpan(
-                                        text: scanData.salesUom?.isNotEmpty ==
-                                                true
-                                            ? '1 '
+                                        text: skuQty.isNotEmpty == true
+                                            ? skuQty
                                             : " - ",
                                         style: TextStyle(
                                             color: Colors.black,
@@ -607,9 +628,8 @@ class _OrdersSectionState extends State<OrdersSection>
                                             fontWeight: FontWeight.bold),
                                       ),
                                       TextSpan(
-                                        text: scanData.salesUom?.isNotEmpty ==
-                                                true
-                                            ? '(${scanData.salesUom})'
+                                        text: skuQtyUom.isNotEmpty == true
+                                            ? '($skuQtyUom)'
                                             : " - ",
                                         style: TextStyle(
                                             color: Colors.black,
@@ -631,13 +651,8 @@ class _OrdersSectionState extends State<OrdersSection>
                                             fontWeight: FontWeight.w400),
                                       ),
                                       TextSpan(
-                                        text: scanData.priceList?[0].mrp != null
-                                            ? getActualPrice(
-                                                scanData.priceList?[0].mrp!
-                                                    .centAmount,
-                                                scanData.priceList?[0].mrp!
-                                                    .fraction,
-                                              )
+                                        text: skuPrice.isNotEmpty
+                                            ? skuPrice
                                             : ' - ',
                                         style: TextStyle(
                                             color: Colors.black,
@@ -659,7 +674,7 @@ class _OrdersSectionState extends State<OrdersSection>
                                 shape: BoxShape.rectangle,
                               ),
                               child: Image.network(
-                                '${scanData.mediaUrl}',
+                                skuUrl,
                                 cacheHeight: 50,
                                 cacheWidth: 50,
                                 errorBuilder: (BuildContext context,
@@ -692,47 +707,52 @@ class _OrdersSectionState extends State<OrdersSection>
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 8.0),
                           child: commonTextField(
-                            label: ' Enter Code, Quantity ',
-                            focusNode:
-                                (homeController.cartId.value.isNotEmpty &&
-                                        homeController.registerId.isNotEmpty)
-                                    ? scanFocusNode
-                                    : FocusNode(),
-                            readOnly: (homeController.cartId.value.isNotEmpty &&
-                                    homeController.registerId.isNotEmpty)
-                                ? false
-                                : true,
-                            controller:
-                                (homeController.cartId.value.isNotEmpty &&
-                                        homeController.registerId.isNotEmpty)
-                                    ? scanTextController
-                                    : TextEditingController(),
-                            onValueChanged: (text){
-                              if (activeFocusNode == scanFocusNode) {
-                                if (homeController.cartId.value.isNotEmpty &&
-                                    homeController.registerId.isNotEmpty) {
-                                  print("common field onValueChanged text: $text");
-                                  if (isValidOfferId(text)) {
-                                    homeController.scanApiCall(text.trim());
+                              label: homeController.isQuantitySelected.value
+                                  ? ' Enter Quantity'
+                                  : 'Enter Code',
+                              focusNode:
+                                  (homeController.cartId.value.isNotEmpty &&
+                                          homeController.registerId.isNotEmpty)
+                                      ? numPadFocusNode
+                                      : FocusNode(),
+                              readOnly:
+                                  (homeController.cartId.value.isNotEmpty &&
+                                          homeController.registerId.isNotEmpty)
+                                      ? false
+                                      : true,
+                              controller:
+                                  (homeController.cartId.value.isNotEmpty &&
+                                          homeController.registerId.isNotEmpty)
+                                      ? numPadTextController
+                                      : TextEditingController(),
+                              onValueChanged: (text) {
+                                if (homeController.isQuantitySelected.value ==
+                                    false) {
+                                  if (homeController.cartId.value.isNotEmpty &&
+                                      homeController.registerId.isNotEmpty) {
+                                    print(
+                                        "common field onValueChanged text: $text");
+                                    if (isValidOfferId(text)) {
+                                      homeController.scanApiCall(text.trim());
+                                    }
                                   }
                                 }
-                              }
-                            }
-                          ),
+                              }),
                         ),
                         CustomNumPad(
-                          focusNode: activeFocusNode!,
+                          focusNode: numPadFocusNode!,
                           textController: numPadTextController,
                           onEnterPressed: (text) {
                             print("Enter pressed with text: $text");
-                            if (activeFocusNode == scanFocusNode) {
+                            if (homeController.isQuantitySelected.value ==
+                                false) {
                               if (homeController.cartId.value.isNotEmpty &&
                                   homeController.registerId.isNotEmpty) {
                                 if (isValidOfferId(text)) {
                                   homeController.scanApiCall(text.trim());
                                 }
                               }
-                              activeFocusNode?.unfocus();
+                              numPadFocusNode.unfocus();
                             } else {
                               try {
                                 if (numPadTextController.text != '0.0' &&
@@ -754,18 +774,25 @@ class _OrdersSectionState extends State<OrdersSection>
                                           .selectedItemData.value.cartLineId,
                                       homeController.selectedItemData.value
                                           .quantity?.quantityUom,
-                                      weight,
+                                      double.parse(numPadTextController.text),
                                     );
+                                    homeController.isQuantitySelected.value =
+                                        false;
+                                    numPadTextController.text = '';
                                   }
+                                } else {
+                                  Get.snackbar('Invalid or Duplicate Quantity',
+                                      'Please enter valid Quantity');
                                 }
                               } on Exception catch (e) {
                                 print(e);
                               }
-                              activeFocusNode?.unfocus();
+                              numPadFocusNode.unfocus();
                             }
                           },
                           onValueChanged: (text) {
-                            if (activeFocusNode == scanFocusNode) {
+                            if (homeController.isQuantitySelected.value ==
+                                false) {
                               if (homeController.cartId.value.isNotEmpty &&
                                   homeController.registerId.isNotEmpty) {
                                 print("onTextListener text: $text");
