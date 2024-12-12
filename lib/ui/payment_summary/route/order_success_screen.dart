@@ -47,7 +47,7 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                 height: 10,
               ),
               Lottie.asset(
-                state.isLoading || !state.allowPrintInvoice
+                 !state.allowPrintInvoice
                     ? 'assets/lottie/loading.json'
                     : 'assets/lottie/success.json',
                 width: 200,
@@ -61,7 +61,7 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                 height: 10,
               ),
               Text(
-                state.isLoading || !state.allowPrintInvoice
+                 !state.allowPrintInvoice
                     ? "Generating Invoice"
                     : "Invoice Generated Successfully!",
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(

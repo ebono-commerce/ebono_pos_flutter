@@ -12,7 +12,7 @@ import 'navigation/page_routes.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await windowManager.ensureInitialized();
-/*  WindowOptions windowOptions = WindowOptions(
+  WindowOptions windowOptions = WindowOptions(
     center: true,
     backgroundColor: Colors.transparent,
     titleBarStyle: TitleBarStyle.hidden, // Hide the title bar
@@ -20,7 +20,7 @@ void main() async {
   windowManager.waitUntilReadyToShow(windowOptions, () async {
     await windowManager.setFullScreen(true); // Make it full-screen
     await windowManager.show();
-  });*/
+  });
   await HiveStorageHelper.init();
   runApp(const MyApp());
 }

@@ -257,7 +257,7 @@ Future<Uint8List> generatePdf(OrderSummaryResponse data) async {
                                 ),
                               ),
                               pw.Text(
-                                item.quantity?.quantityNumber ?? '',
+                               '${item.quantity?.quantityNumber}',
                                 style: pw.TextStyle(
                                   fontSize: 8,
                                   font: font,
