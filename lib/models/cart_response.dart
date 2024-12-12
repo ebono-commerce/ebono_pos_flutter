@@ -177,7 +177,6 @@ class CartAdjustment {
 class CartLine {
   String? cartLineId;
   Item? item;
-  bool? isWeighedItem;
   Quantity? quantity;
   AmountPayable? unitPrice;
   AmountPayable? mrp;
@@ -194,7 +193,6 @@ class CartLine {
   CartLine({
     this.cartLineId,
     this.item,
-    this.isWeighedItem,
     this.quantity,
     this.unitPrice,
     this.mrp,
@@ -211,7 +209,6 @@ class CartLine {
 
   factory CartLine.fromJson(Map<String, dynamic> json) => CartLine(
         cartLineId: json["cart_line_id"],
-        isWeighedItem: json["is_weighed_item"],
         item: json["item"] == null ? null : Item.fromJson(json["item"]),
         quantity: json["quantity"] == null
             ? null
@@ -234,7 +231,6 @@ class CartLine {
 
   Map<String, dynamic> toJson() => {
         "cart_line_id": cartLineId,
-        "is_weighed_item": isWeighedItem,
         "item": item?.toJson(),
         "quantity": quantity?.toJson(),
         "unit_price": unitPrice?.toJson(),
