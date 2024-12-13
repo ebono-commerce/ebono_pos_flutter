@@ -322,7 +322,7 @@ Future<Uint8List> generatePdf(OrderSummaryResponse data) async {
                     ),
                   ),
                   pw.Text(
-                    '${data.invoiceLines?.length}',
+                    '${data.quantityTotal}',
                     style: pw.TextStyle(
                       fontSize: 8,
                       font: font,

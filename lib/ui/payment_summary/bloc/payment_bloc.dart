@@ -325,24 +325,28 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
         );
         if (balancePayable < 0) {}
         paymentMethods?.add(PaymentMethod(
-          paymentOptionId: cashPaymentOption?.paymentOptionId,
-          pspId: cashPaymentOption?.pspId,
-          requestId: paymentSummaryRequest.cartId,
-          transactionReferenceId: paymentSummaryRequest.cartId,
-          amount: double.parse(cashPayment),
-        ));
+            paymentOptionId: cashPaymentOption?.paymentOptionId,
+            pspId: cashPaymentOption?.pspId,
+            requestId: paymentSummaryRequest.cartId,
+            transactionReferenceId: paymentSummaryRequest.cartId,
+            amount: double.parse(cashPayment),
+            methodDetail: [
+              MethodDetail(key: "METHOD", value: "CASH"),
+            ]));
       }
       if (onlinePayment.isNotEmpty) {
         onlinePaymentOption = paymentSummaryResponse.paymentOptions?.firstWhere(
           (option) => option.code == 'ONLINE',
         );
         paymentMethods?.add(PaymentMethod(
-          paymentOptionId: onlinePaymentOption?.paymentOptionId,
-          pspId: onlinePaymentOption?.pspId,
-          requestId: p2pRequestId,
-          transactionReferenceId: paymentStatusResponse.txnId,
-          amount: double.parse(onlinePayment),
-        ));
+            paymentOptionId: onlinePaymentOption?.paymentOptionId,
+            pspId: onlinePaymentOption?.pspId,
+            requestId: p2pRequestId,
+            transactionReferenceId: paymentStatusResponse.txnId,
+            amount: double.parse(onlinePayment),
+            methodDetail: [
+              MethodDetail(key: "METHOD", value: paymentStatusResponse.paymentMode),
+            ]));
       }
 
       orderSummaryResponse = await _paymentRepository.placeOrder(
@@ -358,10 +362,12 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
           isPaymentStatusSuccess: false,
           showPaymentPopup: false,
           isPaymentStartSuccess: false));
-      if(orderSummaryResponse.orderNumber != null && orderSummaryResponse.orderNumber?.isNotEmpty == true){
+      if (orderSummaryResponse.orderNumber != null &&
+          orderSummaryResponse.orderNumber?.isNotEmpty == true) {
         emit(state.copyWith(
           isLoading: true,
-          allowPrintInvoice: false,));
+          allowPrintInvoice: false,
+        ));
         listenToOrderInvoiceSSE(orderSummaryResponse.orderNumber!);
       }
     } catch (error) {
@@ -379,22 +385,22 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
         print("event data from sse");
         try {
           invoiceSummaryResponse = orderSummaryResponseFromJson(event.data!);
-          if(invoiceSummaryResponse.invoiceNumber != null){
+          if (invoiceSummaryResponse.invoiceNumber != null) {
             allowPrintInvoice = true;
             emit(state.copyWith(
               isLoading: false,
-              allowPrintInvoice: true,));
-          }
-          else{
+              allowPrintInvoice: true,
+            ));
+          } else {
             emit(state.copyWith(
               isLoading: true,
-              allowPrintInvoice: false,));
+              allowPrintInvoice: false,
+            ));
           }
         } on Exception catch (e) {
           print('error in sse event parsing: $e');
         }
       }
-
     });
   }
 

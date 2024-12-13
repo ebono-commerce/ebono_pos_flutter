@@ -15,6 +15,7 @@ class OrderSummaryResponse {
   List<InvoiceLine>? invoiceLines;
   TaxDetails? taxDetails;
   String? totalsInWords;
+  String? quantityTotal;
   DiscountTotal? mrpTotal;
   DiscountTotal? grandTotal;
   DiscountTotal? mrpSavings;
@@ -34,6 +35,7 @@ class OrderSummaryResponse {
     this.invoiceLines,
     this.taxDetails,
     this.totalsInWords,
+    this.quantityTotal,
     this.grandTotal,
     this.mrpTotal,
     this.mrpSavings,
@@ -54,6 +56,7 @@ class OrderSummaryResponse {
     invoiceLines: json["invoice_lines"] == null ? [] : List<InvoiceLine>.from(json["invoice_lines"]!.map((x) => InvoiceLine.fromJson(x))),
     taxDetails: json["tax_details"] == null ? null : TaxDetails.fromJson(json["tax_details"]),
     totalsInWords: json["totals_in_words"],
+    quantityTotal: json["quantity_total"],
     grandTotal: json["grand_total"] == null ? null : DiscountTotal.fromJson(json["grand_total"]),
     mrpTotal: json["mrp_total"] == null ? null : DiscountTotal.fromJson(json["mrp_total"]),
     mrpSavings: json["mrp_savings"] == null ? null : DiscountTotal.fromJson(json["mrp_savings"]),
@@ -74,6 +77,7 @@ class OrderSummaryResponse {
     "invoice_lines": invoiceLines == null ? [] : List<dynamic>.from(invoiceLines!.map((x) => x.toJson())),
     "tax_details": taxDetails?.toJson(),
     "totals_in_words": totalsInWords,
+    "quantity_total": quantityTotal,
     "grand_total": grandTotal?.toJson(),
     "mrp_total": mrpTotal?.toJson(),
     "mrp_savings": mrpSavings?.toJson(),
