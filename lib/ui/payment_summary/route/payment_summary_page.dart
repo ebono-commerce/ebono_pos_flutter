@@ -143,6 +143,8 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
               _showOrderSuccessDialog();
             }
             if (state.isPlaceOrderError) {
+              cashPaymentTextController.text = '';
+              onlinePaymentTextController.text = '';
               paymentBloc.add(PaymentIdealEvent());
               Get.snackbar("Place Order Error", state.errorMessage ?? "");
             }

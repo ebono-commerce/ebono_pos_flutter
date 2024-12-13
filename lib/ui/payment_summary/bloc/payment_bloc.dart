@@ -70,6 +70,9 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
 
   Future<void> _onIdeal(
       PaymentIdealEvent event, Emitter<PaymentState> emit) async {
+    paymentMethods?.clear();
+    cashPayment = '';
+    onlinePayment = '';
     emit(state.copyWith(
       initialState: false,
       isLoading: false,
