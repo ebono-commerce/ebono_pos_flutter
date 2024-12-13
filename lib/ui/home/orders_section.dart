@@ -417,10 +417,9 @@ class _OrdersSectionState extends State<OrdersSection>
       onTap: () {
         homeController.selectedItemData.value = itemData;
         homeController.isQuantitySelected.value = true;
-        //activeFocusNode = itemData.weightFocusNode;
-        //scanTextController.text = itemData.quantity!.quantityNumber.toString();
-        numPadTextController.text =
-            itemData.quantity!.quantityNumber.toString();
+        var quantity =
+            '${(itemData.item?.isWeighedItem == true) ? (itemData.quantity?.quantityNumber) : (itemData.quantity?.quantityNumber?.toInt())}';
+        numPadTextController.text = quantity;
       },
       child: Container(
         padding: EdgeInsets.all(8),
