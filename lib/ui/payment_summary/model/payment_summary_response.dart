@@ -1,3 +1,7 @@
+// To parse this JSON data, do
+//
+//     final paymentSummaryResponse = paymentSummaryResponseFromJson(jsonString);
+
 import 'dart:convert';
 
 PaymentSummaryResponse paymentSummaryResponseFromJson(str) => PaymentSummaryResponse.fromJson(json.decode(str));
@@ -8,7 +12,7 @@ class PaymentSummaryResponse {
   String? cartId;
   DateTime? createdAt;
   String? cartType;
-  int? totalUnits;
+  dynamic? totalUnits;
   int? totalItems;
   AmountPayable? amountPayable;
   AmountPayable? mrpSavings;
@@ -35,7 +39,7 @@ class PaymentSummaryResponse {
     cartId: json["cart_id"],
     createdAt: json["created_at"] == null ? null : DateTime.parse(json["created_at"]),
     cartType: json["cart_type"],
-    totalUnits: json["total_units"],
+    totalUnits: json["total_units"]?.toDouble(),
     totalItems: json["total_items"],
     amountPayable: json["amount_payable"] == null ? null : AmountPayable.fromJson(json["amount_payable"]),
     mrpSavings: json["mrp_savings"] == null ? null : AmountPayable.fromJson(json["mrp_savings"]),
