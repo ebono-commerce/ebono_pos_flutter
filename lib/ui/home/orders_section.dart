@@ -370,8 +370,7 @@ class _OrdersSectionState extends State<OrdersSection>
           onTap: (){
             AuthModes enablePriceEdit = AuthModeExtension.fromString(
                 homeController.isPriceEditEnabled.value);
-            if (enablePriceEdit == AuthModes.disabled ) { // just for checking actual should be below condition
-              //if (enablePriceEdit == AuthModes.enabled || enablePriceEdit == AuthModes.authorised) {
+              if (enablePriceEdit == AuthModes.enabled || enablePriceEdit == AuthModes.authorised) {
               showDialog(
                 context: context,
                 builder: (BuildContext context) {

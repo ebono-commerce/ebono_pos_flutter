@@ -4,13 +4,14 @@ import 'package:ebono_pos/theme/theme_data.dart';
 import 'package:ebono_pos/utils/SDP.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:window_manager/window_manager.dart';
 
 import 'di/initial_binding.dart';
 import 'navigation/page_routes.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  /*await windowManager.ensureInitialized();
+  await windowManager.ensureInitialized();
   WindowOptions windowOptions = WindowOptions(
     center: true,
     backgroundColor: Colors.transparent,
@@ -19,7 +20,7 @@ void main() async {
   windowManager.waitUntilReadyToShow(windowOptions, () async {
     await windowManager.setFullScreen(true);
     await windowManager.show();
-  });*/
+  });
   await HiveStorageHelper.init();
   runApp(const MyApp());
 }
