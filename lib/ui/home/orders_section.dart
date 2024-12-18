@@ -10,6 +10,7 @@ import 'package:ebono_pos/ui/home/widgets/add_customer_widget.dart';
 import 'package:ebono_pos/ui/home/widgets/authorisation_required_widget.dart';
 import 'package:ebono_pos/ui/home/widgets/coupon_code_widget.dart';
 import 'package:ebono_pos/ui/home/widgets/multiple_mrp_widget.dart';
+import 'package:ebono_pos/ui/home/widgets/price_override_with_auth_widget.dart';
 import 'package:ebono_pos/ui/home/widgets/quick_action_buttons.dart';
 import 'package:ebono_pos/ui/payment_summary/model/payment_summary_request.dart';
 import 'package:ebono_pos/ui/payment_summary/weighing_scale_service.dart';
@@ -365,10 +366,33 @@ class _OrdersSectionState extends State<OrdersSection>
         _buildTableCell(
             getActualPrice(itemData.mrp?.centAmount, itemData.mrp?.fraction),
             width: 100),
-        _buildTableCell(
-            getActualPrice(
-                itemData.unitPrice?.centAmount, itemData.unitPrice?.fraction),
-            width: 100),
+        InkWell(
+          onTap: (){
+            AuthModes enablePriceEdit = AuthModeExtension.fromString(
+                homeController.isPriceEditEnabled.value);
+            if (enablePriceEdit == AuthModes.disabled ) { // just for checking actual should be below condition
+              //if (enablePriceEdit == AuthModes.enabled || enablePriceEdit == AuthModes.authorised) {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return Dialog(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20.0),
+                    ),
+                    child: PriceOverrideWithAuthWidget(context, itemData),
+                  );
+                },
+              );
+            } else {
+              Get.snackbar('Action Disabled for this account',
+                  'Please contact support');
+            }
+          },
+          child: _buildTableCell(
+              getActualPrice(
+                  itemData.unitPrice?.centAmount, itemData.unitPrice?.fraction),
+              width: 100),
+        ),
         _buildDeleteButton(itemData),
       ],
     );
@@ -763,13 +787,27 @@ class _OrdersSectionState extends State<OrdersSection>
                                         homeController.selectedItemData.value
                                             .quantity?.quantityNumber
                                             .toString()) {
-                                  double weight = double.parse(homeController
-                                          .selectedItemData
-                                          .value
-                                          .weightController
-                                          ?.text ??
-                                      '');
                                   if (!homeController.isApiCallInProgress) {
+                                    try {
+                                      if(homeController.isQuantitySelected.value &&
+                                          homeController.selectedItemData.value.item
+                                              ?.isWeighedItem ==
+                                              true){
+                                        if(double.parse(numPadTextController.text) > 300 ){
+                                          Get.snackbar('Invalid Weight',
+                                              'Weight can\'t be more than 300kgs, Please enter valid weight');
+                                          return ;
+                                        }
+                                      } else if(homeController.isQuantitySelected.value){
+                                        if(int.parse(numPadTextController.text) > 999 ){
+                                          Get.snackbar('Invalid Quantity',
+                                              'Quantity can\'t be more than 999, Please enter valid quantity');
+                                          return ;
+                                        }
+                                      }
+                                    } on Exception catch (e) {
+                                      print('error on numpad enter $e');
+                                    }
                                     homeController.updateCartItemApiCall(
                                       homeController
                                           .selectedItemData.value.cartLineId,

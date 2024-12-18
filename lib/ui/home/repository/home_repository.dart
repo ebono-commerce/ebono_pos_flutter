@@ -11,14 +11,17 @@ import 'package:ebono_pos/ui/home/model/customer_details_response.dart';
 import 'package:ebono_pos/ui/home/model/customer_request.dart';
 import 'package:ebono_pos/ui/home/model/delete_cart.dart';
 import 'package:ebono_pos/ui/home/model/general_success_response.dart';
+import 'package:ebono_pos/ui/home/model/get_authorisation_response.dart';
 import 'package:ebono_pos/ui/home/model/open_register_response.dart';
 import 'package:ebono_pos/ui/home/model/orders_on_hold.dart';
 import 'package:ebono_pos/ui/home/model/orders_onhold_request.dart';
+import 'package:ebono_pos/ui/home/model/overide_price_request.dart';
 import 'package:ebono_pos/ui/home/model/phone_number_request.dart';
 import 'package:ebono_pos/ui/home/model/register_close_request.dart';
 import 'package:ebono_pos/ui/home/model/register_open_request.dart';
 import 'package:ebono_pos/ui/home/model/resume_hold_cart_request.dart';
 import 'package:ebono_pos/ui/home/model/update_cart.dart';
+import 'package:ebono_pos/ui/login/model/login_request.dart';
 import 'package:ebono_pos/ui/payment_summary/model/health_check_response.dart';
 
 class HomeRepository {
@@ -233,6 +236,34 @@ class HomeRepository {
       final ordersOnHoldResponse =
           ordersOnHoldResponseFromJson(jsonEncode(response));
       return ordersOnHoldResponse;
+    } catch (e) {
+      throw Exception('Failed to parse data');
+    }
+  }
+
+  Future<GetAuthorisationResponse> getAuthorisation(
+      LoginRequest request) async {
+    try {
+      final response = await _apiHelper.post(
+        ApiConstants.getAuthorisation,
+        data: request.toJson(),
+      );
+      final getAuthorisationResponse = getAuthorisationResponseFromJson(jsonEncode(response));
+      return getAuthorisationResponse;
+    } catch (e) {
+      throw Exception('Failed to parse data');
+    }
+  }
+
+  Future<CartResponse> overridePrice(
+      OverRidePriceRequest request) async {
+    try {
+      final response = await _apiHelper.post(
+        ApiConstants.overridePrice,
+        data: request.toJson(),
+      );
+      final cartResponse = cartResponseFromJson(jsonEncode(response));
+      return cartResponse;
     } catch (e) {
       throw Exception('Failed to parse data');
     }
