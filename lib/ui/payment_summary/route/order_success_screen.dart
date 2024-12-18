@@ -54,7 +54,7 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                 height: 200,
                 fit: BoxFit.fill,
                 repeat: true,
-                reverse: true,
+                reverse: false,
                 animate: true,
               ),
               SizedBox(

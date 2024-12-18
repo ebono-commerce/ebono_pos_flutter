@@ -29,7 +29,8 @@ class PaymentSummaryScreen extends StatefulWidget {
 }
 
 class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
-  final paymentBloc = Get.put(PaymentBloc(Get.find<PaymentRepository>(), Get.find<HiveStorageHelper>()));
+  final paymentBloc = Get.put(PaymentBloc(
+      Get.find<PaymentRepository>(), Get.find<HiveStorageHelper>()));
   late ThemeData theme;
   String input = '';
   HomeController homeController = Get.find<HomeController>();
@@ -188,7 +189,10 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                 ),
                 state.isLoading
                     ? Center(child: CircularProgressIndicator())
-                    : SizedBox(width: 1, height: 1,),
+                    : SizedBox(
+                        width: 1,
+                        height: 1,
+                      ),
               ],
             );
           }),
@@ -437,16 +441,17 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
   }
 
 // Widget for Payment Mode Option
-  Widget paymentModeOption(
-      {required String label,
-      required String iconPath,
-      required String inputHint,
-      required String buttonLabel,
-      required TextEditingController controller,
-      required FocusNode focusNode,
-      required VoidCallback? onPressed,
-      required FormFieldValidator<String>? validator // Add callback parameter
-      }) {
+  Widget paymentModeOption({
+    required String label,
+    required String iconPath,
+    required String inputHint,
+    required String buttonLabel,
+    required TextEditingController controller,
+    required FocusNode focusNode,
+    required VoidCallback? onPressed,
+    required FormFieldValidator<String>? validator,
+    bool readOnly = false,
+  }) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -468,16 +473,20 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
         ),
         Row(
           children: [
-            SizedBox(
-              width: 140,
-              child: commonTextField(
-                  label: inputHint,
-                  focusNode: focusNode,
-                  controller: controller,
-                  onValueChanged: (value) {
-                    print('commonTextField $value');
-                  },
-                  validator: validator),
+            IgnorePointer(
+              ignoring: readOnly,
+              child: SizedBox(
+                width: 140,
+                child: commonTextField(
+                    label: inputHint,
+                    focusNode: focusNode,
+                    controller: controller,
+                    readOnly: readOnly,
+                    onValueChanged: (value) {
+                      print('commonTextField $value');
+                    },
+                    validator: validator),
+              ),
             ),
             SizedBox(width: 14),
             SizedBox(
@@ -551,17 +560,23 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                       buttonLabel: 'Generate link',
                       controller: onlinePaymentTextController,
                       focusNode: onlinePaymentFocusNode,
-                      onPressed: onlinePaymentTextController.value.text.isNotEmpty
-                          ? () {
-                              paymentBloc.add(PaymentStartEvent());
-                            }
-                          : null,
+                      onPressed:
+                          onlinePaymentTextController.value.text.isNotEmpty
+                              ? () {
+                                  paymentBloc.add(PaymentStartEvent());
+                                }
+                              : null,
                       validator: (value) {
-                        var onlineAmount = onlinePaymentTextController.text.isNotEmpty?double.parse(onlinePaymentTextController.text):0;
-                        if (onlineAmount >= 0 && onlineAmount <= (paymentBloc.totalPayable)) {
+                        var onlineAmount =
+                            onlinePaymentTextController.text.isNotEmpty
+                                ? double.parse(onlinePaymentTextController.text)
+                                : 0;
+                        if (onlineAmount >= 0 &&
+                            onlineAmount <= (paymentBloc.totalPayable)) {
                           return null;
                         } else {
-                          Get.snackbar('Amount can\'t be more than total payable',
+                          Get.snackbar(
+                              'Amount can\'t be more than total payable',
                               'please enter valid amount');
                           return 'Invalid Amount';
                         }
@@ -604,6 +619,7 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                     buttonLabel: 'Redeem',
                     controller: loyaltyTextController,
                     focusNode: loyaltyPaymentFocusNode,
+                    readOnly: true,
                     onPressed: null,
                     validator: null),
                 //redemptionOption(),
@@ -615,6 +631,7 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                     buttonLabel: 'Apply',
                     controller: walletTextController,
                     focusNode: walletPaymentFocusNode,
+                    readOnly: true,
                     onPressed: null,
                     validator: null),
 
@@ -660,17 +677,17 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    balancePayableAmount > 0
+                    balancePayableAmount >= 0
                         ? 'Balance amount'
                         : 'Balance amount return to customer',
                     style: theme.textTheme.titleSmall
                         ?.copyWith(fontWeight: FontWeight.normal),
                   ),
                   Text(
-                    '₹$balancePayableAmount',
+                    '₹ ${balancePayableAmount.abs()}',
                     style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
-                        color: balancePayableAmount > 0
+                        color: balancePayableAmount >= 0
                             ? Colors.black
                             : CustomColors.red),
                   ),
@@ -718,7 +735,7 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
             children: [
               Center(
                 child: Container(
-                  width: 600,
+                    width: 600,
                     padding: EdgeInsets.all(10),
                     decoration: BoxDecoration(
                         color: Colors.white,
@@ -771,9 +788,10 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                                     padding: const EdgeInsets.all(20.0),
                                     child: Text(
                                       'Cancel Payment',
-                                      style: theme.textTheme.titleSmall?.copyWith(
-                                          fontWeight: FontWeight.normal,
-                                          color: Colors.white),
+                                      style: theme.textTheme.titleSmall
+                                          ?.copyWith(
+                                              fontWeight: FontWeight.normal,
+                                              color: Colors.white),
                                     ),
                                   ),
                                 ),
@@ -782,7 +800,8 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                                 ),
                                 TextButton(
                                   style: TextButton.styleFrom(
-                                    backgroundColor: CustomColors.secondaryColor,
+                                    backgroundColor:
+                                        CustomColors.secondaryColor,
                                     disabledBackgroundColor:
                                         CustomColors.enabledBorderColor,
                                     disabledForegroundColor:
@@ -798,9 +817,10 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                                     padding: const EdgeInsets.all(20.0),
                                     child: Text(
                                       'Check Payment Status',
-                                      style: theme.textTheme.titleSmall?.copyWith(
-                                          fontWeight: FontWeight.normal,
-                                          color: Colors.black87),
+                                      style: theme.textTheme.titleSmall
+                                          ?.copyWith(
+                                              fontWeight: FontWeight.normal,
+                                              color: Colors.black87),
                                     ),
                                   ),
                                 ),

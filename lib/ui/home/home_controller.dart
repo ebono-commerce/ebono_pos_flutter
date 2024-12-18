@@ -18,12 +18,14 @@ import 'package:ebono_pos/ui/home/model/general_success_response.dart';
 import 'package:ebono_pos/ui/home/model/open_register_response.dart';
 import 'package:ebono_pos/ui/home/model/orders_on_hold.dart';
 import 'package:ebono_pos/ui/home/model/orders_onhold_request.dart';
+import 'package:ebono_pos/ui/home/model/overide_price_request.dart';
 import 'package:ebono_pos/ui/home/model/phone_number_request.dart';
 import 'package:ebono_pos/ui/home/model/register_close_request.dart';
 import 'package:ebono_pos/ui/home/model/register_open_request.dart';
 import 'package:ebono_pos/ui/home/model/resume_hold_cart_request.dart';
 import 'package:ebono_pos/ui/home/model/update_cart.dart';
 import 'package:ebono_pos/ui/home/repository/home_repository.dart';
+import 'package:ebono_pos/ui/login/model/login_request.dart';
 import 'package:ebono_pos/ui/login/model/login_response.dart';
 import 'package:ebono_pos/ui/payment_summary/model/health_check_response.dart';
 import 'package:flutter/material.dart';
@@ -34,7 +36,8 @@ class HomeController extends GetxController {
   final SharedPreferenceHelper sharedPreferenceHelper;
   final HiveStorageHelper hiveStorageHelper;
 
-  HomeController(this._homeRepository, this.sharedPreferenceHelper, this.hiveStorageHelper);
+  HomeController(this._homeRepository, this.sharedPreferenceHelper,
+      this.hiveStorageHelper);
 
   Timer? _statusCheckTimer;
 
@@ -73,7 +76,8 @@ class HomeController extends GetxController {
   String selectedOutletId = '';
   String selectedTerminalId = '';
   RxString customerProxyNumber = ''.obs;
- /* RxDouble weight = 0.0.obs; // Observable weight value
+
+  /* RxDouble weight = 0.0.obs; // Observable weight value
   late DigitalWeighingScale digitalWeighingScale;
   final int rate = 9600;
   final int timeout = 1000;*/
@@ -97,16 +101,16 @@ class HomeController extends GetxController {
   var lastRoute = PageRoutes.paymentSummary.obs;
   var isCustomerProxySelected = false.obs;
   var isQuantitySelected = false.obs;
+  var overideApproverUserId = ''.obs;
 
   @override
   void onInit() async {
-
     _checkConnectivity();
     await readStorageData();
     if (Platform.isLinux) {
-     // initializeWeighingScale();
+      // initializeWeighingScale();
     }
-  //  initialResponse();
+    //  initialResponse();
     super.onInit();
   }
 
@@ -132,23 +136,24 @@ class HomeController extends GetxController {
         hiveStorageHelper.read(SharedPreferenceConstants.isQuantityEditEnabled);
     isLineDeleteEnabled.value =
         hiveStorageHelper.read(SharedPreferenceConstants.isLineDeleteEnabled);
-    isEnableHoldCartEnabled.value = hiveStorageHelper.read(
-        SharedPreferenceConstants.isEnableHoldCartEnabled);
+    isEnableHoldCartEnabled.value = hiveStorageHelper
+        .read(SharedPreferenceConstants.isEnableHoldCartEnabled);
     isPriceEditEnabled.value =
         hiveStorageHelper.read(SharedPreferenceConstants.isPriceEditEnabled);
-    isSalesAssociateLinkEnabled.value = hiveStorageHelper.read(
-        SharedPreferenceConstants.isSalesAssociateLinkEnabled);
+    isSalesAssociateLinkEnabled.value = hiveStorageHelper
+        .read(SharedPreferenceConstants.isSalesAssociateLinkEnabled);
 
-
-    final userData = hiveStorageHelper.read(SharedPreferenceConstants.userDetails);
+    final userData =
+        hiveStorageHelper.read(SharedPreferenceConstants.userDetails);
 
     if (userData != null && userData is Map) {
       // Convert Map<dynamic, dynamic> to Map<String, dynamic>
       final userDetailsData = userData.map(
-            (key, value) => MapEntry(key.toString(), value),
+        (key, value) => MapEntry(key.toString(), value),
       );
 
-      userDetails.value = UserDetails.fromJson(userDetailsData); // Deserialize JSON to UserDetails
+      userDetails.value = UserDetails.fromJson(
+          userDetailsData); // Deserialize JSON to UserDetails
       print(userDetails.value.toJson());
     } else {
       userDetails.value = UserDetails(fullName: '', userType: '', userId: '');
@@ -287,12 +292,13 @@ class HomeController extends GetxController {
       if (cartId.value != "" && (response.priceList?.length ?? 0) <= 1) {
         addToCartApiCall(
             scanProductsResponse.value.skuCode,
-            scanProductsResponse.value.isWeighedItem == true? 0 : 1,
+            scanProductsResponse.value.isWeighedItem == true ? 0 : 1,
             scanProductsResponse.value.priceList!.first.mrpId,
             scanProductsResponse.value.salesUom,
             cartId.value);
       }
     } catch (error) {
+      Get.snackbar('Error while Scanning', '$error');
       print('Error fetching data: $error');
     } finally {
       isApiCallInProgress = false;
@@ -351,36 +357,40 @@ class HomeController extends GetxController {
       var response =
           await _homeRepository.getCart(CartRequest(cartId: cartId.value));
       cartResponse.value = response;
-      if (cartResponse.value.cartLines != null && cartResponse.value.cartLines?.isNotEmpty == true) {
+      if (cartResponse.value.cartLines != null &&
+          cartResponse.value.cartLines?.isNotEmpty == true) {
         for (var element in cartResponse.value.cartLines!) {
           addCartLine(element);
         }
-        if(response.cartLines?.first.item?.isWeighedItem == true){
-            if(response.cartLines?.first.quantity?.quantityNumber == 0){
-              isQuantitySelected.value = true;
-            }
-            selectedItemData.value =  CartLine(
-              cartLineId: response.cartLines?.first.cartLineId,
-              item: response.cartLines?.first.item,
-              quantity:response.cartLines?.first.quantity,
-              unitPrice: response.cartLines?.first.unitPrice,
-              mrp: response.cartLines?.first.mrp,
-              lineTotal:response.cartLines?.first.lineTotal,
-              applicableCartAdjustments: response.cartLines?.first.applicableCartAdjustments,
-              audit: response.cartLines?.first.audit,
-              weightController: TextEditingController(
-                  text: response.cartLines?.first.quantity?.quantityNumber.toString()),
-              weightFocusNode: FocusNode(),
-              quantityTextController: TextEditingController(
-                  text: response.cartLines?.first.quantity?.quantityNumber.toString()),
-              quantityFocusNode: FocusNode(),
-              priceTextController: TextEditingController(
-                  text: response.cartLines?.first.quantity?.quantityNumber.toString()),
-              priceFocusNode: FocusNode(),
-            );
+        if (response.cartLines?.first.item?.isWeighedItem == true) {
+          if (response.cartLines?.first.quantity?.quantityNumber == 0) {
+            isQuantitySelected.value = true;
+          }
+          selectedItemData.value = CartLine(
+            cartLineId: response.cartLines?.first.cartLineId,
+            item: response.cartLines?.first.item,
+            quantity: response.cartLines?.first.quantity,
+            unitPrice: response.cartLines?.first.unitPrice,
+            mrp: response.cartLines?.first.mrp,
+            lineTotal: response.cartLines?.first.lineTotal,
+            applicableCartAdjustments:
+                response.cartLines?.first.applicableCartAdjustments,
+            audit: response.cartLines?.first.audit,
+            weightController: TextEditingController(
+                text: response.cartLines?.first.quantity?.quantityNumber
+                    .toString()),
+            weightFocusNode: FocusNode(),
+            quantityTextController: TextEditingController(
+                text: response.cartLines?.first.quantity?.quantityNumber
+                    .toString()),
+            quantityFocusNode: FocusNode(),
+            priceTextController: TextEditingController(
+                text: response.cartLines?.first.quantity?.quantityNumber
+                    .toString()),
+            priceFocusNode: FocusNode(),
+          );
         }
-      }
-      else{
+      } else {
         selectedItemData.value = CartLine();
         isQuantitySelected.value = false;
       }
@@ -655,10 +665,36 @@ class HomeController extends GetxController {
     }
   }
 
+  Future<void> getAuthorisation(String username, String password) async {
+    try {
+      var response = await _homeRepository.getAuthorisation(
+          LoginRequest(userName: username, password: password));
+      if (response.userId != null && response.userId?.isNotEmpty == true) {
+        overideApproverUserId.value = response.userId!;
+      }
+    } catch (e) {
+      print("Error $e");
+    }
+  }
+
+  Future<CartResponse?> overridePrice(OverRidePriceRequest request) async {
+    late CartResponse? response;
+    try {
+       response = await _homeRepository.overridePrice(request);
+      cartResponse.value = response;
+      overideApproverUserId.value = '';
+      fetchCartDetails();
+    } catch (e) {
+      response = null;
+      print("Error $e");
+    }
+    return response;
+  }
+
   @override
   void onClose() {
     _statusCheckTimer?.cancel();
-   // digitalWeighingScale.dispose();
+    // digitalWeighingScale.dispose();
     super.onClose();
   }
 
