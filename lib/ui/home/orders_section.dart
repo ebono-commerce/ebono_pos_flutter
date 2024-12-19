@@ -446,44 +446,56 @@ class _OrdersSectionState extends State<OrdersSection>
       },
       child: Container(
         padding: EdgeInsets.all(8),
-        child: Row(
+        child: Column(
           children: [
-            SizedBox(
-              width: 80,
-              child: Padding(
-                padding: EdgeInsets.only(top: 10, bottom: 10, right: 10),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Text(
-                      '${(itemData.item?.isWeighedItem == true) ? (itemData.quantity?.quantityNumber) : (itemData.quantity?.quantityNumber?.toInt())}',
-                      style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                            fontWeight: FontWeight.w500,
-                            color: CustomColors.black,
-                          ),
+            Row(
+              children: [
+                SizedBox(
+                  width: 80,
+                  child: Padding(
+                    padding: EdgeInsets.only(top: 10, bottom: 10, right: 10),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Text(
+                          '${(itemData.item?.isWeighedItem == true) ? (itemData.quantity?.quantityNumber) : (itemData.quantity?.quantityNumber?.toInt())}',
+                          style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                                fontWeight: FontWeight.w500,
+                                color: CustomColors.black,
+                              ),
+                        ),
+                        SizedBox(
+                          width: 8,
+                        ),
+                        Text(
+                          '${itemData.quantity?.quantityUom}',
+                          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                fontWeight: FontWeight.w500,
+                                color: CustomColors.greyFont,
+                              ),
+                        ),
+                        SizedBox(
+                          width: 8,
+                        ),
+                      ],
                     ),
-                    SizedBox(
-                      width: 8,
-                    ),
-                    Text(
-                      '${itemData.quantity?.quantityUom}',
-                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                            fontWeight: FontWeight.w500,
-                            color: CustomColors.greyFont,
-                          ),
-                    ),
-                    SizedBox(
-                      width: 8,
-                    ),
-                  ],
+                  ),
                 ),
+                Container(
+                  color: CustomColors.borderColor,
+                  height: 30,
+                  width: 1,
+                ),
+              ],
+            ),
+            itemData.quantity?.quantityNumber == 0 ?
+            Text(
+              'Please weigh this item',
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                fontWeight: FontWeight.w500,
+                color: CustomColors.red,
               ),
-            ),
-            Container(
-              color: CustomColors.borderColor,
-              height: 30,
-              width: 1,
-            ),
+            ):SizedBox(),
           ],
         ),
       ),
