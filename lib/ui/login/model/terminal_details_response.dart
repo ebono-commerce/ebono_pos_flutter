@@ -41,6 +41,8 @@ class OutletDetails {
   String? priceEditMode;
   String? salesAssociateLink;
   bool? isActive;
+  List<AllowedPaymentMode>? allowedPaymentModes;
+
 
   OutletDetails({
     this.outletId,
@@ -55,6 +57,7 @@ class OutletDetails {
     this.priceEditMode,
     this.salesAssociateLink,
     this.isActive,
+    this.allowedPaymentModes,
   });
 
   factory OutletDetails.fromJson(Map<String, dynamic> json) => OutletDetails(
@@ -70,6 +73,7 @@ class OutletDetails {
     priceEditMode: json["price_edit_mode"],
     salesAssociateLink: json["sales_associate_link"],
     isActive: json["is_active"],
+    allowedPaymentModes: json["allowed_payment_modes"] == null ? [] : List<AllowedPaymentMode>.from(json["allowed_payment_modes"]!.map((x) => AllowedPaymentMode.fromJson(x))),
   );
 
   Map<String, dynamic> toJson() => {
@@ -85,6 +89,7 @@ class OutletDetails {
     "price_edit_mode": priceEditMode,
     "sales_associate_link": salesAssociateLink,
     "is_active": isActive,
+    "allowed_payment_modes": allowedPaymentModes == null ? [] : List<dynamic>.from(allowedPaymentModes!.map((x) => x.toJson())),
   };
 }
 
@@ -114,17 +119,21 @@ class AllowedPosIps {
 
 class RegisterDetails {
   String? registerId;
+  String? registerTransactionId;
 
   RegisterDetails({
     this.registerId,
+    this.registerTransactionId,
   });
 
   factory RegisterDetails.fromJson(Map<String, dynamic> json) => RegisterDetails(
     registerId: json["register_id"],
+    registerTransactionId: json["register_transaction_id"],
   );
 
   Map<String, dynamic> toJson() => {
     "register_id": registerId,
+    "register_transaction_id": registerTransactionId,
   };
 }
 
@@ -217,5 +226,33 @@ class PrinterDevice {
 
   Map<String, dynamic> toJson() => {
     "printer_type": printerType,
+  };
+}
+
+class AllowedPaymentMode {
+  String? paymentOptionId;
+  String? paymentOptionCode;
+  String? pspId;
+  String? pspName;
+
+  AllowedPaymentMode({
+    this.paymentOptionId,
+    this.paymentOptionCode,
+    this.pspId,
+    this.pspName,
+  });
+
+  factory AllowedPaymentMode.fromJson(Map<String, dynamic> json) => AllowedPaymentMode(
+    paymentOptionId: json["payment_option_id"],
+    paymentOptionCode: json["payment_option_code"],
+    pspId: json["psp_id"],
+    pspName: json["psp_name"],
+  );
+
+  Map<String, dynamic> toJson() => {
+    "payment_option_id": paymentOptionId,
+    "payment_option_code": paymentOptionCode,
+    "psp_id": pspId,
+    "psp_name": pspName,
   };
 }

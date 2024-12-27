@@ -34,6 +34,7 @@ dependencies:
   hive: ^2.2.3
   hive_flutter: ^1.1.0
   flutter_client_sse: ^2.0.3
+  path_provider: ^2.0.2
 
 
 dev_dependencies:

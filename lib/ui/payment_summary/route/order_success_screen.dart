@@ -209,7 +209,7 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                       padding:
                           EdgeInsets.symmetric(horizontal: 5.0, vertical: 10),
                       child: ElevatedButton(
-                        onPressed: !state.isLoading
+                        onPressed: !state.isLoading && state.allowPrintInvoice
                             ? () {
                                 homeController.initialResponse();
                                 Get.back();

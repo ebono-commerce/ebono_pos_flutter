@@ -11,6 +11,7 @@ import 'navigation/page_routes.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  getHiveDirectory();
   await windowManager.ensureInitialized();
   WindowOptions windowOptions = WindowOptions(
     center: true,
@@ -23,6 +24,11 @@ void main() async {
   });
   await HiveStorageHelper.init();
   runApp(const MyApp());
+}
+
+void getHiveDirectory() async {
+  final directory = await getApplicationSupportDirectory();
+  print("Hive Directory: ${directory.path}");
 }
 
 class MyApp extends StatelessWidget {
