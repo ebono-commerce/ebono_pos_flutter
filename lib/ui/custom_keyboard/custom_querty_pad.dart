@@ -61,7 +61,9 @@ class _CustomQwertyPadState extends State<CustomQwertyPad> {
   @override
   void initState() {
     widget.focusNode.addListener(() {
-      setState(() {});
+      if (mounted) {
+        setState(() {});
+      }
     });
     widget.textController.addListener(_handleValueChanged);
 
