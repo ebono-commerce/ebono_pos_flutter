@@ -306,7 +306,7 @@ class HomeController extends GetxController {
             cartId.value);
       }
     } catch (error) {
-      Get.snackbar('Error while Scanning', '$error');
+      Get.snackbar('Error while scanning', '$error');
       print('Error fetching data: $error');
     } finally {
       isApiCallInProgress = false;
@@ -324,6 +324,7 @@ class HomeController extends GetxController {
       }
       // fetchCartDetails();
     } catch (e) {
+      Get.snackbar('Error while fetching customer details', '$e');
       print("Error $e");
     }
   }
@@ -354,6 +355,7 @@ class HomeController extends GetxController {
         fetchCartDetails();
       }
     } catch (e) {
+      Get.snackbar('Error while fetching customer data', '$e');
       print("Error $e");
     }
   }
@@ -403,6 +405,7 @@ class HomeController extends GetxController {
         isQuantitySelected.value = false;
       }
     } catch (e) {
+      Get.snackbar('Error while fetching cart details', '$e');
       print("Error $e");
     }
   }
@@ -421,6 +424,7 @@ class HomeController extends GetxController {
         }
       }
     } catch (e) {
+      Get.snackbar('Error while merging cart', '$e');
       print("Error $e");
     }
   }
@@ -445,6 +449,7 @@ class HomeController extends GetxController {
       cartResponse.value = response;
       fetchCartDetails();
     } catch (e) {
+      Get.snackbar('Error while adding to cart', '$e');
       print("Error $e");
     }
   }
@@ -456,6 +461,7 @@ class HomeController extends GetxController {
       cartResponse.value = response;
       fetchCartDetails();
     } catch (e) {
+      Get.snackbar('Error while deleting item from cart', '$e');
       print("Error $e");
     }
   }
@@ -473,6 +479,7 @@ class HomeController extends GetxController {
       cartResponse.value = response;
       fetchCartDetails();
     } catch (e) {
+      Get.snackbar('Error while updating cart item', '$e');
       print("Error $e");
     } finally {
       isApiCallInProgress = false;
@@ -490,8 +497,11 @@ class HomeController extends GetxController {
       phoneNumber.value = '';
       cartLines.value = [];
       cartResponse.value = CartResponse();
+      selectedItemData.value = CartLine();
+      scanProductsResponse.value = ScanProductsResponse();
       Get.snackbar('Cart cleared successfully', 'All items removed');
     } catch (e) {
+      Get.snackbar('Error while clearing full cart', '$e');
       print("Error $e");
     }
   }
@@ -508,8 +518,11 @@ class HomeController extends GetxController {
       phoneNumber.value = '';
       cartLines.value = [];
       cartResponse.value = CartResponse();
+      selectedItemData.value = CartLine();
+      scanProductsResponse.value = ScanProductsResponse();
       Get.snackbar('Cart held successfully', 'Cart saved for later!');
     } catch (e) {
+      Get.snackbar('Error while holding to cart', '$e');
       print("Error $e");
     }
   }
@@ -528,6 +541,7 @@ class HomeController extends GetxController {
         selectedTabButton.value = 2;
       }
     } catch (e) {
+      Get.snackbar('Error while resuming hold to cart', '$e');
       print("Error $e");
     }
   }
@@ -553,6 +567,7 @@ class HomeController extends GetxController {
             timer.cancel();
           }
         } catch (e) {
+          Get.snackbar('Error while checking health', '$e');
           print("Health check error: $e");
           isOnline.value = false;
           timer.cancel();
@@ -583,6 +598,7 @@ class HomeController extends GetxController {
       selectedTabButton.value = 2;
       isLoading.value = false;
     } catch (e) {
+      Get.snackbar('Error while opening register', '$e');
       print("Error $e");
       isLoading.value = false;
     }
@@ -664,6 +680,7 @@ class HomeController extends GetxController {
       isLoading.value = false;
     } catch (e) {
       isLoading.value = false;
+      Get.snackbar('Error while closing register', '$e');
       print("Error $e");
     }
   }
@@ -703,6 +720,7 @@ class HomeController extends GetxController {
       isLoading.value = false;
     } catch (e) {
       isLoading.value = false;
+      Get.snackbar('Error while fetching hold orders', '$e');
       print("Error $e");
     }
   }
@@ -715,6 +733,7 @@ class HomeController extends GetxController {
         overideApproverUserId.value = response.userId!;
       }
     } catch (e) {
+      Get.snackbar('Error while fetching authorisation', '$e');
       print("Error $e");
     }
   }
@@ -722,12 +741,13 @@ class HomeController extends GetxController {
   Future<CartResponse?> overridePrice(OverRidePriceRequest request) async {
     late CartResponse? response;
     try {
-       response = await _homeRepository.overridePrice(request);
+      response = await _homeRepository.overridePrice(request);
       cartResponse.value = response;
       overideApproverUserId.value = '';
       fetchCartDetails();
     } catch (e) {
       response = null;
+      Get.snackbar('Error while overriding price', '$e');
       print("Error $e");
     }
     return response;
