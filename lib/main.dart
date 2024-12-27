@@ -11,7 +11,6 @@ import 'navigation/page_routes.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  getHiveDirectory();
   await windowManager.ensureInitialized();
   WindowOptions windowOptions = WindowOptions(
     center: true,
@@ -26,10 +25,10 @@ void main() async {
   runApp(const MyApp());
 }
 
-void getHiveDirectory() async {
+/*void getHiveDirectory() async {
   final directory = await getApplicationSupportDirectory();
   print("Hive Directory: ${directory.path}");
-}
+}*/
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
