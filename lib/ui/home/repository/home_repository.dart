@@ -72,7 +72,7 @@ class HomeRepository {
           scanProductsResponseFromJson(jsonEncode(response));
       return scanProductsResponse;
     } catch (e) {
-      throw Exception(e);
+      throw Exception('$e');
     }
   }
 
@@ -85,7 +85,7 @@ class HomeRepository {
       final cartResponse = cartResponseFromJson(jsonEncode(response));
       return cartResponse;
     } catch (e) {
-      throw Exception('Failed to load data');
+      throw Exception('$e');
     }
   }
 
@@ -98,7 +98,7 @@ class HomeRepository {
       final cartResponse = cartResponseFromJson(jsonEncode(response));
       return cartResponse;
     } catch (e) {
-      throw Exception('Failed to load data');
+      throw Exception('$e');
     }
   }
 
@@ -112,7 +112,7 @@ class HomeRepository {
       final cartResponse = cartResponseFromJson(jsonEncode(response));
       return cartResponse;
     } catch (e) {
-      throw Exception('Failed to parse data');
+      throw Exception('$e');
     }
   }
 
@@ -126,7 +126,7 @@ class HomeRepository {
       final cartResponse = cartResponseFromJson(jsonEncode(response));
       return cartResponse;
     } catch (e) {
-      throw Exception('Failed to parse data');
+      throw Exception('$e');
     }
   }
 
@@ -140,7 +140,7 @@ class HomeRepository {
       final cartResponse = cartResponseFromJson(jsonEncode(response));
       return cartResponse;
     } catch (e) {
-      throw Exception('Failed to parse data');
+      throw Exception('$e');
     }
   }
 
@@ -154,7 +154,7 @@ class HomeRepository {
           generalSuccessResponseFromJson(jsonEncode(response));
       return generalResponse;
     } catch (e) {
-      throw Exception('Failed to parse data');
+      throw Exception('$e');
     }
   }
 
@@ -169,7 +169,7 @@ class HomeRepository {
           generalSuccessResponseFromJson(jsonEncode(response));
       return generalResponse;
     } catch (e) {
-      throw Exception('Failed to parse data');
+      throw Exception('$e');
     }
   }
 
@@ -183,7 +183,7 @@ class HomeRepository {
       final cartResponse = cartResponseFromJson(jsonEncode(response));
       return cartResponse;
     } catch (e) {
-      throw Exception('Failed to parse data');
+      throw Exception('$e');
     }
   }
 
@@ -194,7 +194,7 @@ class HomeRepository {
           healthCheckResponseFromJson(jsonEncode(response));
       return healthCheckResponse;
     } catch (e) {
-      throw Exception('Failed to parse data');
+      throw Exception('$e');
     }
   }
 
@@ -223,7 +223,7 @@ class HomeRepository {
           generalSuccessResponseFromJson(jsonEncode(response));
       return generalResponse;
     } catch (e) {
-      throw Exception('Failed to parse data');
+      throw Exception('$e');
     }
   }
 
@@ -237,7 +237,7 @@ class HomeRepository {
           ordersOnHoldResponseFromJson(jsonEncode(response));
       return ordersOnHoldResponse;
     } catch (e) {
-      throw Exception('Failed to parse data');
+      throw Exception('$e');
     }
   }
 
@@ -248,15 +248,15 @@ class HomeRepository {
         ApiConstants.getAuthorisation,
         data: request.toJson(),
       );
-      final getAuthorisationResponse = getAuthorisationResponseFromJson(jsonEncode(response));
+      final getAuthorisationResponse =
+          getAuthorisationResponseFromJson(jsonEncode(response));
       return getAuthorisationResponse;
     } catch (e) {
-      throw Exception('Failed to parse data');
+      throw Exception('$e');
     }
   }
 
-  Future<CartResponse> overridePrice(
-      OverRidePriceRequest request) async {
+  Future<CartResponse> overridePrice(OverRidePriceRequest request) async {
     try {
       final response = await _apiHelper.post(
         ApiConstants.overridePrice,
@@ -265,7 +265,7 @@ class HomeRepository {
       final cartResponse = cartResponseFromJson(jsonEncode(response));
       return cartResponse;
     } catch (e) {
-      throw Exception('Failed to parse data');
+      throw Exception('$e');
     }
   }
 }
