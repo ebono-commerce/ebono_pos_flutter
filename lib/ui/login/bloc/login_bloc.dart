@@ -55,7 +55,8 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     },
   };
 
-  LoginBloc(this._loginRepository, this._sharedPreferenceHelper, this.hiveStorageHelper)
+  LoginBloc(this._loginRepository, this._sharedPreferenceHelper,
+      this.hiveStorageHelper)
       : super(LoginInitial()) {
     on<LoginInitialEvent>(_onLoginInitial);
     on<SelectPort>(_onPortSelection);
@@ -239,6 +240,8 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
           response.outletDetails?.outletCustomerProxyPhoneNumber);
       hiveStorageHelper.save(SharedPreferenceConstants.registerId,
           response.registerDetails?.registerId ?? "");
+      hiveStorageHelper.save(SharedPreferenceConstants.registerTransactionId,
+          response.registerDetails?.registerTransactionId ?? "");
       hiveStorageHelper.save(SharedPreferenceConstants.customerProxyNumber,
           response.outletDetails?.outletCustomerProxyPhoneNumber);
       hiveStorageHelper.save(SharedPreferenceConstants.isQuantityEditEnabled,
@@ -253,9 +256,35 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
           SharedPreferenceConstants.isSalesAssociateLinkEnabled,
           response.outletDetails?.salesAssociateLink);
 
+      List<Map<String, dynamic>> allowedPaymentModeJson =
+          response.outletDetails!.allowedPaymentModes?.map((mode) => mode.toJson()).toList() ?? [];
+
+      hiveStorageHelper.save(
+          SharedPreferenceConstants.allowedPaymentModes,
+          allowedPaymentModeJson);
+
       emit(SubmitTerminalDetailsSuccess());
     } catch (error) {
       emit(SubmitTerminalDetailsFailure(error.toString()));
+    }
+  }
+
+  void storeAllowedPaymentModes(List<AllowedPaymentMode>? allowedPaymentModes) {
+    if (allowedPaymentModes != null) {
+      // Convert each AllowedPaymentMode to a Map
+      List<Map<String, dynamic>> allowedPaymentModesList =
+          allowedPaymentModes.map((mode) {
+        return {
+          "payment_option_id": mode.paymentOptionId,
+          "payment_option_code": mode.paymentOptionCode,
+          "psp_id": mode.pspId,
+          "psp_name": mode.pspName,
+        };
+      }).toList();
+
+      // Store it in the Hive box
+      hiveStorageHelper.save(SharedPreferenceConstants.allowedPaymentModes,
+          allowedPaymentModesList);
     }
   }
 }

@@ -15,10 +15,12 @@ class SharedPreferenceConstants {
   static final sessionCustomerNumber = 'sessionCustomerNumber';
   static final sessionCustomerName = 'sessionCustomerName';
   static final registerId = 'registerId';
+  static final registerTransactionId = 'registerTransactionId';
   static final isQuantityEditEnabled = 'isQuantityEditEnabled';
   static final isLineDeleteEnabled = 'isLineDeleteEnabled';
   static final isEnableHoldCartEnabled = 'isEnableHoldCartEnabled';
   static final isPriceEditEnabled = 'isPriceEditEnabled';
   static final isSalesAssociateLinkEnabled = 'isSalesAssociateLinkEnabled';
   static final selectedPrinter = 'selectedPrinter';
+  static final allowedPaymentModes = 'allowedPaymentModes';
 }

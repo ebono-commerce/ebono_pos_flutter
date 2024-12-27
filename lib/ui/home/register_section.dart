@@ -184,14 +184,24 @@ class _RegisterSectionState extends State<RegisterSection>
       // OPEN case: check openControllerText
       return openingFloatPaymentTextController.text.isNotEmpty;
     } else {
-      // CLOSE case: check cashController, upiController, and cardController
-      return cashPaymentTextController.text.isNotEmpty &&
-          upiPaymentTextController.text.isNotEmpty &&
-          cardsPaymentTextController.text.isNotEmpty &&
-          cardSlipCountTextController.text.isNotEmpty &&
-          upiSlipCountTextController.text.isNotEmpty;
+      // CLOSE case: dynamically check modes and their respective controllers
+      bool isCashValid = homeController.allowedPaymentModes.any((mode) => mode.paymentOptionCode == 'Cash')
+          ? cashPaymentTextController.text.isNotEmpty
+          : true;
+
+      bool isUpiValid = homeController.allowedPaymentModes.any((mode) => mode.paymentOptionCode == 'UPI')
+          ? upiPaymentTextController.text.isNotEmpty && upiSlipCountTextController.text.isNotEmpty
+          : true;
+
+      bool isCardValid = homeController.allowedPaymentModes.any((mode) => mode.paymentOptionCode == 'Card')
+          ? cardsPaymentTextController.text.isNotEmpty && cardSlipCountTextController.text.isNotEmpty
+          : true;
+
+      // The button is enabled if all relevant conditions are satisfied
+      return isCashValid && isUpiValid && isCardValid;
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -858,7 +868,8 @@ class _RegisterSectionState extends State<RegisterSection>
                 SizedBox(
                   height: 10,
                 ),
-                Container(
+                if ( homeController.allowedPaymentModes.any((mode) => mode.paymentOptionCode == 'CASH'))
+                  Container(
                   // color: Colors.amberAccent,
                   padding: const EdgeInsets.symmetric(
                       vertical: 10.0, horizontal: 10),
@@ -879,7 +890,7 @@ class _RegisterSectionState extends State<RegisterSection>
                         width: 140,
                         child: commonTextField(
                             label: "Enter Amount",
-                            readOnly: true,
+                            readOnly: false,
                             focusNode: cashPaymentFocusNode,
                             controller: cashPaymentTextController,
                             onValueChanged: (value) {
@@ -892,7 +903,8 @@ class _RegisterSectionState extends State<RegisterSection>
                     ],
                   ),
                 ),
-                Container(
+                if ( homeController.allowedPaymentModes.any((mode) => mode.paymentOptionCode == 'CARD'))
+                  Container(
                   // color: Colors.amberAccent,
                   padding: const EdgeInsets.symmetric(
                       vertical: 10.0, horizontal: 10),
@@ -913,7 +925,7 @@ class _RegisterSectionState extends State<RegisterSection>
                         width: 140,
                         child: commonTextField(
                             label: "Enter Amount",
-                            readOnly: true,
+                            readOnly: false,
                             focusNode: cardsPaymentFocusNode,
                             controller: cardsPaymentTextController,
                             onValueChanged: (value) {
@@ -925,7 +937,7 @@ class _RegisterSectionState extends State<RegisterSection>
                         width: 140,
                         child: commonTextField(
                             label: "Enter Count",
-                            readOnly: true,
+                            readOnly: false,
                             focusNode: cardSlipCountFocusNode,
                             controller: cardSlipCountTextController,
                             onValueChanged: (value) {
@@ -936,7 +948,8 @@ class _RegisterSectionState extends State<RegisterSection>
                     ],
                   ),
                 ),
-                Container(
+                if ( homeController.allowedPaymentModes.any((mode) => mode.paymentOptionCode == 'UPI'))
+                  Container(
                   // color: Colors.amberAccent,
                   padding: const EdgeInsets.symmetric(
                       vertical: 10.0, horizontal: 10),
@@ -957,7 +970,7 @@ class _RegisterSectionState extends State<RegisterSection>
                         width: 140,
                         child: commonTextField(
                             label: "Enter Amount",
-                            readOnly: true,
+                            readOnly: false,
                             focusNode: upiPaymentFocusNode,
                             controller: upiPaymentTextController,
                             onValueChanged: (value) {
@@ -969,7 +982,7 @@ class _RegisterSectionState extends State<RegisterSection>
                         width: 140,
                         child: commonTextField(
                             label: "Enter Count",
-                            readOnly: true,
+                            readOnly: false,
                             focusNode: upiSlipCountFocusNode,
                             controller: upiSlipCountTextController,
                             onValueChanged: (value) {

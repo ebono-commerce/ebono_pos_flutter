@@ -25,6 +25,11 @@ void main() async {
   runApp(const MyApp());
 }
 
+/*void getHiveDirectory() async {
+  final directory = await getApplicationSupportDirectory();
+  print("Hive Directory: ${directory.path}");
+}*/
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 

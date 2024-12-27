@@ -27,6 +27,7 @@ import 'package:ebono_pos/ui/home/model/update_cart.dart';
 import 'package:ebono_pos/ui/home/repository/home_repository.dart';
 import 'package:ebono_pos/ui/login/model/login_request.dart';
 import 'package:ebono_pos/ui/login/model/login_response.dart';
+import 'package:ebono_pos/ui/login/model/terminal_details_response.dart';
 import 'package:ebono_pos/ui/payment_summary/model/health_check_response.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -102,6 +103,7 @@ class HomeController extends GetxController {
   var isCustomerProxySelected = false.obs;
   var isQuantitySelected = false.obs;
   var overideApproverUserId = ''.obs;
+  RxList<AllowedPaymentMode> allowedPaymentModes = [AllowedPaymentMode()].obs;
 
   @override
   void onInit() async {
@@ -159,6 +161,12 @@ class HomeController extends GetxController {
       userDetails.value = UserDetails(fullName: '', userType: '', userId: '');
       print('No user details found');
     }
+
+    var allowedModes = hiveStorageHelper.read(SharedPreferenceConstants.allowedPaymentModes) as List;
+    List<AllowedPaymentMode> allowedPayments = allowedModes.map((item) => AllowedPaymentMode.fromJson(item)).toList();
+
+    allowedPaymentModes.value  = allowedPayments;
+
   }
 
   /*void initializeWeighingScale() {
@@ -568,6 +576,8 @@ class HomeController extends GetxController {
       openRegisterResponse.value = response;
       hiveStorageHelper.save(SharedPreferenceConstants.registerId,
           openRegisterResponse.value.registerId ?? "");
+      hiveStorageHelper.save(SharedPreferenceConstants.registerTransactionId,
+          openRegisterResponse.value.registerTransactionId ?? "");
       registerId.value = openRegisterResponse.value.registerId ?? "";
       openFloatPayment.value = '';
       selectedTabButton.value = 2;
@@ -582,32 +592,64 @@ class HomeController extends GetxController {
     var userId = await sharedPreferenceHelper.getUserID();
     isLoading.value = true;
     try {
-      var response = await _homeRepository.closeRegister(RegisterCloseRequest(
-        outletId:
+      var response = await _homeRepository.closeRegister(
+
+          RegisterCloseRequest(
+            outletId:
             "${hiveStorageHelper.read(SharedPreferenceConstants.selectedOutletId)}",
-        registerId:
+            registerId:
             "${hiveStorageHelper.read(SharedPreferenceConstants.registerId)}",
-        terminalId:
+            terminalId:
             "${hiveStorageHelper.read(SharedPreferenceConstants.selectedTerminalId)}",
-        userId: userId,
-        cardTransactionSummary: TransactionSummary(
-            chargeSlipCount: int.tryParse(cardPaymentCount.value),
-            amount: Amount(
-                centAmount: int.tryParse(cardPayment.value),
-                fraction: 1000,
-                currency: "INR")),
-        cashTransactionSummary: CashTransactionSummary(
-            amount: Amount(
-                centAmount: int.tryParse(cashPayment.value),
-                fraction: 1000,
-                currency: "INR")),
-        upiTransactionSummary: TransactionSummary(
-            chargeSlipCount: int.tryParse(upiPaymentCount.value),
-            amount: Amount(
-                centAmount: int.tryParse(upiPayment.value),
-                fraction: 1000,
-                currency: "INR")),
-      ));
+            userId: userId,
+            registerTransactionId:hiveStorageHelper.read(SharedPreferenceConstants.registerTransactionId),
+            transactionSummary: allowedPaymentModes.map((mode) {
+              switch (mode.paymentOptionCode) {
+                case 'CASH':
+                  return TransactionSummary(
+                    paymentOptionId: mode.paymentOptionId,
+                    paymentOptionCode: mode.paymentOptionCode,
+                    pspId: mode.pspId,
+                    pspName: mode.pspName,
+                    chargeSlipCount: null,
+                    totalTransactionAmount: TotalTransactionAmount(
+                      centAmount: int.tryParse(cashPayment.value) ?? 0,
+                      fraction: 1,
+                      currency: "INR",
+                    ),
+                  );
+                case 'CARD':
+                  return TransactionSummary(
+                    paymentOptionId: mode.paymentOptionId,
+                    paymentOptionCode: mode.paymentOptionCode,
+                    pspId: mode.pspId,
+                    pspName: mode.pspName,
+                    chargeSlipCount: int.tryParse(cardPaymentCount.value) ?? 0,
+                    totalTransactionAmount: TotalTransactionAmount(
+                      centAmount: int.tryParse(cardPayment.value) ?? 0,
+                      fraction: 1,
+                      currency: "INR",
+                    ),
+                  );
+                case 'UPI':
+                  return TransactionSummary(
+                    paymentOptionId: mode.paymentOptionId,
+                    paymentOptionCode: mode.paymentOptionCode,
+                    pspId: mode.pspId,
+                    pspName: mode.pspName,
+                    chargeSlipCount: int.tryParse(upiPaymentCount.value) ?? 0,
+                    totalTransactionAmount: TotalTransactionAmount(
+                      centAmount: int.tryParse(upiPayment.value) ?? 0,
+                      fraction: 1,
+                      currency: "INR",
+                    ),
+                  );
+                default:
+                  return null; // Ignore unsupported payment modes
+              }
+            }).whereType<TransactionSummary>().toList(),
+          ));
+
       closeRegisterResponse.value = response;
       if (closeRegisterResponse.value.success == true) {
         hiveStorageHelper.save(SharedPreferenceConstants.registerId, "");
