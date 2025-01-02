@@ -243,7 +243,7 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                       value: data?.totalItems.toString() ?? ''),
                   billDetailRow(
                       label: 'Price',
-                      value: getActualPrice(data?.amountPayable?.centAmount,
+                      value: getActualPrice(data?.itemTotal?.centAmount,
                           data?.amountPayable?.fraction)),
                   billDetailRow(
                       label: 'GST',

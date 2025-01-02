@@ -14,6 +14,7 @@ class PaymentSummaryResponse {
   String? cartType;
   dynamic? totalUnits;
   int? totalItems;
+  AmountPayable? itemTotal;
   AmountPayable? amountPayable;
   AmountPayable? mrpSavings;
   AmountPayable? taxTotal;
@@ -27,6 +28,7 @@ class PaymentSummaryResponse {
     this.cartType,
     this.totalUnits,
     this.totalItems,
+    this.itemTotal,
     this.amountPayable,
     this.mrpSavings,
     this.taxTotal,
@@ -41,6 +43,7 @@ class PaymentSummaryResponse {
     cartType: json["cart_type"],
     totalUnits: json["total_units"]?.toDouble(),
     totalItems: json["total_items"],
+    itemTotal: json["item_total"],
     amountPayable: json["amount_payable"] == null ? null : AmountPayable.fromJson(json["amount_payable"]),
     mrpSavings: json["mrp_savings"] == null ? null : AmountPayable.fromJson(json["mrp_savings"]),
     taxTotal: json["tax_total"] == null ? null : AmountPayable.fromJson(json["tax_total"]),
@@ -55,6 +58,7 @@ class PaymentSummaryResponse {
     "cart_type": cartType,
     "total_units": totalUnits,
     "total_items": totalItems,
+    "item_total": itemTotal,
     "amount_payable": amountPayable?.toJson(),
     "mrp_savings": mrpSavings?.toJson(),
     "tax_total": taxTotal?.toJson(),
