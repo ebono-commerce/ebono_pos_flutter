@@ -62,7 +62,7 @@ class HomeController extends GetxController {
 
   var isDisplayAddCustomerView = true.obs;
   RxString portName = ''.obs;
-  var cartLines = <CartLine>[].obs;
+  var cartLines = <CartLine>{}.obs;
   var ordersOnHold = <OnHoldItems>[].obs;
 
   var scanProductsResponse = ScanProductsResponse().obs;
@@ -237,6 +237,7 @@ class HomeController extends GetxController {
       priceFocusNode: FocusNode(),
     );
     cartLines.add(cart);
+
   }
 
   void removeCartLine(CartLine cartLine) {
@@ -306,7 +307,7 @@ class HomeController extends GetxController {
             cartId.value);
       }
     } catch (error) {
-      Get.snackbar('Error while scanning', '$error');
+      // Get.snackbar('Error while scanning', '$error');
     } finally {
       isApiCallInProgress = false;
     }
@@ -486,7 +487,7 @@ class HomeController extends GetxController {
       customerResponse.value = CustomerResponse();
       customerName.value = '';
       phoneNumber.value = '';
-      cartLines.value = [];
+      cartLines.value = {};
       cartResponse.value = CartResponse();
       selectedItemData.value = CartLine();
       scanProductsResponse.value = ScanProductsResponse();
@@ -506,7 +507,7 @@ class HomeController extends GetxController {
       customerResponse.value = CustomerResponse();
       customerName.value = '';
       phoneNumber.value = '';
-      cartLines.value = [];
+      cartLines.value = {};
       cartResponse.value = CartResponse();
       selectedItemData.value = CartLine();
       scanProductsResponse.value = ScanProductsResponse();

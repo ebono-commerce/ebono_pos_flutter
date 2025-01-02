@@ -47,7 +47,7 @@ class AuthInterceptor extends Interceptor {
   @override
   Future<void> onError(
       DioException err, ErrorInterceptorHandler handler) async {
-    if (err.response?.statusCode == 401) {
+    if (err.response?.statusCode == 401 || err.response?.statusCode == 403) {
       print('Token expired or unauthorized');
       bool isLoggedIn = await _sharedPreferenceHelper.getLoginStatus() ?? false;
       if (isLoggedIn) {

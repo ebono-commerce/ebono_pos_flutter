@@ -776,7 +776,7 @@ class _OrdersSectionState extends State<OrdersSection>
                               }),
                         ),
                         CustomNumPad(
-                          focusNode: numPadFocusNode!,
+                          focusNode: numPadFocusNode,
                           textController: numPadTextController,
                           onEnterPressed: (text) {
                             print("Enter pressed with text: $text");
@@ -784,7 +784,7 @@ class _OrdersSectionState extends State<OrdersSection>
                                 false) {
                               if (homeController.cartId.value.isNotEmpty &&
                                   homeController.registerId.isNotEmpty) {
-                                if (isValidOfferId(text)) {
+                                if (isValidOfferId(text) || (text.trim().length >=1 && text.length <= 3)) {
                                   homeController.scanApiCall(text.trim());
                                 }
                               }
