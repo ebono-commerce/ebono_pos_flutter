@@ -10,13 +10,16 @@ String paymentSummaryResponseToJson(PaymentSummaryResponse data) => json.encode(
 
 class PaymentSummaryResponse {
   String? cartId;
+  String? orderNumber;
+  String? invoiceNumber;
   DateTime? createdAt;
   String? cartType;
-  dynamic? totalUnits;
+  dynamic totalUnits;
   int? totalItems;
   AmountPayable? itemTotal;
   AmountPayable? amountPayable;
   AmountPayable? mrpSavings;
+  AmountPayable? totalSavings;
   AmountPayable? taxTotal;
   AmountPayable? discountTotal;
   List<PaymentOption>? redeemablePaymentOptions;
@@ -24,6 +27,8 @@ class PaymentSummaryResponse {
 
   PaymentSummaryResponse({
     this.cartId,
+    this.orderNumber,
+    this.invoiceNumber,
     this.createdAt,
     this.cartType,
     this.totalUnits,
@@ -31,6 +36,7 @@ class PaymentSummaryResponse {
     this.itemTotal,
     this.amountPayable,
     this.mrpSavings,
+    this.totalSavings,
     this.taxTotal,
     this.discountTotal,
     this.redeemablePaymentOptions,
@@ -39,13 +45,16 @@ class PaymentSummaryResponse {
 
   factory PaymentSummaryResponse.fromJson(Map<String, dynamic> json) => PaymentSummaryResponse(
     cartId: json["cart_id"],
+    orderNumber: json["order_number"],
+    invoiceNumber: json["invoice_number"],
     createdAt: json["created_at"] == null ? null : DateTime.parse(json["created_at"]),
     cartType: json["cart_type"],
     totalUnits: json["total_units"]?.toDouble(),
     totalItems: json["total_items"],
-    itemTotal: json["item_total"],
+    itemTotal: json["item_total"]  == null ? null : AmountPayable.fromJson(json["item_total"]),
     amountPayable: json["amount_payable"] == null ? null : AmountPayable.fromJson(json["amount_payable"]),
     mrpSavings: json["mrp_savings"] == null ? null : AmountPayable.fromJson(json["mrp_savings"]),
+    totalSavings: json["total_savings"] == null ? null : AmountPayable.fromJson(json["total_savings"]),
     taxTotal: json["tax_total"] == null ? null : AmountPayable.fromJson(json["tax_total"]),
     discountTotal: json["discount_total"] == null ? null : AmountPayable.fromJson(json["discount_total"]),
     redeemablePaymentOptions: json["redeemable_payment_options"] == null ? [] : List<PaymentOption>.from(json["redeemable_payment_options"]!.map((x) => PaymentOption.fromJson(x))),
@@ -54,6 +63,8 @@ class PaymentSummaryResponse {
 
   Map<String, dynamic> toJson() => {
     "cart_id": cartId,
+    "order_number":orderNumber,
+    "invoice_number": invoiceNumber,
     "created_at": createdAt?.toIso8601String(),
     "cart_type": cartType,
     "total_units": totalUnits,
@@ -62,6 +73,7 @@ class PaymentSummaryResponse {
     "amount_payable": amountPayable?.toJson(),
     "mrp_savings": mrpSavings?.toJson(),
     "tax_total": taxTotal?.toJson(),
+    "total_savings": totalSavings?.toJson(),
     "discount_total": discountTotal?.toJson(),
     "redeemable_payment_options": redeemablePaymentOptions == null ? [] : List<dynamic>.from(redeemablePaymentOptions!.map((x) => x.toJson())),
     "payment_options": paymentOptions == null ? [] : List<dynamic>.from(paymentOptions!.map((x) => x.toJson())),
