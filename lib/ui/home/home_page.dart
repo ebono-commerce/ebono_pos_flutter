@@ -6,6 +6,8 @@ import 'package:ebono_pos/ui/home/orders_section.dart';
 import 'package:ebono_pos/ui/home/register_section.dart';
 import 'package:ebono_pos/ui/home/repository/home_repository.dart';
 import 'package:ebono_pos/ui/home/widgets/home_app_bar.dart';
+import 'package:ebono_pos/ui/home/widgets/text_button_widget.dart';
+import 'package:ebono_pos/ui/returns/returns_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -33,10 +35,14 @@ class _HomePageState extends State<HomePage> {
         print("HomeController initialized.");
       } catch (e) {
         print("HomeController not found: $e");
-        homeController =  Get.put<HomeController>( HomeController(Get.find<HomeRepository>(),
-            Get.find<SharedPreferenceHelper>(), Get.find<HiveStorageHelper>()));
+        homeController = Get.put<HomeController>(HomeController(
+            Get.find<HomeRepository>(),
+            Get.find<SharedPreferenceHelper>(),
+            Get.find<HiveStorageHelper>()));
       }
-    } }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     theme = Theme.of(context);
@@ -50,140 +56,42 @@ class _HomePageState extends State<HomePage> {
                     SizedBox(
                       width: 10,
                     ),
-                    TextButton(
-                      style: TextButton.styleFrom(
-                        padding: EdgeInsets.only(left: 10, right: 5),
-                        backgroundColor:
-                            homeController.selectedTabButton.value == 1
-                                ? Colors.white
-                                : Colors.grey.shade100,
-                        foregroundColor: Colors.black,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
+                    TextButtonWidget(
+                      selectedTabButton: homeController.selectedTabButton.value,
+                      buttonIndex: 1,
                       onPressed: () {
-                        setState(() {
-                          homeController.selectedTabButton.value = 1;
-                          print(
-                              "selectedTabButton H: ${homeController.selectedTabButton.value}");
-                        });
+                        homeController.selectedTabButton.value = 1;
                       },
-                      child: Row(
-                        children: [
-                          Text(
-                            'Register',
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleSmall
-                                ?.copyWith(),
-                            //   style: TextStyle(color: Colors.black),
-                          ),
-                          homeController.selectedTabButton.value == 1
-                              ? Container(
-                                  margin: EdgeInsets.only(left: 5),
-                                  decoration: BoxDecoration(
-                                    color: Colors.green,
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  width: 8,
-                                  height: 8,
-                                )
-                              : Container()
-                        ],
-                      ),
+                      title: "Register",
                     ),
-                    SizedBox(
-                      width: 10,
-                    ),
-                    TextButton(
-                      style: TextButton.styleFrom(
-                        padding: EdgeInsets.only(left: 10, right: 5),
-                        backgroundColor:
-                            homeController.selectedTabButton.value == 2
-                                ? Colors.white
-                                : Colors.grey.shade100,
-                        foregroundColor: Colors.black,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
+                    SizedBox(width: 10),
+                    TextButtonWidget(
+                      selectedTabButton: homeController.selectedTabButton.value,
+                      buttonIndex: 2,
                       onPressed: () {
-                        setState(() {
-                          homeController.selectedTabButton.value = 2;
-                        });
+                        homeController.selectedTabButton.value = 2;
                       },
-                      child: Row(
-                        children: [
-                          Text(
-                            'Order',
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleSmall
-                                ?.copyWith(),
-                            // style: TextStyle(color: Colors.black),
-                          ),
-                          homeController.selectedTabButton.value == 2
-                              ? Container(
-                                  margin: EdgeInsets.only(left: 5),
-                                  decoration: BoxDecoration(
-                                    color: Colors.green,
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  width: 8,
-                                  height: 8,
-                                )
-                              : Container()
-                        ],
-                      ),
+                      title: "Order",
                     ),
-                    SizedBox(
-                      width: 10,
-                    ),
-                    TextButton(
-                      style: TextButton.styleFrom(
-                        padding: EdgeInsets.only(left: 10, right: 5),
-                        backgroundColor:
-                            homeController.selectedTabButton.value == 3
-                                ? Colors.white
-                                : Colors.grey.shade100,
-                        foregroundColor: Colors.black,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
+                    SizedBox(width: 10),
+                    TextButtonWidget(
+                      selectedTabButton: homeController.selectedTabButton.value,
+                      buttonIndex: 3,
                       onPressed: () {
-                        setState(() {
-                          homeController.selectedTabButton.value = 3;
-                        });
+                        homeController.selectedTabButton.value = 3;
                       },
-                      child: Row(
-                        children: [
-                          Text(
-                            'Orders on hold',
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleSmall
-                                ?.copyWith(),
-                            //  style: TextStyle(color: Colors.black),
-                          ),
-                          homeController.selectedTabButton.value == 3
-                              ? Container(
-                                  margin: EdgeInsets.only(left: 5),
-                                  decoration: BoxDecoration(
-                                    color: Colors.green,
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  width: 8,
-                                  height: 8,
-                                )
-                              : Container()
-                        ],
-                      ),
+                      title: "Orders on hold",
                     ),
-                    SizedBox(
-                      width: 10,
+                    SizedBox(width: 10),
+                    TextButtonWidget(
+                      selectedTabButton: homeController.selectedTabButton.value,
+                      buttonIndex: 4,
+                      onPressed: () {
+                        homeController.selectedTabButton.value = 4;
+                      },
+                      title: "Returns",
                     ),
+                    SizedBox(width: 10),
                   ],
                 )),
           )),
@@ -194,7 +102,7 @@ class _HomePageState extends State<HomePage> {
                     ? OrdersSection()
                     : homeController.selectedTabButton.value == 3
                         ? OrderOnHold()
-                        : Container(),
+                        : ReturnsView(),
           )),
     );
   }
