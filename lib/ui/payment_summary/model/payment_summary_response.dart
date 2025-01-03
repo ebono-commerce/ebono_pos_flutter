@@ -69,7 +69,7 @@ class PaymentSummaryResponse {
     "cart_type": cartType,
     "total_units": totalUnits,
     "total_items": totalItems,
-    "item_total": itemTotal,
+    "item_total": itemTotal?.toJson(),
     "amount_payable": amountPayable?.toJson(),
     "mrp_savings": mrpSavings?.toJson(),
     "tax_total": taxTotal?.toJson(),
