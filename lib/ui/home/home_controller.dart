@@ -454,6 +454,9 @@ class HomeController extends GetxController {
           DeleteCartRequest(), cartId.value, cartLineId!);
       cartResponse.value = response;
       fetchCartDetails();
+      isQuantitySelected.value = false;
+      selectedItemData.value = CartLine();
+      scanProductsResponse.value = ScanProductsResponse();
     } catch (e) {
       Get.snackbar('Error while deleting item from cart', '$e');
     }
@@ -482,6 +485,7 @@ class HomeController extends GetxController {
     try {
       var response = await _homeRepository.clearFullCart(cartId.value);
       generalSuccessResponse.value = response;
+      isQuantitySelected.value = false;
       cartId.value = '';
       getCustomerDetailsResponse.value = CustomerDetailsResponse();
       customerResponse.value = CustomerResponse();
@@ -489,6 +493,7 @@ class HomeController extends GetxController {
       phoneNumber.value = '';
       cartLines.value = {};
       cartResponse.value = CartResponse();
+      isQuantitySelected.value = false;
       selectedItemData.value = CartLine();
       scanProductsResponse.value = ScanProductsResponse();
       Get.snackbar('Cart cleared successfully', 'All items removed');
