@@ -29,16 +29,16 @@ class CustomTableWidget extends StatelessWidget {
               _buildTableHeader(context),
             ],
           ),
-          Expanded(
-            child: SingleChildScrollView(
-              child: Table(
-                columnWidths: columnWidths,
-                children: tableRowsData.isNotEmpty
-                    ? tableRowsData
-                    : [_buildEmptyRow()],
-              ),
-            ),
-          ),
+          tableRowsData.isEmpty
+              ? SizedBox(height: 40)
+              : Expanded(
+                  child: SingleChildScrollView(
+                    child: Table(
+                      columnWidths: columnWidths,
+                      children: tableRowsData,
+                    ),
+                  ),
+                ),
         ],
       ),
     );
@@ -57,27 +57,6 @@ class CustomTableWidget extends StatelessWidget {
         ),
       ),
       children: headers,
-    );
-  }
-
-  // TableRow _buildTableRow(BuildContext context, TableRowData row) {
-  //   return TableRow(
-  //     children: [
-  //       _buildTableCell(context, row.skuCode, maxLines: 1, width: 100),
-  //       _buildTableCell(context, row.skuTitle, maxLines: 2, width: 280),
-  //       _buildTableCell(context, row.quantity, maxLines: 1, width: 100),
-  //       _buildTableCell(context, row.mrp, maxLines: 1, width: 100),
-  //       _buildTableCell(context, row.unitPrice, maxLines: 1, width: 100),
-  //       _buildTableCell(context, row.actions, maxLines: 1, width: 50),
-  //     ],
-  //   );
-  // }
-
-  TableRow _buildEmptyRow() {
-    return TableRow(
-      children: [
-        SizedBox(height: 50),
-      ],
     );
   }
 }
