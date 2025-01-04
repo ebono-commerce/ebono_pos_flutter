@@ -18,13 +18,6 @@ class QuantityCellWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      //  () {
-      //   homeController.selectedItemData.value = itemData;
-      //   homeController.isQuantitySelected.value = true;
-      //   var quantity =
-      //       '${(itemData.item?.isWeighedItem == true) ? (itemData.quantity?.quantityNumber) : (itemData.quantity?.quantityNumber?.toInt())}';
-      //   numPadTextController.text = quantity;
-      // },
       child: Container(
         padding: EdgeInsets.all(8),
         child: Column(
