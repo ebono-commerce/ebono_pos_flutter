@@ -8,6 +8,7 @@ import 'package:ebono_pos/ui/returns/widgets/summary_payment_section.dart';
 import 'package:ebono_pos/widgets/custom_table/custom_table_widget.dart';
 import 'package:ebono_pos/widgets/num_pad_widget.dart';
 import 'package:ebono_pos/widgets/order_details_widget.dart';
+import 'package:ebono_pos/widgets/table_cell_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
