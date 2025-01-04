@@ -173,6 +173,7 @@ class HomeController extends GetxController {
 
     allowedPaymentModes.value  = allowedPayments;
 
+    allowedPaymentModes.value = allowedPayments;
   }
 
   /*void initializeWeighingScale() {
@@ -243,7 +244,6 @@ class HomeController extends GetxController {
       priceFocusNode: FocusNode(),
     );
     cartLines.add(cart);
-
   }
 
   void removeCartLine(CartLine cartLine) {
@@ -607,18 +607,18 @@ class HomeController extends GetxController {
     var userId = await sharedPreferenceHelper.getUserID();
     isLoading.value = true;
     try {
-      var response = await _homeRepository.closeRegister(
-
-          RegisterCloseRequest(
-            outletId:
+      var response = await _homeRepository.closeRegister(RegisterCloseRequest(
+        outletId:
             "${hiveStorageHelper.read(SharedPreferenceConstants.selectedOutletId)}",
-            registerId:
+        registerId:
             "${hiveStorageHelper.read(SharedPreferenceConstants.registerId)}",
-            terminalId:
+        terminalId:
             "${hiveStorageHelper.read(SharedPreferenceConstants.selectedTerminalId)}",
-            userId: userId,
-            registerTransactionId:hiveStorageHelper.read(SharedPreferenceConstants.registerTransactionId),
-            transactionSummary: allowedPaymentModes.map((mode) {
+        userId: userId,
+        registerTransactionId: hiveStorageHelper
+            .read(SharedPreferenceConstants.registerTransactionId),
+        transactionSummary: allowedPaymentModes
+            .map((mode) {
               switch (mode.paymentOptionCode) {
                 case 'CASH':
                   return TransactionSummary(
@@ -662,8 +662,10 @@ class HomeController extends GetxController {
                 default:
                   return null; // Ignore unsupported payment modes
               }
-            }).whereType<TransactionSummary>().toList(),
-          ));
+            })
+            .whereType<TransactionSummary>()
+            .toList(),
+      ));
 
       closeRegisterResponse.value = response;
       if (closeRegisterResponse.value.success == true) {
