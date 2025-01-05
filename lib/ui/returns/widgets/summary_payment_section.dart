@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:ebono_pos/constants/custom_colors.dart';
-import 'package:flutter_svg/svg.dart';
 
 class SummaryPaymentSection extends StatelessWidget {
   final double totalRefund;
@@ -20,15 +19,6 @@ class SummaryPaymentSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-    final bodyLargeBlack = textTheme.bodyLarge?.copyWith(
-      color: Colors.black,
-    );
-    final bodyLargeBold = textTheme.bodyLarge?.copyWith(
-      fontWeight: FontWeight.w700,
-      color: Colors.black,
-    );
-
     return Expanded(
       flex: 4,
       child: Column(
@@ -50,36 +40,24 @@ class SummaryPaymentSection extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Summary', style: bodyLargeBold),
+                  const Text(
+                    'Summary',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
                   const SizedBox(height: 10),
                   Divider(
                     color: CustomColors.grey,
                     thickness: 1.5,
                   ),
                   _buildSummaryItem(
-                    label: 'Total refund',
-                    value: '₹${totalRefund.toStringAsFixed(0)}',
-                    context: context,
-                    textStyle: bodyLargeBlack!,
-                  ),
+                      'Total refund', '₹${totalRefund.toStringAsFixed(0)}'),
+                  _buildSummaryItem('Loyalty points', loyaltyPoints.toString()),
                   _buildSummaryItem(
-                    label: 'Loyalty points',
-                    value: loyaltyPoints.toString(),
-                    context: context,
-                    textStyle: bodyLargeBlack,
-                  ),
-                  _buildSummaryItem(
-                    label: 'Wallet',
-                    value: '₹${walletAmount.toStringAsFixed(0)}',
-                    context: context,
-                    textStyle: bodyLargeBlack,
-                  ),
-                  _buildSummaryItem(
-                    label: 'MOP',
-                    value: '₹${mopAmount.toStringAsFixed(0)}',
-                    context: context,
-                    textStyle: bodyLargeBlack,
-                  ),
+                      'Wallet', '₹${walletAmount.toStringAsFixed(0)}'),
+                  _buildSummaryItem('MOP', '₹${mopAmount.toStringAsFixed(0)}'),
                 ],
               ),
             ),
@@ -107,9 +85,12 @@ class SummaryPaymentSection extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
+                        const Text(
                           'Select Payment Mode',
-                          style: bodyLargeBlack,
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
                         const SizedBox(height: 10),
                         Divider(
@@ -121,23 +102,19 @@ class SummaryPaymentSection extends StatelessWidget {
                           children: [
                             Expanded(
                               child: _buildPaymentOption(
-                                title: 'Cash',
-                                path: 'assets/images/cash.svg',
-                                isSelected: false,
-                                onTap: () => onPaymentModeSelected('cash'),
-                                context: context,
-                                textStyle: bodyLargeBlack,
+                                'Cash',
+                                Icons.payments_outlined,
+                                true,
+                                () => onPaymentModeSelected('cash'),
                               ),
                             ),
                             const SizedBox(width: 15),
                             Expanded(
                               child: _buildPaymentOption(
-                                title: 'Wallet',
-                                path: 'assets/images/wallet.svg',
-                                isSelected: true,
-                                onTap: () => onPaymentModeSelected('wallet'),
-                                context: context,
-                                textStyle: bodyLargeBlack,
+                                'Wallet',
+                                Icons.account_balance_wallet_outlined,
+                                false,
+                                () => onPaymentModeSelected('wallet'),
                               ),
                             ),
                           ],
@@ -148,15 +125,24 @@ class SummaryPaymentSection extends StatelessWidget {
                   const Spacer(),
                   Container(
                     height: 80,
-                    color: CustomColors.keyBoardBgColor,
+                    color: CustomColors.cardBackground,
                     padding: EdgeInsets.symmetric(horizontal: 20),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text('Refund to customer', style: bodyLargeBlack),
+                        const Text(
+                          'Refund to customer',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
                         Text(
                           '₹${mopAmount.toStringAsFixed(0)}',
-                          style: bodyLargeBlack,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
                       ],
                     ),
@@ -166,7 +152,7 @@ class SummaryPaymentSection extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: SizedBox(
                       width: double.infinity,
-                      height: 60,
+                      height: 50,
                       child: ElevatedButton(
                         onPressed: () {
                           // Handle complete return
@@ -177,7 +163,14 @@ class SummaryPaymentSection extends StatelessWidget {
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
-                        child: Text('Complete Return', style: bodyLargeBlack),
+                        child: const Text(
+                          'Complete Return',
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.black,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
                       ),
                     ),
                   ),
@@ -191,36 +184,43 @@ class SummaryPaymentSection extends StatelessWidget {
     );
   }
 
-  Widget _buildSummaryItem({
-    required String label,
-    required String value,
-    required BuildContext context,
-    required TextStyle textStyle,
-  }) {
+  Widget _buildSummaryItem(String label, String value) {
     return Padding(
       padding: const EdgeInsets.only(top: 15),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: textStyle),
-          Text(value, style: textStyle),
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 20,
+              color: Colors.black,
+              fontWeight: FontWeight.w300,
+            ),
+          ),
+          Text(
+            value,
+            style: const TextStyle(
+              fontSize: 20,
+              color: Colors.black,
+              fontWeight: FontWeight.w300,
+            ),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildPaymentOption({
-    required String title,
-    required String path,
-    required bool isSelected,
-    required VoidCallback onTap,
-    required BuildContext context,
-    required TextStyle textStyle,
-  }) {
+  Widget _buildPaymentOption(
+    String title,
+    IconData icon,
+    bool isSelected,
+    VoidCallback onTap,
+  ) {
     return InkWell(
       onTap: onTap,
       child: Container(
-        height: 60,
+        padding: const EdgeInsets.symmetric(vertical: 15),
         decoration: BoxDecoration(
           color: isSelected ? const Color(0xFFFFFBEB) : Colors.white,
           border: Border.all(
@@ -232,9 +232,20 @@ class SummaryPaymentSection extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            SvgPicture.asset(path, width: 28),
+            Icon(
+              icon,
+              size: 24,
+              color: isSelected ? Colors.black : Colors.grey,
+            ),
             const SizedBox(width: 8),
-            Text(title, style: textStyle),
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: 16,
+                color: isSelected ? Colors.black : Colors.grey,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
           ],
         ),
       ),
