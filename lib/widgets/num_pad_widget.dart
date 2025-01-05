@@ -18,6 +18,7 @@ class NumPadWidget extends StatelessWidget {
   final Function(String) onNumPadValueChanged;
   final Function(String) onNumPadEnterPressed;
   final Function(String) onNumPadClearAll;
+  final Function()? onProceedToPayClicked;
 
   const NumPadWidget({
     super.key,
@@ -34,6 +35,7 @@ class NumPadWidget extends StatelessWidget {
     required this.onNumPadValueChanged,
     required this.onNumPadEnterPressed,
     required this.onNumPadClearAll,
+    required this.onProceedToPayClicked,
   });
 
   @override
@@ -235,7 +237,7 @@ class NumPadWidget extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                '-',
+                                'Total Items',
                                 style: TextStyle(
                                     color: Colors.black,
                                     fontSize: 16,
@@ -278,16 +280,19 @@ class NumPadWidget extends StatelessWidget {
                       padding: EdgeInsets.only(
                           left: 4, right: 4, top: 10, bottom: 4),
                       child: ElevatedButton(
-                        onPressed: () {},
+                        onPressed: onProceedToPayClicked,
                         style: ElevatedButton.styleFrom(
-                            elevation: 1,
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 1, vertical: 10),
-                            shape: RoundedRectangleBorder(
-                              side: BorderSide.none,
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            backgroundColor: CustomColors.cardBackground),
+                          elevation: 1,
+                          padding:
+                              EdgeInsets.symmetric(horizontal: 1, vertical: 10),
+                          shape: RoundedRectangleBorder(
+                            side: BorderSide.none,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          backgroundColor: onProceedToPayClicked == null
+                              ? CustomColors.cardBackground
+                              : CustomColors.secondaryColor,
+                        ),
                         child: SizedBox(
                           height: 56,
                           child: Column(
