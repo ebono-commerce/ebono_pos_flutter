@@ -7,7 +7,7 @@ class TableCellWidget extends StatelessWidget {
 
   const TableCellWidget({
     super.key,
-    required this.text,
+    this.text = '',
     this.maxLines = 1,
     required this.width,
   });
