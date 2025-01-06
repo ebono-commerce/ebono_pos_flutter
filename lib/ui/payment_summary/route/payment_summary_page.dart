@@ -57,9 +57,9 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
     if (mounted == true) {
       paymentBloc.add(PaymentInitialEvent(paymentSummaryRequest));
     }
-    if (!cashPaymentFocusNode.hasFocus) {
+   /* if (!cashPaymentFocusNode.hasFocus) {
       cashPaymentFocusNode.requestFocus();
-    }
+    }*/
     activeFocusNode = cashPaymentFocusNode;
 
     cashPaymentFocusNode.addListener(() {
@@ -102,7 +102,8 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
           cashPaymentTextController.text = numPadTextController.text;
         } else if (activeFocusNode == onlinePaymentFocusNode) {
           _formKey.currentState?.validate();
-          onlinePaymentTextController.text = numPadTextController.text;
+          paymentBloc.onlinePayment = numPadTextController.text;
+        //  onlinePaymentTextController.text = numPadTextController.text;
         } else if (activeFocusNode == loyaltyPaymentFocusNode) {
           loyaltyTextController.text = numPadTextController.text;
         } else if (activeFocusNode == walletPaymentFocusNode) {
@@ -254,6 +255,12 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                       value:
                           '-${getActualPrice(data?.discountTotal?.centAmount, data?.discountTotal?.fraction)}',
                       isNegative: true),
+                  billDetailRow(
+                    label: 'Total Savings',
+                    value:
+                        '-${getActualPrice(data?.totalSavings?.centAmount, data?.totalSavings?.fraction)}',
+                    isNegative: true,
+                  ),
                   //billDetailRow(label: 'Loyalty points', value: '-100', isNegative: true),
                 ],
               ),
@@ -370,8 +377,22 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                   onValueChanged: (value) {
                     if (activeFocusNode == cashPaymentFocusNode) {
                       paymentBloc.cashPayment = value;
+                      if (double.parse(value) < paymentBloc.totalPayable) {
+                        onlinePaymentTextController.text =
+                            '${(double.parse(value) - paymentBloc.totalPayable).abs()}';
+                        paymentBloc.onlinePayment = '${(double.parse(value) - paymentBloc.totalPayable).abs()}';
+                      } else {
+                        onlinePaymentTextController.text = '';
+                        paymentBloc.onlinePayment = '';
+                      }
                     } else if (activeFocusNode == onlinePaymentFocusNode) {
                       paymentBloc.onlinePayment = value;
+                      if (double.parse(value) < paymentBloc.totalPayable) {
+                        cashPaymentTextController.text =
+                        '${(double.parse(value) - paymentBloc.totalPayable).abs()}';
+                      } else {
+                        cashPaymentTextController.text = '';
+                      }
                     } else if (activeFocusNode == loyaltyPaymentFocusNode) {
                       paymentBloc.loyaltyValue = value;
                     } else if (activeFocusNode == walletPaymentFocusNode) {
@@ -541,7 +562,157 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                     height: 2,
                   ),
                   SizedBox(height: 16),
-                  paymentModeOption(
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      SizedBox(
+                          width: 160,
+                          height: 50,
+                          child: ElevatedButton(
+                            style: commonElevatedButtonStyle(
+                                theme: theme,
+                                textStyle: theme.textTheme.bodyMedium,
+                                padding: EdgeInsets.all(12)),
+                            onPressed: () {
+                              cashPaymentFocusNode.requestFocus();
+                            },
+                            child: Row(
+                              children: [
+                                SvgPicture.asset(
+                                  'assets/images/ic_cash.svg',
+                                  semanticsLabel: 'cash icon,',
+                                  width: 20,
+                                  height: 20,
+                                ),
+                                SizedBox(width: 8),
+                                Text(
+                                  'Cash payment',
+                                  style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ],
+                            ),
+                          )),
+                      Row(
+                        children: [
+                          SizedBox(
+                            width: 140,
+                            child: commonTextField(
+                                label: 'Enter Amount',
+                                focusNode: cashPaymentFocusNode,
+                                controller: cashPaymentTextController,
+                                readOnly: false,
+                                onValueChanged: (value) {},
+                                validator: null),
+                          ),
+                          SizedBox(width: 14),
+                          SizedBox(
+                            width: 140,
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      SizedBox(
+                          width: 160,
+                          height: 50,
+                          child: ElevatedButton(
+                            style: commonElevatedButtonStyle(
+                                theme: theme,
+                                textStyle: theme.textTheme.bodyMedium,
+                                padding: EdgeInsets.all(12)),
+                            onPressed: paymentBloc.cashPayment.isEmpty ||
+                                    double.parse(paymentBloc.cashPayment) <
+                                        paymentBloc.totalPayable
+                                ? () {
+                                      var balance = (paymentBloc.totalPayable - (paymentBloc.cashAmount)).abs().toString();
+                                      paymentBloc.onlinePayment = balance;
+                                      onlinePaymentTextController.text = balance;
+                                  }
+                                : null,
+                            child: Row(
+                              children: [
+                                SvgPicture.asset(
+                                  'assets/images/ic_cash.svg',
+                                  semanticsLabel: 'cash icon,',
+                                  width: 20,
+                                  height: 20,
+                                ),
+                                SizedBox(width: 8),
+                                Text(
+                                  'Online payment',
+                                  style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ],
+                            ),
+                          )),
+                      Row(
+                        children: [
+                          IgnorePointer(
+                            ignoring: true,
+                            child: SizedBox(
+                              width: 140,
+                              child: commonTextField(
+                                  label: 'Enter Amount',
+                                  focusNode: onlinePaymentFocusNode,
+                                  controller: onlinePaymentTextController,
+                                  readOnly: true,
+                                  onValueChanged: (value) {
+                                    print('commonTextField $value');
+                                  },
+                                  validator: (value) {
+                                    if (paymentBloc.onlineAmount >= 0 &&
+                                        paymentBloc.onlineAmount <=
+                                            (paymentBloc.totalPayable)) {
+                                      return null;
+                                    } else {
+                                      Get.snackbar(
+                                          'Amount can\'t be more than total payable',
+                                          'please enter valid amount');
+                                      return 'Invalid Amount';
+                                    }
+                                  }),
+                            ),
+                          ),
+                          SizedBox(width: 14),
+                          SizedBox(
+                              width: 140,
+                              height: 50,
+                              child: ElevatedButton(
+                                style: commonElevatedButtonStyle(
+                                    theme: theme,
+                                    textStyle: theme.textTheme.bodyMedium,
+                                    padding: EdgeInsets.all(12)),
+                                onPressed: onlinePaymentTextController
+                                        .value.text.isNotEmpty
+                                    ? () {
+                                        paymentBloc.add(PaymentStartEvent());
+                                      }
+                                    : null,
+                                child: Text(
+                                  'Generate link',
+                                  style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              )),
+                        ],
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 16),
+
+                  /* paymentModeOption(
                       label: 'Cash payment  ',
                       iconPath: 'assets/images/ic_cash.svg',
                       inputHint: 'Enter Amount',
@@ -580,7 +751,7 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                               'please enter valid amount');
                           return 'Invalid Amount';
                         }
-                      }),
+                      }),*/
                 ],
               ),
             ),

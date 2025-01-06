@@ -63,7 +63,9 @@ class _CustomNumPadState extends State<CustomNumPad> {
   @override
   void initState() {
     widget.focusNode.addListener(() {
-      setState(() {});
+      if (mounted) {
+        setState(() {});
+      }
     });
     widget.textController.addListener(_handleValueChanged);
 

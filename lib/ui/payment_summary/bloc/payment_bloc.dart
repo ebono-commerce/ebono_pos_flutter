@@ -41,6 +41,8 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
   List<PaymentMethod>? paymentMethods = [];
   late PaymentOption? cashPaymentOption;
   late PaymentOption? onlinePaymentOption;
+  double cashAmount = 0;
+  double onlineAmount = 0;
   double totalPayable = 0;
   double balancePayable = 0;
   bool allowPlaceOrder = false;
@@ -289,9 +291,10 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
 
   _getBalancePayableAmount(
       GetBalancePayableAmountEvent event, Emitter<PaymentState> emit) {
-    var givenAmount = double.parse(event.cash) +
-        double.parse(event.online) +
-        double.parse(event.wallet);
+    cashAmount = double.parse(event.cash);
+    onlineAmount = double.parse(event.online);
+
+    var givenAmount = cashAmount + onlineAmount + double.parse(event.wallet);
     totalPayable = (paymentSummaryResponse.amountPayable?.centAmount ?? 0) /
         (paymentSummaryResponse.amountPayable?.fraction ?? 1);
     if (event.online != '0') {
@@ -332,7 +335,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
             pspId: cashPaymentOption?.pspId,
             requestId: paymentSummaryRequest.cartId,
             transactionReferenceId: paymentSummaryRequest.cartId,
-            amount: double.parse(cashPayment),
+            amount: onlinePayment.isEmpty?(cashAmount - (balancePayable.abs())):cashAmount,
             methodDetail: [
               MethodDetail(key: "METHOD", value: "CASH"),
             ]));
@@ -346,9 +349,10 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
             pspId: onlinePaymentOption?.pspId,
             requestId: p2pRequestId,
             transactionReferenceId: paymentStatusResponse.txnId,
-            amount: double.parse(onlinePayment),
+            amount: onlineAmount,
             methodDetail: [
-              MethodDetail(key: "METHOD", value: paymentStatusResponse.paymentMode),
+              MethodDetail(
+                  key: "METHOD", value: paymentStatusResponse.paymentMode),
             ]));
       }
 

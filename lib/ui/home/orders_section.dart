@@ -350,6 +350,12 @@ class _OrdersSectionState extends State<OrdersSection>
   }
 
   TableRow _buildTableRow(CartLine itemData) {
+    var borderColor = (homeController.selectedItemData.value.cartLineId ==
+                itemData.cartLineId &&
+            homeController.isQuantitySelected.value)
+        ? Colors.grey.shade800
+        : Colors.grey.shade300;
+
     return TableRow(
       decoration: BoxDecoration(
         color: (homeController.selectedItemData.value.cartLineId ==
@@ -357,20 +363,36 @@ class _OrdersSectionState extends State<OrdersSection>
                 homeController.isQuantitySelected.value)
             ? CustomColors.accentColor
             : Colors.white,
-        border: Border.all(color: Colors.grey.shade300, width: 1),
+        border: Border.all(color: borderColor, width: 1),
       ),
       children: [
-        _buildTableCell(itemData.item?.skuCode ?? '', maxLines: 1, width: 100),
-        _buildTableCell(itemData.item?.skuTitle ?? '', maxLines: 2, width: 280),
-        _buildQuantityCell(itemData),
-        _buildTableCell(
-            getActualPrice(itemData.mrp?.centAmount, itemData.mrp?.fraction),
-            width: 100),
         InkWell(
-          onTap: (){
+            onTap: () {
+              homeController.selectedItemData.value = itemData;
+              homeController.isQuantitySelected.value = true;
+              var quantity =
+                  '${(itemData.item?.isWeighedItem == true) ? (itemData.quantity?.quantityNumber) : (itemData.quantity?.quantityNumber?.toInt())}';
+              numPadTextController.text = quantity;
+            },
+            child: _buildTableCell(itemData.item?.skuCode ?? '',
+                maxLines: 1, width: 100)),
+        InkWell(
+            onTap: () {
+              homeController.selectedItemData.value = itemData;
+              homeController.isQuantitySelected.value = true;
+              var quantity =
+                  '${(itemData.item?.isWeighedItem == true) ? (itemData.quantity?.quantityNumber) : (itemData.quantity?.quantityNumber?.toInt())}';
+              numPadTextController.text = quantity;
+            },
+            child: _buildTableCell(itemData.item?.skuTitle ?? '',
+                maxLines: 2, width: 280)),
+        _buildQuantityCell(itemData),
+        InkWell(
+          onTap: () {
             AuthModes enablePriceEdit = AuthModeExtension.fromString(
                 homeController.isPriceEditEnabled.value);
-              if (enablePriceEdit == AuthModes.enabled || enablePriceEdit == AuthModes.authorised) {
+            if (enablePriceEdit == AuthModes.enabled ||
+                enablePriceEdit == AuthModes.authorised) {
               showDialog(
                 context: context,
                 builder: (BuildContext context) {
@@ -383,8 +405,34 @@ class _OrdersSectionState extends State<OrdersSection>
                 },
               );
             } else {
-              Get.snackbar('Action Disabled for this account',
-                  'Please contact support');
+              Get.snackbar(
+                  'Action Disabled for this account', 'Please contact support');
+            }
+          },
+          child: _buildTableCell(
+              getActualPrice(itemData.mrp?.centAmount, itemData.mrp?.fraction),
+              width: 100),
+        ),
+        InkWell(
+          onTap: () {
+            AuthModes enablePriceEdit = AuthModeExtension.fromString(
+                homeController.isPriceEditEnabled.value);
+            if (enablePriceEdit == AuthModes.enabled ||
+                enablePriceEdit == AuthModes.authorised) {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return Dialog(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20.0),
+                    ),
+                    child: PriceOverrideWithAuthWidget(context, itemData),
+                  );
+                },
+              );
+            } else {
+              Get.snackbar(
+                  'Action Disabled for this account', 'Please contact support');
             }
           },
           child: _buildTableCell(
@@ -459,20 +507,22 @@ class _OrdersSectionState extends State<OrdersSection>
                       children: [
                         Text(
                           '${(itemData.item?.isWeighedItem == true) ? (itemData.quantity?.quantityNumber) : (itemData.quantity?.quantityNumber?.toInt())}',
-                          style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                                fontWeight: FontWeight.w500,
-                                color: CustomColors.black,
-                              ),
+                          style:
+                              Theme.of(context).textTheme.labelLarge?.copyWith(
+                                    fontWeight: FontWeight.w500,
+                                    color: CustomColors.black,
+                                  ),
                         ),
                         SizedBox(
                           width: 8,
                         ),
                         Text(
                           '${itemData.quantity?.quantityUom}',
-                          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                fontWeight: FontWeight.w500,
-                                color: CustomColors.greyFont,
-                              ),
+                          style:
+                              Theme.of(context).textTheme.labelSmall?.copyWith(
+                                    fontWeight: FontWeight.w500,
+                                    color: CustomColors.greyFont,
+                                  ),
                         ),
                         SizedBox(
                           width: 8,
@@ -488,14 +538,15 @@ class _OrdersSectionState extends State<OrdersSection>
                 ),
               ],
             ),
-            itemData.quantity?.quantityNumber == 0 ?
-            Text(
-              'Please weigh this item',
-              style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                fontWeight: FontWeight.w500,
-                color: CustomColors.red,
-              ),
-            ):SizedBox(),
+            itemData.quantity?.quantityNumber == 0
+                ? Text(
+                    'Please weigh this item',
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                          fontWeight: FontWeight.w500,
+                          color: CustomColors.red,
+                        ),
+                  )
+                : SizedBox(),
           ],
         ),
       ),
@@ -784,7 +835,9 @@ class _OrdersSectionState extends State<OrdersSection>
                                 false) {
                               if (homeController.cartId.value.isNotEmpty &&
                                   homeController.registerId.isNotEmpty) {
-                                if (isValidOfferId(text) || (text.trim().length >=1 && text.length <= 3)) {
+                                if (isValidOfferId(text) ||
+                                    (text.trim().length >= 1 &&
+                                        text.length <= 3)) {
                                   homeController.scanApiCall(text.trim());
                                 }
                               }
@@ -800,20 +853,26 @@ class _OrdersSectionState extends State<OrdersSection>
                                             .toString()) {
                                   if (!homeController.isApiCallInProgress) {
                                     try {
-                                      if(homeController.isQuantitySelected.value &&
-                                          homeController.selectedItemData.value.item
-                                              ?.isWeighedItem ==
-                                              true){
-                                        if(double.parse(numPadTextController.text) > 300 ){
+                                      if (homeController
+                                              .isQuantitySelected.value &&
+                                          homeController.selectedItemData.value
+                                                  .item?.isWeighedItem ==
+                                              true) {
+                                        if (double.parse(
+                                                numPadTextController.text) >
+                                            300) {
                                           Get.snackbar('Invalid Weight',
                                               'Weight can\'t be more than 300kgs, Please enter valid weight');
-                                          return ;
+                                          return;
                                         }
-                                      } else if(homeController.isQuantitySelected.value){
-                                        if(int.parse(numPadTextController.text) > 999 ){
+                                      } else if (homeController
+                                          .isQuantitySelected.value) {
+                                        if (int.parse(
+                                                numPadTextController.text) >
+                                            999) {
                                           Get.snackbar('Invalid Quantity',
                                               'Quantity can\'t be more than 999, Please enter valid quantity');
-                                          return ;
+                                          return;
                                         }
                                       }
                                     } on Exception catch (e) {

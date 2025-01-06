@@ -193,8 +193,8 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
             response.terminals?.first.terminalName);
       }
       final allowedPosModes = response.allowedPosModes;
-      if (allowedPosModes != null) {
-        allowedPos.clear();
+      allowedPos.clear();
+      if (allowedPosModes != null && allowedPosModes.isNotEmpty) {
         allowedPos.addAll(allowedPosModes);
         hiveStorageHelper.save(
             SharedPreferenceConstants.selectedPosMode, allowedPosModes.first);

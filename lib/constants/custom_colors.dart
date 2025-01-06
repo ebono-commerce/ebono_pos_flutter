@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class CustomColors {
   static final primaryColor = const Color(0xFF066A69);
-  static final accentColor = const Color(0xFFFFFDF1);
+  static final accentColor = Colors.amberAccent[100];
   static final secondaryColor = const Color(0xFFFFCB44);
   static final backgroundColor = const Color(0xFFF0F0EC);
   static final borderColor = const Color(0xFFCACACA);

@@ -163,7 +163,13 @@ class HomeController extends GetxController {
     }
 
     var allowedModes = hiveStorageHelper.read(SharedPreferenceConstants.allowedPaymentModes) as List;
-    List<AllowedPaymentMode> allowedPayments = allowedModes.map((item) => AllowedPaymentMode.fromJson(item)).toList();
+    List<AllowedPaymentMode> allowedPayments = allowedModes.map((item) {
+      if (item is Map<String, dynamic>) {
+        return AllowedPaymentMode.fromJson(item);
+      } else {
+        return AllowedPaymentMode.fromJson(Map<String, dynamic>.from(item));
+      }
+    }).toList();
 
     allowedPaymentModes.value  = allowedPayments;
 
@@ -454,6 +460,9 @@ class HomeController extends GetxController {
           DeleteCartRequest(), cartId.value, cartLineId!);
       cartResponse.value = response;
       fetchCartDetails();
+      isQuantitySelected.value = false;
+      selectedItemData.value = CartLine();
+      scanProductsResponse.value = ScanProductsResponse();
     } catch (e) {
       Get.snackbar('Error while deleting item from cart', '$e');
     }
@@ -482,6 +491,7 @@ class HomeController extends GetxController {
     try {
       var response = await _homeRepository.clearFullCart(cartId.value);
       generalSuccessResponse.value = response;
+      isQuantitySelected.value = false;
       cartId.value = '';
       getCustomerDetailsResponse.value = CustomerDetailsResponse();
       customerResponse.value = CustomerResponse();
@@ -489,6 +499,7 @@ class HomeController extends GetxController {
       phoneNumber.value = '';
       cartLines.value = {};
       cartResponse.value = CartResponse();
+      isQuantitySelected.value = false;
       selectedItemData.value = CartLine();
       scanProductsResponse.value = ScanProductsResponse();
       Get.snackbar('Cart cleared successfully', 'All items removed');
