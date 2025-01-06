@@ -35,26 +35,6 @@ class _ReturnsViewState extends State<ReturnsView> {
   late ReturnsConfirmationTableData _returnsConfirmationTableData;
 
   void onClickSearchOrders() {
-    // if (customerNumberController.text.isEmpty &&
-    //     orderNumberController.text.isEmpty) {
-    //   // If both are empty, trigger full form validation
-    //   _formKey.currentState!.validate();
-    // } else if (customerNumberController.text.isNotEmpty) {
-    //   // If customer number is provided, validate only that field
-    //   if (_formKey.currentState!.validate()) {
-    //     context.read<ReturnsBloc>().add(FetchCustomerOrdersData(
-    //           customerNumberController.text,
-    //         ));
-    //   }
-    // } else if (orderNumberController.text.isNotEmpty) {
-    //   // If order number is provided, no validation needed
-    //   if (_formKey.currentState!.validate()) {
-    //     context.read<ReturnsBloc>().add(FetchOrderDataBasedOnOrderId(
-    //           orderNumberController.text,
-    //         ));
-    //   }
-    // }
-
     if (_formKey.currentState!.validate()) {
       if (customerNumberController.text.isNotEmpty) {
         context.read<ReturnsBloc>().add(FetchCustomerOrdersData(
@@ -355,25 +335,28 @@ class _ReturnsViewState extends State<ReturnsView> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             /* HEADER */
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  "Return Confirmation",
-                  style: TextStyle(fontSize: 20),
-                ),
-                InkWell(
-                  onTap: () {
-                    Navigator.pop(context);
-                  },
-                  child: SvgPicture.asset(
-                    'assets/images/ic_close.svg',
-                    semanticsLabel: 'cash icon,',
-                    width: 30,
-                    height: 30,
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "Return Confirmation",
+                    style: TextStyle(fontSize: 20),
                   ),
-                ),
-              ],
+                  InkWell(
+                    onTap: () {
+                      Navigator.pop(context);
+                    },
+                    child: SvgPicture.asset(
+                      'assets/images/ic_close.svg',
+                      semanticsLabel: 'cash icon,',
+                      width: 30,
+                      height: 30,
+                    ),
+                  ),
+                ],
+              ),
             ),
             const SizedBox(height: 20),
             Expanded(
