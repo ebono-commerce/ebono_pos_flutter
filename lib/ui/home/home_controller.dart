@@ -162,7 +162,8 @@ class HomeController extends GetxController {
       print('No user details found');
     }
 
-    var allowedModes = hiveStorageHelper.read(SharedPreferenceConstants.allowedPaymentModes) as List;
+    var allowedModes = hiveStorageHelper
+        .read(SharedPreferenceConstants.allowedPaymentModes) as List;
     List<AllowedPaymentMode> allowedPayments = allowedModes.map((item) {
       if (item is Map<String, dynamic>) {
         return AllowedPaymentMode.fromJson(item);
@@ -170,8 +171,6 @@ class HomeController extends GetxController {
         return AllowedPaymentMode.fromJson(Map<String, dynamic>.from(item));
       }
     }).toList();
-
-    allowedPaymentModes.value  = allowedPayments;
 
     allowedPaymentModes.value = allowedPayments;
   }
