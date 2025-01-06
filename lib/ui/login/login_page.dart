@@ -481,7 +481,7 @@ class _LoginPageState extends State<LoginPage> {
             SizedBox(height: 20),
 
             // Store Mode Selection
-            allowedPosDetails.isNotEmpty
+            allowedPosDetails.isNotEmpty && allowedPosDetails.length > 1
                 ? Wrap(
                     crossAxisAlignment: WrapCrossAlignment.start,
                     alignment: WrapAlignment.start,
