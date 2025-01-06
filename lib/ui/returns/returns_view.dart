@@ -9,6 +9,7 @@ import 'package:ebono_pos/widgets/custom_table/custom_table_widget.dart';
 import 'package:ebono_pos/widgets/num_pad_widget.dart';
 import 'package:ebono_pos/widgets/order_details_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -23,6 +24,7 @@ class _ReturnsViewState extends State<ReturnsView> {
   final TextEditingController customerNumberController =
       TextEditingController();
   final TextEditingController orderNumberController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
 
   bool isCustomerOrdersFetched = false;
   bool isOrderItemsFetched = false;
@@ -33,15 +35,37 @@ class _ReturnsViewState extends State<ReturnsView> {
   late ReturnsConfirmationTableData _returnsConfirmationTableData;
 
   void onClickSearchOrders() {
-    if (customerNumberController.text.isNotEmpty) {
-      context.read<ReturnsBloc>().add(FetchCustomerOrdersData(
-            customerNumberController.text,
-          ));
-    }
-    if (orderNumberController.text.isNotEmpty) {
-      context.read<ReturnsBloc>().add(FetchOrderDataBasedOnOrderId(
-            orderNumberController.text,
-          ));
+    // if (customerNumberController.text.isEmpty &&
+    //     orderNumberController.text.isEmpty) {
+    //   // If both are empty, trigger full form validation
+    //   _formKey.currentState!.validate();
+    // } else if (customerNumberController.text.isNotEmpty) {
+    //   // If customer number is provided, validate only that field
+    //   if (_formKey.currentState!.validate()) {
+    //     context.read<ReturnsBloc>().add(FetchCustomerOrdersData(
+    //           customerNumberController.text,
+    //         ));
+    //   }
+    // } else if (orderNumberController.text.isNotEmpty) {
+    //   // If order number is provided, no validation needed
+    //   if (_formKey.currentState!.validate()) {
+    //     context.read<ReturnsBloc>().add(FetchOrderDataBasedOnOrderId(
+    //           orderNumberController.text,
+    //         ));
+    //   }
+    // }
+
+    if (_formKey.currentState!.validate()) {
+      if (customerNumberController.text.isNotEmpty) {
+        context.read<ReturnsBloc>().add(FetchCustomerOrdersData(
+              customerNumberController.text,
+            ));
+      }
+      if (orderNumberController.text.isNotEmpty) {
+        context.read<ReturnsBloc>().add(FetchOrderDataBasedOnOrderId(
+              orderNumberController.text,
+            ));
+      }
     }
   }
 
@@ -87,22 +111,18 @@ class _ReturnsViewState extends State<ReturnsView> {
                     color: Colors.white,
                     child: Column(
                       children: [
-                        OrderDetailsWidget(
+                        const OrderDetailsWidget(
                           customerName: "",
                           walletBalance: "",
                           phoneNumber: "-",
                           loyaltyPoints: "-",
                         ),
-
-                        /* rendering empty table ui */
-                        Visibility(
-                          visible:
-                              !isCustomerOrdersFetched && !isOrderItemsFetched,
-                          child: CustomTableWidget(
+                        if (!isCustomerOrdersFetched && !isOrderItemsFetched)
+                          CustomTableWidget(
                             headers:
                                 _customerTableData.buildInitialTableHeader(),
                             tableRowsData: [],
-                            columnWidths: {
+                            columnWidths: const {
                               0: FlexColumnWidth(3),
                               1: FlexColumnWidth(6),
                               2: FlexColumnWidth(2),
@@ -111,18 +131,14 @@ class _ReturnsViewState extends State<ReturnsView> {
                               5: FlexColumnWidth(1),
                             },
                           ),
-                        ),
-
-                        /* rendering customer orders when user enters customer phone number */
-                        Visibility(
-                          visible: isCustomerOrdersFetched,
-                          child: Expanded(
+                        if (isCustomerOrdersFetched)
+                          Expanded(
                             child: CustomTableWidget(
                               headers: _customerTableData
                                   .buildCustomerOrdersTableHeader(),
                               tableRowsData:
                                   _customerTableData.buildTableRows(),
-                              columnWidths: {
+                              columnWidths: const {
                                 0: FlexColumnWidth(2),
                                 1: FlexColumnWidth(5),
                                 2: FlexColumnWidth(2),
@@ -131,18 +147,16 @@ class _ReturnsViewState extends State<ReturnsView> {
                               },
                             ),
                           ),
-                        ),
-
-                        /* rendering customer orders when user enters customer phone number */
-                        Visibility(
-                          visible: isOrderItemsFetched,
-                          child: Expanded(
+                        if (isOrderItemsFetched)
+                          Expanded(
                             child: CustomTableWidget(
                               headers: _orderItemsTableData
                                   .buildOrderItemsTableHeader(),
-                              tableRowsData: _orderItemsTableData
-                                  .buildTableRows(onTapSelectedButton: (id) {}),
-                              columnWidths: {
+                              tableRowsData:
+                                  _orderItemsTableData.buildTableRows(
+                                onTapSelectedButton: (id) {},
+                              ),
+                              columnWidths: const {
                                 0: FlexColumnWidth(2),
                                 1: FlexColumnWidth(4.5),
                                 2: FlexColumnWidth(3),
@@ -150,67 +164,8 @@ class _ReturnsViewState extends State<ReturnsView> {
                               },
                             ),
                           ),
-                        ),
-
-                        /* rendering form field to enter customer number and order id */
-                        Visibility(
-                          visible:
-                              !isCustomerOrdersFetched && !isOrderItemsFetched,
-                          child: Expanded(
-                            child: SizedBox(
-                              width: 400,
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  TextFormField(
-                                    controller: customerNumberController,
-                                    decoration: _buildInputDecoration(
-                                      label: "Enter Customer Mobile Number",
-                                    ),
-                                  ),
-                                  SizedBox(height: 20),
-                                  ORWidget(),
-                                  SizedBox(height: 20),
-                                  TextFormField(
-                                    controller: orderNumberController,
-                                    decoration: _buildInputDecoration(
-                                      label: "Enter Order Number",
-                                    ),
-                                  ),
-                                  Container(
-                                    margin: EdgeInsets.only(top: 30),
-                                    height: 50,
-                                    child: ElevatedButton(
-                                      onPressed: onClickSearchOrders,
-                                      style: ElevatedButton.styleFrom(
-                                        elevation: 1,
-                                        padding: EdgeInsets.symmetric(
-                                            horizontal: 1, vertical: 20),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(10),
-                                        ),
-                                        backgroundColor:
-                                            CustomColors.secondaryColor,
-                                      ),
-                                      child: Center(
-                                        child: Text(
-                                          "Continue Without Customer Number",
-                                          style: TextStyle(
-                                            color: CustomColors.black,
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
+                        if (!isCustomerOrdersFetched && !isOrderItemsFetched)
+                          _buildFormUI(context),
                       ],
                     ),
                   ),
@@ -231,19 +186,22 @@ class _ReturnsViewState extends State<ReturnsView> {
                     onNumPadEnterPressed: (p0) {},
                     onNumPadValueChanged: (p0) {},
                     onTextFormFieldValueChanged: (p0) {},
-                    onProceedToPayClicked: () {
-                      showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return Dialog(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20.0),
-                            ),
-                            child: _returnOrderDropdown(context),
-                          );
-                        },
-                      );
-                    },
+                    onProceedToPayClicked: isCustomerOrdersFetched ||
+                            isOrderItemsFetched
+                        ? () {
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return Dialog(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(20.0),
+                                  ),
+                                  child: _returnOrderDropdown(context),
+                                );
+                              },
+                            );
+                          }
+                        : null,
                     textFieldFocusNode: FocusNode(),
                     textFieldTextEditingController: TextEditingController(),
                   ),
@@ -274,10 +232,111 @@ class _ReturnsViewState extends State<ReturnsView> {
     );
   }
 
+  Widget _buildFormUI(BuildContext context) {
+    return Expanded(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          const Text(
+            "Returns",
+            style: TextStyle(fontSize: 20),
+          ),
+          const SizedBox(height: 5),
+          Text(
+            "Enter the details to retrieve order & start returns.",
+            style: TextStyle(
+              color: Colors.black.withAlpha(153),
+              fontSize: 16,
+            ),
+          ),
+          const SizedBox(height: 30),
+          SizedBox(
+            width: 350,
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  TextFormField(
+                    controller: customerNumberController,
+                    decoration: _buildInputDecoration(
+                      label: "Enter Customer Mobile Number",
+                    ),
+                    maxLength: 10,
+                    validator: (value) {
+                      if (value == null ||
+                          (value.isEmpty &&
+                              (orderNumberController.text.trim().isEmpty))) {
+                        return 'Please enter a phone number';
+                      }
+                      if (value.length != 10 &&
+                          orderNumberController.text.trim().isEmpty) {
+                        return 'Phone number must be 10 digits';
+                      }
+                      return null;
+                    },
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  ),
+                  const SizedBox(height: 20),
+                  const ORWidget(),
+                  const SizedBox(height: 20),
+                  TextFormField(
+                    controller: orderNumberController,
+                    decoration: _buildInputDecoration(
+                      label: "Enter Order Number",
+                    ),
+                    validator: (value) {
+                      if (value == null ||
+                          (value.isEmpty &&
+                              customerNumberController.text.trim().isEmpty)) {
+                        return 'Please enter order number';
+                      }
+                      return null;
+                    },
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  ),
+                  Container(
+                    margin: const EdgeInsets.only(top: 30),
+                    height: 50,
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: onClickSearchOrders,
+                      style: ElevatedButton.styleFrom(
+                        elevation: 1,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 1,
+                          vertical: 20,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        backgroundColor: CustomColors.secondaryColor,
+                      ),
+                      child: Text(
+                        "Search orders",
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                              color: Colors.black,
+                            ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _returnOrderDropdown(BuildContext context) {
     return SizedBox(
       width: MediaQuery.sizeOf(context).width * 0.9,
-      height: MediaQuery.sizeOf(context).height * 0.9,
+      height: MediaQuery.sizeOf(context).height * 0.88,
       child: Padding(
         padding: const EdgeInsets.symmetric(
           horizontal: 20,
@@ -337,7 +396,6 @@ class _ReturnsViewState extends State<ReturnsView> {
                     walletAmount: 30,
                     mopAmount: 1200,
                     onPaymentModeSelected: (String mode) {
-                      print('Selected payment mode: $mode');
                       // Handle payment mode selection
                     },
                   )
@@ -356,6 +414,7 @@ class _ReturnsViewState extends State<ReturnsView> {
   }) {
     return InputDecoration(
       labelText: label,
+      counterText: "",
       fillColor: Colors.white,
       labelStyle: TextStyle(
         color: CustomColors.greyFont,
