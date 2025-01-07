@@ -639,6 +639,10 @@ class _OrderOnHoldState extends State<OrderOnHold> with WidgetsBindingObserver {
 
 String formatDate(String? dateStr) {
   DateTime date = DateTime.parse(dateStr!);
-  String formattedDate = DateFormat('dd MMM yyyy | hh:mm a').format(date);
+  String formattedDate = DateFormat('dd MMM yyyy | hh:mm a').format(
+    date.add(
+      Duration(hours: 5, minutes: 30),
+    ),
+  );
   return formattedDate;
 }
