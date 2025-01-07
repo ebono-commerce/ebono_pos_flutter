@@ -70,7 +70,7 @@ Future<Uint8List> generatePdf(OrderSummaryResponse data) async {
       build: (pw.Context context) {
         return pw.Center(
             child: pw.Container(
-          width: PdfPageFormat.roll80.availableWidth + 10,
+          width: PdfPageFormat.roll80.availableWidth,
           child: pw.Column(
             crossAxisAlignment: pw.CrossAxisAlignment.center,
             children: [
