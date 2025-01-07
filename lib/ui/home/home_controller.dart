@@ -101,6 +101,8 @@ class HomeController extends GetxController {
   var selectedItemData = CartLine().obs;
   var lastRoute = PageRoutes.paymentSummary.obs;
   var isCustomerProxySelected = false.obs;
+  var isContionueWithOutCustomer = false.obs;
+  var isQuantityEmpty = false.obs;
   var isQuantitySelected = false.obs;
   var overideApproverUserId = ''.obs;
   RxList<AllowedPaymentMode> allowedPaymentModes = [AllowedPaymentMode()].obs;
@@ -162,7 +164,8 @@ class HomeController extends GetxController {
       print('No user details found');
     }
 
-    var allowedModes = hiveStorageHelper.read(SharedPreferenceConstants.allowedPaymentModes) as List;
+    var allowedModes = hiveStorageHelper
+        .read(SharedPreferenceConstants.allowedPaymentModes) as List;
     List<AllowedPaymentMode> allowedPayments = allowedModes.map((item) {
       if (item is Map<String, dynamic>) {
         return AllowedPaymentMode.fromJson(item);
@@ -171,8 +174,7 @@ class HomeController extends GetxController {
       }
     }).toList();
 
-    allowedPaymentModes.value  = allowedPayments;
-
+    allowedPaymentModes.value = allowedPayments;
   }
 
   /*void initializeWeighingScale() {
@@ -243,7 +245,6 @@ class HomeController extends GetxController {
       priceFocusNode: FocusNode(),
     );
     cartLines.add(cart);
-
   }
 
   void removeCartLine(CartLine cartLine) {
@@ -376,6 +377,11 @@ class HomeController extends GetxController {
         for (var element in cartResponse.value.cartLines!) {
           addCartLine(element);
         }
+
+        isQuantityEmpty.value = cartLines.any((cart) =>
+            cart.quantity?.quantityNumber == 0 ||
+            cart.quantity?.quantityNumber == 0.0);
+
         if (response.cartLines?.first.item?.isWeighedItem == true) {
           if (response.cartLines?.first.quantity?.quantityNumber == 0) {
             isQuantitySelected.value = true;
@@ -538,6 +544,8 @@ class HomeController extends GetxController {
               holdCartId: id));
       cartResponse.value = response;
       if (cartResponse.value != null) {
+        /* resetting the exsisting state */
+        isCustomerProxySelected.value = true;
         clearHoldCartOrders();
         selectedTabButton.value = 2;
       }
@@ -607,18 +615,18 @@ class HomeController extends GetxController {
     var userId = await sharedPreferenceHelper.getUserID();
     isLoading.value = true;
     try {
-      var response = await _homeRepository.closeRegister(
-
-          RegisterCloseRequest(
-            outletId:
+      var response = await _homeRepository.closeRegister(RegisterCloseRequest(
+        outletId:
             "${hiveStorageHelper.read(SharedPreferenceConstants.selectedOutletId)}",
-            registerId:
+        registerId:
             "${hiveStorageHelper.read(SharedPreferenceConstants.registerId)}",
-            terminalId:
+        terminalId:
             "${hiveStorageHelper.read(SharedPreferenceConstants.selectedTerminalId)}",
-            userId: userId,
-            registerTransactionId:hiveStorageHelper.read(SharedPreferenceConstants.registerTransactionId),
-            transactionSummary: allowedPaymentModes.map((mode) {
+        userId: userId,
+        registerTransactionId: hiveStorageHelper
+            .read(SharedPreferenceConstants.registerTransactionId),
+        transactionSummary: allowedPaymentModes
+            .map((mode) {
               switch (mode.paymentOptionCode) {
                 case 'CASH':
                   return TransactionSummary(
@@ -662,8 +670,10 @@ class HomeController extends GetxController {
                 default:
                   return null; // Ignore unsupported payment modes
               }
-            }).whereType<TransactionSummary>().toList(),
-          ));
+            })
+            .whereType<TransactionSummary>()
+            .toList(),
+      ));
 
       closeRegisterResponse.value = response;
       if (closeRegisterResponse.value.success == true) {
@@ -685,16 +695,20 @@ class HomeController extends GetxController {
 
   void addOrdersOnHoldItems(OnHoldItems onHoldItems) {
     var item = OnHoldItems(
-        customer:
-            HoldOrderCustomer(customerName: onHoldItems.customer?.customerName),
-        holdCartId: onHoldItems.holdCartId,
-        createdAt: onHoldItems.createdAt,
-        cashierDetails: CashierDetails(
-            cashierId: onHoldItems.cashierDetails?.cashierId,
-            cashierName: onHoldItems.cashierDetails?.cashierName),
-        phoneNumber: HoldOrderPhoneNumber(
-            countryCode: onHoldItems.phoneNumber?.countryCode,
-            number: onHoldItems.phoneNumber?.number));
+      customer: HoldOrderCustomer(
+        customerName: onHoldItems.customer?.customerName,
+      ),
+      holdCartId: onHoldItems.holdCartId,
+      createdAt: onHoldItems.createdAt,
+      cashierDetails: CashierDetails(
+        cashierId: onHoldItems.cashierDetails?.cashierId,
+        cashierName: onHoldItems.cashierDetails?.cashierName,
+      ),
+      phoneNumber: HoldOrderPhoneNumber(
+        countryCode: onHoldItems.phoneNumber?.countryCode,
+        number: onHoldItems.phoneNumber?.number,
+      ),
+    );
     ordersOnHold.add(item);
   }
 

@@ -2,6 +2,7 @@ import 'package:ebono_pos/constants/custom_colors.dart';
 import 'package:ebono_pos/data_store/hive_storage_helper.dart';
 import 'package:ebono_pos/data_store/shared_preference_helper.dart';
 import 'package:ebono_pos/navigation/page_routes.dart';
+import 'package:ebono_pos/ui/home/home_controller.dart';
 import 'package:ebono_pos/ui/login/bloc/login_bloc.dart';
 import 'package:ebono_pos/ui/login/bloc/login_event.dart';
 import 'package:ebono_pos/ui/login/bloc/login_state.dart';
@@ -12,16 +13,17 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 
 class LogoutButton extends StatefulWidget {
-   const LogoutButton({super.key});
+  const LogoutButton({super.key});
 
   @override
   State<LogoutButton> createState() => _LogoutButtonState();
 }
 
 class _LogoutButtonState extends State<LogoutButton> {
+  final loginBloc = LoginBloc(Get.find<LoginRepository>(),
+      Get.find<SharedPreferenceHelper>(), Get.find<HiveStorageHelper>());
 
-  final loginBloc = LoginBloc(
-      Get.find<LoginRepository>(), Get.find<SharedPreferenceHelper>(), Get.find<HiveStorageHelper>());
+  HomeController homeController = Get.find<HomeController>();
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +44,70 @@ class _LogoutButtonState extends State<LogoutButton> {
         child: BlocBuilder<LoginBloc, LoginState>(
           builder: (context, state) {
             return logoutButton(context, () {
-              loginBloc.add(LogoutButtonPressed(''));
+              if (homeController.registerId.value.isNotEmpty) {
+                Get.dialog(
+                  AlertDialog(
+                    title: Text('Are you sure you want to logout?'),
+                    content: Text(
+                        'Register is not closed, please close the register and logout\n'),
+                    actions: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: ElevatedButton(
+                              onPressed: () => Get.back(),
+                              style: ElevatedButton.styleFrom(
+                                elevation: 1,
+                                padding: EdgeInsets.symmetric(vertical: 20),
+                                shape: RoundedRectangleBorder(
+                                  side: BorderSide(
+                                      color: CustomColors.primaryColor,
+                                      width: 1.5),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                backgroundColor: CustomColors.keyBoardBgColor,
+                              ),
+                              child: Text(
+                                "No, Cancel",
+                                style: TextStyle(
+                                    color: CustomColors.primaryColor,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          ),
+                          SizedBox(width: 20),
+                          Expanded(
+                            child: ElevatedButton(
+                              onPressed: () {
+                                Get.back();
+                                homeController.selectedTabButton.value = 1;
+                              },
+                              style: ElevatedButton.styleFrom(
+                                elevation: 1,
+                                padding: EdgeInsets.symmetric(vertical: 20),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                backgroundColor: CustomColors.secondaryColor,
+                              ),
+                              child: Text(
+                                "Yes, Logout",
+                                style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                );
+              } else {
+                loginBloc.add(LogoutButtonPressed(''));
+              }
             });
           },
         ),
@@ -54,7 +119,7 @@ class _LogoutButtonState extends State<LogoutButton> {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 5.0, vertical: 10),
       child: TextButton.icon(
-        onPressed: (){
+        onPressed: () {
           onLogoutPressed();
         },
         style: ElevatedButton.styleFrom(
@@ -76,7 +141,9 @@ class _LogoutButtonState extends State<LogoutButton> {
         label: Padding(
           padding: const EdgeInsets.only(right: 8.0),
           child: Text('LOGOUT',
-              style: Theme.of(context).textTheme.labelLarge
+              style: Theme.of(context)
+                  .textTheme
+                  .labelLarge
                   ?.copyWith(color: CustomColors.red)),
         ),
       ),
