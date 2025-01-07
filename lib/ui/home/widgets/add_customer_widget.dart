@@ -8,8 +8,13 @@ import 'package:get/get.dart';
 
 class AddCustomerWidget extends StatefulWidget {
   final BuildContext dialogContext;
+  final bool isDialogForHoldCart;
 
-  const AddCustomerWidget(this.dialogContext, {super.key});
+  const AddCustomerWidget(
+    this.dialogContext, {
+    super.key,
+    this.isDialogForHoldCart = false,
+  });
 
   @override
   State<AddCustomerWidget> createState() => _AddCustomerWidgetState();
@@ -35,7 +40,9 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
     ever(homeController.customerResponse, (value) {
       if (value.phoneNumber != null) {
         if (widget.dialogContext.mounted) {
-          Navigator.pop(widget.dialogContext);
+          widget.isDialogForHoldCart
+              ? () {}
+              : Navigator.pop(widget.dialogContext);
         }
       }
     });
@@ -318,6 +325,7 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
         onPressed: homeController.customerName.isNotEmpty
             ? () {
                 homeController.isCustomerProxySelected.value = true;
+                homeController.isContionueWithOutCustomer.value = false;
                 homeController.fetchCustomer();
               }
             : null,
@@ -355,13 +363,16 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
       height: 60,
       padding: EdgeInsets.symmetric(horizontal: 5.0, vertical: 5),
       child: ElevatedButton(
-        onPressed: () {
-          homeController.phoneNumber.value =
-              homeController.customerProxyNumber.value;
-          homeController.customerName.value = 'Admin';
-          homeController.isCustomerProxySelected.value = true;
-          homeController.fetchCustomer();
-        },
+        onPressed: homeController.isContionueWithOutCustomer.value
+            ? null
+            : () {
+                homeController.phoneNumber.value =
+                    homeController.customerProxyNumber.value;
+                homeController.customerName.value = 'Admin';
+                homeController.isCustomerProxySelected.value = true;
+                homeController.isContionueWithOutCustomer.value = true;
+                homeController.fetchCustomer();
+              },
         style: ElevatedButton.styleFrom(
           elevation: 1,
           padding: EdgeInsets.symmetric(horizontal: 1, vertical: 20),

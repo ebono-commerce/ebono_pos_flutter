@@ -456,6 +456,7 @@ class _OrderOnHoldState extends State<OrderOnHold> with WidgetsBindingObserver {
       child: Column(
         children: [
           Table(
+            defaultVerticalAlignment: TableCellVerticalAlignment.middle,
             columnWidths: {
               0: FlexColumnWidth(2),
               1: FlexColumnWidth(2),
@@ -497,7 +498,7 @@ class _OrderOnHoldState extends State<OrderOnHold> with WidgetsBindingObserver {
                                 color: CustomColors.greyFont),
                       )),
                   Padding(
-                      padding: const EdgeInsets.all(10.0),
+                      padding: const EdgeInsets.all(15.0),
                       child: Text(
                         "Cashier",
                         style: Theme.of(context)
@@ -528,119 +529,98 @@ class _OrderOnHoldState extends State<OrderOnHold> with WidgetsBindingObserver {
                           Border.all(color: Colors.grey.shade300, width: 1)),
                   children: [
                     Container(
-                      color: Colors.white,
                       padding: const EdgeInsets.all(8.0),
-                      child: Padding(
-                          padding: const EdgeInsets.all(10.0),
-                          child: Text(
-                            "${itemData.phoneNumber?.number}",
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            softWrap: true,
-                            style: Theme.of(context)
-                                .textTheme
-                                .labelLarge
-                                ?.copyWith(
-                                    fontWeight: FontWeight.w500,
-                                    color: CustomColors.black),
-                          )),
+                      child: Text(
+                        "${itemData.customer?.customerName}",
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        softWrap: true,
+                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                            fontWeight: FontWeight.w500,
+                            color: CustomColors.black),
+                      ),
                     ),
                     Container(
-                      color: Colors.white,
                       padding: const EdgeInsets.all(8.0),
-                      child: Padding(
-                          padding: const EdgeInsets.all(10.0),
-                          child: Text(
-                            "${itemData.customer?.customerName}",
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            softWrap: true,
-                            style: Theme.of(context)
-                                .textTheme
-                                .labelLarge
-                                ?.copyWith(
-                                    fontWeight: FontWeight.w500,
-                                    color: CustomColors.black),
-                          )),
+                      child: Text(
+                        "${itemData.phoneNumber?.number}",
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        softWrap: true,
+                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                            fontWeight: FontWeight.w500,
+                            color: CustomColors.black),
+                      ),
+                    ),
+                    Text(
+                      '${itemData.cashierDetails?.cashierName}',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      softWrap: true,
+                      style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                          fontWeight: FontWeight.w500,
+                          color: CustomColors.black),
                     ),
                     Container(
-                        color: Colors.white,
-                        padding: const EdgeInsets.all(8.0),
-                        child: Padding(
-                            padding: const EdgeInsets.all(10.0),
-                            child: Text(
-                              '${itemData.cashierDetails?.cashierName}',
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              softWrap: true,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .labelLarge
-                                  ?.copyWith(
-                                      fontWeight: FontWeight.w500,
-                                      color: CustomColors.black),
-                            ))),
-                    Container(
-                      color: Colors.white,
                       padding: const EdgeInsets.all(8.0),
-                      child: Padding(
-                          padding: const EdgeInsets.all(10.0),
-                          child: Text(
-                            "${formatDate(itemData.createdAt)}",
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            softWrap: true,
-                            style: Theme.of(context)
-                                .textTheme
-                                .labelLarge
-                                ?.copyWith(
-                                    fontWeight: FontWeight.w500,
-                                    color: CustomColors.black),
-                          )),
+                      child: Text(
+                        formatDate(itemData.createdAt),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        softWrap: true,
+                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                            fontWeight: FontWeight.w500,
+                            color: CustomColors.black),
+                      ),
                     ),
-                    Container(
+                    SizedBox(
                       width: 80,
-                      // decoration: BoxDecoration(
-                      //     color: Colors.white,
-                      //     borderRadius: BorderRadius.only(
-                      //       topLeft: Radius.circular(10),
-                      //       topRight: Radius.circular(10),
-                      //       bottomLeft: Radius.circular(10),
-                      //       bottomRight: Radius.circular(10),
-                      //     )),
-                      padding: const EdgeInsets.all(6.0),
-                      child: SizedBox(
-                        width: 80,
-                        height: 34,
-                        child: ElevatedButton(
-                          onPressed: itemData.holdCartId != ""
-                              ? () {
-                                  if (itemData.holdCartId != "") {
-                                    homeController.resumeHoldCartApiCall(
-                                        itemData.holdCartId);
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 15,
+                          horizontal: 8,
+                        ),
+                        child: SizedBox(
+                          width: 80,
+                          height: 34,
+                          child: ElevatedButton(
+                            onPressed: itemData.holdCartId != ""
+                                ? () {
+                                    homeController
+                                        .isCustomerProxySelected.value = false;
+                                    homeController.phoneNumber.value =
+                                        itemData.phoneNumber!.number ?? '';
+                                    homeController.customerName.value =
+                                        itemData.customer!.customerName ?? '';
+                                    homeController.fetchCustomer();
+                                    if (itemData.holdCartId != "") {
+                                      homeController.resumeHoldCartApiCall(
+                                        itemData.holdCartId,
+                                      );
+                                    }
                                   }
-                                }
-                              : null,
-                          style: ElevatedButton.styleFrom(
-                              elevation: 1,
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 1, vertical: 4),
-                              shape: RoundedRectangleBorder(
-                                side: BorderSide.none,
-                                borderRadius: BorderRadius.circular(10),
+                                : null,
+                            style: ElevatedButton.styleFrom(
+                                elevation: 1,
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 1, vertical: 4),
+                                shape: RoundedRectangleBorder(
+                                  side: BorderSide.none,
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                backgroundColor: CustomColors.secondaryColor),
+                            child: Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 2.0),
+                              child: Text(
+                                " Resume ",
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleSmall
+                                    ?.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                        color: CustomColors.black),
                               ),
-                              backgroundColor: CustomColors.secondaryColor),
-                          child: Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 2.0),
-                            child: Text(
-                              " Resume ",
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleSmall
-                                  ?.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                      color: CustomColors.black),
                             ),
                           ),
                         ),
@@ -659,6 +639,10 @@ class _OrderOnHoldState extends State<OrderOnHold> with WidgetsBindingObserver {
 
 String formatDate(String? dateStr) {
   DateTime date = DateTime.parse(dateStr!);
-  String formattedDate = DateFormat('dd MMM yyyy | hh:mm a').format(date);
+  String formattedDate = DateFormat('dd MMM yyyy | hh:mm a').format(
+    date.add(
+      Duration(hours: 5, minutes: 30),
+    ),
+  );
   return formattedDate;
 }
