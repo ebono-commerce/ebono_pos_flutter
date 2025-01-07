@@ -9,12 +9,18 @@ class PlaceOrderRequest {
   String? phoneNumber;
   String? cartType;
   List<PaymentMethod>? paymentMethods;
+  String? registerId;
+  String? terminalId;
+  String? registerTransactionId;
 
   PlaceOrderRequest({
     this.cartId,
     this.phoneNumber,
     this.cartType,
     this.paymentMethods,
+    this.registerId,
+    this.terminalId,
+    this.registerTransactionId,
   });
 
   factory PlaceOrderRequest.fromJson(Map<String, dynamic> json) => PlaceOrderRequest(
@@ -22,6 +28,9 @@ class PlaceOrderRequest {
     phoneNumber: json["phone_number"],
     cartType: json["cart_type"],
     paymentMethods: json["payment_methods"] == null ? [] : List<PaymentMethod>.from(json["payment_methods"]!.map((x) => PaymentMethod.fromJson(x))),
+    registerId: json["register_id"],
+    terminalId: json["terminal_id"],
+    registerTransactionId: json["register_transaction_id"],
   );
 
   Map<String, dynamic> toJson() => {
@@ -29,6 +38,9 @@ class PlaceOrderRequest {
     "phone_number": phoneNumber,
     "cart_type": cartType,
     "payment_methods": paymentMethods == null ? [] : List<dynamic>.from(paymentMethods!.map((x) => x.toJson())),
+    "register_id": registerId,
+    "terminal_id": terminalId,
+    "register_transaction_id": registerTransactionId,
   };
 }
 

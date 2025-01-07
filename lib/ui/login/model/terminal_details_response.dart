@@ -164,7 +164,7 @@ class TerminalDetails {
     status: json["status"],
     isEdcIntegrated: json["is_edc_integrated"],
     isWeighingScaleIntegrated: json["is_weighing_scale_integrated"],
-    edcDevices: json["edc_devices"] == null ? [] : List<EdcDevice>.from(json["edc_devices"]!.map((x) => EdcDevice.fromJson(x))),
+    edcDevices: json["edc_device"] == null ? [] : List<EdcDevice>.from(json["edc_device"]!.map((x) => EdcDevice.fromJson(x))),
     printerDevice: json["printer_device"] == null ? null : PrinterDevice.fromJson(json["printer_device"]),
     isActive: json["is_active"],
   );
@@ -175,7 +175,7 @@ class TerminalDetails {
     "status": status,
     "is_edc_integrated": isEdcIntegrated,
     "is_weighing_scale_integrated": isWeighingScaleIntegrated,
-    "edc_devices": edcDevices == null ? [] : List<dynamic>.from(edcDevices!.map((x) => x.toJson())),
+    "edc_device": edcDevices == null ? [] : List<dynamic>.from(edcDevices!.map((x) => x.toJson())),
     "printer_device": printerDevice?.toJson(),
     "is_active": isActive,
   };
@@ -256,3 +256,4 @@ class AllowedPaymentMode {
     "psp_name": pspName,
   };
 }
+

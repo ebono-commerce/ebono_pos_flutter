@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:ebono_pos/constants/shared_preference_constants.dart';
 import 'package:ebono_pos/data_store/hive_storage_helper.dart';
+import 'package:ebono_pos/ui/login/model/terminal_details_response.dart';
 import 'package:ebono_pos/ui/payment_summary/bloc/payment_event.dart';
 import 'package:ebono_pos/ui/payment_summary/bloc/payment_state.dart';
 import 'package:ebono_pos/ui/payment_summary/model/order_summary_response.dart';
@@ -47,6 +48,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
   double balancePayable = 0;
   bool allowPlaceOrder = false;
   bool allowPrintInvoice = false;
+  List<EdcDevice> edcDetails = [];
 
   PaymentBloc(this._paymentRepository, this.hiveStorageHelper)
       : super(PaymentState()) {
@@ -88,6 +90,18 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
     emit(state.copyWith(initialState: true));
     paymentSummaryRequest = event.request;
     add(FetchPaymentSummary());
+
+    var edcDevice = hiveStorageHelper
+        .read(SharedPreferenceConstants.edcDeviceDetails) as List;
+    List<EdcDevice> edcDeviceDetails = edcDevice.map((item) {
+      if (item is Map<String, dynamic>) {
+        return EdcDevice.fromJson(item);
+      } else {
+        return EdcDevice.fromJson(Map<String, dynamic>.from(item));
+      }
+    }).toList();
+    print(edcDeviceDetails.first.username);
+    edcDetails = edcDeviceDetails;
   }
 
   Future<void> _fetchPaymentSummary(
@@ -110,6 +124,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
   Future<void> _paymentInitiateApi(
       PaymentStartEvent event, Emitter<PaymentState> emit) async {
     emit(state.copyWith(isLoading: true, initialState: false));
+
     final random = Random();
     final reqBody = {
       "amount": onlinePayment,
@@ -123,9 +138,9 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
       //"terminal_id": "10120",demo account
       "terminal_id":
           "${hiveStorageHelper.read(SharedPreferenceConstants.selectedTerminalId)}",
-      "username": "2211202100",
-      "appKey": "eaa762ba-08ac-41d6-b6d3-38f754ed1572",
-      "pushTo": {"deviceId": "0821387918|ezetap_android"}
+      "username": edcDetails.firstOrNull?.username,
+      "appKey": edcDetails.firstOrNull?.appKey,
+      "pushTo": {"deviceId": edcDetails.firstOrNull?.deviceId}
     };
     var paymentRequest = PaymentRequest.fromJson(reqBody);
     print(
@@ -167,8 +182,8 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
       PaymentStatusEvent event, Emitter<PaymentState> emit) async {
     emit(state.copyWith(isLoading: false, initialState: false));
     final reqBody = {
-      "username": "2211202100",
-      "appKey": "eaa762ba-08ac-41d6-b6d3-38f754ed1572",
+      "username": edcDetails.firstOrNull?.username,
+      "appKey": edcDetails.firstOrNull?.appKey,
       "origP2pRequestId": p2pRequestId
     };
     var paymentStatusRequest = PaymentStatusRequest.fromJson(reqBody);
@@ -255,10 +270,12 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
       PaymentCancelEvent event, Emitter<PaymentState> emit) async {
     emit(state.copyWith(isLoading: false, initialState: false));
     final reqBody = {
-      "username": "2211202100",
-      "appKey": "eaa762ba-08ac-41d6-b6d3-38f754ed1572",
+      "username": edcDetails.firstOrNull?.username,
+      "appKey": edcDetails.firstOrNull?.appKey,
       "origP2pRequestId": p2pRequestId,
-      "pushTo": {"deviceId": "0821387918|ezetap_android"}
+      "pushTo": {
+        "deviceId": edcDetails.firstOrNull?.deviceId,
+      }
     };
     var paymentCancelRequest = PaymentCancelRequest.fromJson(reqBody);
     print('Payment Cancel Request: ${paymentCancelRequest.origP2PRequestId}');
@@ -335,7 +352,9 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
             pspId: cashPaymentOption?.pspId,
             requestId: paymentSummaryRequest.cartId,
             transactionReferenceId: paymentSummaryRequest.cartId,
-            amount: onlinePayment.isEmpty?(cashAmount - (balancePayable.abs())):cashAmount,
+            amount: onlinePayment.isEmpty
+                ? (cashAmount - (balancePayable.abs()))
+                : cashAmount,
             methodDetail: [
               MethodDetail(key: "METHOD", value: "CASH"),
             ]));
@@ -356,12 +375,19 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
             ]));
       }
 
-      orderSummaryResponse = await _paymentRepository.placeOrder(
-          PlaceOrderRequest(
-              cartId: paymentSummaryRequest.cartId,
-              phoneNumber: paymentSummaryRequest.phoneNumber,
-              cartType: paymentSummaryRequest.cartType,
-              paymentMethods: paymentMethods));
+      orderSummaryResponse =
+          await _paymentRepository.placeOrder(PlaceOrderRequest(
+        cartId: paymentSummaryRequest.cartId,
+        phoneNumber: paymentSummaryRequest.phoneNumber,
+        cartType: paymentSummaryRequest.cartType,
+        paymentMethods: paymentMethods,
+        registerId:
+            "${hiveStorageHelper.read(SharedPreferenceConstants.registerId)}",
+        terminalId:
+            "${hiveStorageHelper.read(SharedPreferenceConstants.selectedTerminalId)}",
+        registerTransactionId: hiveStorageHelper
+            .read(SharedPreferenceConstants.registerTransactionId),
+      ));
 
       emit(state.copyWith(
           isLoading: false,
