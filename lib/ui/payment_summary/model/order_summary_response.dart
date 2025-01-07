@@ -16,6 +16,8 @@ class OrderSummaryResponse {
   TaxDetails? taxDetails;
   String? totalsInWords;
   String? quantityTotal;
+  String? roundOffTotal;
+  String? roundOff;
   DiscountTotal? mrpTotal;
   DiscountTotal? grandTotal;
   DiscountTotal? mrpSavings;
@@ -36,6 +38,8 @@ class OrderSummaryResponse {
     this.taxDetails,
     this.totalsInWords,
     this.quantityTotal,
+    this.roundOffTotal,
+    this.roundOff,
     this.grandTotal,
     this.mrpTotal,
     this.mrpSavings,
@@ -57,6 +61,8 @@ class OrderSummaryResponse {
     taxDetails: json["tax_details"] == null ? null : TaxDetails.fromJson(json["tax_details"]),
     totalsInWords: json["totals_in_words"],
     quantityTotal: json["quantity_total"],
+    roundOffTotal: json["roundOffTotal"],
+    roundOff: json["roundoff"],
     grandTotal: json["grand_total"] == null ? null : DiscountTotal.fromJson(json["grand_total"]),
     mrpTotal: json["mrp_total"] == null ? null : DiscountTotal.fromJson(json["mrp_total"]),
     mrpSavings: json["mrp_savings"] == null ? null : DiscountTotal.fromJson(json["mrp_savings"]),
@@ -78,6 +84,8 @@ class OrderSummaryResponse {
     "tax_details": taxDetails?.toJson(),
     "totals_in_words": totalsInWords,
     "quantity_total": quantityTotal,
+    "roundOffTotal": roundOffTotal,
+    "roundoff": roundOff,
     "grand_total": grandTotal?.toJson(),
     "mrp_total": mrpTotal?.toJson(),
     "mrp_savings": mrpSavings?.toJson(),

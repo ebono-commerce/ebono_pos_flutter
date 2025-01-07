@@ -30,6 +30,9 @@ Future<Uint8List> generatePdf(OrderSummaryResponse data) async {
   final font = await PdfGoogleFonts.interRegular();
   final fallbackFontByteData =
       await rootBundle.load("assets/fonts/Roboto-Regular.ttf");
+  final img = await rootBundle.load('assets/images/savomart_logo.png');
+  final imageBytes = img.buffer.asUint8List();
+  pw.Image image1 = pw.Image(pw.MemoryImage(imageBytes));
 
   //final data = OrderSummaryResponse.fromJson(json.decode(jsonData));
 
@@ -44,14 +47,10 @@ Future<Uint8List> generatePdf(OrderSummaryResponse data) async {
           child: pw.Column(
             crossAxisAlignment: pw.CrossAxisAlignment.center,
             children: [
-              pw.Text(
-                'EBONO',
-                textAlign: pw.TextAlign.center,
-                style: pw.TextStyle(
-                  fontSize: 18,
-                  fontWeight: pw.FontWeight.bold,
-                  font: font,
-                ),
+              pw.Container(
+                alignment: pw.Alignment.center,
+                height: 70,
+                child: image1,
               ),
               if (data.invoiceNumber?.isNotEmpty == true)
                 pw.Text(
@@ -258,7 +257,7 @@ Future<Uint8List> generatePdf(OrderSummaryResponse data) async {
                                 ),
                               ),
                               pw.Text(
-                               '${item.quantity?.quantityNumber}',
+                                '${item.quantity?.quantityNumber}',
                                 style: pw.TextStyle(
                                   fontSize: 8,
                                   font: font,
@@ -329,6 +328,13 @@ Future<Uint8List> generatePdf(OrderSummaryResponse data) async {
                     ),
                   ),
                   pw.Text(
+                    'Rounded of ( ₹${data.roundOff} )',
+                    style: pw.TextStyle(
+                      fontSize: 8,
+                      font: font,
+                    ),
+                  ),
+                  /*pw.Text(
                     getActualPrice(
                         data.mrpTotal?.centAmount, data.mrpTotal?.fraction),
                     style: pw.TextStyle(
@@ -351,10 +357,9 @@ Future<Uint8List> generatePdf(OrderSummaryResponse data) async {
                       fontSize: 8,
                       font: font,
                     ),
-                  ),
+                  ),*/
                   pw.Text(
-                    getActualPrice(
-                        data.grandTotal?.centAmount, data.grandTotal?.fraction),
+                    '₹${data.roundOffTotal}',
                     style: pw.TextStyle(
                       fontSize: 8,
                       font: font,
@@ -364,16 +369,7 @@ Future<Uint8List> generatePdf(OrderSummaryResponse data) async {
               ),
               pw.SizedBox(height: 4),
               pw.Text(
-                'In Words: ${data.totalsInWords}',
-                style: pw.TextStyle(
-                  fontSize: 8,
-                  font: font,
-                  fontWeight: pw.FontWeight.bold,
-                ),
-              ),
-              pw.SizedBox(height: 4),
-              pw.Text(
-                'Your savings on MRP: ${getActualPrice(data.mrpSavings?.centAmount, data.mrpSavings?.fraction)}',
+                'Your savings: ${getActualPrice(data.mrpSavings?.centAmount, data.mrpSavings?.fraction)}',
                 style: pw.TextStyle(
                   fontSize: 8,
                   font: font,
@@ -661,5 +657,4 @@ void printOrderSummary(
         final Uint8List cutPaperCommand = Uint8List.fromList([27, 105]);
         return Uint8List.fromList([...pdfBytes, ...cutPaperCommand]);
       });
-
 }
