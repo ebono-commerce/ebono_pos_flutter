@@ -263,6 +263,15 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
           SharedPreferenceConstants.allowedPaymentModes,
           allowedPaymentModeJson);
 
+      List<Map<String, dynamic>> edcDeviceDetails =
+          response.terminalDetails?.edcDevices?.map((mode) => mode.toJson()).toList() ?? [];
+
+      hiveStorageHelper.save(
+          SharedPreferenceConstants.edcDeviceDetails,
+          edcDeviceDetails);
+
+
+      print('edc details:${edcDeviceDetails.firstOrNull}');
       emit(SubmitTerminalDetailsSuccess());
     } catch (error) {
       emit(SubmitTerminalDetailsFailure(error.toString()));

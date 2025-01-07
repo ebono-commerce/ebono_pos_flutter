@@ -23,4 +23,5 @@ class SharedPreferenceConstants {
   static final isSalesAssociateLinkEnabled = 'isSalesAssociateLinkEnabled';
   static final selectedPrinter = 'selectedPrinter';
   static final allowedPaymentModes = 'allowedPaymentModes';
+  static final edcDeviceDetails = 'edcDeviceDetails';
 }
