@@ -25,7 +25,6 @@ class PrintReceiptPage extends StatelessWidget {
   }
 }
 
-
 pw.Widget dottedDivider({
   int numberOfDots = 50, // Default number of dots
   double fontSize = 6.0, // Default font size for dots
@@ -37,7 +36,7 @@ pw.Widget dottedDivider({
       mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
       children: List.generate(
         numberOfDots,
-            (index) => pw.Text(
+        (index) => pw.Text(
           '.',
           style: pw.TextStyle(
             fontSize: fontSize,
@@ -49,7 +48,6 @@ pw.Widget dottedDivider({
   );
 }
 
-
 Future<Uint8List> generatePdf(OrderSummaryResponse data) async {
   final pdf = pw.Document();
   final font = await PdfGoogleFonts.interRegular();
@@ -58,17 +56,21 @@ Future<Uint8List> generatePdf(OrderSummaryResponse data) async {
   final img = await rootBundle.load('assets/images/savomart_logo.png');
   final imageBytes = img.buffer.asUint8List();
   pw.Image image1 = pw.Image(pw.MemoryImage(imageBytes));
-
+   const double point = 1.0;
+   const double inch = 72.0;
+   const double cm = inch / 2.54;
+   const double mm = inch / 25.4;
   //final data = OrderSummaryResponse.fromJson(json.decode(jsonData));
 
   pdf.addPage(
     pw.Page(
-      pageFormat: PdfPageFormat.roll80,
+      pageFormat: PdfPageFormat.roll80.copyWith(
+          marginBottom: 0, marginLeft: 0, marginRight: 0, marginTop: 0),
       margin: const pw.EdgeInsets.all(0),
       build: (pw.Context context) {
         return pw.Center(
             child: pw.Container(
-          width: PdfPageFormat.roll80.availableWidth,
+          width: PdfPageFormat.roll80.availableWidth + 10,
           child: pw.Column(
             crossAxisAlignment: pw.CrossAxisAlignment.center,
             children: [
@@ -87,6 +89,7 @@ Future<Uint8List> generatePdf(OrderSummaryResponse data) async {
                     font: font,
                   ),
                 ),
+              pw.SizedBox(height: 4),
               pw.Column(
                   crossAxisAlignment: pw.CrossAxisAlignment.start,
                   children: [
@@ -244,95 +247,104 @@ Future<Uint8List> generatePdf(OrderSummaryResponse data) async {
                   ),
                   pw.Divider(),
                   // Item rows
-                  ...?data.invoiceLines?.map((item) => pw.Column(
-                        crossAxisAlignment: pw.CrossAxisAlignment.start,
-                        children: [
-                          // Product name lines
-                          pw.Text(
-                            item.skuTitle ?? '',
-                            style: pw.TextStyle(
-                              fontSize: 8,
-                              font: font,
-                            ),
-                          ),
-                          pw.Text(
-                            '', // Add additional details if needed
-                            style: pw.TextStyle(
-                              fontSize: 8,
-                              font: font,
-                            ),
-                          ),
-                          pw.SizedBox(height: 2),
-                          pw.Row(
-                            mainAxisAlignment:
-                                pw.MainAxisAlignment.spaceBetween,
+                  ...?data.invoiceLines
+                      ?.asMap()
+                      .entries
+                      .map((item) => pw.Column(
+                            crossAxisAlignment: pw.CrossAxisAlignment.start,
                             children: [
+                              // Product name lines
                               pw.Text(
-                                "  ",
+                                item.value.skuTitle ?? '',
                                 style: pw.TextStyle(
                                   fontSize: 8,
                                   font: font,
                                 ),
                               ),
                               pw.Text(
-                                "  ",
+                                '', // Add additional details if needed
                                 style: pw.TextStyle(
                                   fontSize: 8,
                                   font: font,
                                 ),
                               ),
-                              pw.Text(
-                                '${item.quantity?.quantityNumber}',
-                                style: pw.TextStyle(
-                                  fontSize: 8,
-                                  font: font,
-                                ),
+                              pw.SizedBox(height: 2),
+                              pw.Row(
+                                mainAxisAlignment:
+                                    pw.MainAxisAlignment.spaceBetween,
+                                children: [
+                                  pw.Text(
+                                    "  ",
+                                    style: pw.TextStyle(
+                                      fontSize: 8,
+                                      font: font,
+                                    ),
+                                  ),
+                                  pw.Text(
+                                    "  ",
+                                    style: pw.TextStyle(
+                                      fontSize: 8,
+                                      font: font,
+                                    ),
+                                  ),
+                                  pw.Text(
+                                    '${item.value.quantity?.quantityNumber}',
+                                    style: pw.TextStyle(
+                                      fontSize: 8,
+                                      font: font,
+                                    ),
+                                  ),
+                                  pw.Text(
+                                    getActualPrice(
+                                        item.value.unitPrice?.centAmount,
+                                        item.value.unitPrice?.fraction),
+                                    style: pw.TextStyle(
+                                        fontSize: 8,
+                                        font: font,
+                                        fontFallback: [
+                                          pw.Font.ttf(fallbackFontByteData)
+                                        ]),
+                                  ),
+                                  pw.Text(
+                                    getActualPrice(
+                                        item.value.discountTotal?.centAmount,
+                                        item.value.discountTotal?.fraction),
+                                    style: pw.TextStyle(
+                                        fontSize: 8,
+                                        font: font,
+                                        fontFallback: [
+                                          pw.Font.ttf(fallbackFontByteData)
+                                        ]),
+                                  ),
+                                  pw.Text(
+                                    getActualPrice(
+                                        item.value.taxTotal?.centAmount,
+                                        item.value.taxTotal?.fraction),
+                                    style: pw.TextStyle(
+                                        fontSize: 8,
+                                        font: font,
+                                        fontFallback: [
+                                          pw.Font.ttf(fallbackFontByteData)
+                                        ]),
+                                  ),
+                                  pw.Text(
+                                    getActualPrice(
+                                        item.value.grandTotal?.centAmount,
+                                        item.value.grandTotal?.fraction),
+                                    style: pw.TextStyle(
+                                        fontSize: 8,
+                                        font: font,
+                                        fontFallback: [
+                                          pw.Font.ttf(fallbackFontByteData)
+                                        ]),
+                                  ),
+                                ],
                               ),
-                              pw.Text(
-                                getActualPrice(item.unitPrice?.centAmount,
-                                    item.unitPrice?.fraction),
-                                style: pw.TextStyle(
-                                    fontSize: 8,
-                                    font: font,
-                                    fontFallback: [
-                                      pw.Font.ttf(fallbackFontByteData)
-                                    ]),
-                              ),
-                              pw.Text(
-                                getActualPrice(item.discountTotal?.centAmount,
-                                    item.discountTotal?.fraction),
-                                style: pw.TextStyle(
-                                    fontSize: 8,
-                                    font: font,
-                                    fontFallback: [
-                                      pw.Font.ttf(fallbackFontByteData)
-                                    ]),
-                              ),
-                              pw.Text(
-                                getActualPrice(item.taxTotal?.centAmount,
-                                    item.taxTotal?.fraction),
-                                style: pw.TextStyle(
-                                    fontSize: 8,
-                                    font: font,
-                                    fontFallback: [
-                                      pw.Font.ttf(fallbackFontByteData)
-                                    ]),
-                              ),
-                              pw.Text(
-                                getActualPrice(item.grandTotal?.centAmount,
-                                    item.grandTotal?.fraction),
-                                style: pw.TextStyle(
-                                    fontSize: 8,
-                                    font: font,
-                                    fontFallback: [
-                                      pw.Font.ttf(fallbackFontByteData)
-                                    ]),
-                              ),
+                              data.invoiceLines?.length != (item.key + 1)
+                                  ? dottedDivider()
+                                  : pw.Divider(),
                             ],
-                          ),
-                          dottedDivider(), // Divider between product rows
-                        ],
-                      )),
+                          )),
                 ],
               ),
               pw.Row(
@@ -457,103 +469,107 @@ Future<Uint8List> generatePdf(OrderSummaryResponse data) async {
                             font: font,
                           ),
                         ),
-
                       ],
                     ),
                     pw.Divider(),
                     // Item rows
-                    ...?data.taxDetails?.taxLines?.map((item) => pw.Column(
-                          crossAxisAlignment: pw.CrossAxisAlignment.start,
-                          children: [
-                            pw.Row(
-                              mainAxisAlignment:
-                                  pw.MainAxisAlignment.spaceBetween,
+                    ...?data.taxDetails?.taxLines
+                        ?.asMap()
+                        .entries
+                        .map((item) => pw.Column(
+                              crossAxisAlignment: pw.CrossAxisAlignment.start,
                               children: [
-                                pw.Text(
-                                  item.taxPercentage ?? '',
-                                  style: pw.TextStyle(
-                                    fontSize: 8,
-                                    font: font,
-                                  ),
+                                pw.Row(
+                                  mainAxisAlignment:
+                                      pw.MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    pw.Text(
+                                      item.value.taxPercentage ?? '',
+                                      style: pw.TextStyle(
+                                        fontSize: 8,
+                                        font: font,
+                                      ),
+                                    ),
+                                    pw.Column(children: [
+                                      pw.Text(
+                                        item.value.cgstValue ?? '',
+                                        style: pw.TextStyle(
+                                          fontSize: 8,
+                                          font: font,
+                                        ),
+                                      ),
+                                      pw.Text(
+                                        '(${item.value.cgstPercentage}%)',
+                                        style: pw.TextStyle(
+                                          fontSize: 8,
+                                          font: font,
+                                        ),
+                                      ),
+                                    ]),
+                                    pw.Column(children: [
+                                      pw.Text(
+                                        item.value.sgstValue ?? '',
+                                        style: pw.TextStyle(
+                                          fontSize: 8,
+                                          font: font,
+                                        ),
+                                      ),
+                                      pw.Text(
+                                        '(${item.value.sgstPercentage}%)',
+                                        style: pw.TextStyle(
+                                          fontSize: 8,
+                                          font: font,
+                                        ),
+                                      ),
+                                    ]),
+                                    pw.Column(children: [
+                                      pw.Text(
+                                        item.value.igstValue ?? '',
+                                        style: pw.TextStyle(
+                                          fontSize: 8,
+                                          font: font,
+                                        ),
+                                      ),
+                                      pw.Text(
+                                        '(${item.value.igstPercentage}%)',
+                                        style: pw.TextStyle(
+                                          fontSize: 8,
+                                          font: font,
+                                        ),
+                                      ),
+                                    ]),
+                                    pw.Column(children: [
+                                      pw.Text(
+                                        item.value.cessValue ?? '',
+                                        style: pw.TextStyle(
+                                          fontSize: 8,
+                                          font: font,
+                                        ),
+                                      ),
+                                      pw.Text(
+                                        '(${item.value.cessPercentage}%)',
+                                        style: pw.TextStyle(
+                                          fontSize: 8,
+                                          font: font,
+                                        ),
+                                      ),
+                                    ]),
+                                    pw.Text(
+                                      '₹${item.value.taxValue}',
+                                      style: pw.TextStyle(
+                                          fontSize: 8,
+                                          font: font,
+                                          fontFallback: [
+                                            pw.Font.ttf(fallbackFontByteData)
+                                          ]),
+                                    ),
+                                  ],
                                 ),
-                                pw.Column(children: [
-                                  pw.Text(
-                                    item.cgstValue ?? '',
-                                    style: pw.TextStyle(
-                                      fontSize: 8,
-                                      font: font,
-                                    ),
-                                  ),
-                                  pw.Text(
-                                    '(${item.cgstPercentage}%)',
-                                    style: pw.TextStyle(
-                                      fontSize: 8,
-                                      font: font,
-                                    ),
-                                  ),
-                                ]),
-                                pw.Column(children: [
-                                  pw.Text(
-                                    item.sgstValue ?? '',
-                                    style: pw.TextStyle(
-                                      fontSize: 8,
-                                      font: font,
-                                    ),
-                                  ),
-                                  pw.Text(
-                                    '(${item.sgstPercentage}%)',
-                                    style: pw.TextStyle(
-                                      fontSize: 8,
-                                      font: font,
-                                    ),
-                                  ),
-                                ]),
-                                pw.Column(children: [
-                                  pw.Text(
-                                    item.igstValue ?? '',
-                                    style: pw.TextStyle(
-                                      fontSize: 8,
-                                      font: font,
-                                    ),
-                                  ),
-                                  pw.Text(
-                                    '(${item.igstPercentage}%)',
-                                    style: pw.TextStyle(
-                                      fontSize: 8,
-                                      font: font,
-                                    ),
-                                  ),
-                                ]),
-                                pw.Column(children: [
-                                  pw.Text(
-                                    item.cessValue ?? '',
-                                    style: pw.TextStyle(
-                                      fontSize: 8,
-                                      font: font,
-                                    ),
-                                  ),
-                                  pw.Text(
-                                    '(${item.cessPercentage}%)',
-                                    style: pw.TextStyle(
-                                      fontSize: 8,
-                                      font: font,
-                                    ),
-                                  ),
-                                ]),
-                                pw.Text(
-                                  '₹${item.taxValue}',
-                                  style: pw.TextStyle(
-                                      fontSize: 8,
-                                      font: font,
-                                      fontFallback: [
-                                        pw.Font.ttf(fallbackFontByteData)
-                                      ]),
-                                ),
+                                if (data.taxDetails?.taxLines?.length !=
+                                    (item.key + 1))
+                                  dottedDivider(),
                               ],
-                            ),
-                            dottedDivider(),
-                          ],
-                        )),
+                            )),
                     pw.Divider(),
                     pw.Row(
                       mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
@@ -680,6 +696,8 @@ void printOrderSummary(
   final pdfBytes = await generatePdf(orderSummaryResponse);
   await Printing.directPrintPdf(
       printer: printer,
+      usePrinterSettings: false,
+      forceCustomPrintPaper: true,
       onLayout: (PdfPageFormat format) async {
         final Uint8List cutPaperCommand = Uint8List.fromList([27, 105]);
         return Uint8List.fromList([...pdfBytes, ...cutPaperCommand]);
