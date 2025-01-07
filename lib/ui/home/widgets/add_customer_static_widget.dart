@@ -338,6 +338,7 @@ class _AddCustomerStaticWidgetState extends State<AddCustomerStaticWidget>
                   homeController.phoneNumber.value = homeController.customerProxyNumber.value;
                   homeController.customerName.value = 'Admin';
                   homeController.isCustomerProxySelected.value = true;
+                  homeController.isContionueWithOutCustomer.value = true;
                   homeController.fetchCustomer();
                   },
                 style: ElevatedButton.styleFrom(
