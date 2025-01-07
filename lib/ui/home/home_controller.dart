@@ -544,6 +544,8 @@ class HomeController extends GetxController {
               holdCartId: id));
       cartResponse.value = response;
       if (cartResponse.value != null) {
+        /* resetting the exsisting state */
+        isCustomerProxySelected.value = true;
         clearHoldCartOrders();
         selectedTabButton.value = 2;
       }

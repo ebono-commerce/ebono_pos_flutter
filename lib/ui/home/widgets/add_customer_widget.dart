@@ -363,14 +363,16 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
       height: 60,
       padding: EdgeInsets.symmetric(horizontal: 5.0, vertical: 5),
       child: ElevatedButton(
-        onPressed: () {
-          homeController.phoneNumber.value =
-              homeController.customerProxyNumber.value;
-          homeController.customerName.value = 'Admin';
-          homeController.isCustomerProxySelected.value = true;
-          homeController.isContionueWithOutCustomer.value = true;
-          homeController.fetchCustomer();
-        },
+        onPressed: homeController.isContionueWithOutCustomer.value
+            ? null
+            : () {
+                homeController.phoneNumber.value =
+                    homeController.customerProxyNumber.value;
+                homeController.customerName.value = 'Admin';
+                homeController.isCustomerProxySelected.value = true;
+                homeController.isContionueWithOutCustomer.value = true;
+                homeController.fetchCustomer();
+              },
         style: ElevatedButton.styleFrom(
           elevation: 1,
           padding: EdgeInsets.symmetric(horizontal: 1, vertical: 20),

@@ -590,6 +590,8 @@ class _OrderOnHoldState extends State<OrderOnHold> with WidgetsBindingObserver {
                                         .isCustomerProxySelected.value = false;
                                     homeController.phoneNumber.value =
                                         itemData.phoneNumber!.number ?? '';
+                                    homeController.customerName.value =
+                                        itemData.customer!.customerName ?? '';
                                     homeController.fetchCustomer();
                                     if (itemData.holdCartId != "") {
                                       homeController.resumeHoldCartApiCall(
