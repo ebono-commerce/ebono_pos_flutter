@@ -25,6 +25,31 @@ class PrintReceiptPage extends StatelessWidget {
   }
 }
 
+
+pw.Widget dottedDivider({
+  int numberOfDots = 50, // Default number of dots
+  double fontSize = 6.0, // Default font size for dots
+  pw.FontWeight fontWeight = pw.FontWeight.bold, // Default font weight
+}) {
+  return pw.Container(
+    width: double.infinity,
+    child: pw.Row(
+      mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+      children: List.generate(
+        numberOfDots,
+            (index) => pw.Text(
+          '.',
+          style: pw.TextStyle(
+            fontSize: fontSize,
+            fontWeight: fontWeight,
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
+
 Future<Uint8List> generatePdf(OrderSummaryResponse data) async {
   final pdf = pw.Document();
   final font = await PdfGoogleFonts.interRegular();
@@ -305,7 +330,7 @@ Future<Uint8List> generatePdf(OrderSummaryResponse data) async {
                               ),
                             ],
                           ),
-                          pw.Divider(), // Divider between product rows
+                          dottedDivider(), // Divider between product rows
                         ],
                       )),
                 ],
@@ -432,6 +457,7 @@ Future<Uint8List> generatePdf(OrderSummaryResponse data) async {
                             font: font,
                           ),
                         ),
+
                       ],
                     ),
                     pw.Divider(),
@@ -525,6 +551,7 @@ Future<Uint8List> generatePdf(OrderSummaryResponse data) async {
                                 ),
                               ],
                             ),
+                            dottedDivider(),
                           ],
                         )),
                     pw.Divider(),
