@@ -1,3 +1,7 @@
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:intl/intl.dart';
+
 import 'package:ebono_pos/constants/custom_colors.dart';
 import 'package:ebono_pos/data_store/shared_preference_helper.dart';
 import 'package:ebono_pos/models/cart_response.dart';
@@ -19,9 +23,6 @@ import 'package:ebono_pos/utils/auth_modes.dart';
 import 'package:ebono_pos/utils/common_methods.dart';
 import 'package:ebono_pos/utils/dash_line.dart';
 import 'package:ebono_pos/utils/price.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:intl/intl.dart';
 
 class OrdersSection extends StatefulWidget {
   const OrdersSection({super.key});
@@ -80,6 +81,13 @@ class _OrdersSectionState extends State<OrdersSection>
     ever(homeController.cartResponse, (value) {
       if (!numPadFocusNode.hasFocus) {
         numPadFocusNode.requestFocus();
+      }
+    });
+
+    ever(homeController.isScanApiError, (value) {
+      if (value) {
+        numPadTextController.text = '';
+        setState(() {});
       }
     });
 
@@ -710,6 +718,7 @@ class _OrdersSectionState extends State<OrdersSection>
       String skuQtyUom = '';
       String skuPrice = '';
       String skuUrl = '';
+      bool isError = false;
 
       if (homeController.isQuantitySelected.value) {
         skuTitle = homeController.selectedItemData.value.item?.skuTitle ?? '';
@@ -723,6 +732,7 @@ class _OrdersSectionState extends State<OrdersSection>
             homeController.selectedItemData.value.unitPrice?.fraction);
         skuUrl =
             homeController.selectedItemData.value.item?.primaryImageUrl ?? '';
+        isError = scanData.isError;
       } else {
         {
           skuTitle = scanData.skuTitle ?? '';
@@ -737,6 +747,7 @@ class _OrdersSectionState extends State<OrdersSection>
                 )
               : ' - ';
           skuUrl = scanData.mediaUrl ?? '';
+          isError = scanData.isError;
         }
       }
       return Padding(
@@ -774,17 +785,21 @@ class _OrdersSectionState extends State<OrdersSection>
                                 Container(
                                   padding: EdgeInsets.only(right: 2),
                                   child: Text(
-                                      skuTitle.isNotEmpty == true
-                                          ? skuTitle
-                                          : " - ",
-                                      maxLines: 2,
-                                      softWrap: true,
+                                    skuTitle.isNotEmpty == true
+                                        ? skuTitle
+                                        : " - ",
+                                    maxLines: 2,
+                                    softWrap: true,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
                                       overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(
-                                          overflow: TextOverflow.ellipsis,
-                                          color: Colors.black,
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.bold)),
+                                      color: isError
+                                          ? CustomColors.red
+                                          : Colors.black,
+                                      fontSize: isError ? 16 : 14,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
                                 ),
                                 SizedBox(height: 5),
                                 RichText(
@@ -886,41 +901,94 @@ class _OrdersSectionState extends State<OrdersSection>
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 8.0),
                           child: commonTextField(
-                              label: homeController.isQuantitySelected.value
-                                  ? homeController.selectedItemData.value.item
-                                              ?.isWeighedItem ==
-                                          true
-                                      ? 'Enter Weight'
-                                      : ' Enter Quantity'
-                                  : 'Enter Code',
-                              focusNode:
-                                  (homeController.cartId.value.isNotEmpty &&
-                                          homeController.registerId.isNotEmpty)
-                                      ? numPadFocusNode
-                                      : FocusNode(),
-                              readOnly:
-                                  (homeController.cartId.value.isNotEmpty &&
-                                          homeController.registerId.isNotEmpty)
-                                      ? false
-                                      : true,
-                              controller:
-                                  (homeController.cartId.value.isNotEmpty &&
-                                          homeController.registerId.isNotEmpty)
-                                      ? numPadTextController
-                                      : TextEditingController(),
-                              onValueChanged: (text) {
-                                if (homeController.isQuantitySelected.value ==
-                                    false) {
-                                  if (homeController.cartId.value.isNotEmpty &&
-                                      homeController.registerId.isNotEmpty) {
-                                    print(
-                                        "common field onValueChanged text: $text");
-                                    if (isValidOfferId(text)) {
-                                      homeController.scanApiCall(text.trim());
-                                    }
+                            label: homeController.isQuantitySelected.value
+                                ? homeController.selectedItemData.value.item
+                                            ?.isWeighedItem ==
+                                        true
+                                    ? 'Enter Weight'
+                                    : ' Enter Quantity'
+                                : 'Enter Code',
+                            focusNode:
+                                (homeController.cartId.value.isNotEmpty &&
+                                        homeController.registerId.isNotEmpty)
+                                    ? numPadFocusNode
+                                    : FocusNode(),
+                            readOnly: (homeController.cartId.value.isNotEmpty &&
+                                    homeController.registerId.isNotEmpty)
+                                ? false
+                                : true,
+                            controller:
+                                (homeController.cartId.value.isNotEmpty &&
+                                        homeController.registerId.isNotEmpty)
+                                    ? numPadTextController
+                                    : TextEditingController(),
+                            onEditingComplete: () {
+                              if (homeController.isQuantitySelected.value ==
+                                  false) {
+                                if (homeController.cartId.value.isNotEmpty &&
+                                    homeController.registerId.isNotEmpty) {
+                                  if (isValidOfferId(
+                                      numPadTextController.text.trim())) {
+                                    homeController.scanApiCall(
+                                        numPadTextController.text.trim());
                                   }
                                 }
-                              }),
+                              } else {
+                                try {
+                                  if (numPadTextController.text != '0.0' &&
+                                      numPadTextController.text.isNotEmpty ==
+                                          true &&
+                                      numPadTextController.text !=
+                                          homeController.selectedItemData.value
+                                              .quantity?.quantityNumber
+                                              .toString()) {
+                                    if (!homeController.isApiCallInProgress) {
+                                      try {
+                                        if (homeController
+                                                .isQuantitySelected.value &&
+                                            homeController
+                                                    .selectedItemData
+                                                    .value
+                                                    .item
+                                                    ?.isWeighedItem ==
+                                                true) {
+                                          if (double.parse(
+                                                  numPadTextController.text) >
+                                              300) {
+                                            Get.snackbar('Invalid Weight',
+                                                'Weight can\'t be more than 300kgs, Please enter valid weight');
+                                            return;
+                                          } else {
+                                            homeController
+                                                .updateCartItemApiCall(
+                                              homeController.selectedItemData
+                                                  .value.cartLineId,
+                                              homeController.selectedItemData
+                                                  .value.quantity?.quantityUom,
+                                              double.parse(
+                                                  numPadTextController.text),
+                                            );
+
+                                            homeController.isQuantitySelected
+                                                .value = false;
+                                            numPadTextController.text = '';
+                                          }
+                                        }
+                                      } on Exception catch (e) {
+                                        print('error on numpad enter $e');
+                                      }
+                                    }
+                                  } else {
+                                    Get.snackbar(
+                                        'Invalid or Duplicate Quantity',
+                                        'Please enter valid Quantity');
+                                  }
+                                } on Exception catch (e) {
+                                  print(e);
+                                }
+                              }
+                            },
+                          ),
                         ),
                         CustomNumPad(
                           focusNode: numPadFocusNode,
@@ -993,18 +1061,6 @@ class _OrdersSectionState extends State<OrdersSection>
                                 print(e);
                               }
                               numPadFocusNode.unfocus();
-                            }
-                          },
-                          onValueChanged: (text) {
-                            if (homeController.isQuantitySelected.value ==
-                                false) {
-                              if (homeController.cartId.value.isNotEmpty &&
-                                  homeController.registerId.isNotEmpty) {
-                                print("onTextListener text: $text");
-                                if (isValidOfferId(text)) {
-                                  homeController.scanApiCall(text.trim());
-                                }
-                              }
                             }
                           },
                           onClearAll: (text) {
@@ -1554,60 +1610,58 @@ class _OrdersSectionState extends State<OrdersSection>
   }
 
   Widget _buildRegisterClosed(BuildContext context, {VoidCallback? onPressed}) {
-    return Container(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisSize: MainAxisSize.max,
-        children: [
-          Center(
-            child: Text(
-              "Register is closed!",
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold, color: CustomColors.black),
-            ),
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisSize: MainAxisSize.max,
+      children: [
+        Center(
+          child: Text(
+            "Register is closed!",
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold, color: CustomColors.black),
           ),
-          SizedBox(
-            height: 10,
+        ),
+        SizedBox(
+          height: 10,
+        ),
+        Center(
+          child: Text(
+            "Set an opening float to start the sale",
+            style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.normal, color: CustomColors.black),
           ),
-          Center(
-            child: Text(
-              "Set an opening float to start the sale",
-              style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.normal, color: CustomColors.black),
-            ),
-          ),
-          SizedBox(
-            height: 5,
-          ),
-          Container(
-            width: 150,
-            padding: EdgeInsets.symmetric(horizontal: 5.0, vertical: 10),
-            child: ElevatedButton(
-              onPressed: onPressed,
-              style: ElevatedButton.styleFrom(
-                elevation: 1,
-                padding: EdgeInsets.symmetric(horizontal: 1, vertical: 20),
-                shape: RoundedRectangleBorder(
-                  side: BorderSide(color: CustomColors.secondaryColor),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                backgroundColor: CustomColors.secondaryColor,
+        ),
+        SizedBox(
+          height: 5,
+        ),
+        Container(
+          width: 150,
+          padding: EdgeInsets.symmetric(horizontal: 5.0, vertical: 10),
+          child: ElevatedButton(
+            onPressed: onPressed,
+            style: ElevatedButton.styleFrom(
+              elevation: 1,
+              padding: EdgeInsets.symmetric(horizontal: 1, vertical: 20),
+              shape: RoundedRectangleBorder(
+                side: BorderSide(color: CustomColors.secondaryColor),
+                borderRadius: BorderRadius.circular(10),
               ),
-              child: Center(
-                child: Text(
-                  "Open register",
-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.bold, color: CustomColors.black),
-                ),
+              backgroundColor: CustomColors.secondaryColor,
+            ),
+            child: Center(
+              child: Text(
+                "Open register",
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.bold, color: CustomColors.black),
               ),
             ),
           ),
-          SizedBox(
-            height: 20,
-          ),
-        ],
-      ),
+        ),
+        SizedBox(
+          height: 20,
+        ),
+      ],
     );
   }
 }

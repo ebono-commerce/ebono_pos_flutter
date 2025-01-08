@@ -22,6 +22,7 @@ class ScanProductsResponse {
   String? mediaUrl;
   FreebieInfo? freebieInfo;
   bool? isActive;
+  bool isError;
 
   ScanProductsResponse({
     this.skuCode,
@@ -35,6 +36,7 @@ class ScanProductsResponse {
     this.mediaUrl,
     this.freebieInfo,
     this.isActive,
+    this.isError = false,
   });
 
   factory ScanProductsResponse.fromJson(Map<String, dynamic> json) =>

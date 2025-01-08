@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:ebono_pos/constants/custom_colors.dart';
 
-Widget commonTextField(
-    {required String label,
-    required FocusNode focusNode,
-    bool obscureText = false,
-    bool readOnly = false,
-    required TextEditingController controller,
-    FormFieldValidator<String>? validator,
-    Function(String)? onValueChanged,
-    Function()? onTap,
-    String? suffixLabel = '',
-    Widget? suffixWidget}) {
+Widget commonTextField({
+  required String label,
+  required FocusNode focusNode,
+  bool obscureText = false,
+  bool readOnly = false,
+  required TextEditingController controller,
+  FormFieldValidator<String>? validator,
+  Function(String)? onValueChanged,
+  Function()? onEditingComplete,
+  Function()? onTap,
+  String? suffixLabel = '',
+  Widget? suffixWidget,
+}) {
   return TextFormField(
     focusNode: focusNode,
     obscureText: obscureText,
@@ -26,6 +28,7 @@ Widget commonTextField(
     onTap: () {
       onTap;
     },
+    onEditingComplete: onEditingComplete,
     onChanged: (value) {
       if (onValueChanged != null) {
         onValueChanged(value);
@@ -43,17 +46,18 @@ InputDecoration textFieldDecoration({
   Widget? suffixWidget,
 }) {
   return InputDecoration(
-      filled: filled,
-      prefixIcon: prefixIcon,
-      fillColor: isFocused ? CustomColors.accentColor : Colors.white,
-      labelText: label,
-      labelStyle: TextStyle(color: CustomColors.enabledLabelColor),
-      enabledBorder: enabledBorder(),
-      focusedBorder: focusedBorder(),
-      errorBorder: errorBorder(),
-      focusedErrorBorder: errorBorder(),
-      suffixText: suffixLabel,
-      suffix: suffixWidget);
+    filled: filled,
+    prefixIcon: prefixIcon,
+    fillColor: isFocused ? CustomColors.accentColor : Colors.white,
+    labelText: label,
+    labelStyle: TextStyle(color: CustomColors.enabledLabelColor),
+    enabledBorder: enabledBorder(),
+    focusedBorder: focusedBorder(),
+    errorBorder: errorBorder(),
+    focusedErrorBorder: errorBorder(),
+    suffixText: suffixLabel,
+    suffix: suffixWidget,
+  );
 }
 
 OutlineInputBorder enabledBorder() {
