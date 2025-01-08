@@ -322,6 +322,7 @@ class HomeController extends GetxController {
         isError: true,
       );
       selectedItemData.value = CartLine();
+      Get.snackbar("Error While Scanning", '$error');
     } finally {
       isApiCallInProgress = false;
     }
