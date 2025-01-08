@@ -77,6 +77,7 @@ class HomeController extends GetxController {
   String selectedOutletId = '';
   String selectedTerminalId = '';
   RxString customerProxyNumber = ''.obs;
+  var isScanApiError = false.obs;
 
   /* RxDouble weight = 0.0.obs; // Observable weight value
   late DigitalWeighingScale digitalWeighingScale;
@@ -300,6 +301,7 @@ class HomeController extends GetxController {
 
   Future<void> scanApiCall(String code) async {
     try {
+      isScanApiError.value = false;
       if (isApiCallInProgress) return;
       isApiCallInProgress = true;
       var response = await _homeRepository.getScanProduct(
@@ -314,7 +316,12 @@ class HomeController extends GetxController {
             cartId.value);
       }
     } catch (error) {
-      // Get.snackbar('Error while scanning', '$error');
+      isScanApiError.value = true;
+      scanProductsResponse.value = ScanProductsResponse(
+        skuTitle: "Invalid sku_code or code",
+        isError: true,
+      );
+      selectedItemData.value = CartLine();
     } finally {
       isApiCallInProgress = false;
     }

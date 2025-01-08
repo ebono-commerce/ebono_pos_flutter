@@ -21,11 +21,14 @@ class CustomQwertyPad extends StatefulWidget {
 }
 
 class _CustomQwertyPadState extends State<CustomQwertyPad> {
+  bool isShiftKeyPressed = false;
+
   void _onKeyPressed(String value) {
     if (!widget.focusNode.hasFocus) {
       widget.focusNode.requestFocus();
     }
-    widget.textController.text += value;
+    widget.textController.text +=
+        isShiftKeyPressed ? value.toUpperCase() : value;
   }
 
   void _onBackspace() {
@@ -36,6 +39,13 @@ class _CustomQwertyPadState extends State<CustomQwertyPad> {
       widget.textController.text = widget.textController.text
           .substring(0, widget.textController.text.length - 1);
     }
+  }
+
+  void _onShiftKey() {
+    if (!widget.focusNode.hasFocus) {
+      widget.focusNode.requestFocus();
+    }
+    setState(() => isShiftKeyPressed = !isShiftKeyPressed);
   }
 
   void _onEnterPressed(String value) {
@@ -141,7 +151,9 @@ class _CustomQwertyPadState extends State<CustomQwertyPad> {
                     _buildKeyIcon('assets/images/qwerty_b.png', 'b'),
                     _buildKeyIcon('assets/images/qwerty_n.png', 'n'),
                     _buildKeyIcon('assets/images/qwerty_m.png', 'm'),
-                    // Space key
+                    _buildShiftKeyIcon(
+                      'assets/images/${isShiftKeyPressed ? 'selected_shift_key' : 'shift_key'}.png',
+                    ),
                     // Enter key
                   ],
                 ),
@@ -189,6 +201,30 @@ class _CustomQwertyPadState extends State<CustomQwertyPad> {
   }
 
   // Function to build a backspace key icon
+  Widget _buildShiftKeyIcon(String img) {
+    return InkWell(
+      onTap: _onShiftKey,
+      borderRadius: BorderRadius.circular(10.0),
+      child: Container(
+        padding: EdgeInsets.all(15.0),
+        margin: EdgeInsets.all(5.0),
+        decoration: BoxDecoration(
+          color: CustomColors.keyBoardBgColor,
+          border: Border.all(color: CustomColors.keyBoardBgColor),
+          borderRadius: BorderRadius.circular(10.0),
+        ),
+        child: Center(
+          child: Image.asset(
+            img,
+            width: 30,
+            height: 30,
+          ),
+        ),
+      ),
+    );
+  }
+
+  // Function to build a backspace key icon
   Widget _buildKeyBackspaceIcon(String img) {
     return InkWell(
       onTap: _onBackspace,
@@ -228,7 +264,7 @@ class _CustomQwertyPadState extends State<CustomQwertyPad> {
         child: Center(
           child: Image.asset(
             img,
-            width: 165,
+            width: 100,
             height: 20,
           ),
         ),

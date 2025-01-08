@@ -93,6 +93,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
 
     var edcDevice = hiveStorageHelper
         .read(SharedPreferenceConstants.edcDeviceDetails) as List;
+        
     List<EdcDevice> edcDeviceDetails = edcDevice.map((item) {
       if (item is Map<String, dynamic>) {
         return EdcDevice.fromJson(item);
