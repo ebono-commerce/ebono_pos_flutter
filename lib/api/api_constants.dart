@@ -1,6 +1,6 @@
 class ApiConstants {
-  static final baseUrl = 'https://services-staging.ebono.com/store/';
-  //static final baseUrl = 'https://9573-2401-4900-1cb2-f194-9856-5b0b-cb7-6b13.ngrok-free.app/';
+  //static final baseUrl = 'https://services-staging.ebono.com/store/';
+  static final baseUrl = 'http://192.168.20.225/store/';
   static final login = 'authn/api/v1/pos/login';
   static final logout = 'authn/api/v1/pos/logout';
   static final outletDetails = 'account/api/v1/pos/outlets/';
