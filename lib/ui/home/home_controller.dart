@@ -304,16 +304,41 @@ class HomeController extends GetxController {
       isScanApiError.value = false;
       if (isApiCallInProgress) return;
       isApiCallInProgress = true;
+
       var response = await _homeRepository.getScanProduct(
-          code: code, outletId: selectedOutletId);
-      scanProductsResponse.value = response;
-      if (cartId.value != "" && (response.priceList?.length ?? 0) <= 1) {
-        addToCartApiCall(
+        code: code.split("|").first,
+        outletId: selectedOutletId,
+      );
+
+      if (code.contains("|")) {
+        var parts = code.split("|");
+        if (parts.length == 2) {
+          var partA = parts[0]; // SKU code
+          var partB = parts[1]; // Weight or quantity
+
+          scanProductsResponse.value = response;
+          scanProductsResponse.value.isWeighedItem = false;
+          await addToCartApiCall(
+            partA,
+            scanProductsResponse.value.isWeighedItem == true ? 0 : 1,
+            scanProductsResponse.value.priceList!.first.mrpId,
+            scanProductsResponse.value.salesUom,
+            cartId.value,
+            isWeightedItem: true,
+            weight: double.tryParse(partB),
+          );
+        }
+      } else {
+        scanProductsResponse.value = response;
+        if (cartId.value != "" && (response.priceList?.length ?? 0) <= 1) {
+          addToCartApiCall(
             scanProductsResponse.value.skuCode,
             scanProductsResponse.value.isWeighedItem == true ? 0 : 1,
             scanProductsResponse.value.priceList!.first.mrpId,
             scanProductsResponse.value.salesUom,
-            cartId.value);
+            cartId.value,
+          );
+        }
       }
     } catch (error) {
       isScanApiError.value = true;
@@ -326,9 +351,57 @@ class HomeController extends GetxController {
     } finally {
       isApiCallInProgress = false;
     }
+
+    // New optimized implementation
+    // if (isApiCallInProgress) return;
+
+    // try {
+    //   isApiCallInProgress = true;
+    //   isScanApiError.value = false;
+
+    //   final parts = code.split("|");
+    //   final skuCode = parts[0];
+    //   final weight = parts.length > 1
+    //       ? double.parse(double.parse(parts[1]).toStringAsFixed(3))
+    //       : null;
+
+    //   final response = await _homeRepository.getScanProduct(
+    //     code: skuCode,
+    //     outletId: selectedOutletId,
+    //   );
+
+    //   scanProductsResponse.value = response;
+
+    //   if (cartId.value.isEmpty || (response.priceList?.length ?? 0) > 1) return;
+
+    //   final isWeighted = weight != null;
+    //   if (isWeighted) {
+    //     scanProductsResponse.value.isWeighedItem = false;
+    //   }
+
+    //   await addToCartApiCall(
+    //     skuCode,
+    //     response.isWeighedItem == true ? 0 : 1,
+    //     response.priceList?.first.mrpId,
+    //     response.salesUom,
+    //     cartId.value,
+    //     isWeightedItem: isWeighted,
+    //     weight: weight,
+    //   );
+    // } catch (error) {
+    //   isScanApiError.value = true;
+    //   scanProductsResponse.value = ScanProductsResponse(
+    //     skuTitle: "Invalid sku_code or code",
+    //     isError: true,
+    //   );
+    //   selectedItemData.value = CartLine();
+    //   Get.snackbar("Error While Scanning", '$error');
+    // } finally {
+    //   isApiCallInProgress = false;
+    // }
   }
 
-  getCustomerDetails() async {
+  Future getCustomerDetails() async {
     try {
       var response =
           await _homeRepository.getCustomerDetails(phoneNumber.value);
@@ -373,7 +446,10 @@ class HomeController extends GetxController {
     }
   }
 
-  Future<void> fetchCartDetails() async {
+  Future<void> fetchCartDetails({
+    bool isWeightedItem = false,
+    double? weight,
+  }) async {
     cartLines.clear();
     try {
       clearCart();
@@ -417,6 +493,16 @@ class HomeController extends GetxController {
                     .toString()),
             priceFocusNode: FocusNode(),
           );
+
+          isApiCallInProgress = false;
+
+          if (isWeightedItem == true) {
+            await updateCartItemApiCall(
+              response.cartLines?.first.cartLineId,
+              response.cartLines?.first.quantity?.quantityUom,
+              weight,
+            );
+          }
         }
       } else {
         selectedItemData.value = CartLine();
@@ -449,8 +535,10 @@ class HomeController extends GetxController {
     int? qty,
     String? mrpId,
     String? qtyUom,
-    String? cartId,
-  ) async {
+    String? cartId, {
+    bool isWeightedItem = false,
+    double? weight,
+  }) async {
     try {
       var response = await _homeRepository.addToCart(
           AddToCartRequest(cartLines: [
@@ -462,7 +550,10 @@ class HomeController extends GetxController {
           ]),
           cartId);
       cartResponse.value = response;
-      fetchCartDetails();
+
+      isApiCallInProgress = false;
+
+      await fetchCartDetails(isWeightedItem: isWeightedItem, weight: weight);
     } catch (e) {
       Get.snackbar('Error while adding to cart', '$e');
     }
@@ -493,6 +584,7 @@ class HomeController extends GetxController {
           cartId.value,
           cartLineId!);
       cartResponse.value = response;
+
       fetchCartDetails();
     } catch (e) {
       Get.snackbar('Error while updating cart item', '$e');

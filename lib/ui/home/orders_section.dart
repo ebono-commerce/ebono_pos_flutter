@@ -69,6 +69,7 @@ class _OrdersSectionState extends State<OrdersSection>
       if (!numPadFocusNode.hasFocus) {
         numPadFocusNode.requestFocus();
       }
+      numPadTextController.clear();
       numPadTextController.text = value.toString();
     });
 
@@ -922,15 +923,22 @@ class _OrdersSectionState extends State<OrdersSection>
                                         homeController.registerId.isNotEmpty)
                                     ? numPadTextController
                                     : TextEditingController(),
-                            onEditingComplete: () {
+                            onEditingComplete: () async {
                               if (homeController.isQuantitySelected.value ==
                                   false) {
                                 if (homeController.cartId.value.isNotEmpty &&
                                     homeController.registerId.isNotEmpty) {
                                   if (isValidOfferId(
-                                      numPadTextController.text.trim())) {
-                                    homeController.scanApiCall(
-                                        numPadTextController.text.trim());
+                                          numPadTextController.text.trim()) ||
+                                      numPadTextController.text
+                                          .trim()
+                                          .contains("|")) {
+                                    homeController
+                                        .scanApiCall(numPadTextController.text);
+
+                                    homeController.isQuantitySelected.value =
+                                        false;
+                                    numPadTextController.text = '';
                                   }
                                 }
                               } else {
@@ -1002,7 +1010,8 @@ class _OrdersSectionState extends State<OrdersSection>
                                 if (isValidOfferId(text) ||
                                     (text.trim().length >= 1 &&
                                         text.length <= 3)) {
-                                  homeController.scanApiCall(text.trim());
+                                  homeController
+                                      .scanApiCall(numPadTextController.text);
                                 }
                               }
                               numPadFocusNode.unfocus();
