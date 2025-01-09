@@ -1,5 +1,6 @@
 import 'package:ebono_pos/constants/custom_colors.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class QuickActionButtons extends StatelessWidget {
   final VoidCallback? onCustomerPressed;
@@ -37,14 +38,20 @@ class QuickActionButtons extends StatelessWidget {
                 children: [
                   actionButton("Customer", context, onCustomerPressed),
                   actionButton("Search items", context, onSearchItemsPressed),
-                  actionButton("Inventory inquiry", context, onInventoryInquiryPressed),
+                  actionButton(
+                      "Inventory inquiry", context, onInventoryInquiryPressed),
                   actionButton("Coupons", context, onCouponsPressed),
-                  actionButton("Sales Associate", context, onSalesAssociatePressed),
+                  actionButton(
+                      "Sales Associate", context, onSalesAssociatePressed),
                 ],
               ),
             ),
             actionButton("Clear cart", context, onClearCartPressed),
             actionButton("Hold cart", context, onHoldCartPressed),
+            Text(
+              "(Staging v1.0.0)",
+              style: TextStyle(fontSize: 8),
+            )
           ],
         ),
       ),
