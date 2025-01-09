@@ -49,7 +49,7 @@ class QuickActionButtons extends StatelessWidget {
             actionButton("Clear cart", context, onClearCartPressed),
             actionButton("Hold cart", context, onHoldCartPressed),
             Text(
-              "(Staging v1.0.0)",
+              "(Local v1.0.0)",
               style: TextStyle(fontSize: 8),
             )
           ],
