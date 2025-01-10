@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:ebono_pos/constants/custom_colors.dart';
+import 'package:flutter/material.dart';
 
 Widget commonTextField({
   required String label,
@@ -19,8 +19,7 @@ Widget commonTextField({
     obscureText: obscureText,
     controller: controller,
     validator: validator,
-    showCursor: true,
-    readOnly: true,
+    readOnly: readOnly,
     decoration: textFieldDecoration(
         isFocused: focusNode.hasFocus,
         label: label,
