@@ -1,6 +1,5 @@
 import 'package:ebono_pos/constants/custom_colors.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 class QuickActionButtons extends StatelessWidget {
   final VoidCallback? onCustomerPressed;
@@ -49,7 +48,7 @@ class QuickActionButtons extends StatelessWidget {
             actionButton("Clear cart", context, onClearCartPressed),
             actionButton("Hold cart", context, onHoldCartPressed),
             Text(
-              "(Local v1.0.0)",
+              "(Local v1.0.1)",
               style: TextStyle(fontSize: 8),
             )
           ],
