@@ -306,12 +306,12 @@ class HomeController extends GetxController {
       isApiCallInProgress = true;
 
       var response = await _homeRepository.getScanProduct(
-        code: code.split("|").first,
+        code: code.split("W").first,
         outletId: selectedOutletId,
       );
 
-      if (code.contains("|")) {
-        var parts = code.split("|");
+      if (code.contains("W")) {
+        var parts = code.split("W");
         if (parts.length == 2) {
           var partA = parts[0]; // SKU code
           var partB = parts[1]; // Weight or quantity

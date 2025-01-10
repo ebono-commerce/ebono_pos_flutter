@@ -604,7 +604,7 @@ class _OrdersSectionState extends State<OrdersSection>
             Row(
               children: [
                 SizedBox(
-                  width: 80,
+                  width: 85,
                   child: Padding(
                     padding: EdgeInsets.only(top: 10, bottom: 10, right: 10),
                     child: Row(
@@ -932,7 +932,7 @@ class _OrdersSectionState extends State<OrdersSection>
                                           numPadTextController.text.trim()) ||
                                       numPadTextController.text
                                           .trim()
-                                          .contains("|")) {
+                                          .contains("W")) {
                                     homeController
                                         .scanApiCall(numPadTextController.text);
 
