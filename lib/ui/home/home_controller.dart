@@ -343,7 +343,7 @@ class HomeController extends GetxController {
     } catch (error) {
       isScanApiError.value = true;
       scanProductsResponse.value = ScanProductsResponse(
-        skuTitle: "Invalid sku_code or code",
+        skuTitle: "Invalid Code",
         isError: true,
       );
       selectedItemData.value = CartLine();
@@ -351,54 +351,6 @@ class HomeController extends GetxController {
     } finally {
       isApiCallInProgress = false;
     }
-
-    // New optimized implementation
-    // if (isApiCallInProgress) return;
-
-    // try {
-    //   isApiCallInProgress = true;
-    //   isScanApiError.value = false;
-
-    //   final parts = code.split("|");
-    //   final skuCode = parts[0];
-    //   final weight = parts.length > 1
-    //       ? double.parse(double.parse(parts[1]).toStringAsFixed(3))
-    //       : null;
-
-    //   final response = await _homeRepository.getScanProduct(
-    //     code: skuCode,
-    //     outletId: selectedOutletId,
-    //   );
-
-    //   scanProductsResponse.value = response;
-
-    //   if (cartId.value.isEmpty || (response.priceList?.length ?? 0) > 1) return;
-
-    //   final isWeighted = weight != null;
-    //   if (isWeighted) {
-    //     scanProductsResponse.value.isWeighedItem = false;
-    //   }
-
-    //   await addToCartApiCall(
-    //     skuCode,
-    //     response.isWeighedItem == true ? 0 : 1,
-    //     response.priceList?.first.mrpId,
-    //     response.salesUom,
-    //     cartId.value,
-    //     isWeightedItem: isWeighted,
-    //     weight: weight,
-    //   );
-    // } catch (error) {
-    //   isScanApiError.value = true;
-    //   scanProductsResponse.value = ScanProductsResponse(
-    //     skuTitle: "Invalid sku_code or code",
-    //     isError: true,
-    //   );
-    //   selectedItemData.value = CartLine();
-    //   Get.snackbar("Error While Scanning", '$error');
-    // } finally {
-    //   isApiCallInProgress = false;
-    // }
   }
 
   Future getCustomerDetails() async {
