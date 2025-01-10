@@ -19,7 +19,8 @@ Widget commonTextField({
     obscureText: obscureText,
     controller: controller,
     validator: validator,
-    readOnly: readOnly,
+    showCursor: true,
+    readOnly: true,
     decoration: textFieldDecoration(
         isFocused: focusNode.hasFocus,
         label: label,
