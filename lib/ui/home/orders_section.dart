@@ -410,6 +410,13 @@ class _OrdersSectionState extends State<OrdersSection>
               style: Theme.of(context).textTheme.labelMedium?.copyWith(
                   fontWeight: FontWeight.w100, color: CustomColors.greyFont),
             )),
+        Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: Text(
+              "Total ₹",
+              style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                  fontWeight: FontWeight.w100, color: CustomColors.greyFont),
+            )),
         Padding(padding: const EdgeInsets.all(10.0), child: Text("")),
       ],
     );
@@ -417,11 +424,12 @@ class _OrdersSectionState extends State<OrdersSection>
 
   final Map<int, TableColumnWidth> columnWidths = const {
     0: FlexColumnWidth(3),
-    1: FlexColumnWidth(6),
-    2: FlexColumnWidth(2),
-    3: FlexColumnWidth(3),
-    4: FlexColumnWidth(3),
-    5: FlexColumnWidth(1),
+    1: FlexColumnWidth(4),
+    2: FlexColumnWidth(2.5),
+    3: FlexColumnWidth(2.5),
+    4: FlexColumnWidth(2.5),
+    5: FlexColumnWidth(3),
+    6: FlexColumnWidth(1),
   };
 
   Widget _buildTableView() {
@@ -489,7 +497,7 @@ class _OrdersSectionState extends State<OrdersSection>
               numPadTextController.text = quantity;
             },
             child: _buildTableCell(itemData.item?.skuTitle ?? '',
-                maxLines: 2, width: 280)),
+                maxLines: 2, width: 180)),
         _buildQuantityCell(itemData),
         InkWell(
           onTap: () {
@@ -544,6 +552,10 @@ class _OrdersSectionState extends State<OrdersSection>
                   itemData.unitPrice?.centAmount, itemData.unitPrice?.fraction),
               width: 100),
         ),
+        _buildTableCell(
+            getActualPrice(
+                itemData.lineTotal?.centAmount, itemData.lineTotal?.fraction),
+            width: 100),
         _buildDeleteButton(itemData),
       ],
     );
@@ -662,7 +674,7 @@ class _OrdersSectionState extends State<OrdersSection>
       padding: const EdgeInsets.all(8.0),
       child: Container(
         padding: const EdgeInsets.all(0),
-        width: 50,
+        width: 80,
         decoration: BoxDecoration(
           color: Colors.white,
           border: Border.all(color: CustomColors.red, width: 1),
@@ -975,21 +987,22 @@ class _OrdersSectionState extends State<OrdersSection>
                                             'Weight can\'t be more than 300kgs, Please enter valid weight');
                                         return;
                                       } else {
-                                        homeController.updateCartItemApiCall(
+                                        homeController
+                                            .updateCartItemApiCall(
                                           homeController.selectedItemData.value
                                               .cartLineId,
                                           homeController.selectedItemData.value
                                               .quantity?.quantityUom,
                                           double.parse(
                                               numPadTextController.text),
-                                        ).then((val){
+                                        )
+                                            .then((val) {
                                           homeController
                                               .isQuantitySelected.value = false;
+                                          numPadTextController.text = '0';
                                           numPadTextController.clear();
                                           numPadTextController.text = '';
                                         });
-
-
                                       }
                                     }
                                   } on Exception catch (e) {
