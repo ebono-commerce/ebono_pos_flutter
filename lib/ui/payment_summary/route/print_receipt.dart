@@ -59,10 +59,10 @@ Future<Uint8List> generatePdf(OrderSummaryResponse data) async {
   final img = await rootBundle.load('assets/images/savomart_logo.png');
   final imageBytes = img.buffer.asUint8List();
   pw.Image image1 = pw.Image(pw.MemoryImage(imageBytes));
-   const double point = 1.0;
-   const double inch = 72.0;
-   const double cm = inch / 2.54;
-   const double mm = inch / 25.4;
+  const double point = 1.0;
+  const double inch = 72.0;
+  const double cm = inch / 2.54;
+  const double mm = inch / 25.4;
   //final data = OrderSummaryResponse.fromJson(json.decode(jsonData));
 
   pdf.addPage(
@@ -367,13 +367,14 @@ Future<Uint8List> generatePdf(OrderSummaryResponse data) async {
                       font: font,
                     ),
                   ),
-                  pw.Text(
-                    'Rounded of ( ₹${data.roundOff} )',
-                    style: pw.TextStyle(
-                      fontSize: 8,
-                      font: font,
+                  if (data.roundOff != null)
+                    pw.Text(
+                      'Rounded of ( ₹${data.roundOff} )',
+                      style: pw.TextStyle(
+                        fontSize: 8,
+                        font: font,
+                      ),
                     ),
-                  ),
                   /*pw.Text(
                     getActualPrice(
                         data.mrpTotal?.centAmount, data.mrpTotal?.fraction),

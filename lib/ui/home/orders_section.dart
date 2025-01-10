@@ -1,7 +1,3 @@
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:intl/intl.dart';
-
 import 'package:ebono_pos/constants/custom_colors.dart';
 import 'package:ebono_pos/data_store/shared_preference_helper.dart';
 import 'package:ebono_pos/models/cart_response.dart';
@@ -23,6 +19,9 @@ import 'package:ebono_pos/utils/auth_modes.dart';
 import 'package:ebono_pos/utils/common_methods.dart';
 import 'package:ebono_pos/utils/dash_line.dart';
 import 'package:ebono_pos/utils/price.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 
 class OrdersSection extends StatefulWidget {
   const OrdersSection({super.key});
@@ -69,6 +68,7 @@ class _OrdersSectionState extends State<OrdersSection>
       if (!numPadFocusNode.hasFocus) {
         numPadFocusNode.requestFocus();
       }
+      numPadTextController.clear();
       numPadTextController.text = value.toString();
     });
 
@@ -410,6 +410,13 @@ class _OrdersSectionState extends State<OrdersSection>
               style: Theme.of(context).textTheme.labelMedium?.copyWith(
                   fontWeight: FontWeight.w100, color: CustomColors.greyFont),
             )),
+        Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: Text(
+              "Total ₹",
+              style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                  fontWeight: FontWeight.w100, color: CustomColors.greyFont),
+            )),
         Padding(padding: const EdgeInsets.all(10.0), child: Text("")),
       ],
     );
@@ -417,11 +424,12 @@ class _OrdersSectionState extends State<OrdersSection>
 
   final Map<int, TableColumnWidth> columnWidths = const {
     0: FlexColumnWidth(3),
-    1: FlexColumnWidth(6),
-    2: FlexColumnWidth(2),
-    3: FlexColumnWidth(3),
-    4: FlexColumnWidth(3),
-    5: FlexColumnWidth(1),
+    1: FlexColumnWidth(4),
+    2: FlexColumnWidth(2.5),
+    3: FlexColumnWidth(2.5),
+    4: FlexColumnWidth(2.5),
+    5: FlexColumnWidth(3),
+    6: FlexColumnWidth(1),
   };
 
   Widget _buildTableView() {
@@ -489,7 +497,7 @@ class _OrdersSectionState extends State<OrdersSection>
               numPadTextController.text = quantity;
             },
             child: _buildTableCell(itemData.item?.skuTitle ?? '',
-                maxLines: 2, width: 280)),
+                maxLines: 2, width: 180)),
         _buildQuantityCell(itemData),
         InkWell(
           onTap: () {
@@ -544,6 +552,10 @@ class _OrdersSectionState extends State<OrdersSection>
                   itemData.unitPrice?.centAmount, itemData.unitPrice?.fraction),
               width: 100),
         ),
+        _buildTableCell(
+            getActualPrice(
+                itemData.lineTotal?.centAmount, itemData.lineTotal?.fraction),
+            width: 100),
         _buildDeleteButton(itemData),
       ],
     );
@@ -603,7 +615,7 @@ class _OrdersSectionState extends State<OrdersSection>
             Row(
               children: [
                 SizedBox(
-                  width: 80,
+                  width: 85,
                   child: Padding(
                     padding: EdgeInsets.only(top: 10, bottom: 10, right: 10),
                     child: Row(
@@ -662,7 +674,7 @@ class _OrdersSectionState extends State<OrdersSection>
       padding: const EdgeInsets.all(8.0),
       child: Container(
         padding: const EdgeInsets.all(0),
-        width: 50,
+        width: 80,
         decoration: BoxDecoration(
           color: Colors.white,
           border: Border.all(color: CustomColors.red, width: 1),
@@ -921,70 +933,25 @@ class _OrdersSectionState extends State<OrdersSection>
                                 (homeController.cartId.value.isNotEmpty &&
                                         homeController.registerId.isNotEmpty)
                                     ? numPadTextController
-                                    : TextEditingController(),
+                                    : TextEditingController(text: ''),
                             onEditingComplete: () {
+                              print('on edit complete');
                               if (homeController.isQuantitySelected.value ==
                                   false) {
                                 if (homeController.cartId.value.isNotEmpty &&
                                     homeController.registerId.isNotEmpty) {
                                   if (isValidOfferId(
-                                      numPadTextController.text.trim())) {
-                                    homeController.scanApiCall(
-                                        numPadTextController.text.trim());
-                                  }
-                                }
-                              } else {
-                                try {
-                                  if (numPadTextController.text != '0.0' &&
-                                      numPadTextController.text.isNotEmpty ==
-                                          true &&
-                                      numPadTextController.text !=
-                                          homeController.selectedItemData.value
-                                              .quantity?.quantityNumber
-                                              .toString()) {
-                                    if (!homeController.isApiCallInProgress) {
-                                      try {
-                                        if (homeController
-                                                .isQuantitySelected.value &&
-                                            homeController
-                                                    .selectedItemData
-                                                    .value
-                                                    .item
-                                                    ?.isWeighedItem ==
-                                                true) {
-                                          if (double.parse(
-                                                  numPadTextController.text) >
-                                              300) {
-                                            Get.snackbar('Invalid Weight',
-                                                'Weight can\'t be more than 300kgs, Please enter valid weight');
-                                            return;
-                                          } else {
-                                            homeController
-                                                .updateCartItemApiCall(
-                                              homeController.selectedItemData
-                                                  .value.cartLineId,
-                                              homeController.selectedItemData
-                                                  .value.quantity?.quantityUom,
-                                              double.parse(
-                                                  numPadTextController.text),
-                                            );
+                                          numPadTextController.text.trim()) ||
+                                      numPadTextController.text
+                                          .trim()
+                                          .contains("W")) {
+                                    homeController
+                                        .scanApiCall(numPadTextController.text);
 
-                                            homeController.isQuantitySelected
-                                                .value = false;
-                                            numPadTextController.text = '';
-                                          }
-                                        }
-                                      } on Exception catch (e) {
-                                        print('error on numpad enter $e');
-                                      }
-                                    }
-                                  } else {
-                                    Get.snackbar(
-                                        'Invalid or Duplicate Quantity',
-                                        'Please enter valid Quantity');
+                                    homeController.isQuantitySelected.value =
+                                        false;
+                                    numPadTextController.text = '';
                                   }
-                                } on Exception catch (e) {
-                                  print(e);
                                 }
                               }
                             },
@@ -993,6 +960,63 @@ class _OrdersSectionState extends State<OrdersSection>
                         CustomNumPad(
                           focusNode: numPadFocusNode,
                           textController: numPadTextController,
+                          onValueChanged: (val) {
+                            print("onValueChanged numpad: $val");
+                            try {
+                              if (homeController.isQuantitySelected.value ==
+                                  false) {
+                                return;
+                              } else if (numPadTextController.text != '0.0' &&
+                                  numPadTextController.text.isNotEmpty ==
+                                      true &&
+                                  numPadTextController.text !=
+                                      homeController.selectedItemData.value
+                                          .quantity?.quantityNumber
+                                          .toString()) {
+                                if (!homeController.isApiCallInProgress) {
+                                  try {
+                                    if (homeController
+                                            .isQuantitySelected.value &&
+                                        homeController.selectedItemData.value
+                                                .item?.isWeighedItem ==
+                                            true) {
+                                      if (double.parse(
+                                              numPadTextController.text) >
+                                          300) {
+                                        Get.snackbar('Invalid Weight',
+                                            'Weight can\'t be more than 300kgs, Please enter valid weight');
+                                        return;
+                                      } else {
+                                        homeController
+                                            .updateCartItemApiCall(
+                                          homeController.selectedItemData.value
+                                              .cartLineId,
+                                          homeController.selectedItemData.value
+                                              .quantity?.quantityUom,
+                                          double.parse(
+                                              numPadTextController.text),
+                                        )
+                                            .then((val) {
+                                          homeController
+                                              .isQuantitySelected.value = false;
+                                          numPadTextController.text = '0';
+                                          numPadTextController.clear();
+                                          numPadTextController.text = '';
+                                        });
+                                      }
+                                    }
+                                  } on Exception catch (e) {
+                                    print('error on numpad enter $e');
+                                  }
+                                }
+                              } else {
+                                Get.snackbar('Invalid or Duplicate Quantity',
+                                    'Please enter valid Quantity');
+                              }
+                            } on Exception catch (e) {
+                              print(e);
+                            }
+                          },
                           onEnterPressed: (text) {
                             print("Enter pressed with text: $text");
                             if (homeController.isQuantitySelected.value ==
@@ -1002,7 +1026,8 @@ class _OrdersSectionState extends State<OrdersSection>
                                 if (isValidOfferId(text) ||
                                     (text.trim().length >= 1 &&
                                         text.length <= 3)) {
-                                  homeController.scanApiCall(text.trim());
+                                  homeController
+                                      .scanApiCall(numPadTextController.text);
                                 }
                               }
                               numPadFocusNode.unfocus();

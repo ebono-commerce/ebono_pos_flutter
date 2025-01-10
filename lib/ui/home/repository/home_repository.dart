@@ -133,10 +133,12 @@ class HomeRepository {
   Future<CartResponse> updateCartItem(
       UpdateCartRequest request, String cartId, String cartLineId) async {
     try {
+      print("chk - inside api");
       final response = await _apiHelper.post(
         '${ApiConstants.updateCart}$cartId/cart-line/$cartLineId',
         data: request.toJson(),
       );
+      print("chk response- $response");
       final cartResponse = cartResponseFromJson(jsonEncode(response));
       return cartResponse;
     } catch (e) {

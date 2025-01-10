@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:ebono_pos/constants/custom_colors.dart';
+import 'package:flutter/material.dart';
 
 Widget commonTextField({
   required String label,
