@@ -39,7 +39,7 @@ class ReturnsConfirmationTableData {
     required Function(int index)? onTapSelectedButton,
   }) {
     return List.generate(
-      3,
+      10,
       (index) => buildTableRow(onTap: () => onTapSelectedButton?.call(index)),
     ).toList();
   }

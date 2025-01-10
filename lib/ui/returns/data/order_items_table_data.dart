@@ -1,4 +1,5 @@
 import 'package:ebono_pos/constants/custom_colors.dart';
+import 'package:ebono_pos/ui/returns/models/order_items_model.dart';
 import 'package:ebono_pos/widgets/custom_table/table_cell_widget.dart';
 import 'package:flutter/material.dart';
 
@@ -35,29 +36,20 @@ class OrderItemsTableData {
   }
 
   List<TableRow> buildTableRows({
+    required OrderItemsModel orderItemsData,
     required Function(int index)? onTapSelectedButton,
   }) {
-    return List.generate(
-      3,
-      (index) => buildTableRow(onTap: () => onTapSelectedButton?.call(index)),
-    ).toList();
+    return List.generate(orderItemsData.orderLines!.length, (index) {
+      OrderLine orderLine = orderItemsData.orderLines![index];
+      return buildTableRow(
+        orderLine: orderLine,
+        onTap: () => onTapSelectedButton?.call(index),
+      );
+    }).toList();
   }
 
-  // List<TableRow> buildTableRowsFromJson(
-  //   List<Map<String, dynamic>> jsonData, {
-  //   required Function(int id)? onTapSelectedButton,
-  // }) {
-  //   return jsonData
-  //       .map((item) => buildTableRow(
-  //             onTap: () => onTapSelectedButton?.call(item['id'] ?? 0),
-  //             itemCode: item['itemCode'] ?? '',
-  //             name: item['name'] ?? '',
-  //             maxQuantity: item['quantity']?.toString() ?? '0',
-  //           ))
-  //       .toList();
-  // }
-
   TableRow buildTableRow({
+    required OrderLine orderLine,
     required Function()? onTap,
   }) {
     return TableRow(
@@ -66,8 +58,8 @@ class OrderItemsTableData {
         border: Border.all(color: Colors.grey.shade300, width: 1),
       ),
       children: [
-        TableCellWidget(text: '123456789', width: 110),
-        TableCellWidget(text: '29 December 2024 | 00:00 AM', width: 330),
+        TableCellWidget(text: orderLine.item!.skuCode!, width: 110),
+        TableCellWidget(text: orderLine.item!.skuTitle!, width: 330),
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 20.0),
           child: Row(
@@ -95,7 +87,7 @@ class OrderItemsTableData {
               ),
               SizedBox(width: 10),
               Text(
-                "/10",
+                "/${orderLine.orderQuantity!.quantityNumber}",
                 style: TextStyle(color: CustomColors.borderColor),
               )
             ],

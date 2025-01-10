@@ -5,6 +5,8 @@ class ReturnsState {
   final bool isLoading;
   final bool isError;
   final String errorMessage;
+  final List<CustomerOrderDetails> customerOrdersList;
+  final OrderItemsModel orderItemsData;
   final bool isCustomerOrdersDataFetched;
   final bool isOrderItemsFetched;
 
@@ -12,6 +14,8 @@ class ReturnsState {
     this.isLoading = false,
     this.isError = false,
     this.errorMessage = '',
+    this.customerOrdersList = const [],
+    this.orderItemsData = const OrderItemsModel(),
     this.isCustomerOrdersDataFetched = false,
     this.isOrderItemsFetched = false,
   });
@@ -20,6 +24,8 @@ class ReturnsState {
     bool? isLoading,
     bool? isError,
     String? errorMessage,
+    List<CustomerOrderDetails>? customerOrdersList,
+    OrderItemsModel? orderItemsData,
     bool? isCustomerOrdersDataFetched,
     bool? isOrderItemsFetched,
   }) {
@@ -27,16 +33,20 @@ class ReturnsState {
       isLoading: isLoading ?? this.isLoading,
       isError: isError ?? this.isError,
       errorMessage: errorMessage ?? this.errorMessage,
+      customerOrdersList: customerOrdersList ?? this.customerOrdersList,
+      orderItemsData: orderItemsData ?? this.orderItemsData,
       isCustomerOrdersDataFetched:
           isCustomerOrdersDataFetched ?? this.isCustomerOrdersDataFetched,
       isOrderItemsFetched: isOrderItemsFetched ?? this.isOrderItemsFetched,
     );
   }
 
-  ReturnsState updateSingleParameter({
+  ReturnsState updateSelectedParameters({
     bool? isLoading,
     bool? isError,
     String? errorMessage,
+    List<CustomerOrderDetails>? customerOrdersList,
+    OrderItemsModel? orderItemsData,
     bool? isCustomerOrdersDataFetched,
     bool? isOrderItemsFetched,
   }) {
@@ -44,6 +54,8 @@ class ReturnsState {
       isLoading: isLoading ?? false,
       isError: isError ?? false,
       errorMessage: errorMessage ?? '',
+      customerOrdersList: customerOrdersList ?? const [],
+      orderItemsData: orderItemsData ?? const OrderItemsModel(),
       isCustomerOrdersDataFetched: isCustomerOrdersDataFetched ?? false,
       isOrderItemsFetched: isOrderItemsFetched ?? false,
     );

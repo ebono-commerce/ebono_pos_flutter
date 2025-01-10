@@ -1,4 +1,7 @@
 import 'package:ebono_pos/constants/custom_colors.dart';
+import 'package:ebono_pos/ui/home/order_on_hold.dart';
+import 'package:ebono_pos/ui/returns/models/customer_order_model.dart';
+import 'package:ebono_pos/utils/price.dart';
 import 'package:ebono_pos/widgets/custom_table/table_cell_widget.dart';
 import 'package:flutter/material.dart';
 
@@ -67,7 +70,7 @@ class CustomerTableData {
       Padding(
           padding: const EdgeInsets.all(10.0),
           child: Text(
-            "Quantity",
+            "Items",
             style: Theme.of(context).textTheme.labelMedium?.copyWith(
                 fontWeight: FontWeight.w100, color: CustomColors.greyFont),
           )),
@@ -82,25 +85,32 @@ class CustomerTableData {
     ];
   }
 
-  List<TableRow> buildTableRows() {
-    return [
-      buildTableRow(),
-      buildTableRow(),
-      buildTableRow(),
-    ];
+  List<TableRow> buildTableRows({
+    required List<CustomerOrderDetails> customerOrderDetails,
+  }) {
+    return customerOrderDetails
+        .map((orders) => buildTableRow(customerOrder: orders))
+        .toList();
   }
 
-  TableRow buildTableRow() {
+  TableRow buildTableRow({
+    required CustomerOrderDetails customerOrder,
+  }) {
     return TableRow(
       decoration: BoxDecoration(
         color: Colors.white,
         border: Border.all(color: Colors.grey.shade300, width: 1),
       ),
       children: [
-        TableCellWidget(text: '123456789', width: 110),
-        TableCellWidget(text: '29 December 2024 | 00:00 AM', width: 300),
-        TableCellWidget(text: '5', width: 110),
-        TableCellWidget(text: '₹5,256', width: 110),
+        TableCellWidget(text: customerOrder.orderNumber.toString(), width: 110),
+        TableCellWidget(text: formatDate(customerOrder.createdAt), width: 300),
+        TableCellWidget(text: customerOrder.totalItems.toString(), width: 110),
+        TableCellWidget(
+            text: getActualPrice(
+              customerOrder.orderTotals!.first.amount!.centAmount,
+              customerOrder.orderTotals!.first.amount!.fraction,
+            ),
+            width: 110),
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 20.0),
           child: ElevatedButton(

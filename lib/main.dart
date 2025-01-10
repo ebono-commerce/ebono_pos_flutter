@@ -1,10 +1,8 @@
 import 'package:ebono_pos/data_store/hive_storage_helper.dart';
 import 'package:ebono_pos/navigation/navigation.dart';
 import 'package:ebono_pos/theme/theme_data.dart';
-import 'package:ebono_pos/ui/returns/bloc/returns_bloc.dart';
 import 'package:ebono_pos/utils/SDP.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:window_manager/window_manager.dart';
 
@@ -26,14 +24,7 @@ void main() async {
 
   await HiveStorageHelper.init();
 
-  runApp(
-    MultiBlocProvider(
-      providers: [
-        BlocProvider(create: (context) => ReturnsBloc()),
-      ],
-      child: const MyApp(),
-    ),
-  );
+  runApp(const MyApp());
 }
 
 /*void getHiveDirectory() async {

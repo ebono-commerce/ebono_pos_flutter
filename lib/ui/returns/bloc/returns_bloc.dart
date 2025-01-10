@@ -1,3 +1,6 @@
+import 'package:ebono_pos/ui/returns/models/customer_order_model.dart';
+import 'package:ebono_pos/ui/returns/models/order_items_model.dart';
+import 'package:ebono_pos/ui/returns/repository/returns_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -5,17 +8,50 @@ part 'returns_event.dart';
 part 'returns_state.dart';
 
 class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
-  ReturnsBloc() : super(const ReturnsState()) {
+  late ReturnsRepository returnsRepository;
+  ReturnsBloc(this.returnsRepository) : super(const ReturnsState()) {
     on<ReturnsEvent>(
-      (event, emit) => emit(state.updateSingleParameter(isLoading: true)),
+      (event, emit) => emit(state.updateSelectedParameters(isLoading: true)),
     );
 
-    on<FetchCustomerOrdersData>((event, emit) {
-      emit(state.updateSingleParameter(isCustomerOrdersDataFetched: true));
+    on<FetchCustomerOrdersData>((event, emit) async {
+      try {
+        List<CustomerOrderDetails> customerOrdersList =
+            await returnsRepository.fetchCustomerOrderDetails(
+          phoneNumber: event.customerMobileNumber,
+        );
+
+        emit(state.updateSelectedParameters(
+          isCustomerOrdersDataFetched: true,
+          isLoading: false,
+          customerOrdersList: customerOrdersList,
+        ));
+      } catch (e) {
+        emit(state.updateSelectedParameters(
+          isError: true,
+          errorMessage: e.toString(),
+        ));
+      }
     });
 
-    on<FetchOrderDataBasedOnOrderId>((event, emit) {
-      emit(state.updateSingleParameter(isOrderItemsFetched: true));
+    on<FetchOrderDataBasedOnOrderId>((event, emit) async {
+      try {
+        OrderItemsModel orderItemsData =
+            await returnsRepository.fetchOrderItemBasedOnOrderId(
+          orderId: event.orderId,
+        );
+
+        emit(state.updateSelectedParameters(
+          isOrderItemsFetched: true,
+          isLoading: false,
+          orderItemsData: orderItemsData,
+        ));
+      } catch (e) {
+        emit(state.updateSelectedParameters(
+          isError: true,
+          errorMessage: e.toString(),
+        ));
+      }
     });
   }
 }

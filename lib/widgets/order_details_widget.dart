@@ -6,6 +6,7 @@ class OrderDetailsWidget extends StatelessWidget {
   final String walletBalance;
   final String phoneNumber;
   final String loyaltyPoints;
+  final String title;
 
   const OrderDetailsWidget({
     super.key,
@@ -13,6 +14,7 @@ class OrderDetailsWidget extends StatelessWidget {
     required this.walletBalance,
     required this.phoneNumber,
     required this.loyaltyPoints,
+    this.title = 'Today,',
   });
 
   @override
@@ -40,7 +42,7 @@ class OrderDetailsWidget extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Today,',
+                    title,
                     maxLines: 1,
                     textAlign: TextAlign.center,
                     style: TextStyle(
