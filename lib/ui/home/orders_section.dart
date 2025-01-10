@@ -1,7 +1,3 @@
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:intl/intl.dart';
-
 import 'package:ebono_pos/constants/custom_colors.dart';
 import 'package:ebono_pos/data_store/shared_preference_helper.dart';
 import 'package:ebono_pos/models/cart_response.dart';
@@ -23,6 +19,9 @@ import 'package:ebono_pos/utils/auth_modes.dart';
 import 'package:ebono_pos/utils/common_methods.dart';
 import 'package:ebono_pos/utils/dash_line.dart';
 import 'package:ebono_pos/utils/price.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 
 class OrdersSection extends StatefulWidget {
   const OrdersSection({super.key});
@@ -921,8 +920,9 @@ class _OrdersSectionState extends State<OrdersSection>
                                 (homeController.cartId.value.isNotEmpty &&
                                         homeController.registerId.isNotEmpty)
                                     ? numPadTextController
-                                    : TextEditingController(),
+                                    : TextEditingController(text: ''),
                             onEditingComplete: () {
+                              print('on edit complete');
                               if (homeController.isQuantitySelected.value ==
                                   false) {
                                 if (homeController.cartId.value.isNotEmpty &&
@@ -933,59 +933,6 @@ class _OrdersSectionState extends State<OrdersSection>
                                         numPadTextController.text.trim());
                                   }
                                 }
-                              } else {
-                                try {
-                                  if (numPadTextController.text != '0.0' &&
-                                      numPadTextController.text.isNotEmpty ==
-                                          true &&
-                                      numPadTextController.text !=
-                                          homeController.selectedItemData.value
-                                              .quantity?.quantityNumber
-                                              .toString()) {
-                                    if (!homeController.isApiCallInProgress) {
-                                      try {
-                                        if (homeController
-                                                .isQuantitySelected.value &&
-                                            homeController
-                                                    .selectedItemData
-                                                    .value
-                                                    .item
-                                                    ?.isWeighedItem ==
-                                                true) {
-                                          if (double.parse(
-                                                  numPadTextController.text) >
-                                              300) {
-                                            Get.snackbar('Invalid Weight',
-                                                'Weight can\'t be more than 300kgs, Please enter valid weight');
-                                            return;
-                                          } else {
-                                            homeController
-                                                .updateCartItemApiCall(
-                                              homeController.selectedItemData
-                                                  .value.cartLineId,
-                                              homeController.selectedItemData
-                                                  .value.quantity?.quantityUom,
-                                              double.parse(
-                                                  numPadTextController.text),
-                                            );
-
-                                            homeController.isQuantitySelected
-                                                .value = false;
-                                            numPadTextController.text = '';
-                                          }
-                                        }
-                                      } on Exception catch (e) {
-                                        print('error on numpad enter $e');
-                                      }
-                                    }
-                                  } else {
-                                    Get.snackbar(
-                                        'Invalid or Duplicate Quantity',
-                                        'Please enter valid Quantity');
-                                  }
-                                } on Exception catch (e) {
-                                  print(e);
-                                }
                               }
                             },
                           ),
@@ -993,6 +940,62 @@ class _OrdersSectionState extends State<OrdersSection>
                         CustomNumPad(
                           focusNode: numPadFocusNode,
                           textController: numPadTextController,
+                          onValueChanged: (val) {
+                            print("onValueChanged numpad: $val");
+                            try {
+                              if (homeController.isQuantitySelected.value ==
+                                  false) {
+                                return;
+                              } else if (numPadTextController.text != '0.0' &&
+                                  numPadTextController.text.isNotEmpty ==
+                                      true &&
+                                  numPadTextController.text !=
+                                      homeController.selectedItemData.value
+                                          .quantity?.quantityNumber
+                                          .toString()) {
+                                if (!homeController.isApiCallInProgress) {
+                                  try {
+                                    if (homeController
+                                            .isQuantitySelected.value &&
+                                        homeController.selectedItemData.value
+                                                .item?.isWeighedItem ==
+                                            true) {
+                                      if (double.parse(
+                                              numPadTextController.text) >
+                                          300) {
+                                        Get.snackbar('Invalid Weight',
+                                            'Weight can\'t be more than 300kgs, Please enter valid weight');
+                                        return;
+                                      } else {
+                                        homeController.updateCartItemApiCall(
+                                          homeController.selectedItemData.value
+                                              .cartLineId,
+                                          homeController.selectedItemData.value
+                                              .quantity?.quantityUom,
+                                          double.parse(
+                                              numPadTextController.text),
+                                        ).then((val){
+                                          homeController
+                                              .isQuantitySelected.value = false;
+                                          numPadTextController.clear();
+                                          numPadTextController.text = '';
+                                        });
+
+
+                                      }
+                                    }
+                                  } on Exception catch (e) {
+                                    print('error on numpad enter $e');
+                                  }
+                                }
+                              } else {
+                                Get.snackbar('Invalid or Duplicate Quantity',
+                                    'Please enter valid Quantity');
+                              }
+                            } on Exception catch (e) {
+                              print(e);
+                            }
+                          },
                           onEnterPressed: (text) {
                             print("Enter pressed with text: $text");
                             if (homeController.isQuantitySelected.value ==
