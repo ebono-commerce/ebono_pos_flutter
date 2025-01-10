@@ -362,7 +362,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
       }
       if (onlinePayment.isNotEmpty) {
         onlinePaymentOption = paymentSummaryResponse.paymentOptions?.firstWhere(
-          (option) => option.code == 'ONLINE',
+          (option) => option.code == paymentStatusResponse.paymentMode?.toUpperCase(),
         );
         paymentMethods?.add(PaymentMethod(
             paymentOptionId: onlinePaymentOption?.paymentOptionId,
