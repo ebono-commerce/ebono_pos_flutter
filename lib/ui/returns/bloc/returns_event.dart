@@ -10,7 +10,14 @@ final class FetchCustomerOrdersData extends ReturnsEvent {
 }
 
 final class FetchOrderDataBasedOnOrderId extends ReturnsEvent {
-  FetchOrderDataBasedOnOrderId(this.orderId);
+  FetchOrderDataBasedOnOrderId({required this.orderId});
 
   final String orderId;
+}
+
+final class UpdateSelectedItem extends ReturnsEvent {
+  UpdateSelectedItem({required this.id, required this.orderItems});
+
+  final String id;
+  final OrderItemsModel orderItems;
 }

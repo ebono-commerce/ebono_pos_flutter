@@ -38,8 +38,11 @@ class OrderLine {
   final bool? isFreeProductPromotion;
   final Quantity? orderQuantity;
   final Quantity? returnableQuantity;
+  final bool isSelected;
+  final String reason;
+  final String returningQuantity;
 
-  OrderLine({
+  const OrderLine({
     this.deliveryGroupId,
     this.orderLineId,
     this.parentLineId,
@@ -47,6 +50,9 @@ class OrderLine {
     this.isFreeProductPromotion,
     this.orderQuantity,
     this.returnableQuantity,
+    this.isSelected = false,
+    this.reason = '',
+    this.returningQuantity = '',
   });
 
   Map<String, dynamic> toJSON() {
@@ -66,6 +72,7 @@ class OrderLine {
       deliveryGroupId: map["delivery_group_id"],
       orderLineId: map["order_line_id"],
       parentLineId: map["parent_line_id"],
+      isSelected: false,
       item: map["item"] == null ? null : Item.fromJSON(map["item"]),
       isFreeProductPromotion: map["is_free_product_promotion"],
       orderQuantity: map["order_quantity"] == null
@@ -74,6 +81,33 @@ class OrderLine {
       returnableQuantity: map["returnable_quantity"] == null
           ? null
           : Quantity.fromJSON(map["returnable_quantity"]),
+    );
+  }
+
+  OrderLine copyWith({
+    String? deliveryGroupId,
+    String? orderLineId,
+    dynamic parentLineId,
+    Item? item,
+    bool? isFreeProductPromotion,
+    Quantity? orderQuantity,
+    Quantity? returnableQuantity,
+    bool? isSelected,
+    String? reason,
+    String? returningQuantity,
+  }) {
+    return OrderLine(
+      deliveryGroupId: deliveryGroupId ?? this.deliveryGroupId,
+      orderLineId: orderLineId ?? this.orderLineId,
+      parentLineId: parentLineId ?? this.parentLineId,
+      item: item ?? this.item,
+      isFreeProductPromotion:
+          isFreeProductPromotion ?? this.isFreeProductPromotion,
+      orderQuantity: orderQuantity ?? this.orderQuantity,
+      returnableQuantity: returnableQuantity ?? this.returnableQuantity,
+      isSelected: isSelected ?? this.isSelected,
+      reason: reason ?? this.reason,
+      returningQuantity: returningQuantity ?? this.returningQuantity,
     );
   }
 }

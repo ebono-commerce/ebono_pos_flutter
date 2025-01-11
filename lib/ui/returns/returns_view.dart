@@ -1,11 +1,11 @@
 import 'package:ebono_pos/constants/custom_colors.dart';
-import 'package:ebono_pos/ui/custom_keyboard/custom_querty_pad.dart';
 import 'package:ebono_pos/ui/home/widgets/quick_action_buttons.dart';
 import 'package:ebono_pos/ui/returns/bloc/returns_bloc.dart';
 import 'package:ebono_pos/ui/returns/data/customer_table_data.dart';
 import 'package:ebono_pos/ui/returns/data/order_items_table_data.dart';
 import 'package:ebono_pos/ui/returns/data/returns_confirmation_table_data.dart';
 import 'package:ebono_pos/ui/returns/models/customer_order_model.dart';
+import 'package:ebono_pos/ui/returns/models/order_items_model.dart';
 import 'package:ebono_pos/ui/returns/repository/returns_repository.dart';
 import 'package:ebono_pos/ui/returns/widgets/summary_payment_section.dart';
 import 'package:ebono_pos/widgets/custom_table/custom_table_widget.dart';
@@ -14,7 +14,6 @@ import 'package:ebono_pos/widgets/order_details_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 
 class ReturnsView extends StatefulWidget {
@@ -42,6 +41,7 @@ class _ReturnsViewState extends State<ReturnsView> {
   bool isCustomerOrdersFetched = false;
   bool isOrderItemsFetched = false;
   bool triggerProccedToPayDialog = false;
+  bool isOrderDetailsRetriving = false;
 
   Customer _customerDetails = Customer();
 
@@ -50,6 +50,7 @@ class _ReturnsViewState extends State<ReturnsView> {
   late ReturnsConfirmationTableData _returnsConfirmationTableData;
 
   void onClickSearchOrders() {
+    if (!mounted) return;
     if (_formKey.currentState!.validate()) {
       if (customerNumberTextController.text.isNotEmpty) {
         returnsBloc.add(
@@ -58,7 +59,7 @@ class _ReturnsViewState extends State<ReturnsView> {
       }
       if (orderNumberTextController.text.isNotEmpty) {
         returnsBloc.add(
-          FetchOrderDataBasedOnOrderId(orderNumberTextController.text),
+          FetchOrderDataBasedOnOrderId(orderId: orderNumberTextController.text),
         );
       }
     }
@@ -122,6 +123,7 @@ class _ReturnsViewState extends State<ReturnsView> {
               _customerDetails = state.orderItemsData.customer ?? Customer();
               setState(() {});
             }
+
             if (state.isError) {
               Get.snackbar(
                 "Error Fetching Customer Orders",
@@ -173,6 +175,13 @@ class _ReturnsViewState extends State<ReturnsView> {
                                     _customerTableData.buildTableRows(
                                   customerOrderDetails:
                                       state.customerOrdersList,
+                                  onClickRetrive: (orderId) {
+                                    returnsBloc.add(
+                                      FetchOrderDataBasedOnOrderId(
+                                        orderId: orderId!,
+                                      ),
+                                    );
+                                  },
                                 ),
                                 columnWidths: const {
                                   0: FlexColumnWidth(2),
@@ -191,7 +200,12 @@ class _ReturnsViewState extends State<ReturnsView> {
                                 tableRowsData:
                                     _orderItemsTableData.buildTableRows(
                                   orderItemsData: state.orderItemsData,
-                                  onTapSelectedButton: (id) {},
+                                  onTapSelectedButton: (id) {
+                                    returnsBloc.add(UpdateSelectedItem(
+                                      id: id!,
+                                      orderItems: state.orderItemsData,
+                                    ));
+                                  },
                                 ),
                                 columnWidths: const {
                                   0: FlexColumnWidth(2),

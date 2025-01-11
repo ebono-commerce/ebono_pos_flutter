@@ -1,3 +1,4 @@
+import 'package:ebono_pos/api/api_constants.dart';
 import 'package:ebono_pos/api/api_helper.dart';
 import 'package:ebono_pos/ui/returns/models/customer_order_model.dart';
 import 'package:ebono_pos/ui/returns/models/order_items_model.dart';
@@ -12,7 +13,7 @@ class ReturnsRepository {
   }) async {
     try {
       final response = await _apiHelper.get(
-        "https://bs6kbvfh-3000.inc1.devtunnels.ms/api/v1/pos/orders?phone_number=$phoneNumber",
+        "${ApiConstants.orders}/fetch?phone_number=$phoneNumber",
       );
 
       List<dynamic> customerOrdersList = response['orders'];
@@ -32,7 +33,7 @@ class ReturnsRepository {
   }) async {
     try {
       final response = await _apiHelper.get(
-        "https://bs6kbvfh-3000.inc1.devtunnels.ms/api/v1/pos/orders/$orderId",
+        "${ApiConstants.orders}/$orderId",
       );
 
       OrderItemsModel data = OrderItemsModel.fromJSON(response);

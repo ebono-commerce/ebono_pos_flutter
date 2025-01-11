@@ -112,6 +112,7 @@ class HomeRepository {
       final cartResponse = cartResponseFromJson(jsonEncode(response));
       return cartResponse;
     } catch (e) {
+      print("err: $e");
       throw Exception('$e');
     }
   }

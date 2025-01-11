@@ -53,5 +53,35 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
         ));
       }
     });
+
+    // on<UpdateSelectedItem>((event, emit) async {
+    //   // final updatedData =
+    //   //     state.orderItemsData.orderLines?.forEach((OrderLine orderLine) {
+    //   //   if (orderLine.orderLineId == event.id) {
+    //   //     orderLine.copyWith(
+    //   //       isSelected: orderLine.isSelected,
+    //   //     );
+    //   //   }
+    //   // });
+
+    //   final updatedOrderLines =
+    //       event.orderItems.orderLines?.map((OrderLine orderLine) {
+    //     if (orderLine.orderLineId == event.id) {
+    //       return orderLine.copyWith(
+    //         isSelected: !orderLine.isSelected,
+    //       );
+    //     }
+    //     return orderLine;
+    //   }).toList();
+
+    //   // final updatedData = event.orderItems.orderLines!.copyWith(
+    //   //   orderLines: updatedOrderLines ?? [],
+    //   // );
+
+    //   emit(state.updateSelectedParameters(
+    //     isCustomerOrdersDataFetched: true,
+    //     orderItemsData: state,
+    //   ));
+    // });
   }
 }

@@ -37,13 +37,13 @@ class OrderItemsTableData {
 
   List<TableRow> buildTableRows({
     required OrderItemsModel orderItemsData,
-    required Function(int index)? onTapSelectedButton,
+    required Function(String? orderLineId)? onTapSelectedButton,
   }) {
     return List.generate(orderItemsData.orderLines!.length, (index) {
       OrderLine orderLine = orderItemsData.orderLines![index];
       return buildTableRow(
         orderLine: orderLine,
-        onTap: () => onTapSelectedButton?.call(index),
+        onTap: () => onTapSelectedButton?.call(orderLine.orderLineId),
       );
     }).toList();
   }
@@ -97,19 +97,32 @@ class OrderItemsTableData {
           padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 20.0),
           child: ElevatedButton(
             onPressed: onTap,
-            style: ElevatedButton.styleFrom(
-              elevation: 1,
-              padding: EdgeInsets.symmetric(horizontal: 1, vertical: 20),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-              backgroundColor: CustomColors.secondaryColor,
-            ),
+            style: orderLine.isSelected
+                ? ElevatedButton.styleFrom(
+                    elevation: 1,
+                    padding: EdgeInsets.symmetric(horizontal: 1, vertical: 20),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    backgroundColor: CustomColors.secondaryColor,
+                  )
+                : ElevatedButton.styleFrom(
+                    elevation: 1,
+                    padding: EdgeInsets.symmetric(horizontal: 1, vertical: 20),
+                    shape: RoundedRectangleBorder(
+                      side: BorderSide(
+                          color: CustomColors.primaryColor, width: 1.5),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    backgroundColor: CustomColors.keyBoardBgColor,
+                  ),
             child: Center(
               child: Text(
-                "Selected",
+                orderLine.isSelected ? "Selected" : "Select",
                 style: TextStyle(
-                  color: CustomColors.black,
+                  color: orderLine.isSelected
+                      ? CustomColors.black
+                      : CustomColors.primaryColor,
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
                 ),

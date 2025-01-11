@@ -1,16 +1,17 @@
 class CustomerOrderDetails {
-  String? orderNumber;
-  String? outletId;
-  String? originalOutletId;
-  String? createdAt;
-  String? orderState;
-  String? orderType;
-  Customer? customer;
-  int? totalUnits;
-  int? totalItems;
-  List<OrderTotals>? orderTotals;
+  final String? orderNumber;
+  final String? outletId;
+  final String? originalOutletId;
+  final String? createdAt;
+  final String? orderState;
+  final String? orderType;
+  final Customer? customer;
+  final int? totalUnits;
+  final int? totalItems;
+  final bool isLoading;
+  final List<OrderTotals>? orderTotals;
 
-  CustomerOrderDetails({
+  const CustomerOrderDetails({
     this.orderNumber,
     this.outletId,
     this.originalOutletId,
@@ -21,6 +22,7 @@ class CustomerOrderDetails {
     this.totalUnits,
     this.totalItems,
     this.orderTotals,
+    this.isLoading = false,
   });
 
   Map<String, dynamic> toJSON() {
@@ -46,6 +48,7 @@ class CustomerOrderDetails {
       createdAt: map['created_at'],
       orderState: map['order_state'],
       orderType: map['order_type'],
+      isLoading: false,
       customer:
           map['customer'] != null ? Customer.fromJSON(map['customer']) : null,
       totalUnits: map['total_units']?.toInt(),
@@ -57,18 +60,46 @@ class CustomerOrderDetails {
           : null,
     );
   }
+
+  CustomerOrderDetails copyWith({
+    String? orderNumber,
+    String? outletId,
+    String? originalOutletId,
+    String? createdAt,
+    String? orderState,
+    String? orderType,
+    Customer? customer,
+    int? totalUnits,
+    int? totalItems,
+    bool? isLoading,
+    List<OrderTotals>? orderTotals,
+  }) {
+    return CustomerOrderDetails(
+      orderNumber: orderNumber ?? this.orderNumber,
+      outletId: outletId ?? this.outletId,
+      originalOutletId: originalOutletId ?? this.originalOutletId,
+      createdAt: createdAt ?? this.createdAt,
+      orderState: orderState ?? this.orderState,
+      orderType: orderType ?? this.orderType,
+      customer: customer ?? this.customer,
+      totalUnits: totalUnits ?? this.totalUnits,
+      totalItems: totalItems ?? this.totalItems,
+      isLoading: isLoading ?? this.isLoading,
+      orderTotals: orderTotals ?? this.orderTotals,
+    );
+  }
 }
 
 class Customer {
-  String? customerId;
-  String? customerGroup;
-  String? customerType;
-  String? customerName;
-  String? emailId;
-  PhoneNumber? phoneNumber;
-  bool? isB2bCustomer;
+  final String? customerId;
+  final String? customerGroup;
+  final String? customerType;
+  final String? customerName;
+  final String? emailId;
+  final PhoneNumber? phoneNumber;
+  final bool? isB2bCustomer;
 
-  Customer({
+  const Customer({
     this.customerId,
     this.customerGroup,
     this.customerType,
@@ -106,10 +137,10 @@ class Customer {
 }
 
 class PhoneNumber {
-  String? countryCode;
-  String? number;
+  final String? countryCode;
+  final String? number;
 
-  PhoneNumber({this.countryCode, this.number});
+  const PhoneNumber({this.countryCode, this.number});
 
   Map<String, dynamic> toJSON() {
     return {
@@ -127,11 +158,11 @@ class PhoneNumber {
 }
 
 class OrderTotals {
-  String? type;
-  int? multiplier;
-  Amount? amount;
+  final String? type;
+  final int? multiplier;
+  final Amount? amount;
 
-  OrderTotals({this.type, this.multiplier, this.amount});
+  const OrderTotals({this.type, this.multiplier, this.amount});
 
   Map<String, dynamic> toJSON() {
     return {
@@ -151,11 +182,11 @@ class OrderTotals {
 }
 
 class Amount {
-  String? currency;
-  int? centAmount;
-  int? fraction;
+  final String? currency;
+  final int? centAmount;
+  final int? fraction;
 
-  Amount({this.currency, this.centAmount, this.fraction});
+  const Amount({this.currency, this.centAmount, this.fraction});
 
   Map<String, dynamic> toJSON() {
     return {

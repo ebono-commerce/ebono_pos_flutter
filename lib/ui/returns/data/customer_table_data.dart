@@ -87,14 +87,19 @@ class CustomerTableData {
 
   List<TableRow> buildTableRows({
     required List<CustomerOrderDetails> customerOrderDetails,
+    required Function(String? orderId)? onClickRetrive,
   }) {
     return customerOrderDetails
-        .map((orders) => buildTableRow(customerOrder: orders))
+        .map((orders) => buildTableRow(
+              customerOrder: orders,
+              onClickRetrive: () => onClickRetrive?.call(orders.orderNumber),
+            ))
         .toList();
   }
 
   TableRow buildTableRow({
     required CustomerOrderDetails customerOrder,
+    required Function() onClickRetrive,
   }) {
     return TableRow(
       decoration: BoxDecoration(
@@ -114,7 +119,7 @@ class CustomerTableData {
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 20.0),
           child: ElevatedButton(
-            onPressed: () {},
+            onPressed: onClickRetrive,
             style: ElevatedButton.styleFrom(
               elevation: 1,
               padding: EdgeInsets.symmetric(horizontal: 1, vertical: 20),
@@ -124,14 +129,16 @@ class CustomerTableData {
               backgroundColor: CustomColors.secondaryColor,
             ),
             child: Center(
-              child: Text(
-                "Retrive",
-                style: TextStyle(
-                  color: CustomColors.black,
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+              child: customerOrder.isLoading
+                  ? CircularProgressIndicator()
+                  : Text(
+                      "Retrive",
+                      style: TextStyle(
+                        color: CustomColors.black,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
             ),
           ),
         ),

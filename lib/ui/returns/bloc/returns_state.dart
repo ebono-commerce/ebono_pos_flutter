@@ -9,6 +9,7 @@ class ReturnsState {
   final OrderItemsModel orderItemsData;
   final bool isCustomerOrdersDataFetched;
   final bool isOrderItemsFetched;
+  final bool isOrderDetailsFetching;
 
   const ReturnsState({
     this.isLoading = false,
@@ -18,6 +19,7 @@ class ReturnsState {
     this.orderItemsData = const OrderItemsModel(),
     this.isCustomerOrdersDataFetched = false,
     this.isOrderItemsFetched = false,
+    this.isOrderDetailsFetching = false,
   });
 
   ReturnsState copyWith({

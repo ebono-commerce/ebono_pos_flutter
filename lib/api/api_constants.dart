@@ -30,4 +30,5 @@ class ApiConstants {
   static final orderInvoiceSSE = 'account/api/v1/pos/sse';
   static final getAuthorisation = 'authn/api/v1/pos/authorise';
   static final overridePrice = 'checkout/api/v1/pos/cart/price-override';
+  static final orders = 'order/api/v1/pos/orders';
 }
