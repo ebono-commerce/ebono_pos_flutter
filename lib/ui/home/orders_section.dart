@@ -997,11 +997,15 @@ class _OrdersSectionState extends State<OrdersSection>
                                               numPadTextController.text),
                                         )
                                             .then((val) {
-                                          homeController
-                                              .isQuantitySelected.value = false;
-                                          numPadTextController.text = '0';
-                                          numPadTextController.clear();
-                                          numPadTextController.text = '';
+                                          Future.delayed(
+                                              const Duration(milliseconds: 400),
+                                              () {
+                                            homeController.isQuantitySelected
+                                                .value = false;
+                                            numPadTextController.text = '0';
+                                            numPadTextController.clear();
+                                            numPadTextController.text = '';
+                                          });
                                         });
                                       }
                                     }
