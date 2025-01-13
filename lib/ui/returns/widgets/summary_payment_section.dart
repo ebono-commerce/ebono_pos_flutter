@@ -1,4 +1,8 @@
-import 'dart:convert';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:get/get.dart';
+import 'package:lottie/lottie.dart';
 
 import 'package:ebono_pos/constants/custom_colors.dart';
 import 'package:ebono_pos/ui/custom_keyboard/custom_querty_pad.dart';
@@ -8,10 +12,6 @@ import 'package:ebono_pos/ui/returns/data/returns_confirmation_table_data.dart';
 import 'package:ebono_pos/ui/returns/models/customer_order_model.dart';
 import 'package:ebono_pos/utils/common_methods.dart';
 import 'package:ebono_pos/widgets/custom_table/custom_table_widget.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_svg/svg.dart';
-import 'package:get/get.dart';
 
 class SummaryPaymentSection extends StatefulWidget {
   final Customer customer;
@@ -104,15 +104,129 @@ class _SummaryPaymentSectionState extends State<SummaryPaymentSection> {
       child: BlocBuilder<ReturnsBloc, ReturnsState>(
         builder: (context, state) {
           return SizedBox(
-            width: MediaQuery.sizeOf(context).width * 0.9,
-            height: MediaQuery.sizeOf(context).height * 0.88,
+            width: MediaQuery.sizeOf(context).width *
+                (state.isOrderReturnedSuccessfully ? 0.6 : 0.9),
+            height: MediaQuery.sizeOf(context).height *
+                (state.isOrderReturnedSuccessfully ? 0.66 : 0.88),
             child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 20,
-                vertical: 25,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 25),
               child: state.isOrderReturnedSuccessfully
-                  ? SizedBox()
+                  ? Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Align(
+                          alignment: Alignment.topRight,
+                          child: InkWell(
+                            onTap: () {
+                              Navigator.pop(context);
+                            },
+                            child: SvgPicture.asset(
+                              'assets/images/ic_close.svg',
+                              semanticsLabel: 'cash icon,',
+                              width: 30,
+                              height: 30,
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 10),
+                        Lottie.asset(
+                          'assets/lottie/success.json',
+                          width: 200,
+                          height: 200,
+                          fit: BoxFit.fill,
+                          repeat: true,
+                          reverse: false,
+                          animate: true,
+                        ),
+                        SizedBox(height: 10),
+                        Text(
+                          "Yay! Refund Processed",
+                          style:
+                              Theme.of(context).textTheme.titleLarge?.copyWith(
+                                    fontWeight: FontWeight.normal,
+                                    color: CustomColors.black,
+                                  ),
+                        ),
+                        SizedBox(height: 10),
+                        Text(
+                          "₹${state.refundSuccessModel.amountRefunded} refunded",
+                          style:
+                              Theme.of(context).textTheme.titleMedium?.copyWith(
+                                    fontWeight: FontWeight.normal,
+                                    color: CustomColors.black,
+                                  ),
+                        ),
+                        SizedBox(height: 20),
+                        Container(
+                          width: 400,
+                          padding: EdgeInsets.all(15.0),
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                                color: Colors.grey.shade300, width: 1),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Column(
+                            children: [
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text("Name:"),
+                                  Text(state.refundSuccessModel.customerName),
+                                ],
+                              ),
+                              SizedBox(height: 10),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text("PhoneNumber:"),
+                                  Text(state.refundSuccessModel.phoneNumber),
+                                ],
+                              ),
+                              SizedBox(height: 10),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text("Total Items:"),
+                                  Text(state.refundSuccessModel.totalItems),
+                                ],
+                              ),
+                              SizedBox(height: 10),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    "Amount Refunded:",
+                                    style: theme.textTheme.titleSmall!.copyWith(
+                                      color: CustomColors.green,
+                                    ),
+                                  ),
+                                  Text(
+                                      "₹${state.refundSuccessModel.amountRefunded}",
+                                      style:
+                                          theme.textTheme.titleSmall!.copyWith(
+                                        color: CustomColors.green,
+                                      )),
+                                ],
+                              ),
+                              SizedBox(height: 10),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text("Refund Mode:"),
+                                  Text(state.refundSuccessModel.refundMode),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    )
                   : Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -177,7 +291,8 @@ class _SummaryPaymentSectionState extends State<SummaryPaymentSection> {
                                                   .where((order) =>
                                                       order.isSelected)
                                                   .toList(),
-                                            ), orderLine: state.lastSelectedItem,
+                                            ),
+                                            orderLine: state.lastSelectedItem,
                                           ));
                                     },
                                   ),
@@ -252,41 +367,43 @@ class _SummaryPaymentSectionState extends State<SummaryPaymentSection> {
 
   Widget _selectPaymentModeUI(
       TextStyle? bodyLargeBlack, BuildContext context, ReturnsState state) {
-    return Container(
-      width: double.infinity,
-      margin: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        // color: Colors.amber,
-        border: Border.all(color: Colors.grey.shade300, width: 2),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(left: 15, top: 15, right: 15),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Select Payment Mode',
-                  style: bodyLargeBlack,
-                ),
-                const SizedBox(height: 10),
-                Divider(
-                  color: CustomColors.grey,
-                  thickness: 1.5,
-                ),
-              ],
+    return Form(
+      key: _formKey,
+      child: Container(
+        width: double.infinity,
+        margin: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          // color: Colors.amber,
+          border: Border.all(color: Colors.grey.shade300, width: 2),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(left: 15, top: 15, right: 15),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Select Payment Mode',
+                    style: bodyLargeBlack,
+                  ),
+                  const SizedBox(height: 10),
+                  Divider(
+                    color: CustomColors.grey,
+                    thickness: 1.5,
+                  ),
+                ],
+              ),
             ),
-          ),
-          Visibility(
-            visible: widget.customer.isProxyNumber!,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              child: Form(
-                key: _formKey,
+            Visibility(
+              visible: widget.customer.isProxyNumber!,
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
                 child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
@@ -298,12 +415,12 @@ class _SummaryPaymentSectionState extends State<SummaryPaymentSection> {
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return "Please Enter Phone Number";
-                        } else if (value.isNotEmpty &&
-                            (value.length <= 10 || value.length > 10)) {
-                          return "Please Enter Valid Phone Number";
-                        } else {
-                          return null;
                         }
+                        if (value.isNotEmpty &&
+                            (value.length < 10 || value.length > 10)) {
+                          return "Please Enter Valid Phone Number";
+                        }
+                        return null;
                       },
                     ),
                     _buildTextField(
@@ -323,81 +440,133 @@ class _SummaryPaymentSectionState extends State<SummaryPaymentSection> {
                 ),
               ),
             ),
-          ),
-          widget.customer.isProxyNumber! ? SizedBox(height: 20) : Spacer(),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: _buildPaymentOption(
-                    title: 'Cash',
-                    path: 'assets/images/cash.svg',
-                    isSelected: false,
-                    onTap: () => widget.onPaymentModeSelected('cash'),
-                    context: context,
-                    textStyle: bodyLargeBlack!,
+            widget.customer.isProxyNumber!
+                ? SizedBox(height: 20)
+                : Expanded(child: SizedBox()),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: _buildPaymentOption(
+                      title: 'Cash',
+                      path: 'assets/images/cash.svg',
+                      isSelected: false,
+                      onTap: () => widget.onPaymentModeSelected('cash'),
+                      context: context,
+                      textStyle: bodyLargeBlack!,
+                    ),
                   ),
-                ),
-                const SizedBox(width: 15),
-                Expanded(
-                  child: _buildPaymentOption(
-                    title: 'Wallet',
-                    path: 'assets/images/wallet.svg',
-                    isSelected: true,
-                    onTap: () => widget.onPaymentModeSelected('wallet'),
-                    context: context,
-                    textStyle: bodyLargeBlack,
+                  const SizedBox(width: 15),
+                  Expanded(
+                    child: _buildPaymentOption(
+                      title: 'Wallet',
+                      path: 'assets/images/wallet.svg',
+                      isSelected: true,
+                      onTap: () => widget.onPaymentModeSelected('wallet'),
+                      context: context,
+                      textStyle: bodyLargeBlack,
+                    ),
                   ),
-                ),
-              ],
-            ),
-          ),
-          widget.customer.isProxyNumber! ? SizedBox(height: 20) : Spacer(),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: SizedBox(
-              width: double.infinity,
-              height: 60,
-              child: ElevatedButton(
-                onPressed: state.isReturningOrders
-                    ? null
-                    : () {
-                        if (_formKey.currentState!=null && _formKey.currentState!.validate()) {
-                          final data = state.orderItemsData
-                              .copyWith(
-                                orderLines: state.orderItemsData.orderLines!
-                                    .where((order) => order.isSelected)
-                                    .toList(),
-                              )
-                              .toReturnPostReqJSON();
-                          print("hurray: ${jsonEncode(data)}");
-
-                          context.read<ReturnsBloc>().add(ProceedToReturnItems(
-                                  state.orderItemsData.copyWith(
-                                orderLines: state.orderItemsData.orderLines!
-                                    .where((order) => order.isSelected)
-                                    .toList(),
-                              )));
-                        }
-                      },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: CustomColors.secondaryColor,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-                child: state.isReturningOrders
-                    ? SizedBox(
-                        height: 25,
-                        width: 25,
-                        child: CircularProgressIndicator(),
-                      )
-                    : Text('Complete Return', style: bodyLargeBlack),
+                ],
               ),
             ),
-          ),
-        ],
+            // widget.customer.isProxyNumber! ? SizedBox(height: 20) : Spacer(),
+            // Padding(
+            //   padding: const EdgeInsets.symmetric(horizontal: 20),
+            //   child: SizedBox(
+            //     width: double.infinity,
+            //     height: 60,
+            //     child: ElevatedButton(
+            //       onPressed: state.isReturningOrders
+            //           ? null
+            //           : () {
+            //               if (_formKey.currentState != null &&
+            //                   _formKey.currentState!.validate()) {
+            //                 context.read<ReturnsBloc>().add(
+            //                         ProceedToReturnItems(
+            //                             state.orderItemsData.copyWith(
+            //                       orderLines: state.orderItemsData.orderLines!
+            //                           .where((order) => order.isSelected)
+            //                           .toList(),
+            //                     )));
+            //               }
+            //             },
+            //       style: ElevatedButton.styleFrom(
+            //         backgroundColor: CustomColors.secondaryColor,
+            //         shape: RoundedRectangleBorder(
+            //           borderRadius: BorderRadius.circular(10),
+            //         ),
+            //       ),
+            //       child: state.isReturningOrders
+            //           ? SizedBox(
+            //               height: 25,
+            //               width: 25,
+            //               child: CircularProgressIndicator(),
+            //             )
+            //           : Text('Complete Return', style: bodyLargeBlack),
+            //     ),
+            //   ),
+            // ),
+            widget.customer.isProxyNumber! ? SizedBox(height: 20) : Spacer(),
+            Padding(
+              padding: EdgeInsets.only(
+                right: 20,
+                left: 20,
+                bottom: !widget.customer.isProxyNumber! ? 25 : 0,
+              ),
+              child: SizedBox(
+                width: double.infinity,
+                height: 60,
+                child: ElevatedButton(
+                  onPressed: !state.isReturningOrders
+                      ? () {
+                          if (_formKey.currentState != null &&
+                              _formKey.currentState!.validate()) {
+                            var orderData = state.orderItemsData;
+
+                            if (orderData.customer!.isProxyNumber!) {
+                              orderData = orderData.copyWith(
+                                customer: orderData.customer!.copyWith(
+                                  customerName: _controllerCustomerName.text,
+                                  phoneNumber:
+                                      orderData.customer!.phoneNumber!.copyWith(
+                                    number: _controllerPhoneNumber.text,
+                                  ),
+                                ),
+                              );
+                            }
+
+                            final selectedOrders = orderData.copyWith(
+                              orderLines: orderData.orderLines!
+                                  .where((order) => order.isSelected)
+                                  .toList(),
+                            );
+
+                            context.read<ReturnsBloc>().add(
+                                  ProceedToReturnItems(selectedOrders),
+                                );
+                          }
+                        }
+                      : null,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: CustomColors.secondaryColor,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  child: state.isReturningOrders
+                      ? SizedBox(
+                          height: 25,
+                          width: 25,
+                          child: CircularProgressIndicator(),
+                        )
+                      : Text('Complete Return', style: bodyLargeBlack),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -1,5 +1,6 @@
 import 'package:ebono_pos/ui/returns/models/customer_order_model.dart';
 import 'package:ebono_pos/ui/returns/models/order_items_model.dart';
+import 'package:ebono_pos/ui/returns/models/refund_success_model.dart';
 import 'package:ebono_pos/ui/returns/repository/returns_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -33,20 +34,19 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
         orderItemsData: event.orderItemsModel,
       ));
 
-      await Future.delayed(Duration(seconds: 10));
-
-      // Should make an actual API call through repository here
-      // For example:
-      // await returnsRepository.submitReturnItems(state.orderItemsData);
+      final response = await returnsRepository.proceedToReturnItems(
+        refundItems: event.orderItemsModel,
+      );
 
       emit(state.updateSelectedParameters(
         isOrderReturnedSuccessfully: true,
+        refundSuccessModel: response,
       ));
     } catch (e) {
       emit(state.updateSelectedParameters(
         isError: true,
         errorMessage: e.toString(),
-        isReturningOrders: false,
+        orderItemsData: event.orderItemsModel,
       ));
     }
   }
@@ -140,10 +140,12 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
         isProceedBtnEnabled: isBtnEnabled,
       ));
     } catch (e) {
-      emit(state.updateSelectedParameters(
-        isError: true,
-        errorMessage: e.toString(),
-      ));
+      emit(
+        state.updateSelectedParameters(
+          isError: true,
+          errorMessage: e.toString(),
+        ),
+      );
     }
   }
 }
