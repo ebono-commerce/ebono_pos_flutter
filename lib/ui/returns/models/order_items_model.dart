@@ -2,10 +2,18 @@ import 'package:ebono_pos/ui/returns/models/customer_order_model.dart';
 
 class OrderItemsModel {
   final String? orderNumber;
+  final String? deliveryGroupId;
   final Customer? customer;
   final List<OrderLine>? orderLines;
+  final List<String> refundModes;
 
-  const OrderItemsModel({this.orderNumber, this.orderLines, this.customer});
+  const OrderItemsModel({
+    this.orderNumber,
+    this.orderLines,
+    this.customer,
+    this.deliveryGroupId,
+    this.refundModes = const <String>[],
+  });
 
   Map<String, dynamic> toJSON() {
     return {
@@ -17,21 +25,48 @@ class OrderItemsModel {
     };
   }
 
+  Map<String, dynamic> toReturnPostReqJSON() {
+    return {
+      "order_number": orderNumber,
+      "delivery_group_id": deliveryGroupId,
+      "customer": customer?.toReturnPostReqJSON(),
+      "order_lines": orderLines == null
+          ? []
+          : List<dynamic>.from(orderLines!.map((x) => x.toReturnPostJSON())),
+      "refund_mode": "WALLET",
+    };
+  }
+
   factory OrderItemsModel.fromJSON(Map<String, dynamic> map) {
     return OrderItemsModel(
       orderNumber: map["order_number"],
+      deliveryGroupId: map["delivery_group_id"] ?? 'NA',
       customer:
           map['customer'] != null ? Customer.fromJSON(map['customer']) : null,
       orderLines: map["order_lines"] == null
           ? []
           : List<OrderLine>.from(
               map["order_lines"].map((x) => OrderLine.fromJSON(x))),
+      refundModes: List<String>.from(map['return_modes'] ?? []),
+    );
+  }
+
+  OrderItemsModel copyWith({
+    String? orderNumber,
+    Customer? customer,
+    String? deliveryGroupId,
+    List<OrderLine>? orderLines,
+  }) {
+    return OrderItemsModel(
+      orderNumber: orderNumber ?? this.orderNumber,
+      deliveryGroupId: deliveryGroupId ?? this.deliveryGroupId,
+      customer: customer ?? this.customer,
+      orderLines: orderLines ?? this.orderLines,
     );
   }
 }
 
 class OrderLine {
-  final String? deliveryGroupId;
   final String? orderLineId;
   final dynamic parentLineId;
   final Item? item;
@@ -39,11 +74,10 @@ class OrderLine {
   final Quantity? orderQuantity;
   final Quantity? returnableQuantity;
   final bool isSelected;
-  final String reason;
+  final String? returnReason;
   final String returningQuantity;
 
   const OrderLine({
-    this.deliveryGroupId,
     this.orderLineId,
     this.parentLineId,
     this.item,
@@ -51,28 +85,39 @@ class OrderLine {
     this.orderQuantity,
     this.returnableQuantity,
     this.isSelected = false,
-    this.reason = '',
-    this.returningQuantity = '',
+    this.returnReason,
+    this.returningQuantity = '1',
   });
 
   Map<String, dynamic> toJSON() {
     return {
-      "delivery_group_id": deliveryGroupId,
       "order_line_id": orderLineId,
       "parent_line_id": parentLineId,
       "item": item?.toJSON(),
+      "isSelected": isSelected,
       "is_free_product_promotion": isFreeProductPromotion,
       "order_quantity": orderQuantity?.toJSON(),
       "returnable_quantity": returnableQuantity?.toJSON(),
     };
   }
 
+  Map<String, dynamic> toReturnPostJSON() {
+    return {
+      "order_line_id": orderLineId,
+      "returnable_quantity": {
+        'quantity_number': returningQuantity,
+        'quantity_uom': returnableQuantity!.quantityUom,
+      },
+      "return_reason": returnReason,
+    };
+  }
+
   factory OrderLine.fromJSON(Map<String, dynamic> map) {
     return OrderLine(
-      deliveryGroupId: map["delivery_group_id"],
       orderLineId: map["order_line_id"],
       parentLineId: map["parent_line_id"],
       isSelected: false,
+      returnReason: '',
       item: map["item"] == null ? null : Item.fromJSON(map["item"]),
       isFreeProductPromotion: map["is_free_product_promotion"],
       orderQuantity: map["order_quantity"] == null
@@ -85,7 +130,6 @@ class OrderLine {
   }
 
   OrderLine copyWith({
-    String? deliveryGroupId,
     String? orderLineId,
     dynamic parentLineId,
     Item? item,
@@ -93,11 +137,10 @@ class OrderLine {
     Quantity? orderQuantity,
     Quantity? returnableQuantity,
     bool? isSelected,
-    String? reason,
+    String? returnReason,
     String? returningQuantity,
   }) {
     return OrderLine(
-      deliveryGroupId: deliveryGroupId ?? this.deliveryGroupId,
       orderLineId: orderLineId ?? this.orderLineId,
       parentLineId: parentLineId ?? this.parentLineId,
       item: item ?? this.item,
@@ -106,7 +149,7 @@ class OrderLine {
       orderQuantity: orderQuantity ?? this.orderQuantity,
       returnableQuantity: returnableQuantity ?? this.returnableQuantity,
       isSelected: isSelected ?? this.isSelected,
-      reason: reason ?? this.reason,
+      returnReason: returnReason ?? this.returnReason,
       returningQuantity: returningQuantity ?? this.returningQuantity,
     );
   }

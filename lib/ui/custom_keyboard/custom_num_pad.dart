@@ -49,7 +49,7 @@ class _CustomNumPadState extends State<CustomNumPad> {
       widget.focusNode.requestFocus();
     }
     widget.textController.clear();
-    widget.onClearAll!(widget.textController.text);
+    widget.onClearAll?.call(widget.textController.text);
   }
 
   void _handleValueChanged() {

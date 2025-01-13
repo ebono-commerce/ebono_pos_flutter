@@ -10,14 +10,51 @@ final class FetchCustomerOrdersData extends ReturnsEvent {
 }
 
 final class FetchOrderDataBasedOnOrderId extends ReturnsEvent {
-  FetchOrderDataBasedOnOrderId({required this.orderId});
+  FetchOrderDataBasedOnOrderId({
+    required this.orderId,
+    this.isRetrivingOrderItems = false,
+    this.customerOrderDetailsList = const [],
+  });
 
   final String orderId;
+  final bool isRetrivingOrderItems;
+  final List<CustomerOrderDetails> customerOrderDetailsList;
 }
 
 final class UpdateSelectedItem extends ReturnsEvent {
-  UpdateSelectedItem({required this.id, required this.orderItems});
+  UpdateSelectedItem({
+    required this.id,
+    required this.orderItems,
+    this.reason = '',
+  });
 
   final String id;
+  final String reason;
   final OrderItemsModel orderItems;
+}
+
+final class UpdateCustomerData extends ReturnsEvent {
+  UpdateCustomerData(this.customerName, this.customerNumber, this.orderItems);
+
+  final String customerName;
+  final String customerNumber;
+  final OrderItemsModel orderItems;
+}
+
+final class UpdateReturnReasonBasedOnId extends ReturnsEvent {
+  UpdateReturnReasonBasedOnId({
+    required this.id,
+    required this.reason,
+    required this.orderItems,
+  });
+
+  final String id;
+  final String reason;
+  final OrderItemsModel orderItems;
+}
+
+final class ProceedToReturnItems extends ReturnsEvent {
+  ProceedToReturnItems(this.orderItemsModel);
+
+  final OrderItemsModel orderItemsModel;
 }

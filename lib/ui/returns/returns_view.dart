@@ -1,20 +1,20 @@
-import 'package:ebono_pos/constants/custom_colors.dart';
-import 'package:ebono_pos/ui/home/widgets/quick_action_buttons.dart';
-import 'package:ebono_pos/ui/returns/bloc/returns_bloc.dart';
-import 'package:ebono_pos/ui/returns/data/customer_table_data.dart';
-import 'package:ebono_pos/ui/returns/data/order_items_table_data.dart';
 import 'package:ebono_pos/ui/returns/data/returns_confirmation_table_data.dart';
-import 'package:ebono_pos/ui/returns/models/customer_order_model.dart';
-import 'package:ebono_pos/ui/returns/models/order_items_model.dart';
-import 'package:ebono_pos/ui/returns/repository/returns_repository.dart';
 import 'package:ebono_pos/ui/returns/widgets/summary_payment_section.dart';
-import 'package:ebono_pos/widgets/custom_table/custom_table_widget.dart';
-import 'package:ebono_pos/widgets/num_pad_widget.dart';
-import 'package:ebono_pos/widgets/order_details_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
+
+import 'package:ebono_pos/constants/custom_colors.dart';
+import 'package:ebono_pos/ui/custom_keyboard/custom_num_pad.dart';
+import 'package:ebono_pos/ui/home/widgets/quick_action_buttons.dart';
+import 'package:ebono_pos/ui/returns/bloc/returns_bloc.dart';
+import 'package:ebono_pos/ui/returns/data/customer_table_data.dart';
+import 'package:ebono_pos/ui/returns/data/order_items_table_data.dart';
+import 'package:ebono_pos/ui/returns/models/customer_order_model.dart';
+import 'package:ebono_pos/utils/dash_line.dart';
+import 'package:ebono_pos/widgets/custom_table/custom_table_widget.dart';
+import 'package:ebono_pos/widgets/order_details_widget.dart';
 
 class ReturnsView extends StatefulWidget {
   const ReturnsView({super.key});
@@ -24,20 +24,20 @@ class ReturnsView extends StatefulWidget {
 }
 
 class _ReturnsViewState extends State<ReturnsView> {
-  final returnsBloc = Get.put(ReturnsBloc(Get.find<ReturnsRepository>()));
+  late ReturnsBloc returnsBloc;
 
-  final TextEditingController customerNumberTextController =
-      TextEditingController();
-  final TextEditingController orderNumberTextController =
-      TextEditingController();
-  final TextEditingController numPadTextController = TextEditingController();
+  late TextEditingController customerNumberTextController;
+  late TextEditingController orderNumberTextController;
+  late TextEditingController numPadTextController;
 
   /* Num Pad */
-  final FocusNode customerFocusNode = FocusNode();
+  final FocusNode customerNameFocusNode = FocusNode();
   final FocusNode orderNumberFocusNode = FocusNode();
   FocusNode? activeFocusNode;
+
   final _formKey = GlobalKey<FormState>();
 
+  /* State Management */
   bool isCustomerOrdersFetched = false;
   bool isOrderItemsFetched = false;
   bool triggerProccedToPayDialog = false;
@@ -49,35 +49,31 @@ class _ReturnsViewState extends State<ReturnsView> {
   late OrderItemsTableData _orderItemsTableData;
   late ReturnsConfirmationTableData _returnsConfirmationTableData;
 
-  void onClickSearchOrders() {
-    if (!mounted) return;
-    if (_formKey.currentState!.validate()) {
-      if (customerNumberTextController.text.isNotEmpty) {
-        returnsBloc.add(
-          FetchCustomerOrdersData(customerNumberTextController.text),
-        );
-      }
-      if (orderNumberTextController.text.isNotEmpty) {
-        returnsBloc.add(
-          FetchOrderDataBasedOnOrderId(orderId: orderNumberTextController.text),
-        );
-      }
-    }
-  }
+  String customerName = '';
+  String walletBalance = '';
+  String phoneNumber = '';
+  String loyaltyPoints = '';
+  String title = '';
 
   @override
   void initState() {
+    customerNumberTextController = TextEditingController();
+    orderNumberTextController = TextEditingController();
+    numPadTextController = TextEditingController();
+
+    // returnsBloc = Get.put(ReturnsBloc(Get.find<ReturnsRepository>()));
+    returnsBloc = Get.find<ReturnsBloc>();
     _customerTableData = CustomerTableData(context: context);
     _orderItemsTableData = OrderItemsTableData(context: context);
     _returnsConfirmationTableData =
         ReturnsConfirmationTableData(context: context);
 
-    activeFocusNode = customerFocusNode;
+    activeFocusNode = customerNameFocusNode;
 
-    customerFocusNode.addListener(() {
+    customerNameFocusNode.addListener(() {
       setState(() {
-        if (customerFocusNode.hasFocus) {
-          activeFocusNode = customerFocusNode;
+        if (customerNameFocusNode.hasFocus) {
+          activeFocusNode = customerNameFocusNode;
         }
         numPadTextController.text = customerNumberTextController.text;
       });
@@ -88,11 +84,41 @@ class _ReturnsViewState extends State<ReturnsView> {
         if (orderNumberFocusNode.hasFocus) {
           activeFocusNode = orderNumberFocusNode;
         }
-        numPadTextController.text = orderNumberTextController.text;
+
+        orderNumberTextController.text = numPadTextController.text;
       });
     });
 
+    numPadTextController.addListener(() {
+      if (activeFocusNode == customerNameFocusNode) {
+        customerNumberTextController.text = numPadTextController.text;
+      } else if (activeFocusNode == orderNumberFocusNode) {
+        orderNumberTextController.text = numPadTextController.text;
+      }
+    });
+
+    print("inistate");
+
     super.initState();
+  }
+
+  void onClickSearchOrders() {
+    if (!context.mounted) return;
+
+    bool hasCustomerNumber =
+        customerNumberTextController.text.trim().isNotEmpty;
+
+    if (_formKey.currentState!.validate()) {
+      if (hasCustomerNumber) {
+        returnsBloc.add(
+          FetchCustomerOrdersData(customerNumberTextController.text),
+        );
+      } else {
+        returnsBloc.add(
+          FetchOrderDataBasedOnOrderId(orderId: orderNumberTextController.text),
+        );
+      }
+    }
   }
 
   @override
@@ -103,15 +129,24 @@ class _ReturnsViewState extends State<ReturnsView> {
   }
 
   @override
+  void didChangeDependencies() {
+    print("called");
+    super.didChangeDependencies();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: BlocProvider(
         create: (context) => returnsBloc,
         child: BlocConsumer<ReturnsBloc, ReturnsState>(
+          bloc: returnsBloc,
           listener: (context, state) {
             if (state.isCustomerOrdersDataFetched) {
               isCustomerOrdersFetched = true;
               isOrderItemsFetched = false;
+              customerNumberTextController.clear();
+              numPadTextController.clear();
               _customerDetails = state.customerOrdersList.isNotEmpty
                   ? state.customerOrdersList.first.customer ?? Customer()
                   : Customer();
@@ -120,6 +155,8 @@ class _ReturnsViewState extends State<ReturnsView> {
             if (state.isOrderItemsFetched) {
               isOrderItemsFetched = true;
               isCustomerOrdersFetched = false;
+              orderNumberTextController.clear();
+              numPadTextController.clear();
               _customerDetails = state.orderItemsData.customer ?? Customer();
               setState(() {});
             }
@@ -179,6 +216,9 @@ class _ReturnsViewState extends State<ReturnsView> {
                                     returnsBloc.add(
                                       FetchOrderDataBasedOnOrderId(
                                         orderId: orderId!,
+                                        isRetrivingOrderItems: true,
+                                        customerOrderDetailsList:
+                                            state.customerOrdersList,
                                       ),
                                     );
                                   },
@@ -201,6 +241,8 @@ class _ReturnsViewState extends State<ReturnsView> {
                                     _orderItemsTableData.buildTableRows(
                                   orderItemsData: state.orderItemsData,
                                   onTapSelectedButton: (id) {
+                                    print(
+                                        "DID: ${state.orderItemsData.deliveryGroupId}");
                                     returnsBloc.add(UpdateSelectedItem(
                                       id: id!,
                                       orderItems: state.orderItemsData,
@@ -216,59 +258,14 @@ class _ReturnsViewState extends State<ReturnsView> {
                               ),
                             ),
                           if (!isCustomerOrdersFetched && !isOrderItemsFetched)
-                            _buildFormUI(context, state.isLoading),
+                            _buildFormUI(state.isLoading),
                         ],
                       ),
                     ),
                   ),
 
                   /* SECTION - 2 */
-
-                  Expanded(
-                    flex: 2,
-                    child: NumPadWidget(
-                      skuPrice: '',
-                      skuQty: '',
-                      skuQtyUom: '',
-                      skuTitle: '',
-                      skuUrl: '',
-                      numPadFocusNode: activeFocusNode!,
-                      numPadTextEditingController: numPadTextController,
-                      onNumPadClearAll: (p0) {},
-                      onNumPadEnterPressed: (p0) {},
-                      onNumPadValueChanged: (value) {
-                        if (activeFocusNode == customerFocusNode) {}
-                      },
-                      onTextFormFieldValueChanged: (value) {
-                        print("chk2: $value");
-                      },
-                      onProceedToPayClicked: () {
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return Dialog(
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(20.0),
-                                ),
-                                child: SummaryPaymentSection(
-                                  totalRefund: 1235,
-                                  loyaltyPoints: 5,
-                                  walletAmount: 30,
-                                  mopAmount: 1200,
-                                  customerTableData: _customerTableData,
-                                  returnsConfirmationTableData:
-                                      _returnsConfirmationTableData,
-                                  onPaymentModeSelected: (String mode) {
-                                    // Handle payment mode selection
-                                  },
-                                ));
-                          },
-                        );
-                      },
-                      textFieldFocusNode: activeFocusNode!,
-                      textFieldTextEditingController: numPadTextController,
-                    ),
-                  ),
+                  Expanded(flex: 2, child: numpadSection(state)),
 
                   /* SECTION - 3 */
                   Expanded(
@@ -281,6 +278,7 @@ class _ReturnsViewState extends State<ReturnsView> {
                                   orderNumberTextController.clear();
                                   isCustomerOrdersFetched = false;
                                   isOrderItemsFetched = false;
+                                  _customerDetails = const Customer();
                                   setState(() {});
                                 }
                               : null,
@@ -296,7 +294,7 @@ class _ReturnsViewState extends State<ReturnsView> {
     );
   }
 
-  Widget _buildFormUI(BuildContext context, bool isLoading) {
+  Widget _buildFormUI(bool isLoading) {
     return Expanded(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -324,21 +322,19 @@ class _ReturnsViewState extends State<ReturnsView> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   TextFormField(
+                    // focusNode: customerNameFocusNode,
                     controller: customerNumberTextController,
                     decoration: _buildInputDecoration(
                       label: "Enter Customer Mobile Number",
                     ),
                     maxLength: 10,
                     validator: (value) {
-                      if (value == null ||
-                          (value.isEmpty &&
-                              (orderNumberTextController.text
-                                  .trim()
-                                  .isEmpty))) {
+                      if ((value == null || value.isEmpty) &&
+                          orderNumberTextController.text.isEmpty) {
                         return 'Please enter a phone number';
-                      }
-                      if (value.length != 10 &&
-                          orderNumberTextController.text.trim().isEmpty) {
+                      } else if (value!.length != 10 &&
+                          customerNumberTextController.text.trim().isEmpty &&
+                          orderNumberTextController.text.isEmpty) {
                         return 'Phone number must be 10 digits';
                       }
                       return null;
@@ -350,16 +346,14 @@ class _ReturnsViewState extends State<ReturnsView> {
                   const ORWidget(),
                   const SizedBox(height: 20),
                   TextFormField(
+                    // focusNode: orderNumberFocusNode,
                     controller: orderNumberTextController,
                     decoration: _buildInputDecoration(
                       label: "Enter Order Number",
                     ),
                     validator: (value) {
-                      if (value == null ||
-                          (value.isEmpty &&
-                              customerNumberTextController.text
-                                  .trim()
-                                  .isEmpty)) {
+                      if ((value == null || value.isEmpty) &&
+                          customerNumberTextController.text.isEmpty) {
                         return 'Please enter order number';
                       }
                       return null;
@@ -408,6 +402,288 @@ class _ReturnsViewState extends State<ReturnsView> {
       ),
     );
   }
+
+  // Widget _buildNumberPadSection() {
+  //   return Padding(
+  //     padding: const EdgeInsets.symmetric(vertical: 5),
+  //     child: Column(
+  //       mainAxisSize: MainAxisSize.min,
+  //       mainAxisAlignment: MainAxisAlignment.spaceAround,
+  //       crossAxisAlignment: CrossAxisAlignment.center,
+  //       children: [
+  //         Padding(
+  //           padding: const EdgeInsets.all(10.0),
+  //           child: Container(
+  //             decoration: BoxDecoration(
+  //               color: Colors.white,
+  //               border: Border.all(color: Colors.grey),
+  //               borderRadius: BorderRadius.only(
+  //                 topLeft: Radius.circular(10),
+  //                 topRight: Radius.circular(10),
+  //                 bottomLeft: Radius.circular(10),
+  //                 bottomRight: Radius.circular(10),
+  //               ),
+  //               // borderRadius: BorderRadius.circular(
+  //               //     10),
+  //               shape: BoxShape.rectangle,
+  //             ),
+  //             child: Column(
+  //               children: [
+  //                 Container(
+  //                   padding: const EdgeInsets.all(10.0),
+  //                   child: Row(
+  //                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //                     crossAxisAlignment: CrossAxisAlignment.center,
+  //                     children: [
+  //                       Expanded(
+  //                         flex: 2,
+  //                         child: Column(
+  //                           mainAxisAlignment: MainAxisAlignment.start,
+  //                           crossAxisAlignment: CrossAxisAlignment.start,
+  //                           children: [
+  //                             Container(
+  //                               padding: EdgeInsets.only(right: 2),
+  //                               child: Text(" - ",
+  //                                   maxLines: 2,
+  //                                   softWrap: true,
+  //                                   overflow: TextOverflow.ellipsis,
+  //                                   style: TextStyle(
+  //                                       overflow: TextOverflow.ellipsis,
+  //                                       color: Colors.black,
+  //                                       fontSize: 14,
+  //                                       fontWeight: FontWeight.bold)),
+  //                             ),
+  //                             SizedBox(height: 5),
+  //                             RichText(
+  //                               text: TextSpan(
+  //                                 children: <TextSpan>[
+  //                                   TextSpan(
+  //                                     text: 'QTY:',
+  //                                     style: TextStyle(
+  //                                         color: Colors.black87,
+  //                                         fontSize: 12,
+  //                                         fontWeight: FontWeight.w400),
+  //                                   ),
+  //                                   TextSpan(
+  //                                     text: " - ",
+  //                                     style: TextStyle(
+  //                                         color: Colors.black,
+  //                                         fontSize: 13,
+  //                                         fontWeight: FontWeight.normal),
+  //                                   ),
+  //                                 ],
+  //                               ),
+  //                             ),
+  //                             SizedBox(height: 5),
+  //                             RichText(
+  //                               text: TextSpan(
+  //                                 children: <TextSpan>[
+  //                                   TextSpan(
+  //                                     text: 'Price:',
+  //                                     style: TextStyle(
+  //                                         color: Colors.black87,
+  //                                         fontSize: 12,
+  //                                         fontWeight: FontWeight.w400),
+  //                                   ),
+  //                                   TextSpan(
+  //                                     text: ' - ',
+  //                                     style: TextStyle(
+  //                                         color: Colors.black,
+  //                                         fontSize: 14,
+  //                                         fontWeight: FontWeight.bold),
+  //                                   ),
+  //                                 ],
+  //                               ),
+  //                             ),
+  //                           ],
+  //                         ),
+  //                       ),
+  //                       Container(
+  //                         padding: EdgeInsets.all(4),
+  //                         decoration: BoxDecoration(
+  //                           color: Colors.white,
+  //                           border: Border.all(color: Colors.grey.shade300),
+  //                           borderRadius: BorderRadius.circular(10),
+  //                           shape: BoxShape.rectangle,
+  //                         ),
+  //                         child: Image.network(
+  //                           '',
+  //                           cacheHeight: 50,
+  //                           cacheWidth: 50,
+  //                           errorBuilder: (BuildContext context, Object error,
+  //                               StackTrace? stackTrace) {
+  //                             return Center(
+  //                               child: Container(
+  //                                 height: 50,
+  //                                 width: 50,
+  //                                 color: CustomColors.cardBackground,
+  //                               ),
+  //                             );
+  //                           },
+  //                         ),
+  //                       )
+  //                     ],
+  //                   ),
+  //                 ),
+  //                 Padding(
+  //                   padding:
+  //                       const EdgeInsets.only(bottom: 10, left: 10, right: 10),
+  //                   child: DashedLine(
+  //                     height: 0.4,
+  //                     dashWidth: 4,
+  //                     color: Colors.grey,
+  //                   ),
+  //                 ),
+  //                 Column(
+  //                   mainAxisAlignment: MainAxisAlignment.center,
+  //                   crossAxisAlignment: CrossAxisAlignment.center,
+  //                   children: [
+  //                     Padding(
+  //                       padding: const EdgeInsets.symmetric(horizontal: 8.0),
+  //                       child: commonTextField(
+  //                         label: ' Enter Code, Quantity ',
+  //                         readOnly: true,
+  //                         focusNode: activeFocusNode ?? FocusNode(),
+  //                         controller: numPadTextController,
+  //                       ),
+  //                     ),
+  //                     CustomNumPad(
+  //                       focusNode: activeFocusNode!,
+  //                       textController: numPadTextController,
+  //                       onValueChanged: (value) {
+  //                         if (activeFocusNode == customerNameFocusNode) {
+  //                           customerNumberTextController.text = value;
+  //                         }
+  //                         if (activeFocusNode == orderNumberFocusNode) {
+  //                           orderNumberTextController.text = value;
+  //                         }
+  //                       },
+  //                       onEnterPressed: (value) {
+  //                         if (activeFocusNode == customerNameFocusNode) {
+  //                           customerNameFocusNode.unfocus();
+  //                         }
+  //                         if (activeFocusNode == orderNumberFocusNode) {
+  //                           orderNumberFocusNode.unfocus();
+  //                         }
+  //                       },
+  //                     )
+  //                   ],
+  //                 ),
+  //                 SizedBox(height: 10)
+  //               ],
+  //             ),
+  //           ),
+  //         ),
+  //         Spacer(),
+  //         Padding(
+  //           padding: const EdgeInsets.all(10.0),
+  //           child: Container(
+  //               width: double.infinity,
+  //               decoration: BoxDecoration(
+  //                 color: Colors.white,
+  //                 border: Border.all(color: Colors.grey),
+  //                 borderRadius: BorderRadius.only(
+  //                   topLeft: Radius.circular(10),
+  //                   topRight: Radius.circular(10),
+  //                   bottomLeft: Radius.circular(10),
+  //                   bottomRight: Radius.circular(10),
+  //                 ),
+  //                 // borderRadius: BorderRadius.circular(
+  //                 //     10),
+  //                 shape: BoxShape.rectangle,
+  //               ),
+  //               child: Column(
+  //                 children: [
+  //                   Container(
+  //                     padding: EdgeInsets.only(
+  //                         left: 10, right: 10, top: 5, bottom: 10),
+  //                     child: Row(
+  //                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //                       crossAxisAlignment: CrossAxisAlignment.center,
+  //                       children: [
+  //                         Column(
+  //                           mainAxisAlignment: MainAxisAlignment.start,
+  //                           crossAxisAlignment: CrossAxisAlignment.start,
+  //                           children: [
+  //                             Text(
+  //                               'Total Items',
+  //                               style: TextStyle(
+  //                                   color: Colors.black,
+  //                                   fontSize: 16,
+  //                                   fontWeight: FontWeight.w500),
+  //                             ),
+  //                             Text(
+  //                               '-',
+  //                               style: TextStyle(
+  //                                   color: Colors.black87,
+  //                                   fontSize: 16,
+  //                                   fontWeight: FontWeight.w600),
+  //                             ),
+  //                           ],
+  //                         ),
+  //                         Column(
+  //                           mainAxisAlignment: MainAxisAlignment.start,
+  //                           crossAxisAlignment: CrossAxisAlignment.start,
+  //                           children: [
+  //                             Text(
+  //                               'Total Savings',
+  //                               style: TextStyle(
+  //                                   color: Colors.black,
+  //                                   fontSize: 16,
+  //                                   fontWeight: FontWeight.w500),
+  //                             ),
+  //                             Text(
+  //                               "-",
+  //                               style: TextStyle(
+  //                                   color: Colors.black87,
+  //                                   fontSize: 16,
+  //                                   fontWeight: FontWeight.w600),
+  //                             ),
+  //                           ],
+  //                         ),
+  //                       ],
+  //                     ),
+  //                   ),
+  //                   Container(
+  //                     width: double.infinity,
+  //                     padding: EdgeInsets.only(
+  //                         left: 4, right: 4, top: 10, bottom: 4),
+  //                     child: ElevatedButton(
+  //                       onPressed: () {},
+  //                       style: ElevatedButton.styleFrom(
+  //                           elevation: 1,
+  //                           padding: EdgeInsets.symmetric(
+  //                               horizontal: 1, vertical: 10),
+  //                           shape: RoundedRectangleBorder(
+  //                             side: BorderSide.none,
+  //                             borderRadius: BorderRadius.circular(10),
+  //                           ),
+  //                           backgroundColor: CustomColors.cardBackground),
+  //                       child: SizedBox(
+  //                         height: 56,
+  //                         child: Column(
+  //                           mainAxisAlignment: MainAxisAlignment.center,
+  //                           crossAxisAlignment: CrossAxisAlignment.center,
+  //                           children: [
+  //                             Text(
+  //                               "Proceed",
+  //                               style: TextStyle(
+  //                                   color: Colors.black,
+  //                                   fontSize: 26,
+  //                                   fontWeight: FontWeight.bold),
+  //                             ),
+  //                           ],
+  //                         ),
+  //                       ),
+  //                     ),
+  //                   )
+  //                 ],
+  //               )),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 
   // Widget _returnConfirmationDialog(BuildContext context) {
   //   return SizedBox(
@@ -475,6 +751,8 @@ class _ReturnsViewState extends State<ReturnsView> {
   //                   loyaltyPoints: 5,
   //                   walletAmount: 30,
   //                   mopAmount: 1200,
+  //                   customerTableData: _customerTableData,
+  //                   returnsConfirmationTableData: _returnsConfirmationTableData,
   //                   onPaymentModeSelected: (String mode) {
   //                     // Handle payment mode selection
   //                   },
@@ -496,6 +774,226 @@ class _ReturnsViewState extends State<ReturnsView> {
   //     ),
   //   );
   // }
+
+  Widget numpadSection(ReturnsState state) {
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+      child: Column(
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              border: Border.all(color: Colors.grey),
+              borderRadius: BorderRadius.all(
+                Radius.circular(10),
+              ),
+              shape: BoxShape.rectangle,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                ListTile(
+                  contentPadding:
+                      EdgeInsets.only(top: 10, bottom: 10, right: 15, left: 10),
+                  // trailing: SvgPicture.asset(
+                  //   'assets/images/ic_cash_inhand.svg',
+                  //   semanticsLabel: 'cash icon,',
+                  //   width: 40,
+                  //   height: 40,
+                  // ),
+                  title: Text(
+                    customerNameFocusNode.hasFocus
+                        ? 'Customer Name'
+                        : 'Order Id',
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleSmall
+                        ?.copyWith(fontWeight: FontWeight.bold),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(
+                      bottom: 10, left: 10, right: 10, top: 0),
+                  child: DashedLine(
+                    height: 0.4,
+                    dashWidth: 4,
+                    color: Colors.grey,
+                  ),
+                ),
+                Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 20.0),
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                      // color: Colors.grey.shade300,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(
+                        color: Colors.grey.shade300,
+                        width: 1,
+                      )),
+                  //padding: const EdgeInsets.all(8.0),
+                  child: Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: Text(
+                        numPadTextController.text,
+                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                            fontWeight: FontWeight.w500,
+                            color: CustomColors.black),
+                      )),
+                ),
+                CustomNumPad(
+                  focusNode: activeFocusNode!,
+                  textController: numPadTextController,
+                  onValueChanged: (value) {
+                    if (activeFocusNode == customerNameFocusNode) {
+                      customerNumberTextController.text = value;
+                    } else if (activeFocusNode == orderNumberFocusNode) {
+                      orderNumberTextController.text = value;
+                    }
+                  },
+                  onEnterPressed: (value) {
+                    if (activeFocusNode == customerNameFocusNode) {
+                      customerNameFocusNode.unfocus();
+                    } else if (activeFocusNode == orderNumberFocusNode) {
+                      orderNumberFocusNode.unfocus();
+                    }
+                  },
+                  onClearAll: (p0) {},
+                ),
+              ],
+            ),
+          ),
+          Spacer(),
+          buildProceedBtnUI(state),
+        ],
+      ),
+    );
+  }
+
+  Widget buildProceedBtnUI(ReturnsState state) {
+    return Padding(
+      padding: const EdgeInsets.all(10.0),
+      child: Container(
+        width: double.infinity,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          border: Border.all(color: Colors.grey),
+          borderRadius: BorderRadius.all(
+            Radius.circular(10),
+          ),
+          // borderRadius: BorderRadius.circular(
+          //     10),
+          shape: BoxShape.rectangle,
+        ),
+        child: Column(
+          children: [
+            Container(
+              padding: EdgeInsets.only(left: 10, right: 10, top: 5, bottom: 10),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Total Items',
+                        style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500),
+                      ),
+                      Text(
+                        '-',
+                        style: TextStyle(
+                            color: Colors.black87,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600),
+                      ),
+                    ],
+                  ),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Total Savings',
+                        style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500),
+                      ),
+                      Text(
+                        "--",
+                        style: TextStyle(
+                            color: Colors.black87,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              width: double.infinity,
+              padding: EdgeInsets.only(left: 4, right: 4, top: 10, bottom: 4),
+              child: ElevatedButton(
+                onPressed: state.isProceedBtnEnabled
+                    ? () {
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return Dialog(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20.0),
+                              ),
+                              child: SummaryPaymentSection(
+                                customer: _customerDetails,
+                                returnsConfirmationTableData:
+                                    _returnsConfirmationTableData,
+                                onPaymentModeSelected: (String mode) {
+                                  // Handle payment mode selection
+                                },
+                              ),
+                            );
+                          },
+                        );
+                      }
+                    : null,
+                style: ElevatedButton.styleFrom(
+                    elevation: 1,
+                    padding: EdgeInsets.symmetric(horizontal: 1, vertical: 10),
+                    shape: RoundedRectangleBorder(
+                      side: BorderSide.none,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    backgroundColor: CustomColors.secondaryColor),
+                child: SizedBox(
+                  height: 56,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        "Proceed",
+                        style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 26,
+                            fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            )
+          ],
+        ),
+      ),
+    );
+  }
 
   InputDecoration _buildInputDecoration({
     required String label,

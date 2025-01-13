@@ -1,32 +1,28 @@
+import 'dart:convert';
+
+import 'package:ebono_pos/ui/returns/bloc/returns_bloc.dart';
+import 'package:ebono_pos/ui/returns/models/customer_order_model.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 
 import 'package:ebono_pos/constants/custom_colors.dart';
 import 'package:ebono_pos/ui/custom_keyboard/custom_querty_pad.dart';
 import 'package:ebono_pos/ui/home/home_controller.dart';
-import 'package:ebono_pos/ui/returns/data/customer_table_data.dart';
 import 'package:ebono_pos/ui/returns/data/returns_confirmation_table_data.dart';
 import 'package:ebono_pos/utils/common_methods.dart';
 import 'package:ebono_pos/widgets/custom_table/custom_table_widget.dart';
 
 class SummaryPaymentSection extends StatefulWidget {
-  final double totalRefund;
-  final int loyaltyPoints;
-  final double walletAmount;
-  final double mopAmount;
+  final Customer customer;
   final ReturnsConfirmationTableData returnsConfirmationTableData;
-  final CustomerTableData customerTableData;
   final Function(String) onPaymentModeSelected;
 
   const SummaryPaymentSection({
     super.key,
-    required this.totalRefund,
-    required this.loyaltyPoints,
-    required this.walletAmount,
-    required this.mopAmount,
+    required this.customer,
     required this.onPaymentModeSelected,
-    required this.customerTableData,
     required this.returnsConfirmationTableData,
   });
 
@@ -35,6 +31,8 @@ class SummaryPaymentSection extends StatefulWidget {
 }
 
 class _SummaryPaymentSectionState extends State<SummaryPaymentSection> {
+  ReturnsBloc returnsBloc = Get.find<ReturnsBloc>();
+
   HomeController homeController = Get.find<HomeController>();
   final TextEditingController _controllerPhoneNumber = TextEditingController();
   final TextEditingController _controllerCustomerName = TextEditingController();
@@ -43,6 +41,8 @@ class _SummaryPaymentSectionState extends State<SummaryPaymentSection> {
   final FocusNode phoneNumberFocusNode = FocusNode();
   FocusNode? activeFocusNode;
   late ThemeData theme;
+
+  final _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
@@ -100,210 +100,305 @@ class _SummaryPaymentSectionState extends State<SummaryPaymentSection> {
       color: Colors.black,
     );
 
-    return SizedBox(
-      width: MediaQuery.sizeOf(context).width * 0.9,
-      height: MediaQuery.sizeOf(context).height * 0.88,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 20,
-          vertical: 25,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            /* HEADER */
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    "Return Confirmation",
-                    style: TextStyle(fontSize: 20),
-                  ),
-                  InkWell(
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
-                    child: SvgPicture.asset(
-                      'assets/images/ic_close.svg',
-                      semanticsLabel: 'cash icon,',
-                      width: 30,
-                      height: 30,
-                    ),
-                  ),
-                ],
+    return BlocProvider.value(
+      value: returnsBloc,
+      child: BlocBuilder<ReturnsBloc, ReturnsState>(
+        builder: (context, state) {
+          return SizedBox(
+            width: MediaQuery.sizeOf(context).width * 0.9,
+            height: MediaQuery.sizeOf(context).height * 0.88,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 20,
+                vertical: 25,
               ),
-            ),
-            const SizedBox(height: 20),
-            Expanded(
-              flex: 6, // height
-              child: Row(
-                children: [
-                  /* SECTION - 1 */
-                  Expanded(
-                    flex: 8, // width
-                    child: CustomTableWidget(
-                      headers: widget.returnsConfirmationTableData
-                          .buildReturnOrderItemsTableHeader(),
-                      tableRowsData:
-                          widget.returnsConfirmationTableData.buildTableRows(
-                        onTapSelectedButton: (id) {},
-                      ),
-                      columnWidths: {
-                        0: FlexColumnWidth(1.5),
-                        1: FlexColumnWidth(3),
-                        2: FlexColumnWidth(0.8),
-                        3: FlexColumnWidth(2.5),
-                      },
-                    ),
-                  ),
-
-                  /* SECTION - 2 */
-                  Expanded(
-                    flex: 4, // width
-                    child: Container(
-                      width: double.infinity,
-                      margin: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        // color: Colors.amber,
-                        border:
-                            Border.all(color: Colors.grey.shade300, width: 2),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 15,
-                              vertical: 15,
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Select Payment Mode',
-                                  style: bodyLargeBlack,
-                                ),
-                                const SizedBox(height: 10),
-                                Divider(
-                                  color: CustomColors.grey,
-                                  thickness: 1.5,
-                                ),
-                              ],
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 10),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                _buildTextField(
-                                  label: "Enter Customer Mobile Number",
-                                  controller: _controllerPhoneNumber,
-                                  focusNode: phoneNumberFocusNode,
-                                  onChanged: (value) =>
-                                      homeController.phoneNumber.value = value,
-                                  // suffixIcon: _buildSearchButton(),
-                                ),
-                                _buildTextField(
-                                  label: "Customer Name",
-                                  controller: _controllerCustomerName,
-                                  focusNode: customerNameFocusNode,
-                                  onChanged: (value) =>
-                                      homeController.customerName.value = value,
-                                  //readOnly: homeController.phoneNumber.isEmpty,
-                                  // suffixIcon: _buildSelectButton(),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(height: 20),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 20),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: _buildPaymentOption(
-                                    title: 'Cash',
-                                    path: 'assets/images/cash.svg',
-                                    isSelected: false,
-                                    onTap: () =>
-                                        widget.onPaymentModeSelected('cash'),
-                                    context: context,
-                                    textStyle: bodyLargeBlack!,
-                                  ),
-                                ),
-                                const SizedBox(width: 15),
-                                Expanded(
-                                  child: _buildPaymentOption(
-                                    title: 'Wallet',
-                                    path: 'assets/images/wallet.svg',
-                                    isSelected: true,
-                                    onTap: () =>
-                                        widget.onPaymentModeSelected('wallet'),
-                                    context: context,
-                                    textStyle: bodyLargeBlack,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(height: 20),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 20),
-                            child: SizedBox(
-                              width: double.infinity,
-                              height: 60,
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  // Handle complete return
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: CustomColors.secondaryColor,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                ),
-                                child: Text('Complete Return',
-                                    style: bodyLargeBlack),
+              child: state.isOrderReturnedSuccessfully
+                  ? SizedBox()
+                  : Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        /* HEADER */
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                "Confirm Return",
+                                style: TextStyle(fontSize: 20),
                               ),
-                            ),
+                              InkWell(
+                                onTap: () {
+                                  Navigator.pop(context);
+                                },
+                                child: SvgPicture.asset(
+                                  'assets/images/ic_close.svg',
+                                  semanticsLabel: 'cash icon,',
+                                  width: 30,
+                                  height: 30,
+                                ),
+                              ),
+                            ],
                           ),
-                          SizedBox(height: 20),
-                        ],
-                      ),
+                        ),
+                        const SizedBox(height: 20),
+                        Expanded(
+                          flex: 6, // height
+                          child: Row(
+                            children: [
+                              /* SECTION - 1 */
+                              Expanded(
+                                flex: 8, // width
+                                child: CustomTableWidget(
+                                  headers: widget.returnsConfirmationTableData
+                                      .buildReturnOrderItemsTableHeader(),
+                                  tableRowsData: widget
+                                      .returnsConfirmationTableData
+                                      .buildTableRows(
+                                    orderItemsData:
+                                        state.orderItemsData.copyWith(
+                                      orderLines: state
+                                              .orderItemsData.orderLines
+                                              ?.where(
+                                                  (order) => order.isSelected)
+                                              .toList() ??
+                                          [],
+                                    ),
+                                    onTapSelectedButton: (id) {},
+                                    onReasonSelected: (reason, orderLineId) {
+                                      context
+                                          .read<ReturnsBloc>()
+                                          .add(UpdateSelectedItem(
+                                            id: orderLineId,
+                                            reason: reason,
+                                            orderItems:
+                                                state.orderItemsData.copyWith(
+                                              orderLines: state
+                                                  .orderItemsData.orderLines!
+                                                  .where((order) =>
+                                                      order.isSelected)
+                                                  .toList(),
+                                            ),
+                                          ));
+                                    },
+                                  ),
+                                  columnWidths: {
+                                    0: FlexColumnWidth(1.5),
+                                    1: FlexColumnWidth(3),
+                                    2: FlexColumnWidth(0.8),
+                                    3: FlexColumnWidth(2.5),
+                                  },
+                                ),
+                              ),
+
+                              /* SECTION - 2 */
+                              Expanded(
+                                flex: 4, // width
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    /* when customer number is selected */
+                                    Expanded(
+                                      flex: 5,
+                                      child: _selectPaymentModeUI(
+                                          bodyLargeBlack, context, state),
+                                    ),
+                                    Visibility(
+                                      visible: !widget.customer.isProxyNumber!,
+                                      child:
+                                          Expanded(flex: 5, child: SizedBox()),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Visibility(
+                          visible: widget.customer.isProxyNumber!,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              CustomQwertyPad(
+                                textController: _qwertyPadController,
+                                focusNode: activeFocusNode!,
+                                onValueChanged: (value) {
+                                  if (activeFocusNode == phoneNumberFocusNode) {
+                                    homeController.phoneNumber.value = value;
+                                  } else if (activeFocusNode ==
+                                      customerNameFocusNode) {
+                                    homeController.customerName.value = value;
+                                  }
+                                },
+                                onEnterPressed: (value) {
+                                  if (activeFocusNode == phoneNumberFocusNode) {
+                                    customerNameFocusNode.requestFocus();
+                                  } else if (activeFocusNode ==
+                                      customerNameFocusNode) {
+                                    customerNameFocusNode.unfocus();
+                                  }
+                                },
+                              ),
+                            ],
+                          ),
+                        )
+                      ],
                     ),
-                  ),
-                ],
-              ),
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _selectPaymentModeUI(
+      TextStyle? bodyLargeBlack, BuildContext context, ReturnsState state) {
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        // color: Colors.amber,
+        border: Border.all(color: Colors.grey.shade300, width: 2),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(left: 15, top: 15, right: 15),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                CustomQwertyPad(
-                  textController: _qwertyPadController,
-                  focusNode: activeFocusNode!,
-                  onValueChanged: (value) {
-                    if (activeFocusNode == phoneNumberFocusNode) {
-                      homeController.phoneNumber.value = value;
-                    } else if (activeFocusNode == customerNameFocusNode) {
-                      homeController.customerName.value = value;
-                    }
-                  },
-                  onEnterPressed: (value) {
-                    if (activeFocusNode == phoneNumberFocusNode) {
-                      customerNameFocusNode.requestFocus();
-                    } else if (activeFocusNode == customerNameFocusNode) {
-                      customerNameFocusNode.unfocus();
-                    }
-                  },
+                Text(
+                  'Select Payment Mode',
+                  style: bodyLargeBlack,
+                ),
+                const SizedBox(height: 10),
+                Divider(
+                  color: CustomColors.grey,
+                  thickness: 1.5,
                 ),
               ],
-            )
-          ],
-        ),
+            ),
+          ),
+          Visibility(
+            visible: widget.customer.isProxyNumber!,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    _buildTextField(
+                      label: "Enter Customer Mobile Number",
+                      controller: _controllerPhoneNumber,
+                      focusNode: phoneNumberFocusNode,
+                      onChanged: (value) {},
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return "Please Enter Phone Number";
+                        } else if (value.isNotEmpty &&
+                            (value.length <= 10 || value.length > 10)) {
+                          return "Please Enter Valid Phone Number";
+                        } else {
+                          return null;
+                        }
+                      },
+                    ),
+                    _buildTextField(
+                      label: "Customer Name",
+                      controller: _controllerCustomerName,
+                      focusNode: customerNameFocusNode,
+                      onChanged: (value) {},
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return "Please Enter Customer Name";
+                        } else {
+                          return null;
+                        }
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          widget.customer.isProxyNumber! ? SizedBox(height: 20) : Spacer(),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: _buildPaymentOption(
+                    title: 'Cash',
+                    path: 'assets/images/cash.svg',
+                    isSelected: false,
+                    onTap: () => widget.onPaymentModeSelected('cash'),
+                    context: context,
+                    textStyle: bodyLargeBlack!,
+                  ),
+                ),
+                const SizedBox(width: 15),
+                Expanded(
+                  child: _buildPaymentOption(
+                    title: 'Wallet',
+                    path: 'assets/images/wallet.svg',
+                    isSelected: true,
+                    onTap: () => widget.onPaymentModeSelected('wallet'),
+                    context: context,
+                    textStyle: bodyLargeBlack,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          widget.customer.isProxyNumber! ? SizedBox(height: 20) : Spacer(),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: SizedBox(
+              width: double.infinity,
+              height: 60,
+              child: ElevatedButton(
+                onPressed: state.isReturningOrders
+                    ? null
+                    : () {
+                        if (_formKey.currentState!.validate()) {
+                          final data = state.orderItemsData
+                              .copyWith(
+                                orderLines: state.orderItemsData.orderLines!
+                                    .where((order) => order.isSelected)
+                                    .toList(),
+                              )
+                              .toReturnPostReqJSON();
+                          print("hurray: ${jsonEncode(data)}");
+
+                          context.read<ReturnsBloc>().add(ProceedToReturnItems(
+                                  state.orderItemsData.copyWith(
+                                orderLines: state.orderItemsData.orderLines!
+                                    .where((order) => order.isSelected)
+                                    .toList(),
+                              )));
+                        }
+                      },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: CustomColors.secondaryColor,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                child: state.isReturningOrders
+                    ? SizedBox(
+                        height: 25,
+                        width: 25,
+                        child: CircularProgressIndicator(),
+                      )
+                    : Text('Complete Return', style: bodyLargeBlack),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -345,16 +440,18 @@ class _SummaryPaymentSectionState extends State<SummaryPaymentSection> {
     required TextEditingController controller,
     required FocusNode focusNode,
     required ValueChanged<String> onChanged,
+    required String? Function(String? value)? validator,
     bool readOnly = false,
     Widget? suffixIcon,
   }) {
     return Container(
       padding: const EdgeInsets.all(10),
-      child: TextField(
+      child: TextFormField(
         controller: controller,
         focusNode: focusNode,
         onChanged: onChanged,
         readOnly: readOnly,
+        validator: validator,
         decoration: _buildInputDecoration(label, suffixIcon),
       ),
     );

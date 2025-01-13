@@ -39,6 +39,10 @@ class OrderItemsTableData {
     required OrderItemsModel orderItemsData,
     required Function(String? orderLineId)? onTapSelectedButton,
   }) {
+    if (orderItemsData.orderLines == null ||
+        orderItemsData.orderLines!.isEmpty) {
+      return [];
+    }
     return List.generate(orderItemsData.orderLines!.length, (index) {
       OrderLine orderLine = orderItemsData.orderLines![index];
       return buildTableRow(
@@ -87,7 +91,7 @@ class OrderItemsTableData {
               ),
               SizedBox(width: 10),
               Text(
-                "/${orderLine.orderQuantity!.quantityNumber}",
+                "/${orderLine.orderQuantity!.quantityNumber} ${orderLine.orderQuantity!.quantityUom}",
                 style: TextStyle(color: CustomColors.borderColor),
               )
             ],
@@ -117,15 +121,24 @@ class OrderItemsTableData {
                     backgroundColor: CustomColors.keyBoardBgColor,
                   ),
             child: Center(
-              child: Text(
-                orderLine.isSelected ? "Selected" : "Select",
-                style: TextStyle(
-                  color: orderLine.isSelected
-                      ? CustomColors.black
-                      : CustomColors.primaryColor,
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  if (orderLine.isSelected) ...[
+                    Icon(Icons.check, color: CustomColors.black),
+                    SizedBox(width: 2),
+                  ],
+                  Text(
+                    orderLine.isSelected ? "Selected" : "Select",
+                    style: TextStyle(
+                      color: orderLine.isSelected
+                          ? CustomColors.black
+                          : CustomColors.primaryColor,
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
               ),
             ),
           ),

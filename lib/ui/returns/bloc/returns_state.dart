@@ -10,6 +10,9 @@ class ReturnsState {
   final bool isCustomerOrdersDataFetched;
   final bool isOrderItemsFetched;
   final bool isOrderDetailsFetching;
+  final bool isProceedBtnEnabled;
+  final bool isOrderReturnedSuccessfully;
+  final bool isReturningOrders;
 
   const ReturnsState({
     this.isLoading = false,
@@ -20,6 +23,9 @@ class ReturnsState {
     this.isCustomerOrdersDataFetched = false,
     this.isOrderItemsFetched = false,
     this.isOrderDetailsFetching = false,
+    this.isProceedBtnEnabled = false,
+    this.isOrderReturnedSuccessfully = false,
+    this.isReturningOrders = false,
   });
 
   ReturnsState copyWith({
@@ -30,6 +36,9 @@ class ReturnsState {
     OrderItemsModel? orderItemsData,
     bool? isCustomerOrdersDataFetched,
     bool? isOrderItemsFetched,
+    bool? isProceedBtnEnabled,
+    bool? isOrderReturnedSuccessfully,
+    bool? isReturningOrders,
   }) {
     return ReturnsState(
       isLoading: isLoading ?? this.isLoading,
@@ -37,9 +46,13 @@ class ReturnsState {
       errorMessage: errorMessage ?? this.errorMessage,
       customerOrdersList: customerOrdersList ?? this.customerOrdersList,
       orderItemsData: orderItemsData ?? this.orderItemsData,
+      isProceedBtnEnabled: isProceedBtnEnabled ?? this.isProceedBtnEnabled,
       isCustomerOrdersDataFetched:
           isCustomerOrdersDataFetched ?? this.isCustomerOrdersDataFetched,
       isOrderItemsFetched: isOrderItemsFetched ?? this.isOrderItemsFetched,
+      isOrderReturnedSuccessfully:
+          isOrderReturnedSuccessfully ?? this.isOrderReturnedSuccessfully,
+      isReturningOrders: isReturningOrders ?? this.isReturningOrders,
     );
   }
 
@@ -51,15 +64,21 @@ class ReturnsState {
     OrderItemsModel? orderItemsData,
     bool? isCustomerOrdersDataFetched,
     bool? isOrderItemsFetched,
+    bool? isProceedBtnEnabled,
+    bool? isOrderReturnedSuccessfully,
+    bool? isReturningOrders,
   }) {
     return ReturnsState(
       isLoading: isLoading ?? false,
       isError: isError ?? false,
       errorMessage: errorMessage ?? '',
+      isProceedBtnEnabled: isProceedBtnEnabled ?? false,
       customerOrdersList: customerOrdersList ?? const [],
       orderItemsData: orderItemsData ?? const OrderItemsModel(),
       isCustomerOrdersDataFetched: isCustomerOrdersDataFetched ?? false,
       isOrderItemsFetched: isOrderItemsFetched ?? false,
+      isOrderReturnedSuccessfully: isOrderReturnedSuccessfully ?? false,
+      isReturningOrders: isReturningOrders ?? false,
     );
   }
 }

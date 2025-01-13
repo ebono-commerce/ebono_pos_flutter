@@ -32,6 +32,7 @@ class CustomerOrderDetails {
       'original_outlet_id': originalOutletId,
       'created_at': createdAt,
       'order_state': orderState,
+      "isLoading": isLoading,
       'order_type': orderType,
       'customer': customer?.toJSON(),
       'total_units': totalUnits,
@@ -98,6 +99,7 @@ class Customer {
   final String? emailId;
   final PhoneNumber? phoneNumber;
   final bool? isB2bCustomer;
+  final bool? isProxyNumber;
 
   const Customer({
     this.customerId,
@@ -107,6 +109,7 @@ class Customer {
     this.emailId,
     this.phoneNumber,
     this.isB2bCustomer,
+    this.isProxyNumber,
   });
 
   Map<String, dynamic> toJSON() {
@@ -118,6 +121,14 @@ class Customer {
       'email_id': emailId,
       'phone_number': phoneNumber?.toJSON(),
       'is_b2b_customer': isB2bCustomer,
+      "is_proxy_number": isProxyNumber,
+    };
+  }
+
+  Map<String, dynamic> toReturnPostReqJSON() {
+    return {
+      'customer_name': customerName,
+      'phone_number': phoneNumber?.number,
     };
   }
 
@@ -128,6 +139,7 @@ class Customer {
       customerType: map['customer_type'],
       customerName: map['customer_name'],
       emailId: map['email_id'],
+      isProxyNumber: map['is_proxy_number'],
       phoneNumber: map['phone_number'] != null
           ? PhoneNumber.fromJSON(map['phone_number'])
           : null,

@@ -78,6 +78,7 @@ class HomeController extends GetxController {
   String selectedTerminalId = '';
   RxString customerProxyNumber = ''.obs;
   var isScanApiError = false.obs;
+  var isAutoWeighDetection = false.obs;
 
   /* RxDouble weight = 0.0.obs; // Observable weight value
   late DigitalWeighingScale digitalWeighingScale;
@@ -306,7 +307,7 @@ class HomeController extends GetxController {
       isApiCallInProgress = true;
 
       var response = await _homeRepository.getScanProduct(
-        code: code.split("W").first,
+        code: code.split("W").first.trim(),
         outletId: selectedOutletId,
       );
 

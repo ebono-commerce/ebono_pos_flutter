@@ -3,10 +3,12 @@ import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:ebono_pos/constants/custom_colors.dart';
 
 class ReturnReasonDropdownWidget extends StatefulWidget {
+  final List<String> returnReasons;
   final Function(String) onReasonSelected;
 
   const ReturnReasonDropdownWidget({
     super.key,
+    required this.returnReasons,
     required this.onReasonSelected,
   });
 
