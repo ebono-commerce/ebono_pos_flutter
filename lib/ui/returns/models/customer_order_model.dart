@@ -146,6 +146,28 @@ class Customer {
       isB2bCustomer: map['is_b2b_customer'],
     );
   }
+
+  Customer copyWith({
+    String? customerId,
+    String? customerGroup,
+    String? customerType,
+    String? customerName,
+    String? emailId,
+    PhoneNumber? phoneNumber,
+    bool? isB2bCustomer,
+    bool? isProxyNumber,
+  }) {
+    return Customer(
+      customerId: customerId ?? this.customerId,
+      customerGroup: customerGroup ?? this.customerGroup,
+      customerType: customerType ?? this.customerType,
+      customerName: customerName ?? this.customerName,
+      emailId: emailId ?? this.emailId,
+      phoneNumber: phoneNumber ?? this.phoneNumber,
+      isB2bCustomer: isB2bCustomer ?? this.isB2bCustomer,
+      isProxyNumber: isProxyNumber ?? this.isProxyNumber,
+    );
+  }
 }
 
 class PhoneNumber {
@@ -165,6 +187,16 @@ class PhoneNumber {
     return PhoneNumber(
       countryCode: map['country_code'],
       number: map['number'],
+    );
+  }
+
+  PhoneNumber copyWith({
+    String? countryCode,
+    String? number,
+  }) {
+    return PhoneNumber(
+      countryCode: countryCode ?? this.countryCode,
+      number: number ?? this.number,
     );
   }
 }

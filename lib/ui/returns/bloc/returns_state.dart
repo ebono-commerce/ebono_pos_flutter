@@ -13,6 +13,7 @@ class ReturnsState {
   final bool isProceedBtnEnabled;
   final bool isOrderReturnedSuccessfully;
   final bool isReturningOrders;
+  final RefundSuccessModel refundSuccessModel;
   final OrderLine lastSelectedItem;
 
   const ReturnsState({
@@ -27,6 +28,7 @@ class ReturnsState {
     this.isProceedBtnEnabled = false,
     this.isOrderReturnedSuccessfully = false,
     this.isReturningOrders = false,
+    this.refundSuccessModel = const RefundSuccessModel(),
     this.lastSelectedItem = const OrderLine(),
   });
 
@@ -41,6 +43,7 @@ class ReturnsState {
     bool? isProceedBtnEnabled,
     bool? isOrderReturnedSuccessfully,
     bool? isReturningOrders,
+    RefundSuccessModel? refundSuccessModel,
     OrderLine? lastSelectedItem,
   }) {
     return ReturnsState(
@@ -56,6 +59,7 @@ class ReturnsState {
         isOrderReturnedSuccessfully:
             isOrderReturnedSuccessfully ?? this.isOrderReturnedSuccessfully,
         isReturningOrders: isReturningOrders ?? this.isReturningOrders,
+      refundSuccessModel: refundSuccessModel ?? this.refundSuccessModel,
         lastSelectedItem: lastSelectedItem ?? this.lastSelectedItem);
   }
 
@@ -70,6 +74,7 @@ class ReturnsState {
     bool? isProceedBtnEnabled,
     bool? isOrderReturnedSuccessfully,
     bool? isReturningOrders,
+    RefundSuccessModel? refundSuccessModel,
     OrderLine? lastSelectedItem,
   }) {
     return ReturnsState(
@@ -83,6 +88,7 @@ class ReturnsState {
         isOrderItemsFetched: isOrderItemsFetched ?? false,
         isOrderReturnedSuccessfully: isOrderReturnedSuccessfully ?? false,
         isReturningOrders: isReturningOrders ?? false,
+      refundSuccessModel: refundSuccessModel ?? const RefundSuccessModel(),
         lastSelectedItem: lastSelectedItem ?? this.lastSelectedItem);
   }
 }
