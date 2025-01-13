@@ -363,7 +363,7 @@ class _SummaryPaymentSectionState extends State<SummaryPaymentSection> {
                 onPressed: state.isReturningOrders
                     ? null
                     : () {
-                        if (_formKey.currentState!.validate()) {
+                        if (_formKey.currentState!=null && _formKey.currentState!.validate()) {
                           final data = state.orderItemsData
                               .copyWith(
                                 orderLines: state.orderItemsData.orderLines!
