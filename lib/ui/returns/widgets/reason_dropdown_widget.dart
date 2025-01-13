@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:ebono_pos/constants/custom_colors.dart';
+import 'package:flutter/material.dart';
 
 class ReturnReasonDropdownWidget extends StatefulWidget {
   final List<String> returnReasons;
@@ -85,7 +85,7 @@ class _ReturnReasonDropdownWidgetState
                 )
               : null,
           hintMaxLines: 1,
-          maintainHintHeight: true,
+         // maintainHintHeight: true,
           hintStyle: TextStyle(color: CustomColors.greyFont, fontSize: 16),
           labelStyle: TextStyle(color: CustomColors.greyFont),
           floatingLabelStyle: TextStyle(color: CustomColors.greyFont),

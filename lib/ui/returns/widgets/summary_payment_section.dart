@@ -471,6 +471,43 @@ class _SummaryPaymentSectionState extends State<SummaryPaymentSection> {
                 ],
               ),
             ),
+            // widget.customer.isProxyNumber! ? SizedBox(height: 20) : Spacer(),
+            // Padding(
+            //   padding: const EdgeInsets.symmetric(horizontal: 20),
+            //   child: SizedBox(
+            //     width: double.infinity,
+            //     height: 60,
+            //     child: ElevatedButton(
+            //       onPressed: state.isReturningOrders
+            //           ? null
+            //           : () {
+            //               if (_formKey.currentState != null &&
+            //                   _formKey.currentState!.validate()) {
+            //                 context.read<ReturnsBloc>().add(
+            //                         ProceedToReturnItems(
+            //                             state.orderItemsData.copyWith(
+            //                       orderLines: state.orderItemsData.orderLines!
+            //                           .where((order) => order.isSelected)
+            //                           .toList(),
+            //                     )));
+            //               }
+            //             },
+            //       style: ElevatedButton.styleFrom(
+            //         backgroundColor: CustomColors.secondaryColor,
+            //         shape: RoundedRectangleBorder(
+            //           borderRadius: BorderRadius.circular(10),
+            //         ),
+            //       ),
+            //       child: state.isReturningOrders
+            //           ? SizedBox(
+            //               height: 25,
+            //               width: 25,
+            //               child: CircularProgressIndicator(),
+            //             )
+            //           : Text('Complete Return', style: bodyLargeBlack),
+            //     ),
+            //   ),
+            // ),
             widget.customer.isProxyNumber! ? SizedBox(height: 20) : Spacer(),
             Padding(
               padding: EdgeInsets.only(
@@ -484,7 +521,8 @@ class _SummaryPaymentSectionState extends State<SummaryPaymentSection> {
                 child: ElevatedButton(
                   onPressed: !state.isReturningOrders
                       ? () {
-                          if (_formKey.currentState!.validate()) {
+                          if (_formKey.currentState != null &&
+                              _formKey.currentState!.validate()) {
                             var orderData = state.orderItemsData;
 
                             if (orderData.customer!.isProxyNumber!) {
