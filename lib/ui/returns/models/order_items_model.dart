@@ -73,6 +73,7 @@ class OrderLine {
   final bool? isFreeProductPromotion;
   final Quantity? orderQuantity;
   final Quantity? returnableQuantity;
+  final int? returnedQuantity;
   final bool isSelected;
   final String? returnReason;
   final String returningQuantity;
@@ -84,6 +85,7 @@ class OrderLine {
     this.isFreeProductPromotion,
     this.orderQuantity,
     this.returnableQuantity,
+    this.returnedQuantity,
     this.isSelected = false,
     this.returnReason,
     this.returningQuantity = '1',
@@ -95,6 +97,7 @@ class OrderLine {
       "parent_line_id": parentLineId,
       "item": item?.toJSON(),
       "isSelected": isSelected,
+      "returned_quantity" : returnedQuantity,
       "is_free_product_promotion": isFreeProductPromotion,
       "order_quantity": orderQuantity?.toJSON(),
       "returnable_quantity": returnableQuantity?.toJSON(),
@@ -118,6 +121,7 @@ class OrderLine {
       parentLineId: map["parent_line_id"],
       isSelected: false,
       returnReason: '',
+      returnedQuantity: null,
       item: map["item"] == null ? null : Item.fromJSON(map["item"]),
       isFreeProductPromotion: map["is_free_product_promotion"],
       orderQuantity: map["order_quantity"] == null
@@ -136,6 +140,7 @@ class OrderLine {
     bool? isFreeProductPromotion,
     Quantity? orderQuantity,
     Quantity? returnableQuantity,
+    int? returnedQuantity,
     bool? isSelected,
     String? returnReason,
     String? returningQuantity,
@@ -148,6 +153,7 @@ class OrderLine {
           isFreeProductPromotion ?? this.isFreeProductPromotion,
       orderQuantity: orderQuantity ?? this.orderQuantity,
       returnableQuantity: returnableQuantity ?? this.returnableQuantity,
+      returnedQuantity: returnedQuantity ?? this.returnedQuantity,
       isSelected: isSelected ?? this.isSelected,
       returnReason: returnReason ?? this.returnReason,
       returningQuantity: returningQuantity ?? this.returningQuantity,

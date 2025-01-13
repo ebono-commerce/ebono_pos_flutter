@@ -1,18 +1,17 @@
 import 'dart:convert';
 
+import 'package:ebono_pos/constants/custom_colors.dart';
+import 'package:ebono_pos/ui/custom_keyboard/custom_querty_pad.dart';
+import 'package:ebono_pos/ui/home/home_controller.dart';
 import 'package:ebono_pos/ui/returns/bloc/returns_bloc.dart';
+import 'package:ebono_pos/ui/returns/data/returns_confirmation_table_data.dart';
 import 'package:ebono_pos/ui/returns/models/customer_order_model.dart';
+import 'package:ebono_pos/utils/common_methods.dart';
+import 'package:ebono_pos/widgets/custom_table/custom_table_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
-
-import 'package:ebono_pos/constants/custom_colors.dart';
-import 'package:ebono_pos/ui/custom_keyboard/custom_querty_pad.dart';
-import 'package:ebono_pos/ui/home/home_controller.dart';
-import 'package:ebono_pos/ui/returns/data/returns_confirmation_table_data.dart';
-import 'package:ebono_pos/utils/common_methods.dart';
-import 'package:ebono_pos/widgets/custom_table/custom_table_widget.dart';
 
 class SummaryPaymentSection extends StatefulWidget {
   final Customer customer;
@@ -178,7 +177,7 @@ class _SummaryPaymentSectionState extends State<SummaryPaymentSection> {
                                                   .where((order) =>
                                                       order.isSelected)
                                                   .toList(),
-                                            ),
+                                            ), orderLine: state.lastSelectedItem,
                                           ));
                                     },
                                   ),

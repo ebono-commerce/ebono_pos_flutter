@@ -13,6 +13,7 @@ class ReturnsState {
   final bool isProceedBtnEnabled;
   final bool isOrderReturnedSuccessfully;
   final bool isReturningOrders;
+  final OrderLine lastSelectedItem;
 
   const ReturnsState({
     this.isLoading = false,
@@ -26,6 +27,7 @@ class ReturnsState {
     this.isProceedBtnEnabled = false,
     this.isOrderReturnedSuccessfully = false,
     this.isReturningOrders = false,
+    this.lastSelectedItem = const OrderLine(),
   });
 
   ReturnsState copyWith({
@@ -39,21 +41,22 @@ class ReturnsState {
     bool? isProceedBtnEnabled,
     bool? isOrderReturnedSuccessfully,
     bool? isReturningOrders,
+    OrderLine? lastSelectedItem,
   }) {
     return ReturnsState(
-      isLoading: isLoading ?? this.isLoading,
-      isError: isError ?? this.isError,
-      errorMessage: errorMessage ?? this.errorMessage,
-      customerOrdersList: customerOrdersList ?? this.customerOrdersList,
-      orderItemsData: orderItemsData ?? this.orderItemsData,
-      isProceedBtnEnabled: isProceedBtnEnabled ?? this.isProceedBtnEnabled,
-      isCustomerOrdersDataFetched:
-          isCustomerOrdersDataFetched ?? this.isCustomerOrdersDataFetched,
-      isOrderItemsFetched: isOrderItemsFetched ?? this.isOrderItemsFetched,
-      isOrderReturnedSuccessfully:
-          isOrderReturnedSuccessfully ?? this.isOrderReturnedSuccessfully,
-      isReturningOrders: isReturningOrders ?? this.isReturningOrders,
-    );
+        isLoading: isLoading ?? this.isLoading,
+        isError: isError ?? this.isError,
+        errorMessage: errorMessage ?? this.errorMessage,
+        customerOrdersList: customerOrdersList ?? this.customerOrdersList,
+        orderItemsData: orderItemsData ?? this.orderItemsData,
+        isProceedBtnEnabled: isProceedBtnEnabled ?? this.isProceedBtnEnabled,
+        isCustomerOrdersDataFetched:
+            isCustomerOrdersDataFetched ?? this.isCustomerOrdersDataFetched,
+        isOrderItemsFetched: isOrderItemsFetched ?? this.isOrderItemsFetched,
+        isOrderReturnedSuccessfully:
+            isOrderReturnedSuccessfully ?? this.isOrderReturnedSuccessfully,
+        isReturningOrders: isReturningOrders ?? this.isReturningOrders,
+        lastSelectedItem: lastSelectedItem ?? this.lastSelectedItem);
   }
 
   ReturnsState updateSelectedParameters({
@@ -67,18 +70,19 @@ class ReturnsState {
     bool? isProceedBtnEnabled,
     bool? isOrderReturnedSuccessfully,
     bool? isReturningOrders,
+    OrderLine? lastSelectedItem,
   }) {
     return ReturnsState(
-      isLoading: isLoading ?? false,
-      isError: isError ?? false,
-      errorMessage: errorMessage ?? '',
-      isProceedBtnEnabled: isProceedBtnEnabled ?? false,
-      customerOrdersList: customerOrdersList ?? const [],
-      orderItemsData: orderItemsData ?? const OrderItemsModel(),
-      isCustomerOrdersDataFetched: isCustomerOrdersDataFetched ?? false,
-      isOrderItemsFetched: isOrderItemsFetched ?? false,
-      isOrderReturnedSuccessfully: isOrderReturnedSuccessfully ?? false,
-      isReturningOrders: isReturningOrders ?? false,
-    );
+        isLoading: isLoading ?? false,
+        isError: isError ?? false,
+        errorMessage: errorMessage ?? '',
+        isProceedBtnEnabled: isProceedBtnEnabled ?? false,
+        customerOrdersList: customerOrdersList ?? const [],
+        orderItemsData: orderItemsData ?? const OrderItemsModel(),
+        isCustomerOrdersDataFetched: isCustomerOrdersDataFetched ?? false,
+        isOrderItemsFetched: isOrderItemsFetched ?? false,
+        isOrderReturnedSuccessfully: isOrderReturnedSuccessfully ?? false,
+        isReturningOrders: isReturningOrders ?? false,
+        lastSelectedItem: lastSelectedItem ?? this.lastSelectedItem);
   }
 }

@@ -1,4 +1,5 @@
 import 'package:ebono_pos/constants/custom_colors.dart';
+import 'package:ebono_pos/ui/returns/bloc/returns_bloc.dart';
 import 'package:ebono_pos/ui/returns/models/order_items_model.dart';
 import 'package:ebono_pos/widgets/custom_table/table_cell_widget.dart';
 import 'package:flutter/material.dart';
@@ -37,7 +38,8 @@ class OrderItemsTableData {
 
   List<TableRow> buildTableRows({
     required OrderItemsModel orderItemsData,
-    required Function(String? orderLineId)? onTapSelectedButton,
+    required ReturnsBloc returnsBLoc,
+    required Function(OrderLine orderLine)? onTapSelectedButton,
   }) {
     if (orderItemsData.orderLines == null ||
         orderItemsData.orderLines!.isEmpty) {
@@ -47,15 +49,23 @@ class OrderItemsTableData {
       OrderLine orderLine = orderItemsData.orderLines![index];
       return buildTableRow(
         orderLine: orderLine,
-        onTap: () => onTapSelectedButton?.call(orderLine.orderLineId),
+        returnsBLoc: returnsBLoc,
+        onTap: () => onTapSelectedButton?.call(orderLine),
       );
     }).toList();
   }
 
   TableRow buildTableRow({
     required OrderLine orderLine,
+    required ReturnsBloc returnsBLoc,
     required Function()? onTap,
   }) {
+    var borderColor = (orderLine.isSelected == true &&
+            orderLine.orderLineId ==
+                returnsBLoc.state.lastSelectedItem.orderLineId)
+        ? Colors.grey.shade800
+        : Colors.grey.shade300;
+
     return TableRow(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -64,37 +74,42 @@ class OrderItemsTableData {
       children: [
         TableCellWidget(text: orderLine.item!.skuCode!, width: 110),
         TableCellWidget(text: orderLine.item!.skuTitle!, width: 330),
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 20.0),
-          child: Row(
-            children: [
-              SizedBox(
-                height: 35,
-                width: 80,
-                child: TextFormField(
-                  textAlign: TextAlign.center,
-                  cursorColor: CustomColors.black,
-                  decoration: InputDecoration(
-                    contentPadding:
-                        EdgeInsets.symmetric(vertical: 0, horizontal: 12),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
+        InkWell(
+          onTap: onTap,
+          child: Padding(
+            padding:
+                const EdgeInsets.symmetric(vertical: 15.0, horizontal: 20.0),
+            child: Row(
+              children: [
+                Container(
+                    decoration: BoxDecoration(
+                      color: (orderLine.isSelected == true &&
+                              orderLine.orderLineId ==
+                                  returnsBLoc
+                                      .state.lastSelectedItem.orderLineId)
+                          ? CustomColors.accentColor
+                          : Colors.white,
+                      borderRadius: BorderRadius.circular(8.0),
+                      border: Border.all(
+                        color: borderColor,
+                        width: 1,
+                      ),
                     ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                ),
-              ),
-              SizedBox(width: 10),
-              Text(
-                "/${orderLine.orderQuantity!.quantityNumber} ${orderLine.orderQuantity!.quantityUom}",
-                style: TextStyle(color: CustomColors.borderColor),
-              )
-            ],
+                    height: 35,
+                    width: 80,
+                    child: Center(
+                      child: Text(
+                        "${orderLine.returnedQuantity ?? ''}",
+                        style: TextStyle(color: CustomColors.black),
+                      ),
+                    )),
+                SizedBox(width: 10),
+                Text(
+                  "/${orderLine.orderQuantity!.quantityNumber} ${orderLine.orderQuantity!.quantityUom}",
+                  style: TextStyle(color: CustomColors.greyFont),
+                )
+              ],
+            ),
           ),
         ),
         Padding(

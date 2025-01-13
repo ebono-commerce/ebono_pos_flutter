@@ -69,7 +69,7 @@ class ReturnsConfirmationTableData {
       children: [
         TableCellWidget(text: orderLine.item!.skuCode!, width: 110),
         TableCellWidget(text: orderLine.item!.skuTitle!, width: 260),
-        TableCellWidget(text: '1', width: 60),
+        TableCellWidget(text: '${orderLine.returnedQuantity}', width: 60),
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10.0),
           child: SizedBox(
