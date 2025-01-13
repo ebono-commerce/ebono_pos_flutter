@@ -26,11 +26,13 @@ final class UpdateSelectedItem extends ReturnsEvent {
     required this.id,
     required this.orderItems,
     this.reason = '',
+    required this.orderLine
   });
 
   final String id;
   final String reason;
   final OrderItemsModel orderItems;
+  final OrderLine orderLine;
 }
 
 final class UpdateCustomerData extends ReturnsEvent {
@@ -57,4 +59,10 @@ final class ProceedToReturnItems extends ReturnsEvent {
   ProceedToReturnItems(this.orderItemsModel);
 
   final OrderItemsModel orderItemsModel;
+}
+
+final class AddReturnQuantityEvent extends ReturnsEvent {
+  AddReturnQuantityEvent(this.quantity);
+
+  final int quantity;
 }

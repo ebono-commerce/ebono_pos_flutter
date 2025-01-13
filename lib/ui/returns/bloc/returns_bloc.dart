@@ -134,8 +134,8 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
 
       final isBtnEnabled =
           updatedOrderItems.orderLines?.any((order) => order.isSelected);
-
       emit(state.updateSelectedParameters(
+        lastSelectedItem: event.orderLine,
         orderItemsData: updatedOrderItems,
         isProceedBtnEnabled: isBtnEnabled,
       ));
