@@ -49,7 +49,10 @@ pw.Widget dottedDivider({
 }
 
 Future<Uint8List> generatePdf(OrderSummaryResponse data) async {
-  final pdf = pw.Document();
+  final pdf = pw.Document(
+    version: PdfVersion.pdf_1_5,
+    compress: false,
+  );
   final font = await PdfGoogleFonts.interRegular();
   final fallbackFontByteData =
       await rootBundle.load("assets/fonts/Roboto-Regular.ttf");
@@ -693,8 +696,19 @@ Future<Uint8List> generatePdf(OrderSummaryResponse data) async {
 }
 
 void printOrderSummary(
-    OrderSummaryResponse orderSummaryResponse, Printer printer) async {
+  OrderSummaryResponse orderSummaryResponse,
+  Printer printer,
+) async {
   final pdfBytes = await generatePdf(orderSummaryResponse);
+
+  // Printer commands
+  final List<int> printerCommands = [
+    0x1B, 0x40, // Initialize printer
+    ...pdfBytes,
+    0x1D, 0x56, 0x00, // Cut paper
+    0x1B, 0x4A, 0x40 // Feed paper
+  ];
+
   await Printing.directPrintPdf(
       printer: printer,
       usePrinterSettings: false,

@@ -6,6 +6,8 @@ import 'package:ebono_pos/ui/home/home_controller.dart';
 import 'package:ebono_pos/ui/home/repository/home_repository.dart';
 import 'package:ebono_pos/ui/login/repository/login_repository.dart';
 import 'package:ebono_pos/ui/payment_summary/repository/PaymentRepository.dart';
+import 'package:ebono_pos/ui/returns/bloc/returns_bloc.dart';
+import 'package:ebono_pos/ui/returns/repository/returns_repository.dart';
 import 'package:get/get.dart';
 
 class InitialBinding extends Bindings {
@@ -16,11 +18,12 @@ class InitialBinding extends Bindings {
     Get.put<HiveStorageHelper>(HiveStorageHelper());
 
     // Register ApiHelper as a singleton
-    Get.put<ApiHelper>(
-        ApiHelper(ApiConstants.baseUrl, Get.find<SharedPreferenceHelper>(), Get.find<HiveStorageHelper>()));
+    Get.put<ApiHelper>(ApiHelper(ApiConstants.baseUrl,
+        Get.find<SharedPreferenceHelper>(), Get.find<HiveStorageHelper>()));
 
     //repo
     Get.put<LoginRepository>(LoginRepository(Get.find<ApiHelper>()));
+    Get.put<ReturnsRepository>(ReturnsRepository(Get.find<ApiHelper>()));
     Get.put<HomeRepository>(HomeRepository(Get.find<ApiHelper>()));
     Get.put<PaymentRepository>(PaymentRepository(Get.find<ApiHelper>()));
 
@@ -31,5 +34,7 @@ class InitialBinding extends Bindings {
 
     Get.lazyPut<HomeController>(() => HomeController(Get.find<HomeRepository>(),
         Get.find<SharedPreferenceHelper>(), Get.find<HiveStorageHelper>()));
+
+    Get.put<ReturnsBloc>(ReturnsBloc(Get.find<ReturnsRepository>()));
   }
 }

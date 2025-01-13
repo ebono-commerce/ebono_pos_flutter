@@ -1,0 +1,88 @@
+part of 'returns_bloc.dart';
+
+@immutable
+class ReturnsState {
+  final bool isLoading;
+  final bool isError;
+  final String errorMessage;
+  final List<CustomerOrderDetails> customerOrdersList;
+  final OrderItemsModel orderItemsData;
+  final bool isCustomerOrdersDataFetched;
+  final bool isOrderItemsFetched;
+  final bool isOrderDetailsFetching;
+  final bool isProceedBtnEnabled;
+  final bool isOrderReturnedSuccessfully;
+  final bool isReturningOrders;
+  final OrderLine lastSelectedItem;
+
+  const ReturnsState({
+    this.isLoading = false,
+    this.isError = false,
+    this.errorMessage = '',
+    this.customerOrdersList = const [],
+    this.orderItemsData = const OrderItemsModel(),
+    this.isCustomerOrdersDataFetched = false,
+    this.isOrderItemsFetched = false,
+    this.isOrderDetailsFetching = false,
+    this.isProceedBtnEnabled = false,
+    this.isOrderReturnedSuccessfully = false,
+    this.isReturningOrders = false,
+    this.lastSelectedItem = const OrderLine(),
+  });
+
+  ReturnsState copyWith({
+    bool? isLoading,
+    bool? isError,
+    String? errorMessage,
+    List<CustomerOrderDetails>? customerOrdersList,
+    OrderItemsModel? orderItemsData,
+    bool? isCustomerOrdersDataFetched,
+    bool? isOrderItemsFetched,
+    bool? isProceedBtnEnabled,
+    bool? isOrderReturnedSuccessfully,
+    bool? isReturningOrders,
+    OrderLine? lastSelectedItem,
+  }) {
+    return ReturnsState(
+        isLoading: isLoading ?? this.isLoading,
+        isError: isError ?? this.isError,
+        errorMessage: errorMessage ?? this.errorMessage,
+        customerOrdersList: customerOrdersList ?? this.customerOrdersList,
+        orderItemsData: orderItemsData ?? this.orderItemsData,
+        isProceedBtnEnabled: isProceedBtnEnabled ?? this.isProceedBtnEnabled,
+        isCustomerOrdersDataFetched:
+            isCustomerOrdersDataFetched ?? this.isCustomerOrdersDataFetched,
+        isOrderItemsFetched: isOrderItemsFetched ?? this.isOrderItemsFetched,
+        isOrderReturnedSuccessfully:
+            isOrderReturnedSuccessfully ?? this.isOrderReturnedSuccessfully,
+        isReturningOrders: isReturningOrders ?? this.isReturningOrders,
+        lastSelectedItem: lastSelectedItem ?? this.lastSelectedItem);
+  }
+
+  ReturnsState updateSelectedParameters({
+    bool? isLoading,
+    bool? isError,
+    String? errorMessage,
+    List<CustomerOrderDetails>? customerOrdersList,
+    OrderItemsModel? orderItemsData,
+    bool? isCustomerOrdersDataFetched,
+    bool? isOrderItemsFetched,
+    bool? isProceedBtnEnabled,
+    bool? isOrderReturnedSuccessfully,
+    bool? isReturningOrders,
+    OrderLine? lastSelectedItem,
+  }) {
+    return ReturnsState(
+        isLoading: isLoading ?? false,
+        isError: isError ?? false,
+        errorMessage: errorMessage ?? '',
+        isProceedBtnEnabled: isProceedBtnEnabled ?? false,
+        customerOrdersList: customerOrdersList ?? const [],
+        orderItemsData: orderItemsData ?? const OrderItemsModel(),
+        isCustomerOrdersDataFetched: isCustomerOrdersDataFetched ?? false,
+        isOrderItemsFetched: isOrderItemsFetched ?? false,
+        isOrderReturnedSuccessfully: isOrderReturnedSuccessfully ?? false,
+        isReturningOrders: isReturningOrders ?? false,
+        lastSelectedItem: lastSelectedItem ?? this.lastSelectedItem);
+  }
+}

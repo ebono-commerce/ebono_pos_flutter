@@ -65,6 +65,7 @@ class _OrdersSectionState extends State<OrdersSection>
     });
 
     ever(weighingScaleService.weight, (value) {
+      homeController.isAutoWeighDetection.value = true;
       if (!numPadFocusNode.hasFocus) {
         numPadFocusNode.requestFocus();
       }
@@ -935,7 +936,6 @@ class _OrdersSectionState extends State<OrdersSection>
                                     ? numPadTextController
                                     : TextEditingController(text: ''),
                             onEditingComplete: () {
-                              print('on edit complete');
                               if (homeController.isQuantitySelected.value ==
                                   false) {
                                 if (homeController.cartId.value.isNotEmpty &&
@@ -961,7 +961,11 @@ class _OrdersSectionState extends State<OrdersSection>
                           focusNode: numPadFocusNode,
                           textController: numPadTextController,
                           onValueChanged: (val) {
-                            print("onValueChanged numpad: $val");
+                            if (homeController.isAutoWeighDetection.value ==
+                                false) {
+                              return;
+                            }
+                            print("onValueChanged");
                             try {
                               if (homeController.isQuantitySelected.value ==
                                   false) {
@@ -1005,6 +1009,8 @@ class _OrdersSectionState extends State<OrdersSection>
                                             numPadTextController.text = '0';
                                             numPadTextController.clear();
                                             numPadTextController.text = '';
+                                            homeController.isAutoWeighDetection
+                                                .value = false;
                                           });
                                         });
                                       }
@@ -1022,6 +1028,7 @@ class _OrdersSectionState extends State<OrdersSection>
                             }
                           },
                           onEnterPressed: (text) {
+                            print("onEnterPressed");
                             print("Enter pressed with text: $text");
                             if (homeController.isQuantitySelected.value ==
                                 false) {

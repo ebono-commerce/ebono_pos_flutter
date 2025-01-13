@@ -158,7 +158,7 @@ class PhoneNumber {
 
 class DiscountTotal {
   String? currency;
-  int? centAmount;
+  dynamic centAmount;
   int? fraction;
 
   DiscountTotal({

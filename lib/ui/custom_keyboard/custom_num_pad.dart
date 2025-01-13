@@ -20,7 +20,6 @@ class CustomNumPad extends StatefulWidget {
 }
 
 class _CustomNumPadState extends State<CustomNumPad> {
-
   void _onKeyPressed(String value) {
     if (!widget.focusNode.hasFocus) {
       widget.focusNode.requestFocus();
@@ -50,8 +49,7 @@ class _CustomNumPadState extends State<CustomNumPad> {
       widget.focusNode.requestFocus();
     }
     widget.textController.clear();
-    widget.onClearAll!(widget.textController.text);
-
+    widget.onClearAll?.call(widget.textController.text);
   }
 
   void _handleValueChanged() {

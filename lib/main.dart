@@ -21,7 +21,9 @@ void main() async {
     await windowManager.setFullScreen(true);
     await windowManager.show();
   });
+
   await HiveStorageHelper.init();
+
   runApp(const MyApp());
 }
 
