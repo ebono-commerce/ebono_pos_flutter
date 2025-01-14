@@ -97,18 +97,18 @@ class OrderLine {
       "parent_line_id": parentLineId,
       "item": item?.toJSON(),
       "isSelected": isSelected,
-      "returned_quantity" : returnedQuantity,
+      "returned_quantity": returnedQuantity,
       "is_free_product_promotion": isFreeProductPromotion,
       "order_quantity": orderQuantity?.toJSON(),
-      "returnable_quantity": returnableQuantity?.toJSON(),
+      "return_quantity": returnableQuantity?.toJSON(),
     };
   }
 
   Map<String, dynamic> toReturnPostJSON() {
     return {
       "order_line_id": orderLineId,
-      "returnable_quantity": {
-        'quantity_number': returningQuantity,
+      "return_quantity": {
+        'quantity_number': int.parse(returningQuantity),
         'quantity_uom': returnableQuantity!.quantityUom,
       },
       "return_reason": returnReason,
