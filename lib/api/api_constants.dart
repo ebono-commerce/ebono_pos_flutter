@@ -1,5 +1,5 @@
 class ApiConstants {
-  // static final baseUrl = 'https://services-staging.ebono.com/store/';
+   //static final baseUrl = 'https://services-staging.ebono.com/store/';
   static final baseUrl = 'http://api-local.ebono.com/store/';
   static final login = 'authn/api/v1/pos/login';
   static final logout = 'authn/api/v1/pos/logout';
