@@ -22,7 +22,8 @@ class PaymentSummaryResponse {
   AmountPayable? totalSavings;
   AmountPayable? taxTotal;
   AmountPayable? discountTotal;
-  List<PaymentOption>? redeemablePaymentOptions;
+  AmountPayable? redeemedWalletAmount;
+  List<RedeemablePaymentOption>? redeemablePaymentOptions;
   List<PaymentOption>? paymentOptions;
 
   PaymentSummaryResponse({
@@ -39,6 +40,7 @@ class PaymentSummaryResponse {
     this.totalSavings,
     this.taxTotal,
     this.discountTotal,
+    this.redeemedWalletAmount,
     this.redeemablePaymentOptions,
     this.paymentOptions,
   });
@@ -57,7 +59,8 @@ class PaymentSummaryResponse {
     totalSavings: json["total_savings"] == null ? null : AmountPayable.fromJson(json["total_savings"]),
     taxTotal: json["tax_total"] == null ? null : AmountPayable.fromJson(json["tax_total"]),
     discountTotal: json["discount_total"] == null ? null : AmountPayable.fromJson(json["discount_total"]),
-    redeemablePaymentOptions: json["redeemable_payment_options"] == null ? [] : List<PaymentOption>.from(json["redeemable_payment_options"]!.map((x) => PaymentOption.fromJson(x))),
+    redeemedWalletAmount: json["redeemed_wallet_amount"] == null ? null : AmountPayable.fromJson(json["redeemed_wallet_amount"]),
+    redeemablePaymentOptions: json["redeemable_payment_options"] == null ? [] : List<RedeemablePaymentOption>.from(json["redeemable_payment_options"]!.map((x) => RedeemablePaymentOption.fromJson(x))),
     paymentOptions: json["payment_options"] == null ? [] : List<PaymentOption>.from(json["payment_options"]!.map((x) => PaymentOption.fromJson(x))),
   );
 
@@ -75,6 +78,7 @@ class PaymentSummaryResponse {
     "tax_total": taxTotal?.toJson(),
     "total_savings": totalSavings?.toJson(),
     "discount_total": discountTotal?.toJson(),
+    "redeemed_wallet_amount": redeemedWalletAmount?.toJson(),
     "redeemable_payment_options": redeemablePaymentOptions == null ? [] : List<dynamic>.from(redeemablePaymentOptions!.map((x) => x.toJson())),
     "payment_options": paymentOptions == null ? [] : List<dynamic>.from(paymentOptions!.map((x) => x.toJson())),
   };
@@ -149,5 +153,41 @@ class Description {
   Map<String, dynamic> toJson() => {
     "label": label,
     "text": text,
+  };
+}
+
+class RedeemablePaymentOption {
+  String? paymentOptionId;
+  String? code;
+  String? pspId;
+  Description? description;
+  String? availableBalance;
+  String? applicableBalance;
+
+  RedeemablePaymentOption({
+    this.paymentOptionId,
+    this.code,
+    this.pspId,
+    this.description,
+    this.availableBalance,
+    this.applicableBalance,
+  });
+
+  factory RedeemablePaymentOption.fromJson(Map<String, dynamic> json) => RedeemablePaymentOption(
+    paymentOptionId: json["payment_option_id"],
+    code: json["code"],
+    pspId: json["psp_id"],
+    description: json["description"] == null ? null : Description.fromJson(json["description"]),
+    availableBalance: json["available_balance"],
+    applicableBalance: json["applicable_balance"],
+  );
+
+  Map<String, dynamic> toJson() => {
+    "payment_option_id": paymentOptionId,
+    "code": code,
+    "psp_id": pspId,
+    "description": description?.toJson(),
+    "available_balance": availableBalance,
+    "applicable_balance": applicableBalance,
   };
 }

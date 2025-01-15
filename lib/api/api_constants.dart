@@ -1,6 +1,6 @@
 class ApiConstants {
-   //static final baseUrl = 'https://services-staging.ebono.com/store/';
-  static final baseUrl = 'http://api-local.ebono.com/store/';
+   static final baseUrl = 'https://services-staging.ebono.com/store/';
+  //static final baseUrl = 'http://api-local.ebono.com/store/';
   static final login = 'authn/api/v1/pos/login';
   static final logout = 'authn/api/v1/pos/logout';
   static final outletDetails = 'account/api/v1/pos/outlets/';
@@ -32,4 +32,6 @@ class ApiConstants {
   static final overridePrice = 'checkout/api/v1/pos/cart/price-override';
   static final orders = 'order/api/v1/pos/orders';
   static final returnOrders = 'return-order/api/v1/pos/return-request';
+  static final walletAuthentication = 'checkout/api/v1/pos/cart/store-authenticate?';
+  static final walletCharge = 'checkout/api/v1/pos/cart/wallet-charge';
 }

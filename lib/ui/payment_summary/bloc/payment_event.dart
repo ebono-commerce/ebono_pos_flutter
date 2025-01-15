@@ -28,6 +28,15 @@ class GetBalancePayableAmountEvent extends PaymentEvent {
    GetBalancePayableAmountEvent(this.cash, this.online, this.wallet);
 }
 
+class WalletAuthenticationEvent extends PaymentEvent {}
+
+class WalletChargeEvent extends PaymentEvent {
+  final String otp;
+  WalletChargeEvent(this.otp);
+}
+
+class WalletIdealEvent extends PaymentEvent{}
+
 class PaymentIdealEvent extends PaymentEvent {}
 
 

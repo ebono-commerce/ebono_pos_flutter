@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:ebono_pos/api/api_constants.dart';
 import 'package:ebono_pos/api/api_helper.dart';
+import 'package:ebono_pos/ui/home/model/general_success_response.dart';
+import 'package:ebono_pos/ui/home/model/phone_number_request.dart';
 import 'package:ebono_pos/ui/payment_summary/model/order_summary_response.dart';
 import 'package:ebono_pos/ui/payment_summary/model/payment_cancel_request.dart';
 import 'package:ebono_pos/ui/payment_summary/model/payment_initiate_request.dart';
@@ -11,6 +13,7 @@ import 'package:ebono_pos/ui/payment_summary/model/payment_status_response.dart'
 import 'package:ebono_pos/ui/payment_summary/model/payment_summary_request.dart';
 import 'package:ebono_pos/ui/payment_summary/model/payment_summary_response.dart';
 import 'package:ebono_pos/ui/payment_summary/model/place_order_request.dart';
+import 'package:ebono_pos/ui/payment_summary/model/wallet_charge_request.dart';
 import 'package:flutter_client_sse/flutter_client_sse.dart';
 
 class PaymentRepository {
@@ -95,5 +98,35 @@ class PaymentRepository {
   Stream<SSEModel> listenToPaymentUpdates(String orderId) {
     final endpoint = '${ApiConstants.orderInvoiceSSE}?order_number=$orderId';
     return _apiHelper.subscribeToSSE(endpoint);
+  }
+
+  Future<GeneralSuccessResponse> walletAuthentication(
+      PhoneNumberRequest request) async {
+    try {
+      final response = await _apiHelper.post(
+        ApiConstants.walletAuthentication,
+        data: request.toJson(),
+      );
+      final walletAuthenticationResponse =
+      generalSuccessResponseFromJson(jsonEncode(response));
+      return walletAuthenticationResponse;
+    } catch (e) {
+      throw Exception(e);
+    }
+  }
+
+  Future<PaymentSummaryResponse> walletCharge(
+      WalletChargeRequest request) async {
+    try {
+      final response = await _apiHelper.post(
+        ApiConstants.walletCharge,
+        data: request.toJson(),
+      );
+      final paymentSummaryResponse =
+      paymentSummaryResponseFromJson(jsonEncode(response));
+      return paymentSummaryResponse;
+    } catch (e) {
+      throw Exception(e);
+    }
   }
 }
