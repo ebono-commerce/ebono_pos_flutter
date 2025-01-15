@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:audioplayers/audioplayers.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:ebono_pos/constants/shared_preference_constants.dart';
 import 'package:ebono_pos/data_store/hive_storage_helper.dart';
@@ -29,6 +30,7 @@ import 'package:ebono_pos/ui/login/model/login_request.dart';
 import 'package:ebono_pos/ui/login/model/login_response.dart';
 import 'package:ebono_pos/ui/login/model/terminal_details_response.dart';
 import 'package:ebono_pos/ui/payment_summary/model/health_check_response.dart';
+import 'package:ebono_pos/widgets/error_dialog_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -79,6 +81,7 @@ class HomeController extends GetxController {
   RxString customerProxyNumber = ''.obs;
   var isScanApiError = false.obs;
   var isAutoWeighDetection = false.obs;
+  var isReturnViewReset = false.obs;
 
   /* RxDouble weight = 0.0.obs; // Observable weight value
   late DigitalWeighingScale digitalWeighingScale;
@@ -348,7 +351,14 @@ class HomeController extends GetxController {
         isError: true,
       );
       selectedItemData.value = CartLine();
-      Get.snackbar("Error While Scanning", '$error');
+      if (error.toString().contains("SHOW_STOPPER")) {
+        await _showStopperError(
+          errorMessage: error.toString().split('::').last,
+          isScanApiError: true,
+        );
+      } else {
+        Get.snackbar("Error While Scanning", '$error');
+      }
     } finally {
       isApiCallInProgress = false;
     }
@@ -494,21 +504,34 @@ class HomeController extends GetxController {
   }) async {
     try {
       var response = await _homeRepository.addToCart(
-          AddToCartRequest(cartLines: [
-            AddToCartCartLine(
-                skuCode: skuCode,
-                quantity:
-                    AddToCartQuantity(quantityNumber: qty, quantityUom: qtyUom),
-                mrpId: mrpId)
-          ]),
-          cartId);
+        AddToCartRequest(cartLines: [
+          AddToCartCartLine(
+              skuCode: skuCode,
+              quantity:
+                  AddToCartQuantity(quantityNumber: qty, quantityUom: qtyUom),
+              mrpId: mrpId)
+        ]),
+        cartId,
+      );
       cartResponse.value = response;
+
+      /* checking for cart line errors */
+      if (response.cartAlerts.isNotEmpty &&
+          response.cartAlerts.first.errorCode == "SHOW_STOPPER") {
+        await _showStopperError(
+          errorMessage: response.cartAlerts.first.message,
+        );
+
+        return;
+      }
 
       isApiCallInProgress = false;
 
       await fetchCartDetails(isWeightedItem: isWeightedItem, weight: weight);
     } catch (e) {
       Get.snackbar('Error while adding to cart', '$e');
+    } finally {
+      isApiCallInProgress = false;
     }
   }
 
@@ -537,6 +560,16 @@ class HomeController extends GetxController {
           cartId.value,
           cartLineId!);
       cartResponse.value = response;
+
+      /* checking for cart line errors */
+      if (response.cartAlerts.isNotEmpty &&
+          response.cartAlerts.first.errorCode == "SHOW_STOPPER") {
+        await _showStopperError(
+          errorMessage: response.cartAlerts.first.message,
+        );
+
+        return;
+      }
 
       fetchCartDetails();
     } catch (e) {
@@ -813,6 +846,29 @@ class HomeController extends GetxController {
       Get.snackbar('Error while overriding price', '$e');
     }
     return response;
+  }
+
+  Future<void> _showStopperError({
+    required String errorMessage,
+    bool isScanApiError = false,
+  }) async {
+    // Add the sound playing logic before showing dialog
+    final player = AudioPlayer();
+    await player.play(AssetSource(
+        isScanApiError ? 'audio/error.mp3' : 'audio/add_to_cart.mp3'));
+
+    Get.dialog(
+      Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: ErrorDialogWidget(
+          errorMessage: errorMessage,
+        ),
+      ),
+      barrierDismissible: true,
+      useSafeArea: false,
+    );
   }
 
   @override

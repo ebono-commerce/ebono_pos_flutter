@@ -174,7 +174,10 @@ class ApiHelper {
             if (errors is List && errors.isNotEmpty) {
               final firstError = errors.first;
               if (firstError is Map<String, dynamic>) {
-                errorMessage = firstError["message"] ?? 'Unknown error';
+                errorMessage = firstError['error_class'] != null &&
+                        firstError['error_class'] == "SHOW_STOPPER"
+                    ? "${firstError['error_class']}::${firstError['message']}"
+                    : firstError["message"] ?? 'Unknown error';
               }
             }
           }

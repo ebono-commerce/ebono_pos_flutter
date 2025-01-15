@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 // To parse this JSON data, do
 //
 //     final cartResponse = cartResponseFromJson(jsonString);
@@ -22,6 +23,7 @@ class CartResponse {
   AmountPayable? amountPayable;
   List<CartAdjustment>? cartAdjustments;
   CartResponseAudit? audit;
+  List<CartAlerts> cartAlerts;
 
   CartResponse({
     this.cartId,
@@ -34,6 +36,7 @@ class CartResponse {
     this.amountPayable,
     this.cartAdjustments,
     this.audit,
+    this.cartAlerts = const <CartAlerts>[],
   });
 
   factory CartResponse.fromJson(Map<String, dynamic> json) => CartResponse(
@@ -42,6 +45,11 @@ class CartResponse {
         outletId: json["outlet_id"],
         totalUnits: json["total_units"]?.toDouble(),
         totalItems: json["total_items"],
+        cartAlerts: json['cart_alerts'] != null
+            ? List<CartAlerts>.from(
+                json['cart_alerts']!.map((x) => CartAlerts.fromJson(x)),
+              )
+            : const <CartAlerts>[],
         cartLines: json["cart_lines"] == null
             ? []
             : List<CartLine>.from(
@@ -325,4 +333,36 @@ class Quantity {
         "quantity_number": quantityNumber,
         "quantity_uom": quantityUom,
       };
+}
+
+class CartAlerts {
+  final String errorCode;
+  final String alertType;
+  final String status;
+  final String message;
+
+  const CartAlerts({
+    this.errorCode = '',
+    this.alertType = '',
+    this.status = '',
+    this.message = '',
+  });
+
+  Map<String, dynamic> toJson() {
+    return <String, dynamic>{
+      'errorCode': errorCode,
+      'alertType': alertType,
+      'status': status,
+      'message': message,
+    };
+  }
+
+  factory CartAlerts.fromJson(Map<String, dynamic> map) {
+    return CartAlerts(
+      errorCode: map['error_code'] ?? '',
+      alertType: map['alert_type'] ?? '',
+      status: map['status'] ?? '',
+      message: map['message'] ?? '',
+    );
+  }
 }

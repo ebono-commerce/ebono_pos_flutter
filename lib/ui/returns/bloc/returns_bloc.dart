@@ -17,10 +17,18 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
     on<FetchOrderDataBasedOnOrderId>(_onFetchOrderDataBasedOnOrderId);
     on<UpdateSelectedItem>(_onUpdateSelectedItem);
     on<ProceedToReturnItems>(_proccedToReturnItems);
+    on<ReturnsResetEvent>(_resetReturns);
   }
 
   void _onReturnsEvent(ReturnsEvent event, Emitter<ReturnsState> emit) {
     emit(state.updateSelectedParameters(isLoading: true));
+  }
+
+  Future<void> _resetReturns(
+    ReturnsResetEvent event,
+    Emitter<ReturnsState> emit,
+  ) async {
+    emit(state.updateSelectedParameters());
   }
 
   Future<void> _proccedToReturnItems(
@@ -35,7 +43,11 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
       ));
 
       final response = await returnsRepository.proceedToReturnItems(
-        refundItems: event.orderItemsModel,
+        refundItems: event.orderItemsModel.copyWith(
+          orderLines: event.orderItemsModel.orderLines!
+              .where((order) => order.isSelected)
+              .toList(),
+        ),
       );
 
       emit(state.updateSelectedParameters(

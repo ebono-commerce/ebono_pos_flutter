@@ -1,4 +1,6 @@
 PODS:
+  - audioplayers_darwin (0.0.1):
+    - FlutterMacOS
   - connectivity_plus (0.0.1):
     - FlutterMacOS
     - ReachabilitySwift
@@ -24,6 +26,7 @@ PODS:
     - FlutterMacOS
 
 DEPENDENCIES:
+  - audioplayers_darwin (from `Flutter/ephemeral/.symlinks/plugins/audioplayers_darwin/macos`)
   - connectivity_plus (from `Flutter/ephemeral/.symlinks/plugins/connectivity_plus/macos`)
   - flutter_libserialport (from `Flutter/ephemeral/.symlinks/plugins/flutter_libserialport/macos`)
   - flutter_window_close (from `Flutter/ephemeral/.symlinks/plugins/flutter_window_close/macos`)
@@ -40,6 +43,8 @@ SPEC REPOS:
     - ReachabilitySwift
 
 EXTERNAL SOURCES:
+  audioplayers_darwin:
+    :path: Flutter/ephemeral/.symlinks/plugins/audioplayers_darwin/macos
   connectivity_plus:
     :path: Flutter/ephemeral/.symlinks/plugins/connectivity_plus/macos
   flutter_libserialport:
@@ -60,17 +65,18 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral/.symlinks/plugins/window_manager/macos
 
 SPEC CHECKSUMS:
-  connectivity_plus: 18d3c32514c886e046de60e9c13895109866c747
-  flutter_libserialport: d1a505fd4b05785f7b50cc7c93b361937ea1c5bd
-  flutter_window_close: a0f4f388e956ebafa866e3e171ce837c166eab9c
+  audioplayers_darwin: 761f2948df701d05b5db603220c384fb55720012
+  connectivity_plus: e74b9f74717d2d99d45751750e266e55912baeb5
+  flutter_libserialport: 2c523cb8d8203fc6d1b0da88190da31ac970eb93
+  flutter_window_close: bd408414cbbf0d39f0d3076c4da0cdbf1c527168
   FlutterMacOS: 8f6f14fa908a6fb3fba0cd85dbd81ec4b251fb24
   libserialport: 1cb25e66ef3c92a8e59c2ea3820302c3fa2268cd
-  path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46
-  printing: 1dd6a1fce2209ec240698e2439a4adbb9b427637
+  path_provider_foundation: 080d55be775b7414fd5a5ef3ac137b97b097e564
+  printing: c4cf83c78fd684f9bc318e6aadc18972aa48f617
   ReachabilitySwift: 32793e867593cfc1177f5d16491e3a197d2fccda
-  screen_retriever_macos: 776e0fa5d42c6163d2bf772d22478df4b302b161
-  shared_preferences_foundation: fcdcbc04712aee1108ac7fda236f363274528f78
-  window_manager: 3a1844359a6295ab1e47659b1a777e36773cd6e8
+  screen_retriever_macos: 452e51764a9e1cdb74b3c541238795849f21557f
+  shared_preferences_foundation: 9e1978ff2562383bd5676f64ec4e9aa8fa06a6f7
+  window_manager: 1d01fa7ac65a6e6f83b965471b1a7fdd3f06166c
 
 PODFILE CHECKSUM: 236401fc2c932af29a9fcf0e97baeeb2d750d367
 

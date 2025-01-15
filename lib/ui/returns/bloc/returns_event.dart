@@ -3,6 +3,8 @@ part of 'returns_bloc.dart';
 @immutable
 sealed class ReturnsEvent {}
 
+final class ReturnsResetEvent extends ReturnsEvent {}
+
 final class FetchCustomerOrdersData extends ReturnsEvent {
   FetchCustomerOrdersData(this.customerMobileNumber);
 
@@ -22,12 +24,11 @@ final class FetchOrderDataBasedOnOrderId extends ReturnsEvent {
 }
 
 final class UpdateSelectedItem extends ReturnsEvent {
-  UpdateSelectedItem({
-    required this.id,
-    required this.orderItems,
-    this.reason = '',
-    required this.orderLine
-  });
+  UpdateSelectedItem(
+      {required this.id,
+      required this.orderItems,
+      this.reason = '',
+      required this.orderLine});
 
   final String id;
   final String reason;

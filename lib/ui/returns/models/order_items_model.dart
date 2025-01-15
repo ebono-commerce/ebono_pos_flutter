@@ -73,10 +73,10 @@ class OrderLine {
   final bool? isFreeProductPromotion;
   final Quantity? orderQuantity;
   final Quantity? returnableQuantity;
-  final int? returnedQuantity;
+  final dynamic returnedQuantity;
   final bool isSelected;
   final String? returnReason;
-  final String returningQuantity;
+  final String? returningQuantity;
 
   const OrderLine({
     this.orderLineId,
@@ -88,7 +88,7 @@ class OrderLine {
     this.returnedQuantity,
     this.isSelected = false,
     this.returnReason,
-    this.returningQuantity = '1',
+    this.returningQuantity,
   });
 
   Map<String, dynamic> toJSON() {
@@ -108,7 +108,7 @@ class OrderLine {
     return {
       "order_line_id": orderLineId,
       "return_quantity": {
-        'quantity_number': int.parse(returningQuantity),
+        'quantity_number': returnedQuantity,
         'quantity_uom': returnableQuantity!.quantityUom,
       },
       "return_reason": returnReason,
@@ -140,7 +140,7 @@ class OrderLine {
     bool? isFreeProductPromotion,
     Quantity? orderQuantity,
     Quantity? returnableQuantity,
-    int? returnedQuantity,
+    dynamic returnedQuantity,
     bool? isSelected,
     String? returnReason,
     String? returningQuantity,
@@ -198,7 +198,7 @@ class Item {
 }
 
 class Quantity {
-  final int? quantityNumber;
+  final dynamic quantityNumber;
   final String? quantityUom;
 
   Quantity({
@@ -215,7 +215,7 @@ class Quantity {
 
   factory Quantity.fromJSON(Map<String, dynamic> map) {
     return Quantity(
-      quantityNumber: map['quantity_number']?.toInt(),
+      quantityNumber: map['quantity_number'],
       quantityUom: map['quantity_uom'],
     );
   }
