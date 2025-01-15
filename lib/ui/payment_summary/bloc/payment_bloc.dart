@@ -18,6 +18,7 @@ import 'package:ebono_pos/ui/payment_summary/model/payment_summary_response.dart
 import 'package:ebono_pos/ui/payment_summary/model/place_order_request.dart';
 import 'package:ebono_pos/ui/payment_summary/model/wallet_charge_request.dart';
 import 'package:ebono_pos/ui/payment_summary/repository/PaymentRepository.dart';
+import 'package:ebono_pos/utils/price.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 
@@ -44,8 +45,10 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
   List<PaymentMethod>? paymentMethods = [];
   late PaymentOption? cashPaymentOption;
   late PaymentOption? onlinePaymentOption;
+  late RedeemablePaymentOption? walletPaymentOption;
   double cashAmount = 0;
   double onlineAmount = 0;
+  double walletAmount = 0;
   double totalPayable = 0;
   double balancePayable = 0;
   bool allowPlaceOrder = false;
@@ -62,6 +65,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
     on<PlaceOrderEvent>(_placeOrder);
     on<GetBalancePayableAmountEvent>(_getBalancePayableAmount);
     on<WalletAuthenticationEvent>(_walletAuthentication);
+    on<WalletChargeEvent>(_walletCharge);
     on<WalletIdealEvent>(_onWalletIdeal);
     on<PaymentIdealEvent>(_onIdeal);
   }
@@ -315,8 +319,8 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
       GetBalancePayableAmountEvent event, Emitter<PaymentState> emit) {
     cashAmount = double.parse(event.cash);
     onlineAmount = double.parse(event.online);
-
-    var givenAmount = cashAmount + onlineAmount + double.parse(event.wallet);
+    walletAmount = double.parse(event.wallet);
+    var givenAmount = cashAmount + onlineAmount + walletAmount;
     totalPayable = (paymentSummaryResponse.amountPayable?.centAmount ?? 0) /
         (paymentSummaryResponse.amountPayable?.fraction ?? 1);
     if (event.online != '0') {
@@ -380,7 +384,21 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
                   key: "METHOD", value: paymentStatusResponse.paymentMode),
             ]));
       }
-
+      var appliedWalletAmount = getPrice(paymentSummaryResponse.redeemedWalletAmount?.centAmount, paymentSummaryResponse.redeemedWalletAmount?.fraction);
+      if (appliedWalletAmount > 0) {
+        walletPaymentOption = paymentSummaryResponse.redeemablePaymentOptions?.firstWhere(
+              (option) => option.code == 'WALLET',
+        );
+        paymentMethods?.add(PaymentMethod(
+            paymentOptionId: walletPaymentOption?.paymentOptionId,
+            pspId: walletPaymentOption?.pspId,
+            requestId: paymentSummaryRequest.cartId,
+            transactionReferenceId: paymentSummaryRequest.cartId,
+            amount: appliedWalletAmount,
+            methodDetail: [
+              MethodDetail(key: "METHOD", value: "WALLET"),
+            ]));
+      }
       orderSummaryResponse =
           await _paymentRepository.placeOrder(PlaceOrderRequest(
         cartId: paymentSummaryRequest.cartId,
@@ -476,7 +494,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
               currency: 'INR')));
 
       emit(state.copyWith(
-          isLoading: false, isWalletChargeSuccess: true));
+          isLoading: false, isWalletChargeSuccess: true, isPaymentSummarySuccess: true));
     } catch (error) {
       emit(state.copyWith(
           isLoading: false,
@@ -492,6 +510,8 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
       isLoading: false,
       isWalletAuthenticationSuccess: false,
       isWalletAuthenticationError: false,
+      isWalletChargeSuccess: false,
+      isWalletChargeError: false,
     ));
   }
 

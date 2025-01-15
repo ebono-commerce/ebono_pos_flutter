@@ -62,9 +62,10 @@ class _ValidateOtpWidgetState
       child: BlocListener<PaymentBloc, PaymentState>(
           listener: (BuildContext context, PaymentState state) {
             if(state.isWalletChargeSuccess){
+              paymentBloc.add(WalletIdealEvent());
               Navigator.pop(widget.dialogContext);
             }
-            else{
+            if(state.isWalletChargeError){
               Get.snackbar("Charge Wallet error", state.errorMessage ?? "");
             }
         },
@@ -162,6 +163,7 @@ class _ValidateOtpWidgetState
                       ),
                     ],
                   ),
+                  const SizedBox(height: 30),
                 ],
               );
             }
