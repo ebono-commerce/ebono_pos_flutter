@@ -32,4 +32,6 @@ class ApiConstants {
   static final overridePrice = 'checkout/api/v1/pos/cart/price-override';
   static final orders = 'account/api/v1/pos/orders';
   static final returnOrders = 'account/api/v1/pos/return-request';
+  static final walletAuthentication = 'checkout/api/v1/pos/cart/store-authenticate?';
+  static final walletCharge = 'checkout/api/v1/pos/cart/wallet-charge';
 }

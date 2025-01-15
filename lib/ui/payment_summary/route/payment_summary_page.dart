@@ -14,6 +14,7 @@ import 'package:ebono_pos/ui/payment_summary/model/payment_summary_request.dart'
 import 'package:ebono_pos/ui/payment_summary/model/payment_summary_response.dart';
 import 'package:ebono_pos/ui/payment_summary/repository/PaymentRepository.dart';
 import 'package:ebono_pos/ui/payment_summary/route/order_success_screen.dart';
+import 'package:ebono_pos/ui/payment_summary/route/validate_otp_widget.dart';
 import 'package:ebono_pos/utils/dash_line.dart';
 import 'package:ebono_pos/utils/price.dart';
 import 'package:flutter/material.dart';
@@ -57,7 +58,7 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
     if (mounted == true) {
       paymentBloc.add(PaymentInitialEvent(paymentSummaryRequest));
     }
-   /* if (!cashPaymentFocusNode.hasFocus) {
+    /* if (!cashPaymentFocusNode.hasFocus) {
       cashPaymentFocusNode.requestFocus();
     }*/
     activeFocusNode = cashPaymentFocusNode;
@@ -103,7 +104,7 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
         } else if (activeFocusNode == onlinePaymentFocusNode) {
           _formKey.currentState?.validate();
           paymentBloc.onlinePayment = numPadTextController.text;
-        //  onlinePaymentTextController.text = numPadTextController.text;
+          //  onlinePaymentTextController.text = numPadTextController.text;
         } else if (activeFocusNode == loyaltyPaymentFocusNode) {
           loyaltyTextController.text = numPadTextController.text;
         } else if (activeFocusNode == walletPaymentFocusNode) {
@@ -137,8 +138,31 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
             if (state.showPaymentPopup && state.isPaymentStartSuccess) {
               _showPaymentDialog();
             }
-            if (state.isPaymentStatusSuccess) {
-              //onlinePaymentTextController.text = '';
+            if (state.isPaymentSummarySuccess) {
+              var applicableBalance = paymentBloc
+                      .paymentSummaryResponse
+                      .redeemablePaymentOptions
+                      ?.firstOrNull
+                      ?.applicableBalance ??
+                  '';
+              if (applicableBalance.isNotEmpty &&
+                  double.parse(applicableBalance) > 0 &&
+                  (getPrice(
+                          paymentBloc.paymentSummaryResponse
+                              .redeemedWalletAmount?.centAmount,
+                          paymentBloc.paymentSummaryResponse
+                              .redeemedWalletAmount?.fraction) <=
+                      0)) {
+                walletTextController.text = paymentBloc
+                        .paymentSummaryResponse
+                        .redeemablePaymentOptions
+                        ?.firstOrNull
+                        ?.applicableBalance ??
+                    '';
+              }
+              else{
+                walletTextController.text = '';
+              }
             }
             if (state.isPlaceOrderSuccess) {
               paymentBloc.add(PaymentIdealEvent());
@@ -149,6 +173,31 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
               onlinePaymentTextController.text = '';
               paymentBloc.add(PaymentIdealEvent());
               Get.snackbar("Place Order Error", state.errorMessage ?? "");
+            }
+
+            if (state.isWalletAuthenticationSuccess) {
+              print(
+                  'wallet authentication state is ${state.isWalletAuthenticationSuccess}');
+              paymentBloc.add(WalletIdealEvent());
+              print(
+                  'wallet authentication state is ${state.isWalletAuthenticationSuccess}');
+
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return Dialog(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20.0),
+                    ),
+                    child: ValidateOtpWidget(context),
+                  );
+                },
+              );
+            }
+
+            if (state.isWalletAuthenticationError) {
+              Get.snackbar(
+                  "Wallet Authentication Error", state.errorMessage ?? "");
             }
           },
           child:
@@ -171,7 +220,10 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                       ),
                       Expanded(
                         flex: 4,
-                        child: paymentModeSection(),
+                        child: state.isPaymentSummarySuccess
+                            ? paymentModeSection(
+                                paymentBloc.paymentSummaryResponse)
+                            : SizedBox(),
                       ),
                       Expanded(
                         flex: 3,
@@ -250,17 +302,32 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                       label: 'GST',
                       value: getActualPrice(data?.taxTotal?.centAmount,
                           data?.taxTotal?.fraction)),
-                  billDetailRow(
-                      label: 'Discount',
-                      value:
-                          '-${getActualPrice(data?.discountTotal?.centAmount, data?.discountTotal?.fraction)}',
-                      isNegative: true),
-                  billDetailRow(
-                    label: 'Total Savings',
-                    value:
-                        '-${getActualPrice(data?.totalSavings?.centAmount, data?.totalSavings?.fraction)}',
-                    isNegative: true,
-                  ),
+                  if (getPrice(data?.redeemedWalletAmount?.centAmount,
+                          data?.redeemedWalletAmount?.fraction) >
+                      0)
+                    billDetailRow(
+                        label: 'Wallet Applied',
+                        value: getActualPrice(
+                            data?.redeemedWalletAmount?.centAmount,
+                            data?.redeemedWalletAmount?.fraction),
+                        isNegative: true),
+                  if (getPrice(data?.discountTotal?.centAmount,
+                          data?.discountTotal?.fraction) >
+                      0)
+                    billDetailRow(
+                        label: 'Discount',
+                        value: getActualPrice(data?.discountTotal?.centAmount,
+                            data?.discountTotal?.fraction),
+                        isNegative: true),
+                  if (getPrice(data?.totalSavings?.centAmount,
+                          data?.totalSavings?.fraction) >
+                      0)
+                    billDetailRow(
+                      label: 'Total Savings',
+                      value: getActualPrice(data?.totalSavings?.centAmount,
+                          data?.totalSavings?.fraction),
+                      isNegative: true,
+                    ),
                   //billDetailRow(label: 'Loyalty points', value: '-100', isNegative: true),
                 ],
               ),
@@ -274,6 +341,7 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                       data?.amountPayable?.fraction),
                   isBold: true),
             ),
+            SizedBox(height: 12),
             SizedBox(height: 16),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -281,11 +349,17 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text('Tender Details', style: TextStyle(fontSize: 16)),
+                  SizedBox(height: 12),
+                  Divider(
+                    color: CustomColors.borderColor,
+                    height: 2,
+                  ),
                   tenderDetailRow(
                       label: 'Cash', value: cashPaymentTextController.text),
                   tenderDetailRow(
-                      label: 'UPI', value: onlinePaymentTextController.text),
-                  tenderDetailRow(label: 'Card', value: '-'),
+                      label: 'Online', value: onlinePaymentTextController.text),
+                  tenderDetailRow(
+                      label: 'Wallet', value: walletTextController.text),
                 ],
               ),
             ),
@@ -296,13 +370,13 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
   }
 
 // Widget for Payment Mode Section
-  Widget paymentModeSection() {
+  Widget paymentModeSection(PaymentSummaryResponse data) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          selectRedemptionWidget(),
+          selectRedemptionWidget(data),
           SizedBox(height: 20),
           selectPaymentWidget(),
         ],
@@ -380,7 +454,8 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                       if (double.parse(value) < paymentBloc.totalPayable) {
                         onlinePaymentTextController.text =
                             '${(double.parse(value) - paymentBloc.totalPayable).abs()}';
-                        paymentBloc.onlinePayment = '${(double.parse(value) - paymentBloc.totalPayable).abs()}';
+                        paymentBloc.onlinePayment =
+                            '${(double.parse(value) - paymentBloc.totalPayable).abs()}';
                       } else {
                         onlinePaymentTextController.text = '';
                         paymentBloc.onlinePayment = '';
@@ -389,7 +464,7 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                       paymentBloc.onlinePayment = value;
                       if (double.parse(value) < paymentBloc.totalPayable) {
                         cashPaymentTextController.text =
-                        '${(double.parse(value) - paymentBloc.totalPayable).abs()}';
+                            '${(double.parse(value) - paymentBloc.totalPayable).abs()}';
                       } else {
                         cashPaymentTextController.text = '';
                       }
@@ -631,9 +706,12 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                                     double.parse(paymentBloc.cashPayment) <
                                         paymentBloc.totalPayable
                                 ? () {
-                                      var balance = (paymentBloc.totalPayable - (paymentBloc.cashAmount)).abs().toString();
-                                      paymentBloc.onlinePayment = balance;
-                                      onlinePaymentTextController.text = balance;
+                                    var balance = (paymentBloc.totalPayable -
+                                            (paymentBloc.cashAmount))
+                                        .abs()
+                                        .toString();
+                                    paymentBloc.onlinePayment = balance;
+                                    onlinePaymentTextController.text = balance;
                                   }
                                 : null,
                             child: Row(
@@ -759,7 +837,7 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
         ));
   }
 
-  Widget selectRedemptionWidget() {
+  Widget selectRedemptionWidget(PaymentSummaryResponse data) {
     return Card(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(15.0),
@@ -787,7 +865,7 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                     label: 'Loyalty Points   ',
                     iconPath: 'assets/images/ic_loyalty.svg',
                     inputHint: 'Available points',
-                    buttonLabel: 'Redeem',
+                    buttonLabel: 'Apply',
                     controller: loyaltyTextController,
                     focusNode: loyaltyPaymentFocusNode,
                     readOnly: true,
@@ -799,11 +877,13 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                     label: 'Wallet',
                     iconPath: 'assets/images/ic_coupon.svg',
                     inputHint: 'Available',
-                    buttonLabel: 'Apply',
+                    buttonLabel: 'Redeem',
                     controller: walletTextController,
                     focusNode: walletPaymentFocusNode,
                     readOnly: true,
-                    onPressed: null,
+                    onPressed: (double.parse(paymentBloc.paymentSummaryResponse.redeemablePaymentOptions?.firstOrNull?.applicableBalance ?? '0') >0)? () {
+                      paymentBloc.add(WalletAuthenticationEvent());
+                    }:null,
                     validator: null),
 
                 //loyaltyPointsRedemption(),

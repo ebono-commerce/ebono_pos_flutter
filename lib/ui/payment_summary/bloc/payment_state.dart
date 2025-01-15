@@ -16,6 +16,10 @@ class PaymentState {
   final bool isOnlinePaymentSuccess;
   final bool allowPlaceOrder;
   final bool allowPrintInvoice;
+  final bool isWalletAuthenticationSuccess;
+  final bool isWalletAuthenticationError;
+  final bool isWalletChargeSuccess;
+  final bool isWalletChargeError;
 
   const PaymentState({
     this.initialState = false,
@@ -35,6 +39,10 @@ class PaymentState {
     this.isOnlinePaymentSuccess = false,
     this.allowPlaceOrder = false,
     this.allowPrintInvoice = false,
+    this.isWalletAuthenticationSuccess = false,
+    this.isWalletAuthenticationError = false,
+    this.isWalletChargeSuccess = false,
+    this.isWalletChargeError = false,
   });
 
   PaymentState copyWith({
@@ -55,6 +63,10 @@ class PaymentState {
     bool? isOnlinePaymentSuccess,
     bool? allowPlaceOrder,
     bool? allowPrintInvoice,
+    bool? isWalletAuthenticationSuccess,
+    bool? isWalletAuthenticationError,
+    bool? isWalletChargeSuccess,
+    bool? isWalletChargeError,
   }) {
     return PaymentState(
       initialState: initialState ?? this.initialState,
@@ -83,6 +95,12 @@ class PaymentState {
       allowPlaceOrder ?? this.allowPlaceOrder,
       allowPrintInvoice:
       allowPrintInvoice ?? this.allowPrintInvoice,
+      isWalletAuthenticationSuccess:
+      isWalletAuthenticationSuccess ?? this.isWalletAuthenticationSuccess,
+      isWalletAuthenticationError: isWalletAuthenticationError ?? this.isWalletAuthenticationError,
+      isWalletChargeSuccess:
+      isWalletChargeSuccess ?? this.isWalletChargeSuccess,
+      isWalletChargeError: isWalletChargeError ?? this.isWalletChargeError,
     );
   }
 }

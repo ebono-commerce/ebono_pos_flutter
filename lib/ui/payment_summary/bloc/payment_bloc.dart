@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:ebono_pos/constants/shared_preference_constants.dart';
 import 'package:ebono_pos/data_store/hive_storage_helper.dart';
+import 'package:ebono_pos/ui/home/model/phone_number_request.dart';
 import 'package:ebono_pos/ui/login/model/terminal_details_response.dart';
 import 'package:ebono_pos/ui/payment_summary/bloc/payment_event.dart';
 import 'package:ebono_pos/ui/payment_summary/bloc/payment_state.dart';
@@ -15,7 +16,9 @@ import 'package:ebono_pos/ui/payment_summary/model/payment_status_response.dart'
 import 'package:ebono_pos/ui/payment_summary/model/payment_summary_request.dart';
 import 'package:ebono_pos/ui/payment_summary/model/payment_summary_response.dart';
 import 'package:ebono_pos/ui/payment_summary/model/place_order_request.dart';
+import 'package:ebono_pos/ui/payment_summary/model/wallet_charge_request.dart';
 import 'package:ebono_pos/ui/payment_summary/repository/PaymentRepository.dart';
+import 'package:ebono_pos/utils/price.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 
@@ -42,8 +45,10 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
   List<PaymentMethod>? paymentMethods = [];
   late PaymentOption? cashPaymentOption;
   late PaymentOption? onlinePaymentOption;
+  late RedeemablePaymentOption? walletPaymentOption;
   double cashAmount = 0;
   double onlineAmount = 0;
+  double walletAmount = 0;
   double totalPayable = 0;
   double balancePayable = 0;
   bool allowPlaceOrder = false;
@@ -59,6 +64,9 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
     on<PaymentCancelEvent>(_paymentCancelApi);
     on<PlaceOrderEvent>(_placeOrder);
     on<GetBalancePayableAmountEvent>(_getBalancePayableAmount);
+    on<WalletAuthenticationEvent>(_walletAuthentication);
+    on<WalletChargeEvent>(_walletCharge);
+    on<WalletIdealEvent>(_onWalletIdeal);
     on<PaymentIdealEvent>(_onIdeal);
   }
 
@@ -93,7 +101,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
 
     var edcDevice = hiveStorageHelper
         .read(SharedPreferenceConstants.edcDeviceDetails) as List;
-        
+
     List<EdcDevice> edcDeviceDetails = edcDevice.map((item) {
       if (item is Map<String, dynamic>) {
         return EdcDevice.fromJson(item);
@@ -311,8 +319,8 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
       GetBalancePayableAmountEvent event, Emitter<PaymentState> emit) {
     cashAmount = double.parse(event.cash);
     onlineAmount = double.parse(event.online);
-
-    var givenAmount = cashAmount + onlineAmount + double.parse(event.wallet);
+    walletAmount = double.parse(event.wallet);
+    var givenAmount = cashAmount + onlineAmount + walletAmount;
     totalPayable = (paymentSummaryResponse.amountPayable?.centAmount ?? 0) /
         (paymentSummaryResponse.amountPayable?.fraction ?? 1);
     if (event.online != '0') {
@@ -362,7 +370,8 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
       }
       if (onlinePayment.isNotEmpty) {
         onlinePaymentOption = paymentSummaryResponse.paymentOptions?.firstWhere(
-          (option) => option.code == paymentStatusResponse.paymentMode?.toUpperCase(),
+          (option) =>
+              option.code == paymentStatusResponse.paymentMode?.toUpperCase(),
         );
         paymentMethods?.add(PaymentMethod(
             paymentOptionId: onlinePaymentOption?.paymentOptionId,
@@ -375,7 +384,21 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
                   key: "METHOD", value: paymentStatusResponse.paymentMode),
             ]));
       }
-
+      var appliedWalletAmount = getPrice(paymentSummaryResponse.redeemedWalletAmount?.centAmount, paymentSummaryResponse.redeemedWalletAmount?.fraction);
+      if (appliedWalletAmount > 0) {
+        walletPaymentOption = paymentSummaryResponse.redeemablePaymentOptions?.firstWhere(
+              (option) => option.code == 'WALLET',
+        );
+        paymentMethods?.add(PaymentMethod(
+            paymentOptionId: walletPaymentOption?.paymentOptionId,
+            pspId: walletPaymentOption?.pspId,
+            requestId: paymentSummaryRequest.cartId,
+            transactionReferenceId: paymentSummaryRequest.cartId,
+            amount: appliedWalletAmount,
+            methodDetail: [
+              MethodDetail(key: "METHOD", value: "WALLET"),
+            ]));
+      }
       orderSummaryResponse =
           await _paymentRepository.placeOrder(PlaceOrderRequest(
         cartId: paymentSummaryRequest.cartId,
@@ -436,6 +459,60 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
         }
       }
     });
+  }
+
+  Future<void> _walletAuthentication(
+      WalletAuthenticationEvent event, Emitter<PaymentState> emit) async {
+    emit(state.copyWith(isLoading: true, initialState: false));
+
+    try {
+      var response = await _paymentRepository.walletAuthentication(
+          PhoneNumberRequest(phoneNumber: paymentSummaryRequest.phoneNumber));
+
+      emit(state.copyWith(
+          isLoading: false, isWalletAuthenticationSuccess: true));
+    } catch (error) {
+      emit(state.copyWith(
+          isLoading: false,
+          isWalletAuthenticationError: true,
+          errorMessage: error.toString()));
+    }
+  }
+
+  Future<void> _walletCharge(
+      WalletChargeEvent event, Emitter<PaymentState> emit) async {
+    emit(state.copyWith(isLoading: true, initialState: false));
+
+    try {
+      paymentSummaryResponse = await _paymentRepository.walletCharge(WalletChargeRequest(
+          phoneNumber: paymentSummaryRequest.phoneNumber,
+          otp: event.otp,
+          amount: Amount(
+              centAmount: double.parse(
+                  '${(paymentSummaryResponse.redeemablePaymentOptions!.firstOrNull?.applicableBalance) ?? 0}'),
+              fraction: 1,
+              currency: 'INR')));
+
+      emit(state.copyWith(
+          isLoading: false, isWalletChargeSuccess: true, isPaymentSummarySuccess: true));
+    } catch (error) {
+      emit(state.copyWith(
+          isLoading: false,
+          isWalletChargeError: true,
+          errorMessage: error.toString()));
+    }
+  }
+
+  Future<void> _onWalletIdeal(
+      WalletIdealEvent event, Emitter<PaymentState> emit) async {
+    emit(state.copyWith(
+      initialState: false,
+      isLoading: false,
+      isWalletAuthenticationSuccess: false,
+      isWalletAuthenticationError: false,
+      isWalletChargeSuccess: false,
+      isWalletChargeError: false,
+    ));
   }
 
   @override
