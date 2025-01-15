@@ -118,8 +118,8 @@ class _ReturnsViewState extends State<ReturnsView> {
     numPadTextController.clear();
     _customerDetails = const Customer();
     returnsBloc.add(ReturnsResetEvent());
-    setState(() {});
     homeController.isReturnViewReset.value = false;
+    setState(() {});
   }
 
   void onClickSearchOrders() {
