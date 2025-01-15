@@ -130,7 +130,6 @@ Future<Uint8List> generatePdf(OrderSummaryResponse data) async {
                       ),
                     ),
                   ]),
-
               pw.Divider(),
               pw.Container(
                 width: PdfPageFormat.roll80.availableWidth,
@@ -154,14 +153,14 @@ Future<Uint8List> generatePdf(OrderSummaryResponse data) async {
                             font: font,
                           ),
                         ),
-                      if (data.orderNumber?.isNotEmpty == true)
-                        pw.Text(
-                          'Order No: ${data.orderNumber}',
-                          style: pw.TextStyle(
-                            fontSize: 8,
-                            font: font,
-                          ),
-                        ),
+                      // if (data.orderNumber?.isNotEmpty == true)
+                      //   pw.Text(
+                      //     'Order No: ${data.orderNumber}',
+                      //     style: pw.TextStyle(
+                      //       fontSize: 8,
+                      //       font: font,
+                      //     ),
+                      //   ),
                       pw.Text(
                         'Order Date: ${data.orderDate}',
                         style: pw.TextStyle(
@@ -435,44 +434,41 @@ Future<Uint8List> generatePdf(OrderSummaryResponse data) async {
               ),
               pw.SizedBox(height: 4),
 
-              pw.RichText(
-                textAlign: pw.TextAlign.center,
-                maxLines: 1,
-                text: pw.TextSpan(
-                  children: [
-                    pw.TextSpan(
-                      text: 'Your savings: ',
-                      style: pw.TextStyle(
-                        fontSize: 8,
-                        font: font,
-                      ),
+              pw.Row(
+                mainAxisAlignment: pw.MainAxisAlignment.center,
+                crossAxisAlignment: pw.CrossAxisAlignment.center,
+                children: [
+                  pw.Text(
+                    'Your savings: ',
+                    style: pw.TextStyle(
+                      fontSize: 8,
+                      font: font,
                     ),
-                    pw.TextSpan(
-                      text: getActualPrice(data.mrpSavings?.centAmount,
-                          data.mrpSavings?.fraction),
-                      style: pw.TextStyle(
-                        fontSize: 9,
-                        fontWeight: pw.FontWeight.bold,
-                        font: font,
-                      ),
+                  ),
+                  pw.Text(
+                    getActualPrice(
+                        data.mrpSavings?.centAmount, data.mrpSavings?.fraction),
+                    style: pw.TextStyle(
+                      fontSize: 9,
+                      fontWeight: pw.FontWeight.bold,
+                      font: font,
                     ),
-                    if (data.additionalDiscountDescription != null)
-                      pw.WidgetSpan(
-                        child: pw.Container(
-                          margin: pw.EdgeInsets.only(left: 5),
-                          child: pw.Text(
-                            '(${data.additionalDiscountDescription})',
-                            style: pw.TextStyle(
-                              fontSize: 6,
-                              fontWeight: pw.FontWeight.bold,
-                              font: font,
-                            ),
-                          ),
+                  ),
+                  if (data.additionalDiscountDescription != null)
+                    pw.Container(
+                      margin: pw.EdgeInsets.only(left: 5),
+                      child: pw.Text(
+                        '(${data.additionalDiscountDescription})',
+                        style: pw.TextStyle(
+                          fontSize: 6,
+                          fontWeight: pw.FontWeight.bold,
+                          font: font,
                         ),
                       ),
-                  ],
-                ),
+                    ),
+                ],
               ),
+
               pw.Divider(),
               if (data.taxDetails?.taxLines?.isNotEmpty == true)
                 pw.Column(

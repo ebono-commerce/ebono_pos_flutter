@@ -48,7 +48,7 @@ class QuickActionButtons extends StatelessWidget {
             actionButton("Clear cart", context, onClearCartPressed),
             actionButton("Hold cart", context, onHoldCartPressed),
             Text(
-              "(SAVOmart stage - v1.0.6)",
+              "(SAVOmart stage - v1.0.7)",
               style: TextStyle(fontSize: 8),
             )
           ],
