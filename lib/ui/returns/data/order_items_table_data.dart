@@ -82,30 +82,32 @@ class OrderItemsTableData {
             child: Row(
               children: [
                 Container(
-                    decoration: BoxDecoration(
-                      color: (orderLine.isSelected == true &&
-                              orderLine.orderLineId ==
-                                  returnsBLoc
-                                      .state.lastSelectedItem.orderLineId)
-                          ? CustomColors.accentColor
-                          : Colors.white,
-                      borderRadius: BorderRadius.circular(8.0),
-                      border: Border.all(
-                        color: borderColor,
-                        width: 1,
-                      ),
+                  decoration: BoxDecoration(
+                    color: (orderLine.isSelected == true &&
+                            orderLine.orderLineId ==
+                                returnsBLoc.state.lastSelectedItem.orderLineId)
+                        ? CustomColors.accentColor
+                        : Colors.white,
+                    borderRadius: BorderRadius.circular(8.0),
+                    border: Border.all(
+                      color: borderColor,
+                      width: 1,
                     ),
-                    height: 35,
-                    width: 80,
-                    child: Center(
-                      child: Text(
-                        "${orderLine.returnedQuantity ?? ''}",
-                        style: TextStyle(color: CustomColors.black),
-                      ),
-                    )),
+                  ),
+                  height: 35,
+                  width: 80,
+                  child: Center(
+                    child: Text(
+                      orderLine.returnedQuantity != null
+                          ? orderLine.returnedQuantity.toString()
+                          : "",
+                      style: TextStyle(color: CustomColors.black),
+                    ),
+                  ),
+                ),
                 SizedBox(width: 10),
                 Text(
-                  "/${orderLine.orderQuantity!.quantityNumber} ${orderLine.orderQuantity!.quantityUom}",
+                  "/${orderLine.orderQuantity!.quantityUom == "pcs" ? orderLine.orderQuantity!.quantityNumber!.toInt().toString() : orderLine.orderQuantity!.quantityNumber} ${orderLine.orderQuantity!.quantityUom}",
                   style: TextStyle(color: CustomColors.greyFont),
                 )
               ],

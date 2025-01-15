@@ -7,8 +7,10 @@ import 'package:ebono_pos/ui/home/register_section.dart';
 import 'package:ebono_pos/ui/home/repository/home_repository.dart';
 import 'package:ebono_pos/ui/home/widgets/home_app_bar.dart';
 import 'package:ebono_pos/ui/home/widgets/text_button_widget.dart';
+import 'package:ebono_pos/ui/returns/bloc/returns_bloc.dart';
 import 'package:ebono_pos/ui/returns/returns_view.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 
 class HomePage extends StatefulWidget {
@@ -25,12 +27,14 @@ class _HomePageState extends State<HomePage> {
   late String port;
   late HomeController homeController;
   late ThemeData theme;
+  late ReturnsBloc returnsBloc;
 
   @override
   void initState() {
     super.initState();
     if (mounted) {
       try {
+        returnsBloc = ReturnsBloc(Get.find());
         homeController = Get.find<HomeController>();
         print("HomeController initialized.");
       } catch (e) {
@@ -87,7 +91,11 @@ class _HomePageState extends State<HomePage> {
                       selectedTabButton: homeController.selectedTabButton.value,
                       buttonIndex: 4,
                       onPressed: () {
-                        homeController.selectedTabButton.value = 4;
+                        if (homeController.selectedTabButton.value == 4) {
+                          homeController.isReturnViewReset.value = true;
+                        } else {
+                          homeController.selectedTabButton.value = 4;
+                        }
                       },
                       title: "Returns",
                     ),

@@ -1,13 +1,14 @@
 import 'package:ebono_pos/constants/custom_colors.dart';
 import 'package:ebono_pos/ui/common_text_field.dart';
 import 'package:ebono_pos/ui/custom_keyboard/custom_num_pad.dart';
+import 'package:ebono_pos/ui/home/home_controller.dart';
 import 'package:ebono_pos/ui/home/widgets/quick_action_buttons.dart';
 import 'package:ebono_pos/ui/returns/bloc/returns_bloc.dart';
 import 'package:ebono_pos/ui/returns/data/customer_table_data.dart';
 import 'package:ebono_pos/ui/returns/data/order_items_table_data.dart';
 import 'package:ebono_pos/ui/returns/data/returns_confirmation_table_data.dart';
 import 'package:ebono_pos/ui/returns/models/customer_order_model.dart';
-import 'package:ebono_pos/ui/returns/widgets/summary_payment_section.dart';
+import 'package:ebono_pos/ui/returns/widgets/refund_summary_widget.dart';
 import 'package:ebono_pos/utils/dash_line.dart';
 import 'package:ebono_pos/widgets/custom_table/custom_table_widget.dart';
 import 'package:ebono_pos/widgets/order_details_widget.dart';
@@ -24,6 +25,7 @@ class ReturnsView extends StatefulWidget {
 
 class _ReturnsViewState extends State<ReturnsView> {
   late ReturnsBloc returnsBloc;
+  final homeController = Get.find<HomeController>();
 
   late TextEditingController customerNumberTextController;
   late TextEditingController orderNumberTextController;
@@ -49,12 +51,6 @@ class _ReturnsViewState extends State<ReturnsView> {
   late OrderItemsTableData _orderItemsTableData;
   late ReturnsConfirmationTableData _returnsConfirmationTableData;
 
-  String customerName = '';
-  String walletBalance = '';
-  String phoneNumber = '';
-  String loyaltyPoints = '';
-  String title = '';
-
   @override
   void initState() {
     customerNumberTextController = TextEditingController();
@@ -66,6 +62,10 @@ class _ReturnsViewState extends State<ReturnsView> {
     _orderItemsTableData = OrderItemsTableData(context: context);
     _returnsConfirmationTableData =
         ReturnsConfirmationTableData(context: context);
+
+    ever(homeController.isReturnViewReset, (value) {
+      _resetAllValues();
+    });
 
     activeFocusNode = customerNumberFocusNode;
 
@@ -108,6 +108,18 @@ class _ReturnsViewState extends State<ReturnsView> {
     });
 
     super.initState();
+  }
+
+  void _resetAllValues() {
+    customerNumberTextController.clear();
+    orderNumberTextController.clear();
+    isCustomerOrdersFetched = false;
+    isOrderItemsFetched = false;
+    numPadTextController.clear();
+    _customerDetails = const Customer();
+    returnsBloc.add(ReturnsResetEvent());
+    setState(() {});
+    homeController.isReturnViewReset.value = false;
   }
 
   void onClickSearchOrders() {
@@ -246,15 +258,16 @@ class _ReturnsViewState extends State<ReturnsView> {
                                   onTapSelectedButton: (orderLine) {
                                     if (!orderLine.isSelected) {
                                       numPadFocusNode.requestFocus();
-                                      numPadTextController.text = '${orderLine.returnedQuantity ?? ''}';
-
+                                      numPadTextController.text =
+                                          '${orderLine.returnedQuantity ?? ''}';
                                     } else {
                                       numPadTextController.text = '';
                                     }
                                     returnsBloc.add(UpdateSelectedItem(
-                                        id: orderLine.orderLineId ?? '',
-                                        orderItems: state.orderItemsData,
-                                        orderLine: orderLine));
+                                      id: orderLine.orderLineId ?? '',
+                                      orderItems: state.orderItemsData,
+                                      orderLine: orderLine,
+                                    ));
                                   },
                                 ),
                                 columnWidths: const {
@@ -279,17 +292,6 @@ class _ReturnsViewState extends State<ReturnsView> {
                   Expanded(
                     flex: 1,
                     child: QuickActionButtons(
-                      onClearCartPressed:
-                          isCustomerOrdersFetched || isOrderItemsFetched
-                              ? () {
-                                  customerNumberTextController.clear();
-                                  orderNumberTextController.clear();
-                                  isCustomerOrdersFetched = false;
-                                  isOrderItemsFetched = false;
-                                  _customerDetails = const Customer();
-                                  setState(() {});
-                                }
-                              : null,
                       color: Colors.white,
                     ),
                   ),
@@ -425,15 +427,17 @@ class _ReturnsViewState extends State<ReturnsView> {
                   contentPadding:
                       EdgeInsets.only(top: 10, bottom: 10, right: 15, left: 10),
                   title: Text(
-                    isOrderItemsFetched? 'Enter Returnable Quantity': customerNumberFocusNode.hasFocus
-                        ? 'Enter Customer Mobile Number'
-                        : orderNumberFocusNode.hasFocus
-                            ? 'Enter Order Number'
-                            : customerNumberTextController.text.isNotEmpty
-                                ? 'Customer Mobile Number'
-                                : orderNumberTextController.text.isNotEmpty
-                                    ? 'Order Number'
-                                    : 'Enter Customer/Order Number',
+                    isOrderItemsFetched
+                        ? 'Enter Returnable Quantity'
+                        : customerNumberFocusNode.hasFocus
+                            ? 'Enter Customer Mobile Number'
+                            : orderNumberFocusNode.hasFocus
+                                ? 'Enter Order Number'
+                                : customerNumberTextController.text.isNotEmpty
+                                    ? 'Customer Mobile Number'
+                                    : orderNumberTextController.text.isNotEmpty
+                                        ? 'Order Number'
+                                        : 'Enter Customer/Order Number',
                     style: Theme.of(context)
                         .textTheme
                         .titleSmall
@@ -502,29 +506,45 @@ class _ReturnsViewState extends State<ReturnsView> {
                     } else if (activeFocusNode == orderNumberFocusNode) {
                       orderNumberFocusNode.unfocus();
                     } else if (activeFocusNode == numPadFocusNode) {
-                      final updatedItem =
-                          returnsBloc.state.lastSelectedItem.copyWith(
-                        returnedQuantity: int.parse(numPadTextController.text),
-                      );
+                      if ((returnsBloc.state.lastSelectedItem.returnableQuantity
+                              ?.quantityNumber)! >=
+                          double.parse(numPadTextController.text)) {
+                        final updatedItem =
+                            returnsBloc.state.lastSelectedItem.copyWith(
+                          returnedQuantity: returnsBloc.state.lastSelectedItem
+                                      .returnableQuantity?.quantityUom ==
+                                  "pcs"
+                              ? int.parse(numPadTextController.text.toString())
+                              : double.parse(
+                                  numPadTextController.text.toString(),
+                                ),
+                        );
 
-                      final updatedOrderLines = returnsBloc
-                          .state.orderItemsData.orderLines
-                          ?.map((item) {
-                        if (item.orderLineId == updatedItem.orderLineId) {
-                          return updatedItem;
-                        }
-                        return item;
-                      }).toList();
+                        final updatedOrderLines = returnsBloc
+                            .state.orderItemsData.orderLines
+                            ?.map((item) {
+                          if (item.orderLineId == updatedItem.orderLineId) {
+                            return updatedItem;
+                          }
+                          return item;
+                        }).toList();
 
-                      final updatedOrderItemsData =
-                          returnsBloc.state.orderItemsData.copyWith(
-                        orderLines: updatedOrderLines,
-                      );
+                        final updatedOrderItemsData =
+                            returnsBloc.state.orderItemsData.copyWith(
+                          orderLines: updatedOrderLines,
+                        );
 
-                      returnsBloc.add(UpdateSelectedItem(
+                        returnsBloc.add(UpdateSelectedItem(
                           id: updatedItem.orderLineId ?? '',
                           orderItems: updatedOrderItemsData,
-                          orderLine: updatedItem));
+                          orderLine: updatedItem,
+                        ));
+                      } else {
+                        Get.snackbar(
+                          "Invalid Quantity",
+                          "Returnable quantity should not be more than ${(returnsBloc.state.lastSelectedItem.returnableQuantity?.quantityNumber)!}",
+                        );
+                      }
                     }
                   },
                   onClearAll: (p0) {},
@@ -618,10 +638,14 @@ class _ReturnsViewState extends State<ReturnsView> {
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(20.0),
                               ),
-                              child: SummaryPaymentSection(
+                              child: ReturnSummaryWidget(
                                 customer: _customerDetails,
                                 returnsConfirmationTableData:
                                     _returnsConfirmationTableData,
+                                onTapClose: () {
+                                  _resetAllValues();
+                                  Get.back();
+                                },
                                 onPaymentModeSelected: (String mode) {
                                   // Handle payment mode selection
                                 },

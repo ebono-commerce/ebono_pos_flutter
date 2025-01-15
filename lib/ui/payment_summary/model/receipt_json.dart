@@ -10,15 +10,21 @@ const jsonData = '''
       "country_code": "91",
       "number": "9380673057"
     },
-    "gstin_number": "29AAGCE1511K1ZP"
+    "gstin_number": "29AAGCE1511K1ZP",
+    "fssai": {
+            "fssai_number": "100190110000123",
+            "fssai_image_url": ""
+    }
   },
   "customer": {
     "customer_name": "Admin",
+    "is_proxy_number": true,
     "phone_number": {
       "country_code": "+91",
       "number": "9222222222"
     }
   },
+  "additional_discount_description": "includes additional 100 discount",
   "order_number": "10001151",
   "invoice_lines": [
     {

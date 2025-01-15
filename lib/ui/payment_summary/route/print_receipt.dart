@@ -57,8 +57,12 @@ Future<Uint8List> generatePdf(OrderSummaryResponse data) async {
   final fallbackFontByteData =
       await rootBundle.load("assets/fonts/Roboto-Regular.ttf");
   final img = await rootBundle.load('assets/images/savomart_logo.png');
+  final img2 =
+      await rootBundle.load('assets/images/savo_mart_kannada_logo.jpeg');
   final imageBytes = img.buffer.asUint8List();
+  final imageBytes2 = img2.buffer.asUint8List();
   pw.Image image1 = pw.Image(pw.MemoryImage(imageBytes));
+  pw.Image image2 = pw.Image(pw.MemoryImage(imageBytes2));
   const double point = 1.0;
   const double inch = 72.0;
   const double cm = inch / 2.54;
@@ -118,6 +122,13 @@ Future<Uint8List> generatePdf(OrderSummaryResponse data) async {
                         font: font,
                       ),
                     ),
+                    pw.Text(
+                      'FSSAI: ${data.outletAddress?.fssaiNumber}',
+                      style: pw.TextStyle(
+                        fontSize: 8,
+                        font: font,
+                      ),
+                    ),
                   ]),
 
               pw.Divider(),
@@ -165,29 +176,36 @@ Future<Uint8List> generatePdf(OrderSummaryResponse data) async {
                           font: font,
                         ),
                       ),
+                      pw.Text(
+                        'Customer Number: ${data.customer!.isProxyNumber ? "Store Number" : data.customer!.phoneNumber!.number}',
+                        style: pw.TextStyle(
+                          fontSize: 8,
+                          font: font,
+                        ),
+                      ),
                     ]),
               ),
 
-              pw.Divider(),
-              pw.Row(
-                mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                children: [
-                  pw.Text(
-                    '',
-                    style: pw.TextStyle(
-                      fontSize: 12,
-                      font: font,
-                    ),
-                  ),
-                  pw.Text(
-                    'All Amount in Rupees',
-                    style: pw.TextStyle(
-                      fontSize: 4,
-                      font: font,
-                    ),
-                  ),
-                ],
-              ),
+              // pw.Divider(),
+              // pw.Row(
+              //   mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+              //   children: [
+              //     pw.Text(
+              //       '',
+              //       style: pw.TextStyle(
+              //         fontSize: 12,
+              //         font: font,
+              //       ),
+              //     ),
+              //     pw.Text(
+              //       'All Amount in Rupees',
+              //       style: pw.TextStyle(
+              //         fontSize: 4,
+              //         font: font,
+              //       ),
+              //     ),
+              //   ],
+              // ),
               pw.Divider(),
 
               // Custom Table with headers and product details
@@ -343,6 +361,13 @@ Future<Uint8List> generatePdf(OrderSummaryResponse data) async {
                                   ),
                                 ],
                               ),
+                              pw.Text(
+                                'HSN: ${item.value.taxCode}',
+                                style: pw.TextStyle(
+                                  fontSize: 8,
+                                  font: font,
+                                ),
+                              ),
                               data.invoiceLines?.length != (item.key + 1)
                                   ? dottedDivider()
                                   : pw.Divider(),
@@ -409,11 +434,43 @@ Future<Uint8List> generatePdf(OrderSummaryResponse data) async {
                 ],
               ),
               pw.SizedBox(height: 4),
-              pw.Text(
-                'Your savings: ${getActualPrice(data.mrpSavings?.centAmount, data.mrpSavings?.fraction)}',
-                style: pw.TextStyle(
-                  fontSize: 8,
-                  font: font,
+
+              pw.RichText(
+                textAlign: pw.TextAlign.center,
+                maxLines: 1,
+                text: pw.TextSpan(
+                  children: [
+                    pw.TextSpan(
+                      text: 'Your savings: ',
+                      style: pw.TextStyle(
+                        fontSize: 8,
+                        font: font,
+                      ),
+                    ),
+                    pw.TextSpan(
+                      text: getActualPrice(data.mrpSavings?.centAmount,
+                          data.mrpSavings?.fraction),
+                      style: pw.TextStyle(
+                        fontSize: 9,
+                        fontWeight: pw.FontWeight.bold,
+                        font: font,
+                      ),
+                    ),
+                    if (data.additionalDiscountDescription != null)
+                      pw.WidgetSpan(
+                        child: pw.Container(
+                          margin: pw.EdgeInsets.only(left: 5),
+                          child: pw.Text(
+                            '(${data.additionalDiscountDescription})',
+                            style: pw.TextStyle(
+                              fontSize: 6,
+                              fontWeight: pw.FontWeight.bold,
+                              font: font,
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
               ),
               pw.Divider(),
@@ -667,8 +724,9 @@ Future<Uint8List> generatePdf(OrderSummaryResponse data) async {
                     ]),
               ),
               ...?data.termsAndConditions?.map((term) => pw.Container(
+                    padding: pw.EdgeInsets.only(left: 1),
                     child: pw.Text(
-                      '- $term',
+                      term,
                       style: pw.TextStyle(
                         fontSize: 6,
                         font: font,
@@ -683,6 +741,12 @@ Future<Uint8List> generatePdf(OrderSummaryResponse data) async {
                   fontWeight: pw.FontWeight.bold,
                   font: font,
                 ),
+              ),
+              pw.SizedBox(height: 4),
+              pw.Container(
+                alignment: pw.Alignment.center,
+                height: 40,
+                child: image2,
               ),
               pw.SizedBox(height: 4),
             ],

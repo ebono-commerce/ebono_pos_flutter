@@ -12,23 +12,24 @@ import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
 
-class SummaryPaymentSection extends StatefulWidget {
+class ReturnSummaryWidget extends StatefulWidget {
   final Customer customer;
   final ReturnsConfirmationTableData returnsConfirmationTableData;
   final Function(String) onPaymentModeSelected;
+  final Function()? onTapClose;
 
-  const SummaryPaymentSection({
-    super.key,
-    required this.customer,
-    required this.onPaymentModeSelected,
-    required this.returnsConfirmationTableData,
-  });
+  const ReturnSummaryWidget(
+      {super.key,
+      required this.customer,
+      required this.onPaymentModeSelected,
+      required this.returnsConfirmationTableData,
+      required this.onTapClose});
 
   @override
-  State<SummaryPaymentSection> createState() => _SummaryPaymentSectionState();
+  State<ReturnSummaryWidget> createState() => _ReturnSummaryWidgetState();
 }
 
-class _SummaryPaymentSectionState extends State<SummaryPaymentSection> {
+class _ReturnSummaryWidgetState extends State<ReturnSummaryWidget> {
   ReturnsBloc returnsBloc = Get.find<ReturnsBloc>();
 
   HomeController homeController = Get.find<HomeController>();
@@ -48,15 +49,10 @@ class _SummaryPaymentSectionState extends State<SummaryPaymentSection> {
       _controllerCustomerName.text = value.toString();
     });
 
-    ever(homeController.customerResponse, (value) {
-      if (value.phoneNumber != null) {
-        /* TODO */
-      }
-    });
-
     if (!phoneNumberFocusNode.hasFocus) {
       phoneNumberFocusNode.requestFocus();
     }
+
     activeFocusNode = phoneNumberFocusNode;
     phoneNumberFocusNode.addListener(() {
       setState(() {
@@ -117,9 +113,7 @@ class _SummaryPaymentSectionState extends State<SummaryPaymentSection> {
                         Align(
                           alignment: Alignment.topRight,
                           child: InkWell(
-                            onTap: () {
-                              Navigator.pop(context);
-                            },
+                            onTap: widget.onTapClose,
                             child: SvgPicture.asset(
                               'assets/images/ic_close.svg',
                               semanticsLabel: 'cash icon,',
@@ -204,8 +198,7 @@ class _SummaryPaymentSectionState extends State<SummaryPaymentSection> {
                                       color: CustomColors.green,
                                     ),
                                   ),
-                                  Text(
-                                      state.refundSuccessModel.amountRefunded,
+                                  Text(state.refundSuccessModel.amountRefunded,
                                       style:
                                           theme.textTheme.titleSmall!.copyWith(
                                         color: CustomColors.green,
@@ -283,14 +276,7 @@ class _SummaryPaymentSectionState extends State<SummaryPaymentSection> {
                                           .add(UpdateSelectedItem(
                                             id: orderLineId,
                                             reason: reason,
-                                            orderItems:
-                                                state.orderItemsData.copyWith(
-                                              orderLines: state
-                                                  .orderItemsData.orderLines!
-                                                  .where((order) =>
-                                                      order.isSelected)
-                                                  .toList(),
-                                            ),
+                                            orderItems: state.orderItemsData,
                                             orderLine: state.lastSelectedItem,
                                           ));
                                     },
@@ -536,14 +522,8 @@ class _SummaryPaymentSectionState extends State<SummaryPaymentSection> {
                               );
                             }
 
-                            final selectedOrders = orderData.copyWith(
-                              orderLines: orderData.orderLines!
-                                  .where((order) => order.isSelected)
-                                  .toList(),
-                            );
-
                             context.read<ReturnsBloc>().add(
-                                  ProceedToReturnItems(selectedOrders),
+                                  ProceedToReturnItems(orderData),
                                 );
                           }
                         }
