@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:audioplayers/audioplayers.dart';
+// import 'package:audioplayers/audioplayers.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:ebono_pos/constants/shared_preference_constants.dart';
 import 'package:ebono_pos/data_store/hive_storage_helper.dart';
@@ -853,9 +853,9 @@ class HomeController extends GetxController {
     bool isScanApiError = false,
   }) async {
     // Add the sound playing logic before showing dialog
-    final player = AudioPlayer();
-    await player.play(AssetSource(
-        isScanApiError ? 'audio/error.mp3' : 'audio/add_to_cart.mp3'));
+    // final player = AudioPlayer();
+    // await player.play(AssetSource(
+    //     isScanApiError ? 'audio/error.mp3' : 'audio/add_to_cart.mp3'));
 
     Get.dialog(
       Dialog(
