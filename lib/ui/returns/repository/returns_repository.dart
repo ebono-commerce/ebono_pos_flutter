@@ -14,7 +14,7 @@ class ReturnsRepository {
   }) async {
     try {
       final response = await _apiHelper.get(
-        "${ApiConstants.orders}/fetch?phone_number=$phoneNumber",
+        "${ApiConstants.orders}?phone_number=$phoneNumber",
       );
 
       List<dynamic> customerOrdersList = response['orders'];
