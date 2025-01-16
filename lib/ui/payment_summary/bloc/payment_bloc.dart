@@ -323,7 +323,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
     cashAmount = double.parse(event.cash);
     onlineAmount = double.parse(event.online);
     walletAmount = double.parse(event.wallet);
-    var givenAmount = cashAmount + onlineAmount + walletAmount;
+    var givenAmount = cashAmount + onlineAmount /*+ walletAmount*/;
     totalPayable = (paymentSummaryResponse.amountPayable?.centAmount ?? 0) /
         (paymentSummaryResponse.amountPayable?.fraction ?? 1);
     if (event.online != '0') {

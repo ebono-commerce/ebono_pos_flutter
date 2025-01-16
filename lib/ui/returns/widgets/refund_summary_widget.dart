@@ -98,16 +98,14 @@ class _ReturnSummaryWidgetState extends State<ReturnSummaryWidget> {
       value: returnsBloc,
       child: BlocBuilder<ReturnsBloc, ReturnsState>(
         builder: (context, state) {
-          return SizedBox(
-            width: MediaQuery.sizeOf(context).width *
-                (state.isOrderReturnedSuccessfully ? 0.6 : 0.9),
-            height: MediaQuery.sizeOf(context).height *
-                (state.isOrderReturnedSuccessfully ? 0.66 : 0.88),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 25),
-              child: state.isOrderReturnedSuccessfully
-                  ? Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 25),
+            child: state.isOrderReturnedSuccessfully
+                ? SizedBox(
+                    width: 600,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Align(
@@ -217,133 +215,131 @@ class _ReturnSummaryWidgetState extends State<ReturnSummaryWidget> {
                             ],
                           ),
                         ),
-                      ],
-                    )
-                  : Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        /* HEADER */
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 10),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                "Confirm Return",
-                                style: TextStyle(fontSize: 20),
-                              ),
-                              InkWell(
-                                onTap: () {
-                                  Navigator.pop(context);
-                                },
-                                child: SvgPicture.asset(
-                                  'assets/images/ic_close.svg',
-                                  semanticsLabel: 'cash icon,',
-                                  width: 30,
-                                  height: 30,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-                        Expanded(
-                          flex: 6, // height
-                          child: Row(
-                            children: [
-                              /* SECTION - 1 */
-                              Expanded(
-                                flex: 8, // width
-                                child: CustomTableWidget(
-                                  headers: widget.returnsConfirmationTableData
-                                      .buildReturnOrderItemsTableHeader(),
-                                  tableRowsData: widget
-                                      .returnsConfirmationTableData
-                                      .buildTableRows(
-                                    orderItemsData:
-                                        state.orderItemsData.copyWith(
-                                      orderLines: state
-                                              .orderItemsData.orderLines
-                                              ?.where(
-                                                  (order) => order.isSelected)
-                                              .toList() ??
-                                          [],
-                                    ),
-                                    onTapSelectedButton: (id) {},
-                                    onReasonSelected: (reason, orderLineId) {
-                                      context
-                                          .read<ReturnsBloc>()
-                                          .add(UpdateSelectedItem(
-                                            id: orderLineId,
-                                            reason: reason,
-                                            orderItems: state.orderItemsData,
-                                            orderLine: state.lastSelectedItem,
-                                          ));
-                                    },
-                                  ),
-                                  columnWidths: {
-                                    0: FlexColumnWidth(1.5),
-                                    1: FlexColumnWidth(3),
-                                    2: FlexColumnWidth(0.8),
-                                    3: FlexColumnWidth(2.5),
-                                  },
-                                ),
-                              ),
-
-                              /* SECTION - 2 */
-                              Expanded(
-                                flex: 4, // width
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    /* when customer number is selected */
-                                    Expanded(
-                                      flex: 5,
-                                      child: _selectPaymentModeUI(
-                                          bodyLargeBlack, context, state),
-                                    ),
-                                    Visibility(
-                                      visible: !widget.customer.isProxyNumber!,
-                                      child:
-                                          Expanded(flex: 5, child: SizedBox()),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Visibility(
-                          visible: widget.customer.isProxyNumber!,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              CustomQwertyPad(
-                                textController: _qwertyPadController,
-                                focusNode: activeFocusNode!,
-                                onValueChanged: (value) {
-                                  if (activeFocusNode == phoneNumberFocusNode) {
-                                    homeController.phoneNumber.value = value;
-                                  } else if (activeFocusNode ==
-                                      customerNameFocusNode) {
-                                    homeController.customerName.value = value;
-                                  }
-                                },
-                                onEnterPressed: (value) {
-                                  if (activeFocusNode == phoneNumberFocusNode) {
-                                    customerNameFocusNode.requestFocus();
-                                  } else if (activeFocusNode ==
-                                      customerNameFocusNode) {
-                                    customerNameFocusNode.unfocus();
-                                  }
-                                },
-                              ),
-                            ],
-                          ),
-                        )
+                        SizedBox(height: 20),
                       ],
                     ),
-            ),
+                  )
+                : Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      /* HEADER */
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              "Confirm Return",
+                              style: TextStyle(fontSize: 20),
+                            ),
+                            InkWell(
+                              onTap: () {
+                                Navigator.pop(context);
+                              },
+                              child: SvgPicture.asset(
+                                'assets/images/ic_close.svg',
+                                semanticsLabel: 'cash icon,',
+                                width: 30,
+                                height: 30,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      Expanded(
+                        flex: 6, // height
+                        child: Row(
+                          children: [
+                            /* SECTION - 1 */
+                            Expanded(
+                              flex: 8, // width
+                              child: CustomTableWidget(
+                                headers: widget.returnsConfirmationTableData
+                                    .buildReturnOrderItemsTableHeader(),
+                                tableRowsData: widget
+                                    .returnsConfirmationTableData
+                                    .buildTableRows(
+                                  orderItemsData: state.orderItemsData.copyWith(
+                                    orderLines: state.orderItemsData.orderLines
+                                            ?.where((order) => order.isSelected)
+                                            .toList() ??
+                                        [],
+                                  ),
+                                  onTapSelectedButton: (id) {},
+                                  onReasonSelected: (reason, orderLineId) {
+                                    context
+                                        .read<ReturnsBloc>()
+                                        .add(UpdateSelectedItem(
+                                          id: orderLineId,
+                                          reason: reason,
+                                          orderItems: state.orderItemsData,
+                                          orderLine: state.lastSelectedItem,
+                                        ));
+                                  },
+                                ),
+                                columnWidths: {
+                                  0: FlexColumnWidth(1.5),
+                                  1: FlexColumnWidth(3),
+                                  2: FlexColumnWidth(0.8),
+                                  3: FlexColumnWidth(2.5),
+                                },
+                              ),
+                            ),
+
+                            /* SECTION - 2 */
+                            Expanded(
+                              flex: 4, // width
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  /* when customer number is selected */
+                                  Expanded(
+                                    flex: 5,
+                                    child: _selectPaymentModeUI(
+                                        bodyLargeBlack, context, state),
+                                  ),
+                                  Visibility(
+                                    visible: !widget.customer.isProxyNumber!,
+                                    child: Expanded(flex: 5, child: SizedBox()),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Visibility(
+                        visible: widget.customer.isProxyNumber!,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            CustomQwertyPad(
+                              textController: _qwertyPadController,
+                              focusNode: activeFocusNode!,
+                              onValueChanged: (value) {
+                                if (activeFocusNode == phoneNumberFocusNode) {
+                                  homeController.phoneNumber.value = value;
+                                } else if (activeFocusNode ==
+                                    customerNameFocusNode) {
+                                  homeController.customerName.value = value;
+                                }
+                              },
+                              onEnterPressed: (value) {
+                                if (activeFocusNode == phoneNumberFocusNode) {
+                                  customerNameFocusNode.requestFocus();
+                                } else if (activeFocusNode ==
+                                    customerNameFocusNode) {
+                                  customerNameFocusNode.unfocus();
+                                }
+                              },
+                            ),
+                          ],
+                        ),
+                      )
+                    ],
+                  ),
           );
         },
       ),

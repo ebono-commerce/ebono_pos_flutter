@@ -111,8 +111,8 @@ class _ReturnsViewState extends State<ReturnsView> {
   }
 
   void _resetAllValues() {
-    customerNumberTextController.clear();
-    orderNumberTextController.clear();
+    /*customerNumberTextController.clear();
+    orderNumberTextController.clear();*/
     isCustomerOrdersFetched = false;
     isOrderItemsFetched = false;
     numPadTextController.clear();

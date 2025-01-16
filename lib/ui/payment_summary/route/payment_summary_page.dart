@@ -354,12 +354,13 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                     color: CustomColors.borderColor,
                     height: 2,
                   ),
+                  SizedBox(height: 12),
                   tenderDetailRow(
                       label: 'Cash', value: cashPaymentTextController.text),
                   tenderDetailRow(
                       label: 'Online', value: onlinePaymentTextController.text),
-                  tenderDetailRow(
-                      label: 'Wallet', value: walletTextController.text),
+                 /* tenderDetailRow(
+                      label: 'Wallet', value: walletTextController.text),*/
                 ],
               ),
             ),
