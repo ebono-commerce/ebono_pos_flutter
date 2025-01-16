@@ -20,6 +20,8 @@ class CheckPaymentStatusBasedOnTimer extends PaymentEvent {}
 
 class PlaceOrderEvent extends PaymentEvent {}
 
+class GetInvoiceEvent extends PaymentEvent {}
+
 class GetBalancePayableAmountEvent extends PaymentEvent {
    final String cash;
    final String online;
