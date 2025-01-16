@@ -12,7 +12,7 @@ class VersionWidget extends StatelessWidget {
       future: PackageInfo.fromPlatform(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return CircularProgressIndicator();
+          return Text('');
         } else if (snapshot.hasError) {
           return Text('');
         } else if (snapshot.hasData) {

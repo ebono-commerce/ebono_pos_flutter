@@ -1,4 +1,5 @@
 import 'package:ebono_pos/constants/custom_colors.dart';
+import 'package:ebono_pos/ui/common_text_field.dart';
 import 'package:ebono_pos/ui/custom_keyboard/custom_querty_pad.dart';
 import 'package:ebono_pos/ui/home/home_controller.dart';
 import 'package:ebono_pos/ui/returns/bloc/returns_bloc.dart';
@@ -247,7 +248,6 @@ class _ReturnSummaryWidgetState extends State<ReturnSummaryWidget> {
                           ],
                         ),
                       ),
-                      const SizedBox(height: 20),
                       Expanded(
                         flex: 6, // height
                         child: Row(
@@ -291,53 +291,41 @@ class _ReturnSummaryWidgetState extends State<ReturnSummaryWidget> {
                             /* SECTION - 2 */
                             Expanded(
                               flex: 4, // width
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  /* when customer number is selected */
-                                  Expanded(
-                                    flex: 5,
-                                    child: _selectPaymentModeUI(
-                                        bodyLargeBlack, context, state),
-                                  ),
-                                  Visibility(
-                                    visible: !widget.customer.isProxyNumber!,
-                                    child: Expanded(flex: 5, child: SizedBox()),
-                                  ),
-                                ],
-                              ),
+                              child: _selectPaymentModeUI(
+                                  bodyLargeBlack, context, state),
                             ),
                           ],
                         ),
                       ),
-                      Visibility(
-                        visible: widget.customer.isProxyNumber!,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            CustomQwertyPad(
-                              textController: _qwertyPadController,
-                              focusNode: activeFocusNode!,
-                              onValueChanged: (value) {
-                                if (activeFocusNode == phoneNumberFocusNode) {
-                                  homeController.phoneNumber.value = value;
-                                } else if (activeFocusNode ==
-                                    customerNameFocusNode) {
-                                  homeController.customerName.value = value;
-                                }
-                              },
-                              onEnterPressed: (value) {
-                                if (activeFocusNode == phoneNumberFocusNode) {
-                                  customerNameFocusNode.requestFocus();
-                                } else if (activeFocusNode ==
-                                    customerNameFocusNode) {
-                                  customerNameFocusNode.unfocus();
-                                }
-                              },
-                            ),
-                          ],
-                        ),
-                      )
+                      if (widget.customer.isProxyNumber == true)
+                        Visibility(
+                          visible: widget.customer.isProxyNumber!,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              CustomQwertyPad(
+                                textController: _qwertyPadController,
+                                focusNode: activeFocusNode!,
+                                onValueChanged: (value) {
+                                  if (activeFocusNode == phoneNumberFocusNode) {
+                                    homeController.phoneNumber.value = value;
+                                  } else if (activeFocusNode ==
+                                      customerNameFocusNode) {
+                                    homeController.customerName.value = value;
+                                  }
+                                },
+                                onEnterPressed: (value) {
+                                  if (activeFocusNode == phoneNumberFocusNode) {
+                                    customerNameFocusNode.requestFocus();
+                                  } else if (activeFocusNode ==
+                                      customerNameFocusNode) {
+                                    customerNameFocusNode.unfocus();
+                                  }
+                                },
+                              ),
+                            ],
+                          ),
+                        )
                     ],
                   ),
           );
@@ -362,7 +350,7 @@ class _ReturnSummaryWidgetState extends State<ReturnSummaryWidget> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
-              padding: const EdgeInsets.only(left: 15, top: 15, right: 15),
+              padding: const EdgeInsets.only(left: 15, top: 4, right: 15),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -370,7 +358,7 @@ class _ReturnSummaryWidgetState extends State<ReturnSummaryWidget> {
                     'Select Payment Mode',
                     style: bodyLargeBlack,
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 4),
                   Divider(
                     color: CustomColors.grey,
                     thickness: 1.5,
@@ -388,41 +376,48 @@ class _ReturnSummaryWidgetState extends State<ReturnSummaryWidget> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    _buildTextField(
-                      label: "Enter Customer Mobile Number",
-                      controller: _controllerPhoneNumber,
-                      focusNode: phoneNumberFocusNode,
-                      onChanged: (value) {},
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return "Please Enter Phone Number";
-                        }
-                        if (value.isNotEmpty &&
-                            (value.length < 10 || value.length > 10)) {
-                          return "Please Enter Valid Phone Number";
-                        }
-                        return null;
-                      },
-                    ),
-                    _buildTextField(
-                      label: "Customer Name",
-                      controller: _controllerCustomerName,
-                      focusNode: customerNameFocusNode,
-                      onChanged: (value) {},
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return "Please Enter Customer Name";
-                        } else {
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                      child: commonTextField(
+                        label: "Enter Customer Mobile Number",
+                        controller: _controllerPhoneNumber,
+                        focusNode: phoneNumberFocusNode,
+                        /*validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return "Please Enter Phone Number";
+                          }
+                          if (value.isNotEmpty &&
+                              (value.length < 10 || value.length > 10)) {
+                            return "Please Enter Valid Phone Number";
+                          }
                           return null;
-                        }
-                      },
+                        },*/
+                      ),
+                    ),
+                    SizedBox(
+                      height: 14,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                      child: commonTextField(
+                        label: "Customer Name",
+                        controller: _controllerCustomerName,
+                        focusNode: customerNameFocusNode,
+                       /* validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return "Please Enter Customer Name";
+                          } else {
+                            return null;
+                          }
+                        },*/
+                      ),
                     ),
                   ],
                 ),
               ),
             ),
-            widget.customer.isProxyNumber!
-                ? SizedBox(height: 20)
+            widget.customer.isProxyNumber == true
+                ? SizedBox(height: 14)
                 : Expanded(child: SizedBox()),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 0),
@@ -452,58 +447,22 @@ class _ReturnSummaryWidgetState extends State<ReturnSummaryWidget> {
                 ],
               ),
             ),
-            // widget.customer.isProxyNumber! ? SizedBox(height: 20) : Spacer(),
-            // Padding(
-            //   padding: const EdgeInsets.symmetric(horizontal: 20),
-            //   child: SizedBox(
-            //     width: double.infinity,
-            //     height: 60,
-            //     child: ElevatedButton(
-            //       onPressed: state.isReturningOrders
-            //           ? null
-            //           : () {
-            //               if (_formKey.currentState != null &&
-            //                   _formKey.currentState!.validate()) {
-            //                 context.read<ReturnsBloc>().add(
-            //                         ProceedToReturnItems(
-            //                             state.orderItemsData.copyWith(
-            //                       orderLines: state.orderItemsData.orderLines!
-            //                           .where((order) => order.isSelected)
-            //                           .toList(),
-            //                     )));
-            //               }
-            //             },
-            //       style: ElevatedButton.styleFrom(
-            //         backgroundColor: CustomColors.secondaryColor,
-            //         shape: RoundedRectangleBorder(
-            //           borderRadius: BorderRadius.circular(10),
-            //         ),
-            //       ),
-            //       child: state.isReturningOrders
-            //           ? SizedBox(
-            //               height: 25,
-            //               width: 25,
-            //               child: CircularProgressIndicator(),
-            //             )
-            //           : Text('Complete Return', style: bodyLargeBlack),
-            //     ),
-            //   ),
-            // ),
-            widget.customer.isProxyNumber! ? SizedBox(height: 20) : Spacer(),
+            widget.customer.isProxyNumber == true
+                ? SizedBox(height: 14)
+                : Spacer(),
             Padding(
               padding: EdgeInsets.only(
                 right: 20,
                 left: 20,
-                bottom: !widget.customer.isProxyNumber! ? 25 : 0,
+                bottom: widget.customer.isProxyNumber == true ? 8 : 0,
               ),
               child: SizedBox(
                 width: double.infinity,
                 height: 60,
                 child: ElevatedButton(
-                  onPressed: !state.isReturningOrders
+                  onPressed: state.isReturningOrders && isValidPhoneNumber(_controllerPhoneNumber.text) && _controllerCustomerName.text.isNotEmpty
                       ? () {
-                          if (_formKey.currentState != null &&
-                              _formKey.currentState!.validate()) {
+                          if (isValidPhoneNumber(_controllerPhoneNumber.text) && _controllerCustomerName.text.isNotEmpty) {
                             var orderData = state.orderItemsData;
 
                             if (orderData.customer!.isProxyNumber!) {
@@ -521,6 +480,8 @@ class _ReturnSummaryWidgetState extends State<ReturnSummaryWidget> {
                             context.read<ReturnsBloc>().add(
                                   ProceedToReturnItems(orderData),
                                 );
+                          }{
+                            Get.snackbar('Invalid Input', 'Please enter valid phone number & name');
                           }
                         }
                       : null,
@@ -578,151 +539,4 @@ class _ReturnSummaryWidgetState extends State<ReturnSummaryWidget> {
     );
   }
 
-  Widget _buildTextField({
-    required String label,
-    required TextEditingController controller,
-    required FocusNode focusNode,
-    required ValueChanged<String> onChanged,
-    required String? Function(String? value)? validator,
-    bool readOnly = false,
-    Widget? suffixIcon,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(10),
-      child: TextFormField(
-        controller: controller,
-        focusNode: focusNode,
-        onChanged: onChanged,
-        readOnly: readOnly,
-        validator: validator,
-        decoration: _buildInputDecoration(label, suffixIcon),
-      ),
-    );
-  }
-
-  InputDecoration _buildInputDecoration(String label, Widget? suffixIcon) {
-    return InputDecoration(
-      fillColor: Colors.white,
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10),
-        borderSide: BorderSide(color: Colors.grey.shade300, width: 1),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10),
-        borderSide: BorderSide(color: Colors.grey.shade300, width: 1),
-      ),
-      errorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10),
-        borderSide: BorderSide(color: Colors.red, width: 1),
-      ),
-      focusedErrorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10),
-        borderSide: BorderSide(
-          color: Colors.red,
-          width: 1,
-        ),
-      ),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10),
-        borderSide: BorderSide(
-          color: Colors.grey.shade300,
-          width: 1,
-        ),
-      ),
-      label: RichText(
-        text: TextSpan(
-          children: [
-            TextSpan(
-              text: label,
-              style: TextStyle(
-                color: Colors.black,
-                fontWeight: FontWeight.normal,
-              ),
-            ),
-          ],
-        ),
-      ),
-      suffixIcon: suffixIcon,
-    );
-  }
-
-  Widget _buildSearchButton() {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 5, vertical: 1),
-      width: 100,
-      child: ElevatedButton(
-        onPressed: homeController.phoneNumber.value.isNotEmpty
-            ? () {
-                if (isValidPhoneNumber(homeController.phoneNumber.value)) {
-                  homeController.getCustomerDetails();
-                } else {
-                  Get.snackbar('Invalid Phone Number',
-                      'Please enter valid 10 digit phone number');
-                }
-              }
-            : null,
-        style: ElevatedButton.styleFrom(
-          elevation: 1,
-          padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-          shape: RoundedRectangleBorder(
-            side: BorderSide(
-              color: homeController.phoneNumber.isNotEmpty
-                  ? CustomColors.secondaryColor
-                  : CustomColors.cardBackground,
-            ),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          backgroundColor: homeController.phoneNumber.isNotEmpty
-              ? CustomColors.secondaryColor
-              : CustomColors.cardBackground,
-        ),
-        child: Text(
-          "Search",
-          style: theme.textTheme.titleSmall?.copyWith(
-              fontWeight: FontWeight.bold, color: CustomColors.black),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSelectButton() {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 5, vertical: 1),
-      width: 100,
-      child: ElevatedButton(
-        onPressed: homeController.customerName.isNotEmpty
-            ? () {
-                homeController.isCustomerProxySelected.value = true;
-                homeController.isContionueWithOutCustomer.value = false;
-                homeController.fetchCustomer();
-              }
-            : null,
-        style: ElevatedButton.styleFrom(
-          elevation: 1,
-          padding: const EdgeInsets.symmetric(horizontal: 1, vertical: 1),
-          shape: RoundedRectangleBorder(
-            side: BorderSide(
-              color: homeController.customerName.isNotEmpty
-                  ? CustomColors.secondaryColor
-                  : CustomColors.cardBackground,
-            ),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          backgroundColor: homeController.customerName.isNotEmpty
-              ? CustomColors.secondaryColor
-              : CustomColors.cardBackground,
-        ),
-        child: Center(
-          child: Text(
-            homeController.getCustomerDetailsResponse.value.existingCustomer ==
-                    true
-                ? 'Select'
-                : 'Add',
-            style: theme.textTheme.titleSmall?.copyWith(
-                fontWeight: FontWeight.bold, color: CustomColors.black),
-          ),
-        ),
-      ),
-    );
-  }
 }

@@ -64,15 +64,15 @@ class _CouponCodeWidgetState extends State<CouponCodeWidget> {
       });
     });
 
-    /* 
+    /*
     * if coupon is not applied due to some error, when coupon screen is opened,
-    * it will show the relavent error 
+    * it will show the relavent error
     */
     WidgetsBinding.instance.addPostFrameCallback((_) {
       setState(() {
         if (mounted && coupon != null) {
-          /* 
-          * flag to check initial error & make api call on tap remove 
+          /*
+          * flag to check initial error & make api call on tap remove
           */
           if (coupon?.isApplied! == false) {
             couponCodeController.text = coupon!.couponCode.toString();
@@ -184,10 +184,8 @@ class _CouponCodeWidgetState extends State<CouponCodeWidget> {
                         focusNode: couponCodeFocusNode,
                         readOnly: isInvalidCoupon,
                         helperText: coupon?.message,
-                        helperTextStyle: theme.textTheme.titleSmall!.copyWith(
-                          color: CustomColors.primaryColor,
-                          fontWeight: FontWeight.w600,
-                        ),
+                        helperTextStyle: theme.textTheme.labelMedium
+                            ?.copyWith(color: CustomColors.green),
                         validator: (value) {
                           if (coupon?.couponCode != null &&
                               coupon?.isApplied! == false) {
