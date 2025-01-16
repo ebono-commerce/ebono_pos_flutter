@@ -5,6 +5,7 @@
 
 import 'dart:convert';
 
+import 'package:ebono_pos/models/coupon_details.dart';
 import 'package:flutter/cupertino.dart';
 
 CartResponse cartResponseFromJson(dynamic str) =>
@@ -24,6 +25,7 @@ class CartResponse {
   List<CartAdjustment>? cartAdjustments;
   CartResponseAudit? audit;
   List<CartAlerts> cartAlerts;
+  CouponDetails? couponDetails;
 
   CartResponse({
     this.cartId,
@@ -37,6 +39,7 @@ class CartResponse {
     this.cartAdjustments,
     this.audit,
     this.cartAlerts = const <CartAlerts>[],
+    this.couponDetails,
   });
 
   factory CartResponse.fromJson(Map<String, dynamic> json) => CartResponse(
@@ -45,6 +48,9 @@ class CartResponse {
         outletId: json["outlet_id"],
         totalUnits: json["total_units"]?.toDouble(),
         totalItems: json["total_items"],
+        couponDetails: json['coupon_details'] != null
+            ? CouponDetails.fromJson(json['coupon_details'])
+            : null,
         cartAlerts: json['cart_alerts'] != null
             ? List<CartAlerts>.from(
                 json['cart_alerts']!.map((x) => CartAlerts.fromJson(x)),

@@ -13,6 +13,8 @@ Widget commonTextField({
   Function()? onTap,
   String? suffixLabel = '',
   Widget? suffixWidget,
+  String? helperText,
+  TextStyle? helperTextStyle,
 }) {
   return TextFormField(
     focusNode: focusNode,
@@ -23,6 +25,8 @@ Widget commonTextField({
     decoration: textFieldDecoration(
         isFocused: focusNode.hasFocus,
         label: label,
+        helperText: helperText,
+        helperTextStyle: helperTextStyle,
         suffixLabel: suffixLabel,
         suffixWidget: suffixWidget),
     onTap: () {
@@ -44,6 +48,8 @@ InputDecoration textFieldDecoration({
   String? suffixLabel,
   Widget? prefixIcon,
   Widget? suffixWidget,
+  String? helperText,
+  TextStyle? helperTextStyle,
 }) {
   return InputDecoration(
     filled: filled,
@@ -57,6 +63,9 @@ InputDecoration textFieldDecoration({
     focusedErrorBorder: errorBorder(),
     suffixText: suffixLabel,
     suffix: suffixWidget,
+    helperText: helperText,
+    helperStyle: helperTextStyle,
+    helperMaxLines: 1,
   );
 }
 

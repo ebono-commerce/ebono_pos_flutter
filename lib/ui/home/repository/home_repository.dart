@@ -2,7 +2,10 @@ import 'dart:convert';
 
 import 'package:ebono_pos/api/api_constants.dart';
 import 'package:ebono_pos/api/api_helper.dart';
+import 'package:ebono_pos/constants/shared_preference_constants.dart';
+import 'package:ebono_pos/data_store/hive_storage_helper.dart';
 import 'package:ebono_pos/models/cart_response.dart';
+import 'package:ebono_pos/models/coupon_details.dart';
 import 'package:ebono_pos/models/customer_response.dart';
 import 'package:ebono_pos/models/scan_products_response.dart';
 import 'package:ebono_pos/ui/home/model/add_to_cart.dart';
@@ -265,6 +268,28 @@ class HomeRepository {
         ApiConstants.overridePrice,
         data: request.toJson(),
       );
+      final cartResponse = cartResponseFromJson(jsonEncode(response));
+      return cartResponse;
+    } catch (e) {
+      throw Exception('$e');
+    }
+  }
+
+  Future<CartResponse> applyORRemoveCoupon({
+    required CouponDetails coupon,
+    bool isRemoveCoupon = false,
+  }) async {
+    try {
+      HiveStorageHelper helper = HiveStorageHelper();
+      final cartId = helper.read(SharedPreferenceConstants.cartId);
+
+      final response = await _apiHelper.post(
+        isRemoveCoupon
+            ? ApiConstants.removeCoupon(cartId)
+            : ApiConstants.applyCoupon(cartId),
+        data: coupon.toPostJson(),
+      );
+
       final cartResponse = cartResponseFromJson(jsonEncode(response));
       return cartResponse;
     } catch (e) {

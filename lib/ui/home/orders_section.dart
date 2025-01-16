@@ -232,7 +232,11 @@ class _OrdersSectionState extends State<OrdersSection>
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20.0),
                       ),
-                      child: CouponCodeWidget(context),
+                      child: CouponCodeWidget(
+                        context,
+                        couponDetails:
+                            homeController.cartResponse.value.couponDetails,
+                      ),
                     );
                   },
                 );
