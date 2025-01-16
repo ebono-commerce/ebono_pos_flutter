@@ -34,4 +34,5 @@ class ApiConstants {
   static final returnOrders = 'account/api/v1/pos/return-request';
   static final walletAuthentication = 'checkout/api/v1/pos/cart/store-authenticate?';
   static final walletCharge = 'checkout/api/v1/pos/cart/wallet-charge';
+  static final getInvoice = '/account/api/v1/pos/invoice';
 }

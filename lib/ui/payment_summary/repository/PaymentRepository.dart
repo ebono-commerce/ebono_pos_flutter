@@ -88,7 +88,8 @@ class PaymentRepository {
         ApiConstants.placeOrder,
         data: request.toJson(),
       );
-      final orderSummaryResponse = orderSummaryResponseFromJson(jsonEncode(response));
+      final orderSummaryResponse =
+          orderSummaryResponseFromJson(jsonEncode(response));
       return orderSummaryResponse;
     } catch (e) {
       throw Exception(e);
@@ -100,6 +101,19 @@ class PaymentRepository {
     return _apiHelper.subscribeToSSE(endpoint);
   }
 
+  Future<OrderSummaryResponse> getInvoice(String orderId) async {
+    try {
+      final response = await _apiHelper.get(
+        '${ApiConstants.getInvoice}?order_number=$orderId',
+      );
+      final orderSummaryResponse =
+          orderSummaryResponseFromJson(jsonEncode(response));
+      return orderSummaryResponse;
+    } catch (e) {
+      throw Exception(e);
+    }
+  }
+
   Future<GeneralSuccessResponse> walletAuthentication(
       PhoneNumberRequest request) async {
     try {
@@ -108,7 +122,7 @@ class PaymentRepository {
         data: request.toJson(),
       );
       final walletAuthenticationResponse =
-      generalSuccessResponseFromJson(jsonEncode(response));
+          generalSuccessResponseFromJson(jsonEncode(response));
       return walletAuthenticationResponse;
     } catch (e) {
       throw Exception(e);
@@ -123,7 +137,7 @@ class PaymentRepository {
         data: request.toJson(),
       );
       final paymentSummaryResponse =
-      paymentSummaryResponseFromJson(jsonEncode(response));
+          paymentSummaryResponseFromJson(jsonEncode(response));
       return paymentSummaryResponse;
     } catch (e) {
       throw Exception(e);

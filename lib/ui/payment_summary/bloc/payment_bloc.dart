@@ -54,6 +54,8 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
   bool allowPlaceOrder = false;
   bool allowPrintInvoice = false;
   List<EdcDevice> edcDetails = [];
+  StreamSubscription? _orderInvoiceSubscription;
+  Timer? _sseFallbackTimer;
 
   PaymentBloc(this._paymentRepository, this.hiveStorageHelper)
       : super(PaymentState()) {
@@ -63,6 +65,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
     on<PaymentStatusEvent>(_paymentStatusApi);
     on<PaymentCancelEvent>(_paymentCancelApi);
     on<PlaceOrderEvent>(_placeOrder);
+    on<GetInvoiceEvent>(_getInvoice);
     on<GetBalancePayableAmountEvent>(_getBalancePayableAmount);
     on<WalletAuthenticationEvent>(_walletAuthentication);
     on<WalletChargeEvent>(_walletCharge);
@@ -71,7 +74,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
   }
 
   void _startPeriodicPaymentStatusCheck() {
-    _timer = Timer.periodic(Duration(seconds: 10), (timer) {
+    _timer = Timer.periodic(Duration(seconds: 3), (timer) {
       if (!state.stopTimer) {
         add(PaymentStatusEvent());
       } else {
@@ -384,10 +387,13 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
                   key: "METHOD", value: paymentStatusResponse.paymentMode),
             ]));
       }
-      var appliedWalletAmount = getPrice(paymentSummaryResponse.redeemedWalletAmount?.centAmount, paymentSummaryResponse.redeemedWalletAmount?.fraction);
+      var appliedWalletAmount = getPrice(
+          paymentSummaryResponse.redeemedWalletAmount?.centAmount,
+          paymentSummaryResponse.redeemedWalletAmount?.fraction);
       if (appliedWalletAmount > 0) {
-        walletPaymentOption = paymentSummaryResponse.redeemablePaymentOptions?.firstWhere(
-              (option) => option.code == 'WALLET',
+        walletPaymentOption =
+            paymentSummaryResponse.redeemablePaymentOptions?.firstWhere(
+          (option) => option.code == 'WALLET',
         );
         paymentMethods?.add(PaymentMethod(
             paymentOptionId: walletPaymentOption?.paymentOptionId,
@@ -435,8 +441,28 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
     }
   }
 
+  _getInvoice(GetInvoiceEvent event, Emitter<PaymentState> emit) async {
+    emit(state.copyWith(isLoading: true, initialState: false));
+
+    try {
+      invoiceSummaryResponse =
+          await _paymentRepository.getInvoice(orderSummaryResponse.orderNumber!);
+
+      emit(state.copyWith(isLoading: false));
+      _sseFallbackTimer?.cancel();
+      _orderInvoiceSubscription?.cancel();
+    } catch (error) {
+      emit(state.copyWith(
+          isLoading: false,
+          errorMessage: error.toString()));
+    }
+  }
+
   listenToOrderInvoiceSSE(String orderId) {
-    _paymentRepository.listenToPaymentUpdates(orderId).listen((event) {
+    _orderInvoiceSubscription?.cancel();
+    _sseFallbackTimer?.cancel();
+
+   _orderInvoiceSubscription = _paymentRepository.listenToPaymentUpdates(orderId).listen((event) {
       print("event data from sse ${event.data}");
       if (event.data != null && event.data?.isNotEmpty == true) {
         print("event data from sse");
@@ -448,6 +474,8 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
               isLoading: false,
               allowPrintInvoice: true,
             ));
+            _sseFallbackTimer?.cancel();
+            _orderInvoiceSubscription?.cancel();
           } else {
             emit(state.copyWith(
               isLoading: true,
@@ -459,6 +487,11 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
         }
       }
     });
+
+    _sseFallbackTimer = Timer.periodic(Duration(seconds: 10), (timer) {
+      add(GetInvoiceEvent());
+    });
+
   }
 
   Future<void> _walletAuthentication(
@@ -484,17 +517,20 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
     emit(state.copyWith(isLoading: true, initialState: false));
 
     try {
-      paymentSummaryResponse = await _paymentRepository.walletCharge(WalletChargeRequest(
-          phoneNumber: paymentSummaryRequest.phoneNumber,
-          otp: event.otp,
-          amount: Amount(
-              centAmount: double.parse(
-                  '${(paymentSummaryResponse.redeemablePaymentOptions!.firstOrNull?.applicableBalance) ?? 0}'),
-              fraction: 1,
-              currency: 'INR')));
+      paymentSummaryResponse = await _paymentRepository.walletCharge(
+          WalletChargeRequest(
+              phoneNumber: paymentSummaryRequest.phoneNumber,
+              otp: event.otp,
+              amount: Amount(
+                  centAmount: double.parse(
+                      '${(paymentSummaryResponse.redeemablePaymentOptions!.firstOrNull?.applicableBalance) ?? 0}'),
+                  fraction: 1,
+                  currency: 'INR')));
 
       emit(state.copyWith(
-          isLoading: false, isWalletChargeSuccess: true, isPaymentSummarySuccess: true));
+          isLoading: false,
+          isWalletChargeSuccess: true,
+          isPaymentSummarySuccess: true));
     } catch (error) {
       emit(state.copyWith(
           isLoading: false,

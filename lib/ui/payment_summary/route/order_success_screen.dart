@@ -209,13 +209,13 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                       padding:
                           EdgeInsets.symmetric(horizontal: 5.0, vertical: 10),
                       child: ElevatedButton(
-                        onPressed: !state.isLoading && state.allowPrintInvoice
+                        onPressed: /*!state.isLoading && state.allowPrintInvoice
                             ? () {
                                 homeController.initialResponse();
                                 Get.back();
                                 Get.back();
                               }
-                            : null,
+                            : */null,
                         style: ElevatedButton.styleFrom(
                           elevation: 1,
                           padding:
@@ -226,6 +226,8 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                             borderRadius: BorderRadius.circular(10),
                           ),
                           backgroundColor: CustomColors.keyBoardBgColor,
+                          disabledBackgroundColor: CustomColors.grey,
+                          disabledForegroundColor: CustomColors.grey
                         ),
                         child: Center(
                           child: Text(
