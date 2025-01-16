@@ -1,4 +1,5 @@
 import 'package:ebono_pos/constants/custom_colors.dart';
+import 'package:ebono_pos/ui/common_widgets/version_widget.dart';
 import 'package:flutter/material.dart';
 
 class QuickActionButtons extends StatelessWidget {
@@ -47,10 +48,7 @@ class QuickActionButtons extends StatelessWidget {
             ),
             actionButton("Clear cart", context, onClearCartPressed),
             actionButton("Hold cart", context, onHoldCartPressed),
-            Text(
-              "(SAVOmart stage - v1.0.7)",
-              style: TextStyle(fontSize: 8),
-            )
+            VersionWidget(fontSize: 8,)
           ],
         ),
       ),
