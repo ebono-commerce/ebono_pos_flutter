@@ -12,7 +12,7 @@ class ErrorDialogWidget extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(20.0),
       width: MediaQuery.sizeOf(context).width * 0.3,
-      height: MediaQuery.sizeOf(context).height * 0.3,
+      height: MediaQuery.sizeOf(context).height * 0.4,
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
