@@ -1,4 +1,5 @@
 import 'package:ebono_pos/constants/custom_colors.dart';
+import 'package:ebono_pos/models/cart_response.dart';
 import 'package:ebono_pos/models/coupon_details.dart';
 import 'package:ebono_pos/ui/Common_button.dart';
 import 'package:ebono_pos/ui/common_text_field.dart';
@@ -31,21 +32,21 @@ class _CouponCodeWidgetState extends State<CouponCodeWidget> {
   final FocusNode couponCodeFocusNode = FocusNode();
 
   final _formKey = GlobalKey<FormState>();
-  bool isInitialErrorShown = false;
+  bool isInvalidCoupon = false;
+  bool isValidCoupon = false;
+  bool isNewCoupon = false;
+  bool onResponse = false;
+  bool isResponseReset = false;
+
+  late CouponDetails? coupon;
 
   @override
   void initState() {
     super.initState();
 
-    /* 
-    * checking condition whether the coupon code object exists or not 
-    */
-    if (widget.couponDetails!.couponCode != null) {
-      /* 
-     * appending the exisiting coupon code
-    */
-      couponCodeController.text = widget.couponDetails!.couponCode.toString();
-    }
+    setState(() {
+      coupon = widget.couponDetails;
+    });
 
     if (!couponCodeFocusNode.hasFocus) {
       couponCodeFocusNode.requestFocus();
@@ -69,22 +70,62 @@ class _CouponCodeWidgetState extends State<CouponCodeWidget> {
     */
     WidgetsBinding.instance.addPostFrameCallback((_) {
       setState(() {
-        if (mounted &&
-            widget.couponDetails!.couponCode != null &&
-            widget.couponDetails!.isApplied! == false) {
+        if (mounted && coupon != null) {
           /* 
           * flag to check initial error & make api call on tap remove 
           */
-          isInitialErrorShown = true;
-          _formKey.currentState?.validate();
+          if (coupon?.isApplied! == false) {
+            couponCodeController.text = coupon!.couponCode.toString();
+            isInvalidCoupon = true;
+            isNewCoupon = false;
+            isValidCoupon = false;
+            _formKey.currentState?.validate();
+          } else if (coupon?.isApplied! == true) {
+            couponCodeController.text = coupon!.couponCode.toString();
+            isInvalidCoupon = true;
+            isNewCoupon = false;
+            isValidCoupon = false;
+            _formKey.currentState?.validate();
+          }
+        } else if (mounted && coupon == null) {
+          isNewCoupon = true;
+          isInvalidCoupon = false;
+          isValidCoupon = false;
         }
       });
     });
   }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
+  void updateCouponDetauls(CartResponse? cartResponse) {
+    if (cartResponse?.couponDetails == null) {
+      /* REMOVE COUPON */
+      _formKey.currentState?.reset();
+      setState(() {
+        isInvalidCoupon = false;
+        isNewCoupon = true;
+        isValidCoupon = false;
+        coupon = cartResponse?.couponDetails;
+        couponCodeController.clear();
+      });
+    } else if (cartResponse?.couponDetails?.isApplied == false) {
+      /* INVALID COUPON */
+      setState(() {
+        isInvalidCoupon = true;
+        isNewCoupon = false;
+        isValidCoupon = false;
+        coupon = cartResponse?.couponDetails;
+      });
+      _formKey.currentState?.validate();
+    } else if (cartResponse?.couponDetails?.isApplied == true) {
+      /* COUPON APPLIED SUCCESS */
+      setState(() {
+        isInvalidCoupon = false;
+        isNewCoupon = false;
+        isValidCoupon = true;
+        coupon = cartResponse?.couponDetails;
+      });
+      _formKey.currentState?.reset();
+    }
   }
 
   @override
@@ -128,7 +169,7 @@ class _CouponCodeWidgetState extends State<CouponCodeWidget> {
                   color: CustomColors.black,
                 ),
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 20),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
@@ -141,17 +182,23 @@ class _CouponCodeWidgetState extends State<CouponCodeWidget> {
                         label: "Coupon Code",
                         controller: couponCodeController,
                         focusNode: couponCodeFocusNode,
+                        readOnly: isInvalidCoupon,
+                        helperText: coupon?.message,
+                        helperTextStyle: theme.textTheme.titleSmall!.copyWith(
+                          color: CustomColors.primaryColor,
+                          fontWeight: FontWeight.w600,
+                        ),
                         validator: (value) {
-                          if (widget.couponDetails!.couponCode != null &&
-                              widget.couponDetails!.isApplied! == false) {
-                            return "${widget.couponDetails!.message!} | ${widget.couponDetails!.description!}";
+                          if (coupon?.couponCode != null &&
+                              coupon?.isApplied! == false) {
+                            return coupon?.message;
                           } else if (value!.isEmpty) {
                             return "Please Enter Coupon Code";
                           }
 
                           return null;
                         },
-                        onValueChanged: (value) => value,
+                        onValueChanged: (value) {},
                       ),
                     ),
                   ),
@@ -195,17 +242,35 @@ class _CouponCodeWidgetState extends State<CouponCodeWidget> {
             theme: theme,
             textStyle: theme.textTheme.bodyMedium,
             padding: EdgeInsets.all(12)),
-        onPressed: () {
-          /* 
-          TODO: ADD / REMOVE API CALLS 
-          */
-          if (_formKey.currentState!.validate() && !isInitialErrorShown) {
-            Navigator.pop(widget.dialogContext);
-            Get.snackbar("Not yet implemented", 'Not yet implemented');
-          } else if (isInitialErrorShown) {
-            /* when coupon is not applied due to some reasons this will alow user to remove coupon */
-            Navigator.pop(widget.dialogContext);
-            Get.snackbar("Not yet implemented", 'Not yet implemented');
+        onPressed: () async {
+          if ((isInvalidCoupon || isValidCoupon) &&
+              _formKey.currentState!.validate()) {
+            await homeController
+                .addOrRemoveCoupon(
+              coupon: couponCodeController.text,
+              isRemoveCoupon: true,
+            )
+                .then((cartResponse) {
+              updateCouponDetauls(cartResponse);
+            });
+          } else if (isNewCoupon && _formKey.currentState!.validate()) {
+            await homeController
+                .addOrRemoveCoupon(
+              coupon: couponCodeController.text,
+              isRemoveCoupon: false,
+            )
+                .then((cartResponse) {
+              updateCouponDetauls(cartResponse);
+            });
+          } else {
+            await homeController
+                .addOrRemoveCoupon(
+              coupon: couponCodeController.text,
+              isRemoveCoupon: true,
+            )
+                .then((cartResponse) {
+              updateCouponDetauls(cartResponse);
+            });
           }
         },
         /* 
@@ -213,7 +278,7 @@ class _CouponCodeWidgetState extends State<CouponCodeWidget> {
         * else we are asking user to apply coupon
         */
         child: Text(
-          widget.couponDetails!.couponCode != null ? "Remove" : "Apply",
+          (isInvalidCoupon || isValidCoupon) ? "Remove" : "Apply",
           style: theme.textTheme.bodyMedium
               ?.copyWith(color: Colors.black, fontWeight: FontWeight.normal),
         ),

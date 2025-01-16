@@ -111,6 +111,7 @@ class HomeController extends GetxController {
   var isQuantityEmpty = false.obs;
   var isQuantitySelected = false.obs;
   var overideApproverUserId = ''.obs;
+  var couponDetails = ''.obs;
   RxList<AllowedPaymentMode> allowedPaymentModes = [AllowedPaymentMode()].obs;
 
   @override
@@ -872,7 +873,7 @@ class HomeController extends GetxController {
     );
   }
 
-  Future<CartResponse?> _addOrRemoveCoupon({
+  Future<CartResponse?> addOrRemoveCoupon({
     required String coupon,
     required bool isRemoveCoupon,
   }) async {
@@ -884,11 +885,11 @@ class HomeController extends GetxController {
       );
 
       cartResponse.value = response;
-
       overideApproverUserId.value = '';
       fetchCartDetails();
     } catch (e) {
       response = null;
+      print("error: $e");
       Get.snackbar(
         'Error while ${isRemoveCoupon ? 'removing' : 'applying'} coupon',
         '$e',

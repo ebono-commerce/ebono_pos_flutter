@@ -25,7 +25,7 @@ class CartResponse {
   List<CartAdjustment>? cartAdjustments;
   CartResponseAudit? audit;
   List<CartAlerts> cartAlerts;
-  CouponDetails couponDetails;
+  CouponDetails? couponDetails;
 
   CartResponse({
     this.cartId,
@@ -39,12 +39,7 @@ class CartResponse {
     this.cartAdjustments,
     this.audit,
     this.cartAlerts = const <CartAlerts>[],
-    this.couponDetails = const CouponDetails(
-        // couponCode: "EBONO FIRST 500",
-        // isApplied: true,
-        // message: "INVALID COUPON",
-        // description: "COUPON EXPIRED",
-        ),
+    this.couponDetails,
   });
 
   factory CartResponse.fromJson(Map<String, dynamic> json) => CartResponse(
@@ -55,7 +50,7 @@ class CartResponse {
         totalItems: json["total_items"],
         couponDetails: json['coupon_details'] != null
             ? CouponDetails.fromJson(json['coupon_details'])
-            : const CouponDetails(),
+            : null,
         cartAlerts: json['cart_alerts'] != null
             ? List<CartAlerts>.from(
                 json['cart_alerts']!.map((x) => CartAlerts.fromJson(x)),
