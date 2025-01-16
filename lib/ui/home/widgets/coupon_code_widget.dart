@@ -1,4 +1,5 @@
 import 'package:ebono_pos/constants/custom_colors.dart';
+import 'package:ebono_pos/models/coupon_details.dart';
 import 'package:ebono_pos/ui/Common_button.dart';
 import 'package:ebono_pos/ui/common_text_field.dart';
 import 'package:ebono_pos/ui/custom_keyboard/custom_querty_pad.dart';
@@ -8,27 +9,43 @@ import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 
 class CouponCodeWidget extends StatefulWidget {
+  final CouponDetails? couponDetails;
   final BuildContext dialogContext;
 
-
-  const CouponCodeWidget(this.dialogContext, {super.key});
+  const CouponCodeWidget(
+    this.dialogContext, {
+    super.key,
+    this.couponDetails = const CouponDetails(),
+  });
 
   @override
-  State<CouponCodeWidget> createState() =>
-      _CouponCodeWidgetState();
+  State<CouponCodeWidget> createState() => _CouponCodeWidgetState();
 }
 
-class _CouponCodeWidgetState
-    extends State<CouponCodeWidget> {
+class _CouponCodeWidgetState extends State<CouponCodeWidget> {
+  late ThemeData theme;
   HomeController homeController = Get.find<HomeController>();
+
   final TextEditingController couponCodeController = TextEditingController();
   final TextEditingController _qwertyPadController = TextEditingController();
   final FocusNode couponCodeFocusNode = FocusNode();
-  late ThemeData theme;
+
+  final _formKey = GlobalKey<FormState>();
+  bool isInitialErrorShown = false;
 
   @override
   void initState() {
     super.initState();
+
+    /* 
+    * checking condition whether the coupon code object exists or not 
+    */
+    if (widget.couponDetails!.couponCode != null) {
+      /* 
+     * appending the exisiting coupon code
+    */
+      couponCodeController.text = widget.couponDetails!.couponCode.toString();
+    }
 
     if (!couponCodeFocusNode.hasFocus) {
       couponCodeFocusNode.requestFocus();
@@ -45,6 +62,29 @@ class _CouponCodeWidgetState
         couponCodeController.text = _qwertyPadController.text;
       });
     });
+
+    /* 
+    * if coupon is not applied due to some error, when coupon screen is opened,
+    * it will show the relavent error 
+    */
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      setState(() {
+        if (mounted &&
+            widget.couponDetails!.couponCode != null &&
+            widget.couponDetails!.isApplied! == false) {
+          /* 
+          * flag to check initial error & make api call on tap remove 
+          */
+          isInitialErrorShown = true;
+          _formKey.currentState?.validate();
+        }
+      });
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
   }
 
   @override
@@ -52,8 +92,9 @@ class _CouponCodeWidgetState
     theme = Theme.of(context);
     return Column(
       children: [
-        SizedBox(width: 900,
-          child:  Row(
+        SizedBox(
+          width: 900,
+          child: Row(
             mainAxisAlignment: MainAxisAlignment.end,
             mainAxisSize: MainAxisSize.max,
             children: [
@@ -72,7 +113,8 @@ class _CouponCodeWidgetState
                 ),
               ),
             ],
-          ),),
+          ),
+        ),
         SizedBox(
           width: 400,
           child: Column(
@@ -89,15 +131,28 @@ class _CouponCodeWidgetState
               const SizedBox(height: 10),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Padding(
-                    padding: const EdgeInsets.all(10.0),
-                    child: commonTextField(
-                      label: "Coupon Code",
-                      controller: couponCodeController,
-                      focusNode: couponCodeFocusNode,
-                      onValueChanged: (value) =>
-                      value,
+                    padding: const EdgeInsets.symmetric(horizontal: 5),
+                    child: Form(
+                      key: _formKey,
+                      child: commonTextField(
+                        label: "Coupon Code",
+                        controller: couponCodeController,
+                        focusNode: couponCodeFocusNode,
+                        validator: (value) {
+                          if (widget.couponDetails!.couponCode != null &&
+                              widget.couponDetails!.isApplied! == false) {
+                            return "${widget.couponDetails!.message!} | ${widget.couponDetails!.description!}";
+                          } else if (value!.isEmpty) {
+                            return "Please Enter Coupon Code";
+                          }
+
+                          return null;
+                        },
+                        onValueChanged: (value) => value,
+                      ),
                     ),
                   ),
                 ],
@@ -141,11 +196,24 @@ class _CouponCodeWidgetState
             textStyle: theme.textTheme.bodyMedium,
             padding: EdgeInsets.all(12)),
         onPressed: () {
-          Navigator.pop(widget.dialogContext);
-          Get.snackbar("Not yet implemented", 'Not yet implemented');
+          /* 
+          TODO: ADD / REMOVE API CALLS 
+          */
+          if (_formKey.currentState!.validate() && !isInitialErrorShown) {
+            Navigator.pop(widget.dialogContext);
+            Get.snackbar("Not yet implemented", 'Not yet implemented');
+          } else if (isInitialErrorShown) {
+            /* when coupon is not applied due to some reasons this will alow user to remove coupon */
+            Navigator.pop(widget.dialogContext);
+            Get.snackbar("Not yet implemented", 'Not yet implemented');
+          }
         },
+        /* 
+        * if coupon if coupon object is exists, irrespective of appiled or not, we are showing to remove
+        * else we are asking user to apply coupon
+        */
         child: Text(
-          "Apply",
+          widget.couponDetails!.couponCode != null ? "Remove" : "Apply",
           style: theme.textTheme.bodyMedium
               ?.copyWith(color: Colors.black, fontWeight: FontWeight.normal),
         ),
@@ -171,10 +239,13 @@ class _CouponCodeWidgetState
           backgroundColor: CustomColors.keyBoardBgColor,
         ),
         child: Center(
-          child: Text("Close",
-              style: theme.textTheme.bodyMedium?.copyWith(
-                  color: CustomColors.primaryColor,
-                  fontWeight: FontWeight.normal)),
+          child: Text(
+            "Close",
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: CustomColors.primaryColor,
+              fontWeight: FontWeight.normal,
+            ),
+          ),
         ),
       ),
     );

@@ -7,6 +7,7 @@ import 'package:ebono_pos/constants/shared_preference_constants.dart';
 import 'package:ebono_pos/data_store/hive_storage_helper.dart';
 import 'package:ebono_pos/data_store/shared_preference_helper.dart';
 import 'package:ebono_pos/models/cart_response.dart';
+import 'package:ebono_pos/models/coupon_details.dart';
 import 'package:ebono_pos/models/customer_response.dart';
 import 'package:ebono_pos/models/scan_products_response.dart';
 import 'package:ebono_pos/navigation/page_routes.dart';
@@ -869,6 +870,31 @@ class HomeController extends GetxController {
       barrierDismissible: true,
       useSafeArea: false,
     );
+  }
+
+  Future<CartResponse?> _addOrRemoveCoupon({
+    required String coupon,
+    required bool isRemoveCoupon,
+  }) async {
+    late CartResponse? response;
+    try {
+      response = await _homeRepository.applyORRemoveCoupon(
+        isRemoveCoupon: isRemoveCoupon,
+        coupon: CouponDetails(couponCode: coupon),
+      );
+
+      cartResponse.value = response;
+
+      overideApproverUserId.value = '';
+      fetchCartDetails();
+    } catch (e) {
+      response = null;
+      Get.snackbar(
+        'Error while ${isRemoveCoupon ? 'removing' : 'applying'} coupon',
+        '$e',
+      );
+    }
+    return response;
   }
 
   @override
