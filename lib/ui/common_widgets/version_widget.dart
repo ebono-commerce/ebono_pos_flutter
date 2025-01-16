@@ -19,7 +19,7 @@ class VersionWidget extends StatelessWidget {
           final packageInfo = snapshot.data!;
           final version = packageInfo.version;
           return Text(
-            '(SAVOmart stage - $version)',
+            '(SAVOmart - $version)',
             style: Theme.of(context).textTheme.labelMedium?.copyWith(fontSize: fontSize),
           );
         } else {
