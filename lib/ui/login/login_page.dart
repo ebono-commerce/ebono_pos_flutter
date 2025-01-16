@@ -15,6 +15,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 
+import '../common_widgets/version_widget.dart';
+
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
@@ -237,7 +239,9 @@ class _LoginPageState extends State<LoginPage> {
               width: 175,
               height: 175,
             ),
-            SizedBox(height: 40),
+            SizedBox(height: 20,),
+            VersionWidget(fontSize: 16,),
+            SizedBox(height: 30),
             Text(
               'Welcome Back',
               style: theme.textTheme.headlineLarge?.copyWith(
@@ -250,6 +254,7 @@ class _LoginPageState extends State<LoginPage> {
               style: theme.textTheme.headlineSmall
                   ?.copyWith(color: Colors.black45),
             ),
+
           ],
         ),
       ),
