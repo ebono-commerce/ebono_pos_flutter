@@ -239,9 +239,9 @@ class _ReturnsViewState extends State<ReturnsView> {
                                 ),
                                 columnWidths: const {
                                   0: FlexColumnWidth(2),
-                                  1: FlexColumnWidth(5),
+                                  1: FlexColumnWidth(4),
                                   2: FlexColumnWidth(2),
-                                  3: FlexColumnWidth(2),
+                                  3: FlexColumnWidth(3),
                                   4: FlexColumnWidth(3),
                                 },
                               ),
@@ -272,7 +272,7 @@ class _ReturnsViewState extends State<ReturnsView> {
                                 ),
                                 columnWidths: const {
                                   0: FlexColumnWidth(2),
-                                  1: FlexColumnWidth(4.5),
+                                  1: FlexColumnWidth(5),
                                   2: FlexColumnWidth(3),
                                   3: FlexColumnWidth(2),
                                 },

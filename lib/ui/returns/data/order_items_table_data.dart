@@ -73,7 +73,7 @@ class OrderItemsTableData {
       ),
       children: [
         TableCellWidget(text: orderLine.item!.skuCode!, width: 110),
-        TableCellWidget(text: orderLine.item!.skuTitle!, width: 330),
+        TableCellWidget(text: orderLine.item!.skuTitle!, width: 300),
         InkWell(
           onTap: onTap,
           child: Padding(

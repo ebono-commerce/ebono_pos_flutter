@@ -107,15 +107,15 @@ class CustomerTableData {
         border: Border.all(color: Colors.grey.shade300, width: 1),
       ),
       children: [
-        TableCellWidget(text: customerOrder.orderNumber.toString(), width: 110),
-        TableCellWidget(text: formatDate(customerOrder.createdAt), width: 300),
-        TableCellWidget(text: customerOrder.totalItems.toString(), width: 110),
+        TableCellWidget(text: customerOrder.orderNumber.toString(), width: 100),
+        TableCellWidget(text: formatDate(customerOrder.createdAt), width: 220),
+        TableCellWidget(text: customerOrder.totalItems.toString(), width: 100),
         TableCellWidget(
             text: getActualPrice(
               customerOrder.orderTotals!.first.amount!.centAmount,
               customerOrder.orderTotals!.first.amount!.fraction,
             ),
-            width: 110),
+            width: 120),
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 20.0),
           child: ElevatedButton(
