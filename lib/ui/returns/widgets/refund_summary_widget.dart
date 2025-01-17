@@ -406,7 +406,7 @@ class _ReturnSummaryWidgetState extends State<ReturnSummaryWidget> {
                         label: "Customer Name",
                         controller: _controllerCustomerName,
                         focusNode: customerNameFocusNode,
-                       /* validator: (value) {
+                        /* validator: (value) {
                           if (value == null || value.isEmpty) {
                             return "Please Enter Customer Name";
                           } else {
@@ -463,35 +463,57 @@ class _ReturnSummaryWidgetState extends State<ReturnSummaryWidget> {
                 width: double.infinity,
                 height: 60,
                 child: ElevatedButton(
-                  onPressed: state.orderItemsData.customer?.isProxyNumber == false ?(){
-                    context.read<ReturnsBloc>().add(
-                      ProceedToReturnItems(state.orderItemsData),
-                    );
-                  }: isValidPhoneNumber(_controllerPhoneNumber.text) && _controllerCustomerName.text.isNotEmpty
+                  onPressed: state.orderItemsData.customer?.isProxyNumber ==
+                          false
                       ? () {
-                          if (isValidPhoneNumber(_controllerPhoneNumber.text) && _controllerCustomerName.text.isNotEmpty) {
-                            var orderData = state.orderItemsData;
-
-                            if (orderData.customer!.isProxyNumber!) {
-                              orderData = orderData.copyWith(
-                                customer: orderData.customer!.copyWith(
-                                  customerName: _controllerCustomerName.text,
-                                  phoneNumber:
-                                      orderData.customer!.phoneNumber!.copyWith(
-                                    number: _controllerPhoneNumber.text,
-                                  ),
-                                ),
-                              );
-                            }
-
+                          if (state.orderItemsData.orderLines?.any(
+                                  (orderLine) =>
+                                      (orderLine.returnReason == null ||
+                                          orderLine.returnReason?.isEmpty ==
+                                              true)) ==
+                              true) {
+                            Get.snackbar(
+                                "Invalid Reason", "Please Select the reason");
+                          } else {
                             context.read<ReturnsBloc>().add(
-                                  ProceedToReturnItems(orderData),
+                                  ProceedToReturnItems(state.orderItemsData),
                                 );
-                          }{
-                            Get.snackbar('Invalid Input', 'Please enter valid phone number & name');
                           }
                         }
-                      : null,
+                      : isValidPhoneNumber(_controllerPhoneNumber.text) &&
+                              _controllerCustomerName.text.isNotEmpty
+                          ? () {
+                              if (state.orderItemsData.orderLines?.any(
+                                      (orderLine) =>
+                                          (orderLine.returnReason == null ||
+                                              orderLine.returnReason?.isEmpty ==
+                                                  true)) ==
+                                  true) {
+                                Get.snackbar("Invalid Reason",
+                                    "Please Select the reason");
+                              } else {
+                                var orderData = state.orderItemsData;
+
+                                if (orderData.customer!.isProxyNumber!) {
+                                  orderData = orderData.copyWith(
+                                    customer: orderData.customer!.copyWith(
+                                      customerName:
+                                          _controllerCustomerName.text,
+                                      phoneNumber: orderData
+                                          .customer!.phoneNumber!
+                                          .copyWith(
+                                        number: _controllerPhoneNumber.text,
+                                      ),
+                                    ),
+                                  );
+                                }
+
+                                context.read<ReturnsBloc>().add(
+                                      ProceedToReturnItems(orderData),
+                                    );
+                              }
+                            }
+                          : null,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: CustomColors.secondaryColor,
                     shape: RoundedRectangleBorder(
