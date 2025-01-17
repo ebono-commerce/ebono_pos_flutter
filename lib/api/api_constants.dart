@@ -1,8 +1,14 @@
 class ApiConstants {
-  //static final baseUrl = 'https://services.ebono.com/store/';
+  ///local
+  //static final baseUrl = 'https://services-staging.ebono.com/store/';
   //static final paymentBaseUrl = 'https://demo.ezetap.com';
+  //static final sseBaseUrl = 'https://api-staging.ebono.com/s/';
+
+  ///prod
+  static final sseBaseUrl = 'https://api.ebono.com/s/';
   static final baseUrl = 'http://api-local.ebono.com/store/';
   static final paymentBaseUrl = 'https://ezetap.com';
+
   static final login = 'authn/api/v1/pos/login';
   static final logout = 'authn/api/v1/pos/logout';
   static final outletDetails = 'account/api/v1/pos/outlets/';
