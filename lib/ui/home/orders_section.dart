@@ -947,10 +947,10 @@ class _OrdersSectionState extends State<OrdersSection>
                                   if (isValidOfferId(
                                           numPadTextController.text.trim()) ||
                                       numPadTextController.text
-                                          .trim()
+                                          .trim().toUpperCase()
                                           .contains("W")) {
                                     homeController
-                                        .scanApiCall(numPadTextController.text);
+                                        .scanApiCall(numPadTextController.text.toUpperCase());
 
                                     homeController.isQuantitySelected.value =
                                         false;
@@ -1005,16 +1005,14 @@ class _OrdersSectionState extends State<OrdersSection>
                                               numPadTextController.text),
                                         )
                                             .then((val) {
-                                          Future.delayed(
-                                              const Duration(milliseconds: 400),
-                                              () {
-                                            homeController.isQuantitySelected
-                                                .value = false;
+                                          homeController.isQuantitySelected
+                                              .value = false;
+                                          homeController.isAutoWeighDetection
+                                              .value = false;
+                                          setState(() {
                                             numPadTextController.text = '0';
                                             numPadTextController.clear();
                                             numPadTextController.text = '';
-                                            homeController.isAutoWeighDetection
-                                                .value = false;
                                           });
                                         });
                                       }

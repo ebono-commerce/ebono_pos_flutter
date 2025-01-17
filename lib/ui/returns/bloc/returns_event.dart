@@ -24,11 +24,12 @@ final class FetchOrderDataBasedOnOrderId extends ReturnsEvent {
 }
 
 final class UpdateSelectedItem extends ReturnsEvent {
-  UpdateSelectedItem(
-      {required this.id,
-      required this.orderItems,
-      this.reason = '',
-      required this.orderLine});
+  UpdateSelectedItem({
+    required this.id,
+    required this.orderItems,
+    this.reason = '',
+    required this.orderLine,
+  });
 
   final String id;
   final String reason;
@@ -66,4 +67,16 @@ final class AddReturnQuantityEvent extends ReturnsEvent {
   AddReturnQuantityEvent(this.quantity);
 
   final int quantity;
+}
+
+final class ValidateConfirmReturnEvent extends ReturnsEvent {
+  final String name;
+  final String phoneNumber;
+  final OrderItemsModel orderItemsModel;
+
+  ValidateConfirmReturnEvent({
+    required this.orderItemsModel,
+    required this.phoneNumber,
+    required this.name,
+  });
 }

@@ -12,15 +12,15 @@ import 'navigation/page_routes.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await windowManager.ensureInitialized();
-  WindowOptions windowOptions = WindowOptions(
-    center: true,
-    backgroundColor: Colors.transparent,
-    titleBarStyle: TitleBarStyle.hidden, // Hide the title bar
-  );
-  windowManager.waitUntilReadyToShow(windowOptions, () async {
-    await windowManager.setFullScreen(true);
-    await windowManager.show();
-  });
+  // WindowOptions windowOptions = WindowOptions(
+  //   center: true,
+  //   backgroundColor: Colors.transparent,
+  //   titleBarStyle: TitleBarStyle.hidden, // Hide the title bar
+  // );
+  // windowManager.waitUntilReadyToShow(windowOptions, () async {
+  //   await windowManager.setFullScreen(true);
+  //   await windowManager.show();
+  // });
 
   await HiveStorageHelper.init();
 

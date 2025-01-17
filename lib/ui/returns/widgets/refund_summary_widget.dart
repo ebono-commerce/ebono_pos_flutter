@@ -292,7 +292,10 @@ class _ReturnSummaryWidgetState extends State<ReturnSummaryWidget> {
                             Expanded(
                               flex: 4, // width
                               child: _selectPaymentModeUI(
-                                  bodyLargeBlack, context, state),
+                                bodyLargeBlack,
+                                context,
+                                state,
+                              ),
                             ),
                           ],
                         ),
@@ -460,7 +463,11 @@ class _ReturnSummaryWidgetState extends State<ReturnSummaryWidget> {
                 width: double.infinity,
                 height: 60,
                 child: ElevatedButton(
-                  onPressed: state.isReturningOrders && isValidPhoneNumber(_controllerPhoneNumber.text) && _controllerCustomerName.text.isNotEmpty
+                  onPressed: state.orderItemsData.customer?.isProxyNumber == false ?(){
+                    context.read<ReturnsBloc>().add(
+                      ProceedToReturnItems(state.orderItemsData),
+                    );
+                  }: isValidPhoneNumber(_controllerPhoneNumber.text) && _controllerCustomerName.text.isNotEmpty
                       ? () {
                           if (isValidPhoneNumber(_controllerPhoneNumber.text) && _controllerCustomerName.text.isNotEmpty) {
                             var orderData = state.orderItemsData;
@@ -538,5 +545,4 @@ class _ReturnSummaryWidgetState extends State<ReturnSummaryWidget> {
       ),
     );
   }
-
 }

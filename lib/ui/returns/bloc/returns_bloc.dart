@@ -18,6 +18,7 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
     on<UpdateSelectedItem>(_onUpdateSelectedItem);
     on<ProceedToReturnItems>(_proccedToReturnItems);
     on<ReturnsResetEvent>(_resetReturns);
+    on<ValidateConfirmReturnEvent>(_validateConfirmReturnBtn);
   }
 
   void _onReturnsEvent(ReturnsEvent event, Emitter<ReturnsState> emit) {
@@ -52,6 +53,7 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
 
       emit(state.updateSelectedParameters(
         isOrderReturnedSuccessfully: true,
+        isConfirmReturnBtnEnabled: false,
         refundSuccessModel: response,
       ));
     } catch (e) {
@@ -144,13 +146,52 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
               }).toList(),
             );
 
-      final isBtnEnabled =
-          updatedOrderItems.orderLines?.any((order) => order.isSelected);
+      final isBtnEnabled = updatedOrderItems.orderLines?.any((order) =>
+          order.isSelected &&
+          order.returnedQuantity != null &&
+          order.returnedQuantity.toString().isNotEmpty);
+
+      final isBtnEnabled2 = updatedOrderItems.orderLines?.every((order) =>
+      order.isSelected &&
+          order.returnedQuantity != null &&
+          order.returnReason != null && order.returnReason.toString().isNotEmpty &&
+          order.returnedQuantity.toString().isNotEmpty);
+
       emit(state.updateSelectedParameters(
         lastSelectedItem: event.orderLine,
         orderItemsData: updatedOrderItems,
+        isConfirmReturnBtnEnabled: isBtnEnabled2,
         isProceedBtnEnabled: isBtnEnabled,
       ));
+    } catch (e) {
+      emit(
+        state.updateSelectedParameters(
+          isError: true,
+          errorMessage: e.toString(),
+        ),
+      );
+    }
+  }
+
+  Future<void> _validateConfirmReturnBtn(
+    ValidateConfirmReturnEvent event,
+    Emitter<ReturnsState> emit,
+  ) async {
+    try {
+      bool isBtnEnabled = event.orderItemsModel.orderLines?.any((order) =>
+                  order.isSelected &&
+                  order.returnedQuantity != null &&
+                  order.returnedQuantity.toString().isNotEmpty) == true;
+
+      isBtnEnabled = event.name.trim().isNotEmpty && event.phoneNumber.trim().isNotEmpty;
+
+
+      emit(
+        state.updateSelectedParameters(
+          isConfirmReturnBtnEnabled: isBtnEnabled,
+          orderItemsData: event.orderItemsModel,
+        ),
+      );
     } catch (e) {
       emit(
         state.updateSelectedParameters(

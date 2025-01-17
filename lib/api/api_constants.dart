@@ -1,6 +1,8 @@
 class ApiConstants {
-  // static final baseUrl = 'https://services-staging.ebono.com/store/';
+  //static final baseUrl = 'https://services-staging.ebono.com/store/';
+  //static final paymentBaseUrl = 'https://demo.ezetap.com';
   static final baseUrl = 'http://api-local.ebono.com/store/';
+  static final paymentBaseUrl = 'https://ezetap.com';
   static final login = 'authn/api/v1/pos/login';
   static final logout = 'authn/api/v1/pos/logout';
   static final outletDetails = 'account/api/v1/pos/outlets/';
@@ -19,7 +21,6 @@ class ApiConstants {
   static final clearFullCart = 'checkout/api/v1/pos/cart/';
   static final resumeHoldCart = 'checkout/api/v1/pos/cart/resume';
   static final healthCheck = 'health';
-  static final paymentBaseUrl = 'https://demo.ezetap.com';
   static final paymentApiInitiate = '/api/3.0/p2p/start';
   static final paymentApiStatus = '/api/3.0/p2p/status';
   static final paymentApiCancel = '/api/3.0/p2p/cancel';

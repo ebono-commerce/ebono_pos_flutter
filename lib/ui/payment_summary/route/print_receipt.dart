@@ -153,21 +153,21 @@ Future<Uint8List> generatePdf(OrderSummaryResponse data) async {
                             font: font,
                           ),
                         ),
-                      // if (data.orderNumber?.isNotEmpty == true)
-                      //   pw.Text(
-                      //     'Order No: ${data.orderNumber}',
-                      //     style: pw.TextStyle(
-                      //       fontSize: 8,
-                      //       font: font,
-                      //     ),
-                      //   ),
-                      pw.Text(
+                      if (data.orderNumber?.isNotEmpty == true)
+                        pw.Text(
+                          'Order No: ${data.orderNumber}',
+                          style: pw.TextStyle(
+                            fontSize: 8,
+                            font: font,
+                          ),
+                        ),
+                      /*pw.Text(
                         'Order Date: ${data.orderDate}',
                         style: pw.TextStyle(
                           fontSize: 8,
                           font: font,
                         ),
-                      ),
+                      ),*/
                       pw.Text(
                         'Payment Method: ${data.paymentMethods.toString()}',
                         style: pw.TextStyle(
