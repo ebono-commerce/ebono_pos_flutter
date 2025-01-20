@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math';
 
 import 'package:ebono_pos/constants/shared_preference_constants.dart';
 import 'package:ebono_pos/data_store/hive_storage_helper.dart';
@@ -137,10 +136,9 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
       PaymentStartEvent event, Emitter<PaymentState> emit) async {
     emit(state.copyWith(isLoading: true, initialState: false));
 
-    final random = Random();
     final reqBody = {
       "amount": onlinePayment,
-      "externalRefNumber": "${random.nextInt(10)}",
+      "externalRefNumber": "${paymentSummaryResponse.orderNumber ?? paymentSummaryRequest.cartId}",
       "customerName":
           "${hiveStorageHelper.read(SharedPreferenceConstants.sessionCustomerName)}",
       "customerEmail": "",
