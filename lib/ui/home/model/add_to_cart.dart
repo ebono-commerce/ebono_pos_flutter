@@ -60,12 +60,14 @@ class AddToCartCartLine {
 }
 
 class AddToCartQuantity {
-  int? quantityNumber;
+  dynamic quantityNumber;
+  bool? isWeighedItem;
   String? quantityUom;
 
   AddToCartQuantity({
     this.quantityNumber,
     this.quantityUom,
+    this.isWeighedItem,
   });
 
   factory AddToCartQuantity.fromJson(Map<String, dynamic> json) =>
@@ -75,7 +77,9 @@ class AddToCartQuantity {
       );
 
   Map<String, dynamic> toJson() => {
-        "quantity_number": quantityNumber,
+        "quantity_number": isWeighedItem == true
+            ? double.tryParse(quantityNumber.toString())
+            : quantityNumber,
         "quantity_uom": quantityUom,
       };
 }
