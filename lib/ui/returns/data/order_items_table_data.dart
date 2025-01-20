@@ -107,7 +107,7 @@ class OrderItemsTableData {
                 ),
                 SizedBox(width: 10),
                 Text(
-                  "/${orderLine.orderQuantity!.quantityUom == "pcs" ? orderLine.orderQuantity!.quantityNumber!.toInt().toString() : orderLine.orderQuantity!.quantityNumber} ${orderLine.orderQuantity!.quantityUom}",
+                  "/${orderLine.returnableQuantity!.quantityUom == "pcs" ? orderLine.returnableQuantity!.quantityNumber!.toInt().toString() : orderLine.returnableQuantity!.quantityNumber} ${orderLine.returnableQuantity!.quantityUom}",
                   style: TextStyle(color: CustomColors.greyFont),
                 )
               ],

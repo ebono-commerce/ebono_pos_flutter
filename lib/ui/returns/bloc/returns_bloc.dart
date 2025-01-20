@@ -93,11 +93,6 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
     Emitter<ReturnsState> emit,
   ) async {
     try {
-      OrderItemsModel orderItemsData =
-          await returnsRepository.fetchOrderItemBasedOnOrderId(
-        orderId: event.orderId,
-      );
-
       if (event.isRetrivingOrderItems) {
         final updatedItems = event.customerOrderDetailsList.map((customer) {
           if (customer.orderNumber == event.orderId) {
@@ -107,9 +102,17 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
         }).toList();
 
         emit(
-          state.updateSelectedParameters(customerOrdersList: updatedItems),
+          state.updateSelectedParameters(
+            customerOrdersList: updatedItems,
+            isFetchingOrderItems: event.isRetrivingOrderItems,
+          ),
         );
       }
+
+      OrderItemsModel orderItemsData =
+          await returnsRepository.fetchOrderItemBasedOnOrderId(
+        orderId: event.orderId,
+      );
 
       emit(state.updateSelectedParameters(
         isOrderItemsFetched: true,
@@ -118,6 +121,8 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
     } catch (e) {
       emit(state.updateSelectedParameters(
         isError: true,
+        customerOrdersList:
+            event.isRetrivingOrderItems ? event.customerOrderDetailsList : [],
         errorMessage: e.toString(),
       ));
     }
@@ -152,9 +157,10 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
           order.returnedQuantity.toString().isNotEmpty);
 
       final isBtnEnabled2 = updatedOrderItems.orderLines?.every((order) =>
-      order.isSelected &&
+          order.isSelected &&
           order.returnedQuantity != null &&
-          order.returnReason != null && order.returnReason.toString().isNotEmpty &&
+          order.returnReason != null &&
+          order.returnReason.toString().isNotEmpty &&
           order.returnedQuantity.toString().isNotEmpty);
 
       emit(state.updateSelectedParameters(
@@ -179,12 +185,13 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
   ) async {
     try {
       bool isBtnEnabled = event.orderItemsModel.orderLines?.any((order) =>
-                  order.isSelected &&
-                  order.returnedQuantity != null &&
-                  order.returnedQuantity.toString().isNotEmpty) == true;
+              order.isSelected &&
+              order.returnedQuantity != null &&
+              order.returnedQuantity.toString().isNotEmpty) ==
+          true;
 
-      isBtnEnabled = event.name.trim().isNotEmpty && event.phoneNumber.trim().isNotEmpty;
-
+      isBtnEnabled =
+          event.name.trim().isNotEmpty && event.phoneNumber.trim().isNotEmpty;
 
       emit(
         state.updateSelectedParameters(

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 class CustomTableWidget extends StatelessWidget {
   final List<Widget> headers;
   final List<TableRow> tableRowsData;
+  final String emptyDataMessage;
   final Map<int, TableColumnWidth> columnWidths;
 
   const CustomTableWidget({
@@ -12,6 +13,7 @@ class CustomTableWidget extends StatelessWidget {
     required this.headers,
     required this.tableRowsData,
     required this.columnWidths,
+    this.emptyDataMessage = '',
   });
 
   @override
@@ -31,17 +33,24 @@ class CustomTableWidget extends StatelessWidget {
               _buildTableHeader(context),
             ],
           ),
-          tableRowsData.isEmpty
+          tableRowsData.isEmpty && emptyDataMessage.isEmpty
               ? SizedBox(height: 40)
               : Expanded(
-                  child: SingleChildScrollView(
-                    child: Table(
-                      columnWidths: columnWidths,
-                      children: tableRowsData,
-                      defaultVerticalAlignment:
-                          TableCellVerticalAlignment.middle,
-                    ),
-                  ),
+                  child: tableRowsData.isEmpty && emptyDataMessage.isNotEmpty
+                      ? Center(
+                          child: Text(
+                            emptyDataMessage,
+                            style: Theme.of(context).textTheme.titleLarge,
+                          ),
+                        )
+                      : SingleChildScrollView(
+                          child: Table(
+                            columnWidths: columnWidths,
+                            children: tableRowsData,
+                            defaultVerticalAlignment:
+                                TableCellVerticalAlignment.middle,
+                          ),
+                        ),
                 ),
         ],
       ),

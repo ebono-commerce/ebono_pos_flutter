@@ -14,6 +14,7 @@ class ReturnsState {
   final bool isOrderReturnedSuccessfully;
   final bool isReturningOrders;
   final bool isConfirmReturnBtnEnabled;
+  final bool isFetchingOrderItems;
   final RefundSuccessModel refundSuccessModel;
   final OrderLine lastSelectedItem;
 
@@ -30,6 +31,7 @@ class ReturnsState {
     this.isOrderReturnedSuccessfully = false,
     this.isReturningOrders = false,
     this.isConfirmReturnBtnEnabled = false,
+    this.isFetchingOrderItems = false,
     this.refundSuccessModel = const RefundSuccessModel(),
     this.lastSelectedItem = const OrderLine(),
   });
@@ -45,6 +47,7 @@ class ReturnsState {
     bool? isProceedBtnEnabled,
     bool? isOrderReturnedSuccessfully,
     bool? isReturningOrders,
+    bool? isFetchingOrderItems,
     RefundSuccessModel? refundSuccessModel,
     bool? isConfirmReturnBtnEnabled,
     OrderLine? lastSelectedItem,
@@ -63,6 +66,7 @@ class ReturnsState {
             isConfirmReturnBtnEnabled ?? this.isConfirmReturnBtnEnabled,
         isOrderReturnedSuccessfully:
             isOrderReturnedSuccessfully ?? this.isOrderReturnedSuccessfully,
+        isFetchingOrderItems: isFetchingOrderItems ?? this.isFetchingOrderItems,
         isReturningOrders: isReturningOrders ?? this.isReturningOrders,
         refundSuccessModel: refundSuccessModel ?? this.refundSuccessModel,
         lastSelectedItem: lastSelectedItem ?? this.lastSelectedItem);
@@ -79,6 +83,7 @@ class ReturnsState {
     bool? isProceedBtnEnabled,
     bool? isOrderReturnedSuccessfully,
     bool? isReturningOrders,
+    bool? isFetchingOrderItems,
     bool? isConfirmReturnBtnEnabled,
     RefundSuccessModel? refundSuccessModel,
     OrderLine? lastSelectedItem,
@@ -87,6 +92,7 @@ class ReturnsState {
         isLoading: isLoading ?? false,
         isError: isError ?? false,
         errorMessage: errorMessage ?? '',
+        isFetchingOrderItems: isFetchingOrderItems ?? false,
         isProceedBtnEnabled: isProceedBtnEnabled ?? false,
         customerOrdersList: customerOrdersList ?? const [],
         orderItemsData: orderItemsData ?? const OrderItemsModel(),

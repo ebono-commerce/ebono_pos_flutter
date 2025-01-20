@@ -217,7 +217,8 @@ class _ReturnsViewState extends State<ReturnsView> {
                                 5: FlexColumnWidth(1),
                               },
                             ),
-                          if (isCustomerOrdersFetched)
+                          if (isCustomerOrdersFetched ||
+                              state.isFetchingOrderItems)
                             Expanded(
                               child: CustomTableWidget(
                                 headers: _customerTableData
@@ -237,6 +238,7 @@ class _ReturnsViewState extends State<ReturnsView> {
                                     );
                                   },
                                 ),
+                                emptyDataMessage: 'No Orders to be returned',
                                 columnWidths: const {
                                   0: FlexColumnWidth(2),
                                   1: FlexColumnWidth(4),
@@ -246,7 +248,8 @@ class _ReturnsViewState extends State<ReturnsView> {
                                 },
                               ),
                             ),
-                          if (isOrderItemsFetched)
+                          if (isOrderItemsFetched &&
+                              !state.isFetchingOrderItems)
                             Expanded(
                               child: CustomTableWidget(
                                 headers: _orderItemsTableData
@@ -270,6 +273,7 @@ class _ReturnsViewState extends State<ReturnsView> {
                                     ));
                                   },
                                 ),
+                                emptyDataMessage: 'No items to be returned',
                                 columnWidths: const {
                                   0: FlexColumnWidth(2),
                                   1: FlexColumnWidth(5),

@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:ebono_pos/constants/custom_colors.dart';
 import 'package:ebono_pos/ui/Common_button.dart';
 import 'package:flutter/material.dart';
@@ -5,7 +7,8 @@ import 'package:flutter_window_close/flutter_window_close.dart';
 import 'package:get/get.dart';
 
 bool isValidOfferId(String offerId) {
-  return offerId.length == 6 || offerId.length == 8 ||
+  return offerId.length == 6 ||
+      offerId.length == 8 ||
       offerId.length == 10 ||
       offerId.length == 12 ||
       offerId.length == 13;
@@ -67,4 +70,13 @@ bool isValidPhoneNumber(String phoneNumber) {
   final pattern = r'^[0-9]{10}$';
   final regExp = RegExp(pattern);
   return regExp.hasMatch(phoneNumber);
+}
+
+String generateRandom8DigitNumber() {
+  final random = Random();
+  // Generate a random integer in the range 20000000 to 29999999
+  int randomNumber = 20000000 + random.nextInt(30000000 - 20000000);
+
+  // Convert the number to a string
+  return randomNumber.toString();
 }
