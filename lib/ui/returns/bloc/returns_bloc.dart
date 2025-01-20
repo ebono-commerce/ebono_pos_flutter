@@ -93,11 +93,6 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
     Emitter<ReturnsState> emit,
   ) async {
     try {
-      OrderItemsModel orderItemsData =
-          await returnsRepository.fetchOrderItemBasedOnOrderId(
-        orderId: event.orderId,
-      );
-
       if (event.isRetrivingOrderItems) {
         final updatedItems = event.customerOrderDetailsList.map((customer) {
           if (customer.orderNumber == event.orderId) {
@@ -107,9 +102,17 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
         }).toList();
 
         emit(
-          state.updateSelectedParameters(customerOrdersList: updatedItems),
+          state.updateSelectedParameters(
+            customerOrdersList: updatedItems,
+            isFetchingOrderItems: event.isRetrivingOrderItems,
+          ),
         );
       }
+
+      OrderItemsModel orderItemsData =
+          await returnsRepository.fetchOrderItemBasedOnOrderId(
+        orderId: event.orderId,
+      );
 
       emit(state.updateSelectedParameters(
         isOrderItemsFetched: true,
@@ -118,6 +121,8 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
     } catch (e) {
       emit(state.updateSelectedParameters(
         isError: true,
+        customerOrdersList:
+            event.isRetrivingOrderItems ? event.customerOrderDetailsList : [],
         errorMessage: e.toString(),
       ));
     }

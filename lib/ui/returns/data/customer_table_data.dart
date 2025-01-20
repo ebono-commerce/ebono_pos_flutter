@@ -131,9 +131,11 @@ class CustomerTableData {
             child: Center(
               child: customerOrder.isLoading
                   ? SizedBox(
-                      width: 25,
-                      height: 25,
-                      child: CircularProgressIndicator(),
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2.5,
+                      ),
                     )
                   : Text(
                       "Retrive",

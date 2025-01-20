@@ -467,7 +467,8 @@ class _ReturnSummaryWidgetState extends State<ReturnSummaryWidget> {
                           false
                       ? () {
                           if (state.orderItemsData.orderLines!
-                                  .where((orderLine) => orderLine.isSelected)
+                                  .where((orderLine) =>
+                                      orderLine.isSelected == true)
                                   .any((orderLine) =>
                                       (orderLine.returnReason == null ||
                                           orderLine.returnReason?.isEmpty ==
@@ -485,8 +486,8 @@ class _ReturnSummaryWidgetState extends State<ReturnSummaryWidget> {
                               _controllerCustomerName.text.isNotEmpty
                           ? () {
                               if (state.orderItemsData.orderLines!
-                                      .where(
-                                          (orderLine) => orderLine.isSelected)
+                                      .where((orderLine) =>
+                                          orderLine.isSelected == true)
                                       .any((orderLine) =>
                                           (orderLine.returnReason == null ||
                                               orderLine.returnReason?.isEmpty ==
