@@ -238,12 +238,12 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       _sharedPreferenceHelper.storeLoginStatus(true);
       hiveStorageHelper.save(SharedPreferenceConstants.customerProxyNumber,
           response.outletDetails?.outletCustomerProxyPhoneNumber);
+      hiveStorageHelper.save(SharedPreferenceConstants.customerProxyName,
+          response.outletDetails?.name ?? "STORE");
       hiveStorageHelper.save(SharedPreferenceConstants.registerId,
           response.registerDetails?.registerId ?? "");
       hiveStorageHelper.save(SharedPreferenceConstants.registerTransactionId,
           response.registerDetails?.registerTransactionId ?? "");
-      hiveStorageHelper.save(SharedPreferenceConstants.customerProxyNumber,
-          response.outletDetails?.outletCustomerProxyPhoneNumber);
       hiveStorageHelper.save(SharedPreferenceConstants.isQuantityEditEnabled,
           response.outletDetails?.quantityEditMode);
       hiveStorageHelper.save(SharedPreferenceConstants.isLineDeleteEnabled,
@@ -256,20 +256,23 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
           SharedPreferenceConstants.isSalesAssociateLinkEnabled,
           response.outletDetails?.salesAssociateLink);
 
-      List<Map<String, dynamic>> allowedPaymentModeJson =
-          response.outletDetails!.allowedPaymentModes?.map((mode) => mode.toJson()).toList() ?? [];
+      List<Map<String, dynamic>> allowedPaymentModeJson = response
+              .outletDetails!.allowedPaymentModes
+              ?.map((mode) => mode.toJson())
+              .toList() ??
+          [];
 
-      hiveStorageHelper.save(
-          SharedPreferenceConstants.allowedPaymentModes,
+      hiveStorageHelper.save(SharedPreferenceConstants.allowedPaymentModes,
           allowedPaymentModeJson);
 
-      List<Map<String, dynamic>> edcDeviceDetails =
-          response.terminalDetails?.edcDevices?.map((mode) => mode.toJson()).toList() ?? [];
+      List<Map<String, dynamic>> edcDeviceDetails = response
+              .terminalDetails?.edcDevices
+              ?.map((mode) => mode.toJson())
+              .toList() ??
+          [];
 
       hiveStorageHelper.save(
-          SharedPreferenceConstants.edcDeviceDetails,
-          edcDeviceDetails);
-
+          SharedPreferenceConstants.edcDeviceDetails, edcDeviceDetails);
 
       print('edc details:${edcDeviceDetails.firstOrNull}');
       emit(SubmitTerminalDetailsSuccess());

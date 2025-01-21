@@ -184,7 +184,10 @@ class _OrdersSectionState extends State<OrdersSection>
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20.0),
                         ),
-                        child: AddCustomerWidget(context),
+                        child: AddCustomerWidget(
+                          context,
+                          isDialogForHoldCart: true,
+                        ),
                       );
                     },
                   );
@@ -947,10 +950,12 @@ class _OrdersSectionState extends State<OrdersSection>
                                   if (isValidOfferId(
                                           numPadTextController.text.trim()) ||
                                       numPadTextController.text
-                                          .trim().toUpperCase()
+                                          .trim()
+                                          .toUpperCase()
                                           .contains("W")) {
-                                    homeController
-                                        .scanApiCall(numPadTextController.text.toUpperCase());
+                                    homeController.scanApiCall(
+                                        numPadTextController.text
+                                            .toUpperCase());
 
                                     homeController.isQuantitySelected.value =
                                         false;
@@ -1005,8 +1010,8 @@ class _OrdersSectionState extends State<OrdersSection>
                                               numPadTextController.text),
                                         )
                                             .then((val) {
-                                          homeController.isQuantitySelected
-                                              .value = false;
+                                          homeController
+                                              .isQuantitySelected.value = false;
                                           homeController.isAutoWeighDetection
                                               .value = false;
                                           setState(() {
