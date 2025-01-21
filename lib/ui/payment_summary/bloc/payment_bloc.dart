@@ -17,6 +17,7 @@ import 'package:ebono_pos/ui/payment_summary/model/payment_summary_response.dart
 import 'package:ebono_pos/ui/payment_summary/model/place_order_request.dart';
 import 'package:ebono_pos/ui/payment_summary/model/wallet_charge_request.dart';
 import 'package:ebono_pos/ui/payment_summary/repository/PaymentRepository.dart';
+import 'package:ebono_pos/utils/common_methods.dart';
 import 'package:ebono_pos/utils/price.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
@@ -138,7 +139,8 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
 
     final reqBody = {
       "amount": onlinePayment,
-      "externalRefNumber": "${paymentSummaryResponse.orderNumber ?? paymentSummaryRequest.cartId}",
+      "externalRefNumber":
+          paymentSummaryResponse.orderNumber ?? generateRandom8DigitNumber(),
       "customerName":
           "${hiveStorageHelper.read(SharedPreferenceConstants.sessionCustomerName)}",
       "customerEmail": "",
@@ -443,16 +445,14 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
     emit(state.copyWith(isLoading: true, initialState: false));
 
     try {
-      invoiceSummaryResponse =
-          await _paymentRepository.getInvoice(orderSummaryResponse.orderNumber!);
+      invoiceSummaryResponse = await _paymentRepository
+          .getInvoice(orderSummaryResponse.orderNumber!);
 
       emit(state.copyWith(isLoading: false));
       _sseFallbackTimer?.cancel();
       _orderInvoiceSubscription?.cancel();
     } catch (error) {
-      emit(state.copyWith(
-          isLoading: false,
-          errorMessage: error.toString()));
+      emit(state.copyWith(isLoading: false, errorMessage: error.toString()));
     }
   }
 
@@ -460,7 +460,8 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
     _orderInvoiceSubscription?.cancel();
     _sseFallbackTimer?.cancel();
 
-   _orderInvoiceSubscription = _paymentRepository.listenToPaymentUpdates(orderId).listen((event) {
+    _orderInvoiceSubscription =
+        _paymentRepository.listenToPaymentUpdates(orderId).listen((event) {
       print("event data from sse ${event.data}");
       if (event.data != null && event.data?.isNotEmpty == true) {
         print("event data from sse");
@@ -489,7 +490,6 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
     _sseFallbackTimer = Timer.periodic(Duration(seconds: 10), (timer) {
       add(GetInvoiceEvent());
     });
-
   }
 
   Future<void> _walletAuthentication(
