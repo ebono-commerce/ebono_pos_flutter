@@ -146,15 +146,25 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
               }).toList(),
             );
 
-      final isBtnEnabled = updatedOrderItems.orderLines?.any((order) =>
-          order.isSelected &&
-          order.returnedQuantity != null &&
-          order.returnedQuantity.toString().isNotEmpty);
+      /* checking if any orderline is selected */
+      final isItemsSelected = updatedOrderItems.orderLines
+          ?.any((orderLine) => orderLine.isSelected == true);
+
+      /* checking if all selected items return quantity entered */
+      final isQuantityEnteredonSelected = updatedOrderItems.orderLines!
+          .where((orderLine) => orderLine.isSelected == true)
+          .every((order) =>
+              order.returnedQuantity != null &&
+              order.returnedQuantity.toString().isNotEmpty);
+
+      final isBtnEnabled =
+          isQuantityEnteredonSelected && isItemsSelected == true;
 
       final isBtnEnabled2 = updatedOrderItems.orderLines?.every((order) =>
-      order.isSelected &&
+          order.isSelected &&
           order.returnedQuantity != null &&
-          order.returnReason != null && order.returnReason.toString().isNotEmpty &&
+          order.returnReason != null &&
+          order.returnReason.toString().isNotEmpty &&
           order.returnedQuantity.toString().isNotEmpty);
 
       emit(state.updateSelectedParameters(
@@ -179,12 +189,13 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
   ) async {
     try {
       bool isBtnEnabled = event.orderItemsModel.orderLines?.any((order) =>
-                  order.isSelected &&
-                  order.returnedQuantity != null &&
-                  order.returnedQuantity.toString().isNotEmpty) == true;
+              order.isSelected &&
+              order.returnedQuantity != null &&
+              order.returnedQuantity.toString().isNotEmpty) ==
+          true;
 
-      isBtnEnabled = event.name.trim().isNotEmpty && event.phoneNumber.trim().isNotEmpty;
-
+      isBtnEnabled =
+          event.name.trim().isNotEmpty && event.phoneNumber.trim().isNotEmpty;
 
       emit(
         state.updateSelectedParameters(
