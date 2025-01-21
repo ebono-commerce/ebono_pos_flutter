@@ -176,7 +176,7 @@ Future<Uint8List> generatePdf(OrderSummaryResponse data) async {
                         ),
                       ),
                       pw.Text(
-                        'Customer Number: ${data.customer!.isProxyNumber ? "Store Number" : data.customer!.phoneNumber!.number}',
+                        'Customer Number: ${data.customer?.isProxyNumber == true ? "Store Number" : data.customer?.phoneNumber?.number}',
                         style: pw.TextStyle(
                           fontSize: 8,
                           font: font,

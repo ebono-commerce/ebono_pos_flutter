@@ -79,7 +79,13 @@ class HomeController extends GetxController {
   RxString selectedPosMode = ''.obs;
   String selectedOutletId = '';
   String selectedTerminalId = '';
-  RxString customerProxyNumber = ''.obs;
+  RxString customerProxyNumber = '9898989898'.obs;
+  RxString customerProxyName = ''.obs;
+  RxString otpNumber = ''.obs;
+
+  var displayOTPScreen = false.obs;
+  var resendOTPBtnEnabled = false.obs;
+
   var isScanApiError = false.obs;
   var isAutoWeighDetection = false.obs;
   var isReturnViewReset = false.obs;
@@ -139,6 +145,8 @@ class HomeController extends GetxController {
         hiveStorageHelper.read(SharedPreferenceConstants.selectedPosMode);
     customerProxyNumber.value =
         hiveStorageHelper.read(SharedPreferenceConstants.customerProxyNumber);
+    customerProxyName.value =
+        hiveStorageHelper.read(SharedPreferenceConstants.customerProxyName);
 
     registerId.value =
         hiveStorageHelper.read(SharedPreferenceConstants.registerId);
@@ -338,7 +346,7 @@ class HomeController extends GetxController {
         if (cartId.value != "" && (response.priceList?.length ?? 0) <= 1) {
           addToCartApiCall(
             scanProductsResponse.value.skuCode,
-            1,
+            scanProductsResponse.value.isWeighedItem == true ? 0 : 1,
             scanProductsResponse.value.priceList!.first.mrpId,
             scanProductsResponse.value.salesUom,
             cartId.value,
