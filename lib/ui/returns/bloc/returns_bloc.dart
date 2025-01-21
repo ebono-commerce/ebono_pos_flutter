@@ -151,10 +151,19 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
               }).toList(),
             );
 
-      final isBtnEnabled = updatedOrderItems.orderLines?.any((order) =>
-          order.isSelected &&
-          order.returnedQuantity != null &&
-          order.returnedQuantity.toString().isNotEmpty);
+      /* checking if any orderline is selected */
+      final isItemsSelected = updatedOrderItems.orderLines
+          ?.any((orderLine) => orderLine.isSelected == true);
+
+      /* checking if all selected items return quantity entered */
+      final isQuantityEnteredonSelected = updatedOrderItems.orderLines!
+          .where((orderLine) => orderLine.isSelected == true)
+          .every((order) =>
+              order.returnedQuantity != null &&
+              order.returnedQuantity.toString().isNotEmpty);
+
+      final isBtnEnabled =
+          isQuantityEnteredonSelected && isItemsSelected == true;
 
       final isBtnEnabled2 = updatedOrderItems.orderLines?.every((order) =>
           order.isSelected &&
