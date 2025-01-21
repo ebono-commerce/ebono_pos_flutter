@@ -466,8 +466,9 @@ class _ReturnSummaryWidgetState extends State<ReturnSummaryWidget> {
                   onPressed: state.orderItemsData.customer?.isProxyNumber ==
                           false
                       ? () {
-                          if (state.orderItemsData.orderLines?.any(
-                                  (orderLine) =>
+                          if (state.orderItemsData.orderLines!
+                                  .where((orderLine) => orderLine.isSelected)
+                                  .any((orderLine) =>
                                       (orderLine.returnReason == null ||
                                           orderLine.returnReason?.isEmpty ==
                                               true)) ==
@@ -483,8 +484,10 @@ class _ReturnSummaryWidgetState extends State<ReturnSummaryWidget> {
                       : isValidPhoneNumber(_controllerPhoneNumber.text) &&
                               _controllerCustomerName.text.isNotEmpty
                           ? () {
-                              if (state.orderItemsData.orderLines?.any(
-                                      (orderLine) =>
+                              if (state.orderItemsData.orderLines!
+                                      .where(
+                                          (orderLine) => orderLine.isSelected)
+                                      .any((orderLine) =>
                                           (orderLine.returnReason == null ||
                                               orderLine.returnReason?.isEmpty ==
                                                   true)) ==
