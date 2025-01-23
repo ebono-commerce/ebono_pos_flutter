@@ -54,6 +54,7 @@ Future<Uint8List> generatePdf(OrderSummaryResponse data) async {
     compress: false,
   );
   final font = await PdfGoogleFonts.interRegular();
+  final fontBold = await PdfGoogleFonts.interBold();
   final fallbackFontByteData =
       await rootBundle.load("assets/fonts/Roboto-Regular.ttf");
   final img = await rootBundle.load('assets/images/savomart_logo.png');
@@ -360,13 +361,14 @@ Future<Uint8List> generatePdf(OrderSummaryResponse data) async {
                                   ),
                                 ],
                               ),
-                              pw.Text(
-                                'HSN: ${item.value.taxCode}',
-                                style: pw.TextStyle(
-                                  fontSize: 8,
-                                  font: font,
+                              if (item.value.taxCode != null)
+                                pw.Text(
+                                  'HSN: ${item.value.taxCode}',
+                                  style: pw.TextStyle(
+                                    fontSize: 8,
+                                    font: font,
+                                  ),
                                 ),
-                              ),
                               data.invoiceLines?.length != (item.key + 1)
                                   ? dottedDivider()
                                   : pw.Divider(),
@@ -377,21 +379,25 @@ Future<Uint8List> generatePdf(OrderSummaryResponse data) async {
               pw.Row(
                 mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                 children: [
-                  pw.Text(
-                    'Total',
-                    style: pw.TextStyle(
-                      fontSize: 8,
-                      font: font,
+                  pw.Row(children: [
+                    pw.Text(
+                      'Total',
+                      style: pw.TextStyle(
+                        fontSize: 8,
+                        font: font,
+                      ),
                     ),
-                  ),
-                  pw.Text(
-                    '${data.quantityTotal}',
-                    style: pw.TextStyle(
-                      fontSize: 8,
-                      font: font,
+                    pw.SizedBox(width: 13),
+                    pw.Text(
+                      '${data.quantityTotal}',
+                      style: pw.TextStyle(
+                        fontSize: 8,
+                        font: font,
+                      ),
                     ),
-                  ),
-                  if (data.roundOff != null)
+                  ]),
+                  if (data.mrpSavings != null &&
+                      (double.tryParse(data.roundOff.toString()) ?? 0.0) > 0)
                     pw.Text(
                       'Rounded of ( ₹${data.roundOff} )',
                       style: pw.TextStyle(
@@ -399,30 +405,6 @@ Future<Uint8List> generatePdf(OrderSummaryResponse data) async {
                         font: font,
                       ),
                     ),
-                  /*pw.Text(
-                    getActualPrice(
-                        data.mrpTotal?.centAmount, data.mrpTotal?.fraction),
-                    style: pw.TextStyle(
-                      fontSize: 8,
-                      font: font,
-                    ),
-                  ),
-                  pw.Text(
-                    getActualPrice(data.discountTotal?.centAmount,
-                        data.discountTotal?.fraction),
-                    style: pw.TextStyle(
-                      fontSize: 8,
-                      font: font,
-                    ),
-                  ),
-                  pw.Text(
-                    getActualPrice(
-                        data.taxTotal?.centAmount, data.taxTotal?.fraction),
-                    style: pw.TextStyle(
-                      fontSize: 8,
-                      font: font,
-                    ),
-                  ),*/
                   pw.Text(
                     '₹${data.roundOffTotal}',
                     style: pw.TextStyle(
@@ -450,13 +432,13 @@ Future<Uint8List> generatePdf(OrderSummaryResponse data) async {
                         data.mrpSavings?.centAmount, data.mrpSavings?.fraction),
                     style: pw.TextStyle(
                       fontSize: 9,
-                      fontWeight: pw.FontWeight.bold,
-                      font: font,
+                      font: fontBold,
                     ),
                   ),
-                  if (data.additionalDiscountDescription != null)
+                  if (data.additionalDiscountDescription != null &&
+                      data.additionalDiscountDescription?.isNotEmpty == true)
                     pw.Container(
-                      margin: pw.EdgeInsets.only(left: 5),
+                      margin: pw.EdgeInsets.only(left: 5, top: 1),
                       child: pw.Text(
                         '(${data.additionalDiscountDescription})',
                         style: pw.TextStyle(
