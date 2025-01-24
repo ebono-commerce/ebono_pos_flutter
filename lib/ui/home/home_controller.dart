@@ -338,7 +338,7 @@ class HomeController extends GetxController {
         if (cartId.value != "" && (response.priceList?.length ?? 0) <= 1) {
           addToCartApiCall(
             scanProductsResponse.value.skuCode,
-            1,
+            scanProductsResponse.value.isWeighedItem == true ? 0 : 1,
             scanProductsResponse.value.priceList!.first.mrpId,
             scanProductsResponse.value.salesUom,
             cartId.value,
