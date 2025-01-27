@@ -1,5 +1,5 @@
 import 'package:dio/dio.dart' as dio;
-import 'package:ebono_pos/api/api_constants.dart';
+import 'package:ebono_pos/api/environment_config.dart';
 import 'package:ebono_pos/data_store/hive_storage_helper.dart';
 import 'package:ebono_pos/data_store/shared_preference_helper.dart';
 import 'package:flutter_client_sse/constants/sse_request_type_enum.dart';
@@ -55,7 +55,7 @@ class ApiHelper {
   Stream<SSEModel> subscribeToSSE(String endpoint,
       {Map<String, String>? headers,
       SSERequestType method = SSERequestType.GET}) {
-    final url = '${ApiConstants.sseBaseUrl}$endpoint';
+    final url = '${EnvironmentConfig.sseBaseUrl}$endpoint';
     print("SSE Request URL: $url");
 
     return SSEClient.subscribeToSSE(
