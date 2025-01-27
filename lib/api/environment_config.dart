@@ -6,6 +6,8 @@ class EnvironmentConfig {
       case 'prod':
         return "http://api-local.ebono.com/store/";
       case 'stage':
+        return "http://api-local.ebono.com/store/";
+      case 'dev':
       default:
         return "https://services-staging.ebono.com/store/";
     }
@@ -16,6 +18,8 @@ class EnvironmentConfig {
       case 'prod':
         return "https://ezetap.com";
       case 'stage':
+        return "https://demo.ezetap.com";
+      case 'dev':
       default:
         return "https://demo.ezetap.com";
     }
@@ -26,6 +30,8 @@ class EnvironmentConfig {
       case 'prod':
         return "https://api.ebono.com/s/";
       case 'stage':
+        return "https://api-staging.ebono.com/s/";
+      case 'dev':
       default:
         return "https://api-staging.ebono.com/s/";
     }
