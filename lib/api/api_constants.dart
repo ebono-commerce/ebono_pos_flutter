@@ -5,9 +5,9 @@ class ApiConstants {
   static final sseBaseUrl = 'https://api-staging.ebono.com/s/';*/
 
   ///prod
-  static final baseUrl = 'http://api-local.ebono.com/store/';
+  /*static final baseUrl = 'http://api-local.ebono.com/store/';
   static final paymentBaseUrl = 'https://ezetap.com';
-  static final sseBaseUrl = 'https://api.ebono.com/s/';
+  static final sseBaseUrl = 'https://api.ebono.com/s/';*/
 
   static final login = 'authn/api/v1/pos/login';
   static final logout = 'authn/api/v1/pos/logout';
@@ -43,8 +43,10 @@ class ApiConstants {
       'checkout/api/v1/pos/cart/store-authenticate?';
   static final walletCharge = 'checkout/api/v1/pos/cart/wallet-charge';
   static final getInvoice = '/account/api/v1/pos/invoice';
+
   static String applyCoupon(String cartId) =>
       'checkout/api/v1/pos/cart/$cartId/coupon';
+
   static String removeCoupon(String cartId) =>
       'checkout/api/v1/pos/cart/$cartId/coupon/remove';
 }
