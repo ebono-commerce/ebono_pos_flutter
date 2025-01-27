@@ -8,7 +8,8 @@ releases:
           target: deb
           build_args:
             enable-experiment: records
-            dart-define: ENV=stage
+          extra_args:
+            - "--dart-define=ENV=stage"
   - name: prod
     jobs:
       - name: release-prod-linux-deb
@@ -17,4 +18,5 @@ releases:
           target: deb
           build_args:
             enable-experiment: records
-            dart-define: ENV=prod
+          extra_args:
+            - "--dart-define=ENV=prod"
