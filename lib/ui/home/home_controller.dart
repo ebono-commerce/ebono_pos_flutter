@@ -326,12 +326,11 @@ class HomeController extends GetxController {
           scanProductsResponse.value.isWeighedItem = false;
           await addToCartApiCall(
             partA,
-            scanProductsResponse.value.isWeighedItem == true ? 0 : 1,
+            partB,
             scanProductsResponse.value.priceList!.first.mrpId,
             scanProductsResponse.value.salesUom,
             cartId.value,
             isWeightedItem: true,
-            weight: double.tryParse(partB),
           );
         }
       } else {
@@ -411,10 +410,7 @@ class HomeController extends GetxController {
     }
   }
 
-  Future<void> fetchCartDetails({
-    bool isWeightedItem = false,
-    double? weight,
-  }) async {
+  Future<void> fetchCartDetails() async {
     cartLines.clear();
     try {
       clearCart();
@@ -458,16 +454,6 @@ class HomeController extends GetxController {
                     .toString()),
             priceFocusNode: FocusNode(),
           );
-
-          isApiCallInProgress = false;
-
-          if (isWeightedItem == true) {
-            await updateCartItemApiCall(
-              response.cartLines?.first.cartLineId,
-              response.cartLines?.first.quantity?.quantityUom,
-              weight,
-            );
-          }
         }
       } else {
         selectedItemData.value = CartLine();
@@ -475,6 +461,8 @@ class HomeController extends GetxController {
       }
     } catch (e) {
       Get.snackbar('Error while fetching cart details', '$e');
+    } finally {
+      isApiCallInProgress = false;
     }
   }
 
@@ -497,24 +485,28 @@ class HomeController extends GetxController {
 
   Future<void> addToCartApiCall(
     String? skuCode,
-    int? qty,
+    dynamic qty,
     String? mrpId,
     String? qtyUom,
     String? cartId, {
     bool isWeightedItem = false,
-    double? weight,
   }) async {
     try {
       var response = await _homeRepository.addToCart(
         AddToCartRequest(cartLines: [
           AddToCartCartLine(
-              skuCode: skuCode,
-              quantity:
-                  AddToCartQuantity(quantityNumber: qty, quantityUom: qtyUom),
-              mrpId: mrpId)
+            skuCode: skuCode,
+            quantity: AddToCartQuantity(
+              quantityNumber: qty,
+              quantityUom: qtyUom,
+              isWeighedItem: isWeightedItem,
+            ),
+            mrpId: mrpId,
+          )
         ]),
         cartId,
       );
+
       cartResponse.value = response;
 
       /* checking for cart line errors */
@@ -529,7 +521,7 @@ class HomeController extends GetxController {
 
       isApiCallInProgress = false;
 
-      await fetchCartDetails(isWeightedItem: isWeightedItem, weight: weight);
+      await fetchCartDetails();
     } catch (e) {
       Get.snackbar('Error while adding to cart', '$e');
     } finally {

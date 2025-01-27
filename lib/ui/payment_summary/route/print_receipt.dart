@@ -54,6 +54,7 @@ Future<Uint8List> generatePdf(OrderSummaryResponse data) async {
     compress: false,
   );
   final font = await PdfGoogleFonts.interRegular();
+  final fontBold = await PdfGoogleFonts.interBold();
   final fallbackFontByteData =
       await rootBundle.load("assets/fonts/Roboto-Regular.ttf");
   final img = await rootBundle.load('assets/images/savomart_logo.png');
@@ -67,6 +68,15 @@ Future<Uint8List> generatePdf(OrderSummaryResponse data) async {
   const double inch = 72.0;
   const double cm = inch / 2.54;
   const double mm = inch / 25.4;
+
+  final isGreaterThanZero = data.mrpSavings != null &&
+      (double.parse(
+            getActualPrice(
+              data.mrpSavings?.centAmount,
+              data.mrpSavings?.fraction,
+            ).replaceAll("₹", "").trim(),
+          )) >
+          0;
   //final data = OrderSummaryResponse.fromJson(json.decode(jsonData));
 
   pdf.addPage(
@@ -360,13 +370,14 @@ Future<Uint8List> generatePdf(OrderSummaryResponse data) async {
                                   ),
                                 ],
                               ),
-                              pw.Text(
-                                'HSN: ${item.value.taxCode}',
-                                style: pw.TextStyle(
-                                  fontSize: 8,
-                                  font: font,
+                              if (item.value.taxCode != null)
+                                pw.Text(
+                                  'HSN: ${item.value.taxCode}',
+                                  style: pw.TextStyle(
+                                    fontSize: 8,
+                                    font: font,
+                                  ),
                                 ),
-                              ),
                               data.invoiceLines?.length != (item.key + 1)
                                   ? dottedDivider()
                                   : pw.Divider(),
@@ -377,21 +388,25 @@ Future<Uint8List> generatePdf(OrderSummaryResponse data) async {
               pw.Row(
                 mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                 children: [
-                  pw.Text(
-                    'Total',
-                    style: pw.TextStyle(
-                      fontSize: 8,
-                      font: font,
+                  pw.Row(children: [
+                    pw.Text(
+                      'Total',
+                      style: pw.TextStyle(
+                        fontSize: 8,
+                        font: font,
+                      ),
                     ),
-                  ),
-                  pw.Text(
-                    '${data.quantityTotal}',
-                    style: pw.TextStyle(
-                      fontSize: 8,
-                      font: font,
+                    pw.SizedBox(width: 13),
+                    pw.Text(
+                      '${data.quantityTotal}',
+                      style: pw.TextStyle(
+                        fontSize: 8,
+                        font: font,
+                      ),
                     ),
-                  ),
-                  if (data.roundOff != null)
+                  ]),
+                  if (data.roundOff != null &&
+                      (double.tryParse(data.roundOff.toString()) ?? 0.0) > 0)
                     pw.Text(
                       'Rounded of ( ₹${data.roundOff} )',
                       style: pw.TextStyle(
@@ -399,30 +414,6 @@ Future<Uint8List> generatePdf(OrderSummaryResponse data) async {
                         font: font,
                       ),
                     ),
-                  /*pw.Text(
-                    getActualPrice(
-                        data.mrpTotal?.centAmount, data.mrpTotal?.fraction),
-                    style: pw.TextStyle(
-                      fontSize: 8,
-                      font: font,
-                    ),
-                  ),
-                  pw.Text(
-                    getActualPrice(data.discountTotal?.centAmount,
-                        data.discountTotal?.fraction),
-                    style: pw.TextStyle(
-                      fontSize: 8,
-                      font: font,
-                    ),
-                  ),
-                  pw.Text(
-                    getActualPrice(
-                        data.taxTotal?.centAmount, data.taxTotal?.fraction),
-                    style: pw.TextStyle(
-                      fontSize: 8,
-                      font: font,
-                    ),
-                  ),*/
                   pw.Text(
                     '₹${data.roundOffTotal}',
                     style: pw.TextStyle(
@@ -432,43 +423,42 @@ Future<Uint8List> generatePdf(OrderSummaryResponse data) async {
                   ),
                 ],
               ),
-              pw.SizedBox(height: 4),
-
-              pw.Row(
-                mainAxisAlignment: pw.MainAxisAlignment.center,
-                crossAxisAlignment: pw.CrossAxisAlignment.center,
-                children: [
-                  pw.Text(
-                    'Your savings: ',
-                    style: pw.TextStyle(
-                      fontSize: 8,
-                      font: font,
-                    ),
-                  ),
-                  pw.Text(
-                    getActualPrice(
-                        data.mrpSavings?.centAmount, data.mrpSavings?.fraction),
-                    style: pw.TextStyle(
-                      fontSize: 9,
-                      fontWeight: pw.FontWeight.bold,
-                      font: font,
-                    ),
-                  ),
-                  if (data.additionalDiscountDescription != null)
-                    pw.Container(
-                      margin: pw.EdgeInsets.only(left: 5),
-                      child: pw.Text(
-                        '(${data.additionalDiscountDescription})',
-                        style: pw.TextStyle(
-                          fontSize: 6,
-                          fontWeight: pw.FontWeight.bold,
-                          font: font,
-                        ),
+              if (isGreaterThanZero) pw.SizedBox(height: 4),
+              if (isGreaterThanZero)
+                pw.Row(
+                  mainAxisAlignment: pw.MainAxisAlignment.center,
+                  crossAxisAlignment: pw.CrossAxisAlignment.center,
+                  children: [
+                    pw.Text(
+                      'Your savings: ',
+                      style: pw.TextStyle(
+                        fontSize: 8,
+                        font: font,
                       ),
                     ),
-                ],
-              ),
-
+                    pw.Text(
+                      getActualPrice(data.mrpSavings?.centAmount,
+                          data.mrpSavings?.fraction),
+                      style: pw.TextStyle(
+                        fontSize: 9,
+                        font: fontBold,
+                      ),
+                    ),
+                    if (data.additionalDiscountDescription != null &&
+                        data.additionalDiscountDescription?.isNotEmpty == true)
+                      pw.Container(
+                        margin: pw.EdgeInsets.only(left: 5, top: 1),
+                        child: pw.Text(
+                          '(${data.additionalDiscountDescription})',
+                          style: pw.TextStyle(
+                            fontSize: 6,
+                            fontWeight: pw.FontWeight.bold,
+                            font: font,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
               pw.Divider(),
               if (data.taxDetails?.taxLines?.isNotEmpty == true)
                 pw.Column(
