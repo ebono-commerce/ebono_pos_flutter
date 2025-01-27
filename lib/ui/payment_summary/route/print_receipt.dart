@@ -68,6 +68,15 @@ Future<Uint8List> generatePdf(OrderSummaryResponse data) async {
   const double inch = 72.0;
   const double cm = inch / 2.54;
   const double mm = inch / 25.4;
+
+  final isGreaterThanZero = data.mrpSavings != null &&
+      (double.parse(
+            getActualPrice(
+              data.mrpSavings?.centAmount,
+              data.mrpSavings?.fraction,
+            ).replaceAll("₹", "").trim(),
+          )) >
+          0;
   //final data = OrderSummaryResponse.fromJson(json.decode(jsonData));
 
   pdf.addPage(
@@ -396,7 +405,7 @@ Future<Uint8List> generatePdf(OrderSummaryResponse data) async {
                       ),
                     ),
                   ]),
-                  if (data.mrpSavings != null &&
+                  if (data.roundOff != null &&
                       (double.tryParse(data.roundOff.toString()) ?? 0.0) > 0)
                     pw.Text(
                       'Rounded of ( ₹${data.roundOff} )',
@@ -414,43 +423,42 @@ Future<Uint8List> generatePdf(OrderSummaryResponse data) async {
                   ),
                 ],
               ),
-              pw.SizedBox(height: 4),
-
-              pw.Row(
-                mainAxisAlignment: pw.MainAxisAlignment.center,
-                crossAxisAlignment: pw.CrossAxisAlignment.center,
-                children: [
-                  pw.Text(
-                    'Your savings: ',
-                    style: pw.TextStyle(
-                      fontSize: 8,
-                      font: font,
-                    ),
-                  ),
-                  pw.Text(
-                    getActualPrice(
-                        data.mrpSavings?.centAmount, data.mrpSavings?.fraction),
-                    style: pw.TextStyle(
-                      fontSize: 9,
-                      font: fontBold,
-                    ),
-                  ),
-                  if (data.additionalDiscountDescription != null &&
-                      data.additionalDiscountDescription?.isNotEmpty == true)
-                    pw.Container(
-                      margin: pw.EdgeInsets.only(left: 5, top: 1),
-                      child: pw.Text(
-                        '(${data.additionalDiscountDescription})',
-                        style: pw.TextStyle(
-                          fontSize: 6,
-                          fontWeight: pw.FontWeight.bold,
-                          font: font,
-                        ),
+              if (isGreaterThanZero) pw.SizedBox(height: 4),
+              if (isGreaterThanZero)
+                pw.Row(
+                  mainAxisAlignment: pw.MainAxisAlignment.center,
+                  crossAxisAlignment: pw.CrossAxisAlignment.center,
+                  children: [
+                    pw.Text(
+                      'Your savings: ',
+                      style: pw.TextStyle(
+                        fontSize: 8,
+                        font: font,
                       ),
                     ),
-                ],
-              ),
-
+                    pw.Text(
+                      getActualPrice(data.mrpSavings?.centAmount,
+                          data.mrpSavings?.fraction),
+                      style: pw.TextStyle(
+                        fontSize: 9,
+                        font: fontBold,
+                      ),
+                    ),
+                    if (data.additionalDiscountDescription != null &&
+                        data.additionalDiscountDescription?.isNotEmpty == true)
+                      pw.Container(
+                        margin: pw.EdgeInsets.only(left: 5, top: 1),
+                        child: pw.Text(
+                          '(${data.additionalDiscountDescription})',
+                          style: pw.TextStyle(
+                            fontSize: 6,
+                            fontWeight: pw.FontWeight.bold,
+                            font: font,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
               pw.Divider(),
               if (data.taxDetails?.taxLines?.isNotEmpty == true)
                 pw.Column(
