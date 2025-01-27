@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:ebono_pos/api/api_constants.dart';
+import 'package:ebono_pos/api/environment_config.dart';
 import 'package:ebono_pos/data_store/hive_storage_helper.dart';
 import 'package:ebono_pos/data_store/shared_preference_helper.dart';
 import 'package:ebono_pos/navigation/page_routes.dart';
@@ -18,7 +19,7 @@ class AuthInterceptor extends Interceptor {
     String? appUUID = await _sharedPreferenceHelper.getAppUUID();
 
     if (options.uri.path.contains('/api/3.0/p2p/')) {
-      options.baseUrl = ApiConstants.paymentBaseUrl;
+      options.baseUrl = EnvironmentConfig.paymentBaseUrl;
       options.headers['Content-Type'] = 'application/json';
       options.headers['Accept'] = 'application/json, text/plain, */*';
 

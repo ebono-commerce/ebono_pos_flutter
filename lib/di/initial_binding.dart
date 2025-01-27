@@ -1,5 +1,5 @@
-import 'package:ebono_pos/api/api_constants.dart';
 import 'package:ebono_pos/api/api_helper.dart';
+import 'package:ebono_pos/api/environment_config.dart';
 import 'package:ebono_pos/data_store/hive_storage_helper.dart';
 import 'package:ebono_pos/data_store/shared_preference_helper.dart';
 import 'package:ebono_pos/ui/home/home_controller.dart';
@@ -18,7 +18,7 @@ class InitialBinding extends Bindings {
     Get.put<HiveStorageHelper>(HiveStorageHelper());
 
     // Register ApiHelper as a singleton
-    Get.put<ApiHelper>(ApiHelper(ApiConstants.baseUrl,
+    Get.put<ApiHelper>(ApiHelper(EnvironmentConfig.baseUrl,
         Get.find<SharedPreferenceHelper>(), Get.find<HiveStorageHelper>()));
 
     //repo
