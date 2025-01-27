@@ -10,6 +10,16 @@ releases:
             enable-experiment: records
           extra_args:
             - "--dart-define=ENV=stage"
+  - name: dev
+    jobs:
+      - name: release-dev-linux-deb
+        package:
+          platform: linux
+          target: deb
+          build_args:
+            enable-experiment: records
+          extra_args:
+            - "--dart-define=ENV=dev"
   - name: prod
     jobs:
       - name: release-prod-linux-deb
