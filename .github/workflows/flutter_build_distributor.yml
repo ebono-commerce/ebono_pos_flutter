@@ -1,0 +1,51 @@
+name: Flutter Distributor Build
+
+on:
+  # Allow manual trigger
+  workflow_dispatch:
+
+  # Allow auto-trigger on push to the 'deployment' branch
+  #push:
+    #branches:
+      #- Deployment
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout the code
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Install system dependencies
+      - name: Install required dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang cmake git ninja-build pkg-config libgtk-3-dev liblzma-dev libstdc++-12-dev
+
+      # Set up Flutter
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 'stable'
+
+      # Install Flutter dependencies
+      - name: Install Flutter dependencies
+        run: flutter pub get
+
+      # Activate Flutter Distributor
+      - name: Activate Flutter Distributor
+        run: dart pub global activate flutter_distributor
+
+      # Generate the build using Flutter Distributor
+      - name: Build Stage Release
+        run: |
+          flutter_distributor release --name=stage --jobs=release-stage-linux-deb
+
+      # Optional: Upload artifacts (deb file)
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: stage-release
+          path: dist/
