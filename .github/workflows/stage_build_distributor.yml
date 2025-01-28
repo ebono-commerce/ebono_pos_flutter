@@ -30,12 +30,12 @@ jobs:
         with:
           flutter-version: '3.27.1'
 
-      # Get version from
+      # Get version
       - name: Get version from pubspec.yaml
-        id: get_version
+        id: version
         run: |
-            VERSION=$(grep version pubspec.yaml | awk '{print $2}' | cut -d '+' -f 1)
-            echo "VERSION=$VERSION" >> $GITHUB_ENV
+          VERSION=$(grep '^version: ' pubspec.yaml | sed 's/version: //')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
 
       # Install Flutter dependencies
       - name: Install Flutter dependencies
@@ -54,5 +54,5 @@ jobs:
       - name: Upload build artifact
         uses: actions/upload-artifact@v3
         with:
-          name: stage-release-${VERSION}
+          name: stage-release-${{ steps.read_version.outputs.version }}
           path: dist/
