@@ -10,7 +10,7 @@ set(PDFIUM_ARCH "x64" CACHE STRING "" FORCE)
 set(BINARY_NAME "ebono_pos")
 # The unique GTK application identifier for this application. See:
 # https://wiki.gnome.org/HowDoI/ChooseApplicationID
-set(APPLICATION_ID "com.example.ebono_pos")
+set(APPLICATION_ID "com.ebono.ebono_pos")
 
 # Explicitly opt in to modern CMake behaviors to avoid warnings with recent
 # versions of CMake.
