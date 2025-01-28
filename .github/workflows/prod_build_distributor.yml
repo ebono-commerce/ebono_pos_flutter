@@ -1,4 +1,4 @@
-name: Stage Distributor Build
+name: Prod Distributor Build
 
 on:
   # Allow manual trigger
@@ -41,11 +41,11 @@ jobs:
       # Generate the build using Flutter Distributor
       - name: Build Stage Release
         run: |
-          flutter_distributor release --name=stage --jobs=release-stage-linux-deb
+          flutter_distributor release --name=prod --jobs=release-prod-linux-deb
 
       # Optional: Upload artifacts (deb file)
       - name: Upload build artifact
         uses: actions/upload-artifact@v3
         with:
-          name: stage-release
+          name: prod-release
           path: dist/
