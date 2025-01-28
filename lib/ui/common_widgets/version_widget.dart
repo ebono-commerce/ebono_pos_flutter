@@ -8,6 +8,9 @@ class VersionWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    String environment = String.fromEnvironment('ENV', defaultValue: 'prod');
+
     return FutureBuilder<PackageInfo>(
       future: PackageInfo.fromPlatform(),
       builder: (context, snapshot) {
@@ -19,7 +22,7 @@ class VersionWidget extends StatelessWidget {
           final packageInfo = snapshot.data!;
           final version = packageInfo.version;
           return Text(
-            '(SAVOmart - $version)',
+            '(SAVOmart $environment - $version)',
             style: Theme.of(context).textTheme.labelMedium?.copyWith(fontSize: fontSize),
           );
         } else {
