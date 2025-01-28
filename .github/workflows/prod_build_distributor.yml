@@ -34,8 +34,8 @@ jobs:
       - name: Get version from pubspec.yaml
         id: version
         run: |
-          VERSION=$(grep '^version: ' pubspec.yaml | sed 's/version: //')
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          VERSION=$(grep version pubspec.yaml | awk '{print $2}' | cut -d '+' -f 1)
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
 
       # Install Flutter dependencies
       - name: Install Flutter dependencies
@@ -54,5 +54,5 @@ jobs:
       - name: Upload build artifact
         uses: actions/upload-artifact@v3
         with:
-          name: prod-release-${{ steps.read_version.outputs.version }}
+          name: prod-release-${VERSION}
           path: dist/

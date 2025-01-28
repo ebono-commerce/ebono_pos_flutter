@@ -54,5 +54,5 @@ jobs:
       - name: Upload build artifact
         uses: actions/upload-artifact@v3
         with:
-          name: stage-release-${{ steps.read_version.outputs.version }}
+          name: stage-release-${{ steps.version.outputs.version }}
           path: dist/
