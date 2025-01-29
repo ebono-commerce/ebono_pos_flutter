@@ -32,7 +32,9 @@ class CustomerDetailsResponse {
             : PhoneNumber.fromJson(json["phone_number"]),
         customerName: json["customer_name"],
         isCustomerVerificationRequired:
-            json["is_customer_verification_required"],
+            json["customer_status"] == 'EXISTING_CUSTOMER_VERIFIED'
+                ? false
+                : true,
         customerStatus: json["customer_status"],
         existingCustomer: json["existing_customer"],
       );

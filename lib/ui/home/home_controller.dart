@@ -415,7 +415,9 @@ class HomeController extends GetxController {
       hiveStorageHelper.save(SharedPreferenceConstants.sessionCustomerName,
           customerResponse.value.customerName);
 
-      if (showOTPScreen) displayOTPScreen.value = true;
+      if (showOTPScreen) {
+        displayOTPScreen.value = true;
+      }
       if (!isFromReturns) {
         if (cartId.value.isNotEmpty && isCustomerProxySelected.value) {
           mergeCart(phoneNumber.value);
@@ -926,21 +928,16 @@ class HomeController extends GetxController {
         otp: otp,
       );
 
-      print("chk 1");
-
       if (isResendOTP == false && tiggerOTP == false) {
         isOTPVerified.value = result;
       }
-      print("chk 2");
+
       otpErrorMessage.value = '';
       triggerCustomOTPValidation.value = false;
-      print("chk 3");
     } catch (e) {
       otpErrorMessage.value = e.toString().split('|').last;
       isOTPVerified.value = false;
       triggerCustomOTPValidation.value = true;
-      print("chk 4");
-      // Get.snackbar('Error while generating OTP', '$e');
     } finally {
       isOTPResendingOrVerifying.value = false;
     }

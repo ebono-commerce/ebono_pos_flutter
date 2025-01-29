@@ -54,13 +54,16 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
       _controllerCustomerName.text = value.toString();
     });
 
-    // ever(homeController.customerResponse, (value) {
-    //   if (value.phoneNumber != null) {
-    //     if (widget.dialogContext.mounted) {
-    //       // Navigator.pop(widget.dialogContext);
-    //     }
-    //   }
-    // });
+    ever(homeController.customerResponse, (value) {
+      if (value.phoneNumber != null) {
+        if (widget.dialogContext.mounted &&
+            homeController
+                    .customerResponse.value.isCustomerVerificationRequired ==
+                false) {
+          Get.back();
+        }
+      }
+    });
 
     ever(homeController.triggerCustomOTPValidation, (value) {
       if (value == true) {
@@ -449,7 +452,6 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
                           homeController.isContionueWithOutCustomer.value =
                               true;
                           homeController.fetchCustomer();
-                          // homeController.displayOTPScreen.value = true;
                         },
                         isBtnEnabled: !widget.isDialogForHoldCart,
                       ),
@@ -554,7 +556,11 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
                 homeController.isCustomerProxySelected.value = true;
                 homeController.isContionueWithOutCustomer.value = false;
                 homeController.fetchCustomer(
-                  showOTPScreen: true,
+                  showOTPScreen: homeController.getCustomerDetailsResponse.value
+                              .isCustomerVerificationRequired ==
+                          true
+                      ? true
+                      : false,
                   isFromReturns: widget.isDialogForReturns,
                 );
               }
