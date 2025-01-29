@@ -79,12 +79,19 @@ class HomeController extends GetxController {
   RxString selectedPosMode = ''.obs;
   String selectedOutletId = '';
   String selectedTerminalId = '';
-  RxString customerProxyNumber = '9898989898'.obs;
+  RxString customerProxyNumber = ''.obs;
   RxString customerProxyName = ''.obs;
   RxString otpNumber = ''.obs;
 
+  /* OTP Related */
   var displayOTPScreen = false.obs;
   var resendOTPBtnEnabled = false.obs;
+
+  var isResendOTPRequested = false.obs;
+  var isOTPVerified = false.obs;
+  var isOTPResendingOrVerifying = false.obs;
+  var otpErrorMessage = ''.obs;
+  var triggerCustomOTPValidation = false.obs;
 
   var isScanApiError = false.obs;
   var isAutoWeighDetection = false.obs;
@@ -388,7 +395,10 @@ class HomeController extends GetxController {
     }
   }
 
-  fetchCustomer() async {
+  fetchCustomer({
+    bool showOTPScreen = false,
+    bool isFromReturns = false,
+  }) async {
     try {
       var response = await _homeRepository.fetchCustomer(CustomerRequest(
           phoneNumber: phoneNumber.value,
@@ -405,13 +415,17 @@ class HomeController extends GetxController {
       hiveStorageHelper.save(SharedPreferenceConstants.sessionCustomerName,
           customerResponse.value.customerName);
 
-      if (cartId.value.isNotEmpty && isCustomerProxySelected.value) {
-        mergeCart(phoneNumber.value);
-        isCustomerProxySelected.value = false;
-      } else {
-        cartId.value = customerResponse.value.cartId.toString();
-        hiveStorageHelper.save(SharedPreferenceConstants.cartId, cartId.value);
-        fetchCartDetails();
+      if (showOTPScreen) displayOTPScreen.value = true;
+      if (!isFromReturns) {
+        if (cartId.value.isNotEmpty && isCustomerProxySelected.value) {
+          mergeCart(phoneNumber.value);
+          isCustomerProxySelected.value = false;
+        } else {
+          cartId.value = customerResponse.value.cartId.toString();
+          hiveStorageHelper.save(
+              SharedPreferenceConstants.cartId, cartId.value);
+          fetchCartDetails();
+        }
       }
     } catch (e) {
       Get.snackbar('Error while fetching customer data', '$e');
@@ -896,6 +910,40 @@ class HomeController extends GetxController {
       );
     }
     return response;
+  }
+
+  Future<void> generateORValidateOTP({
+    required bool tiggerOTP,
+    required String phoneNumber,
+    required String otp,
+    required bool isResendOTP,
+  }) async {
+    try {
+      isOTPResendingOrVerifying.value = true;
+      final result = await _homeRepository.generateORValidateOTP(
+        tiggerOTP: tiggerOTP,
+        phoneNumber: phoneNumber,
+        otp: otp,
+      );
+
+      print("chk 1");
+
+      if (isResendOTP == false && tiggerOTP == false) {
+        isOTPVerified.value = result;
+      }
+      print("chk 2");
+      otpErrorMessage.value = '';
+      triggerCustomOTPValidation.value = false;
+      print("chk 3");
+    } catch (e) {
+      otpErrorMessage.value = e.toString().split('|').last;
+      isOTPVerified.value = false;
+      triggerCustomOTPValidation.value = true;
+      print("chk 4");
+      // Get.snackbar('Error while generating OTP', '$e');
+    } finally {
+      isOTPResendingOrVerifying.value = false;
+    }
   }
 
   @override

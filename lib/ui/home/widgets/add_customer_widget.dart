@@ -1,8 +1,10 @@
 import 'dart:async';
 
 import 'package:ebono_pos/constants/custom_colors.dart';
+import 'package:ebono_pos/extensions/string_extension.dart';
 import 'package:ebono_pos/ui/custom_keyboard/custom_querty_pad.dart';
 import 'package:ebono_pos/ui/home/home_controller.dart';
+import 'package:ebono_pos/ui/home/model/customer_details_response.dart';
 import 'package:ebono_pos/utils/common_methods.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -11,13 +13,13 @@ import 'package:get/get.dart';
 class AddCustomerWidget extends StatefulWidget {
   final BuildContext dialogContext;
   final bool isDialogForHoldCart;
-  final bool isDialogToVerifyCustomer;
+  final bool isDialogForReturns;
 
   const AddCustomerWidget(
     this.dialogContext, {
     super.key,
     this.isDialogForHoldCart = false,
-    this.isDialogToVerifyCustomer = false,
+    this.isDialogForReturns = false,
   });
 
   @override
@@ -47,15 +49,28 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
   @override
   void initState() {
     super.initState();
+
     ever(homeController.customerName, (value) {
       _controllerCustomerName.text = value.toString();
     });
 
-    ever(homeController.customerResponse, (value) {
-      if (value.phoneNumber != null) {
-        if (widget.dialogContext.mounted) {
-          Navigator.pop(widget.dialogContext);
-        }
+    // ever(homeController.customerResponse, (value) {
+    //   if (value.phoneNumber != null) {
+    //     if (widget.dialogContext.mounted) {
+    //       // Navigator.pop(widget.dialogContext);
+    //     }
+    //   }
+    // });
+
+    ever(homeController.triggerCustomOTPValidation, (value) {
+      if (value == true) {
+        _formKey.currentState?.validate();
+      }
+    });
+
+    ever(homeController.isOTPVerified, (value) {
+      if (value) {
+        Get.back();
       }
     });
 
@@ -118,14 +133,16 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
       isResendOTPBtnEnabled = false;
     });
     _timer = Timer.periodic(Duration(seconds: 1), (timer) {
-      setState(() {
-        if (_remainingTime > 0) {
-          _remainingTime--;
-        } else {
-          _stopTimer();
-          _executeLogic(); // Execute your logic here
-        }
-      });
+      if (mounted) {
+        setState(() {
+          if (_remainingTime > 0) {
+            _remainingTime--;
+          } else {
+            _stopTimer();
+            _executeLogic(); // Execute your logic here
+          }
+        });
+      }
     });
   }
 
@@ -151,9 +168,11 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
 
   @override
   void dispose() {
-    _stopTimer();
-    homeController.displayOTPScreen.value = false;
     super.dispose();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      homeController.displayOTPScreen.value = false;
+    });
   }
 
   /*@override
@@ -228,6 +247,11 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
                   padding: const EdgeInsets.only(right: 18.0, top: 18),
                   child: InkWell(
                     onTap: () {
+                      _controllerCustomerName.clear();
+                      _controllerPhoneNumber.clear();
+                      _qwertyPadController.clear();
+                      homeController.getCustomerDetailsResponse.value =
+                          CustomerDetailsResponse();
                       Navigator.pop(widget.dialogContext);
                     },
                     child: SvgPicture.asset(
@@ -266,7 +290,7 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
                               ),
                             ),
                             TextSpan(
-                              text: homeController.customerProxyNumber.value,
+                              text: homeController.phoneNumber.value,
                               style: theme.textTheme.titleMedium?.copyWith(
                                 fontWeight: FontWeight.bold,
                                 color: CustomColors.black,
@@ -288,25 +312,47 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
                             if (value.length < 4 || value.length > 4) {
                               return "Please Enter Valid OTP";
                             }
+                            if (homeController
+                                    .triggerCustomOTPValidation.value ==
+                                true) {
+                              return homeController.otpErrorMessage.value;
+                            }
                             return null;
                           },
                         ),
                         SizedBox(height: 30),
                         _buildCustomButton(
                           onPressed: () {
+                            homeController.triggerCustomOTPValidation.value =
+                                false;
                             if (_formKey.currentState?.validate() == true) {
-                              Get.snackbar("SUCCESS", "VERIFIED");
-                              _startTimer();
+                              homeController.generateORValidateOTP(
+                                tiggerOTP: false,
+                                isResendOTP: false,
+                                phoneNumber: homeController.phoneNumber.value,
+                                otp: _otpTextController.text.trim(),
+                              );
                             }
                           },
-                          isBtnEnabled: true,
+                          isBtnEnabled:
+                              homeController.isOTPResendingOrVerifying.value ==
+                                  false,
                           buttonText: "Verify",
+                          isLoading:
+                              homeController.isOTPResendingOrVerifying.value ==
+                                  true,
                           fontWeight: FontWeight.w600,
                         ),
                         SizedBox(height: 15),
                         _buildCustomButton(
-                          onPressed: () {
+                          onPressed: () async {
                             _startTimer();
+                            await homeController.generateORValidateOTP(
+                              tiggerOTP: true,
+                              isResendOTP: true,
+                              phoneNumber: homeController.phoneNumber.value,
+                              otp: '',
+                            );
                           },
                           isBtnEnabled: isResendOTPBtnEnabled,
                           buttonText:
@@ -367,11 +413,27 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
                                 homeController.getCustomerDetailsResponse.value
                                             .existingCustomer ==
                                         true
-                                    ? 'Existing Customer'
-                                    : 'New Customer',
+                                    ? homeController.getCustomerDetailsResponse
+                                        .value.customerStatus!
+                                        .replaceAll('_', ' ')
+                                        .replaceAll('PENDING', 'REQUIRED')
+                                        .toTitleCase()
+                                    : 'New Customer Verification Required',
                                 textAlign: TextAlign.center,
-                                style: theme.textTheme.labelMedium
-                                    ?.copyWith(color: CustomColors.green),
+                                style: theme.textTheme.labelMedium?.copyWith(
+                                  color: homeController
+                                                  .getCustomerDetailsResponse
+                                                  .value
+                                                  .isCustomerVerificationRequired ==
+                                              true &&
+                                          homeController
+                                                  .getCustomerDetailsResponse
+                                                  .value
+                                                  .existingCustomer ==
+                                              true
+                                      ? Colors.red
+                                      : CustomColors.green,
+                                ),
                               ),
                             ),
                         ],
@@ -491,7 +553,10 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
             ? () {
                 homeController.isCustomerProxySelected.value = true;
                 homeController.isContionueWithOutCustomer.value = false;
-                homeController.fetchCustomer();
+                homeController.fetchCustomer(
+                  showOTPScreen: true,
+                  isFromReturns: widget.isDialogForReturns,
+                );
               }
             : null,
         style: ElevatedButton.styleFrom(
@@ -528,6 +593,7 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
     required Function()? onPressed,
     bool isBtnEnabled = true,
     bool enableBackground = true,
+    bool isLoading = false,
     FontWeight fontWeight = FontWeight.bold,
   }) {
     return Container(
@@ -549,17 +615,23 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
               enableBackground ? CustomColors.keyBoardBgColor : Colors.white,
         ),
         child: Center(
-          child: Text(
-            // "Continue Without Customer Number",
-            buttonText,
-            style: TextStyle(
-              color: isBtnEnabled
-                  ? CustomColors.primaryColor
-                  : CustomColors.greyFont,
-              fontSize: 14,
-              fontWeight: fontWeight,
-            ),
-          ),
+          child: isLoading
+              ? SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(),
+                )
+              : Text(
+                  // "Continue Without Customer Number",
+                  buttonText,
+                  style: TextStyle(
+                    color: isBtnEnabled
+                        ? CustomColors.primaryColor
+                        : CustomColors.greyFont,
+                    fontSize: 14,
+                    fontWeight: fontWeight,
+                  ),
+                ),
         ),
       ),
     );
