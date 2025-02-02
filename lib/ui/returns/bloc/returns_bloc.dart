@@ -19,6 +19,9 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
     on<ProceedToReturnItems>(_proccedToReturnItems);
     on<ReturnsResetEvent>(_resetReturns);
     on<ValidateConfirmReturnEvent>(_validateConfirmReturnBtn);
+    on<OnSelectAllBtnEvent>(_onSelectAllBtn);
+    on<UpdateCommonReasonEvent>(_updateCommonReason);
+    on<ResetValuesOnDialogCloseEvent>(_resetValuesOnDialogClose);
   }
 
   void _onReturnsEvent(ReturnsEvent event, Emitter<ReturnsState> emit) {
@@ -151,6 +154,14 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
               }).toList(),
             );
 
+      if (event.reason.isEmpty) {
+        updatedOrderItems = updatedOrderItems.copyWith(
+          isAllOrdersSelected: updatedOrderItems.orderLines
+                  ?.every((order) => order.isSelected) ==
+              true,
+        );
+      }
+
       /* checking if any orderline is selected */
       final isItemsSelected = updatedOrderItems.orderLines
           ?.any((orderLine) => orderLine.isSelected == true);
@@ -165,12 +176,15 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
       final isBtnEnabled =
           isQuantityEnteredonSelected && isItemsSelected == true;
 
-      final isBtnEnabled2 = updatedOrderItems.orderLines?.every((order) =>
-          order.isSelected &&
-          order.returnedQuantity != null &&
-          order.returnReason != null &&
-          order.returnReason.toString().isNotEmpty &&
-          order.returnedQuantity.toString().isNotEmpty);
+      final isBtnEnabled2 = updatedOrderItems.orderLines
+          ?.where((order) => order.isSelected == true)
+          .every(
+            (order) =>
+                order.returnedQuantity != null &&
+                order.returnReason != null &&
+                order.returnReason.toString().isNotEmpty &&
+                order.returnedQuantity.toString().isNotEmpty,
+          );
 
       emit(state.updateSelectedParameters(
         lastSelectedItem: event.orderLine,
@@ -216,5 +230,116 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
         ),
       );
     }
+  }
+
+  Future<void> _onSelectAllBtn(
+    OnSelectAllBtnEvent event,
+    Emitter<ReturnsState> emit,
+  ) async {
+    OrderItemsModel updatedOrderItems = event.orderItemsModel;
+    try {
+      updatedOrderItems = event.orderItemsModel.copyWith(
+        orderLines: event.orderItemsModel.orderLines?.map((item) {
+          return item.copyWith(
+            isSelected: !event.orderItemsModel.isAllOrdersSelected,
+            returnedQuantity: !event.orderItemsModel.isAllOrdersSelected
+                ? item.returnableQuantity?.quantityUom == "pcs"
+                    ? int.parse(
+                        item.returnableQuantity?.quantityNumber.toString() ??
+                            '0')
+                    : double.parse(
+                        item.returnableQuantity?.quantityNumber.toString() ??
+                            '0',
+                      )
+                : '',
+          );
+        }).toList(),
+        isAllOrdersSelected: !event.orderItemsModel.isAllOrdersSelected,
+      );
+
+      /* checking if any orderline is selected */
+      final isItemsSelected = updatedOrderItems.orderLines
+          ?.any((orderLine) => orderLine.isSelected == true);
+
+      /* checking if all selected items return quantity entered */
+      final isQuantityEnteredonSelected = updatedOrderItems.orderLines!
+          .where((orderLine) => orderLine.isSelected == true)
+          .every((order) =>
+              order.returnedQuantity != null &&
+              order.returnedQuantity.toString().isNotEmpty);
+
+      final isBtnEnabled =
+          isQuantityEnteredonSelected && isItemsSelected == true;
+
+      emit(state.updateSelectedParameters(
+        isProceedBtnEnabled: isBtnEnabled,
+        orderItemsData: updatedOrderItems,
+      ));
+    } catch (e) {
+      emit(
+        state.updateSelectedParameters(
+          isError: true,
+          orderItemsData: updatedOrderItems,
+          errorMessage: e.toString(),
+        ),
+      );
+    }
+  }
+
+  Future<void> _updateCommonReason(
+    UpdateCommonReasonEvent event,
+    Emitter<ReturnsState> emit,
+  ) async {
+    try {
+      final updatedOrderItems = event.orderItemsModel.copyWith(
+        orderLines: event.orderItemsModel.orderLines
+            ?.where((order) => order.isSelected == true)
+            .map((orderLine) {
+          return orderLine.copyWith(returnReason: event.reason);
+        }).toList(),
+      );
+
+      final isBtnEnabled2 = updatedOrderItems.orderLines
+          ?.where((order) => order.isSelected == true)
+          .every(
+            (order) =>
+                order.returnedQuantity != null &&
+                order.returnReason != null &&
+                order.returnReason.toString().isNotEmpty &&
+                order.returnedQuantity.toString().isNotEmpty,
+          );
+
+      emit(state.updateSelectedParameters(
+        orderItemsData: updatedOrderItems,
+        isConfirmReturnBtnEnabled: isBtnEnabled2,
+        commonSelectedReason: event.reason,
+      ));
+    } catch (e) {
+      emit(
+        state.updateSelectedParameters(
+          isError: true,
+          errorMessage: e.toString(),
+        ),
+      );
+    }
+  }
+
+  Future<void> _resetValuesOnDialogClose(
+    ResetValuesOnDialogCloseEvent event,
+    Emitter<ReturnsState> emit,
+  ) async {
+    final updatedOrderItems = event.orderItemsModel.copyWith(
+      orderLines: event.orderItemsModel.orderLines?.map((orderLine) {
+        return orderLine.copyWith(
+          returnReason: '',
+        );
+      }).toList(),
+    );
+    emit(state.updateSelectedParameters(
+      isConfirmReturnBtnEnabled: false,
+      orderItemsData: updatedOrderItems,
+      isProceedBtnEnabled: false,
+      commonSelectedReason: '',
+    ));
   }
 }

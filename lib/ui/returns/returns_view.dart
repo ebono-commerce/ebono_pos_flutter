@@ -2,6 +2,7 @@ import 'package:ebono_pos/constants/custom_colors.dart';
 import 'package:ebono_pos/ui/common_text_field.dart';
 import 'package:ebono_pos/ui/custom_keyboard/custom_num_pad.dart';
 import 'package:ebono_pos/ui/home/home_controller.dart';
+import 'package:ebono_pos/ui/home/widgets/add_customer_widget.dart';
 import 'package:ebono_pos/ui/home/widgets/quick_action_buttons.dart';
 import 'package:ebono_pos/ui/returns/bloc/returns_bloc.dart';
 import 'package:ebono_pos/ui/returns/data/customer_table_data.dart';
@@ -253,7 +254,15 @@ class _ReturnsViewState extends State<ReturnsView> {
                             Expanded(
                               child: CustomTableWidget(
                                 headers: _orderItemsTableData
-                                    .buildOrderItemsTableHeader(),
+                                    .buildOrderItemsTableHeader(
+                                  isAllOrdersSelected:
+                                      state.orderItemsData.isAllOrdersSelected,
+                                  onTapSelectAll: () {
+                                    returnsBloc.add(
+                                      OnSelectAllBtnEvent(state.orderItemsData),
+                                    );
+                                  },
+                                ),
                                 tableRowsData:
                                     _orderItemsTableData.buildTableRows(
                                   orderItemsData: state.orderItemsData,
@@ -634,8 +643,12 @@ class _ReturnsViewState extends State<ReturnsView> {
               padding: EdgeInsets.only(left: 4, right: 4, top: 10, bottom: 4),
               child: ElevatedButton(
                 onPressed: state.isProceedBtnEnabled
-                    ? () {
-                        showDialog(
+                    ? () async {
+                        /* TODO: if billed with store proxy number ::> add customer & verify otp */
+                        /* TODO: if exsisting customer and not verified, verify otp */
+                        /* TODO: if exsisting customer & verified proceed for return */
+
+                        await showDialog(
                           context: context,
                           builder: (BuildContext context) {
                             return Dialog(
@@ -656,6 +669,11 @@ class _ReturnsViewState extends State<ReturnsView> {
                               ),
                             );
                           },
+                        );
+
+                        // Clearing Dropdown values on dialog close
+                        returnsBloc.add(
+                          ResetValuesOnDialogCloseEvent(state.orderItemsData),
                         );
                       }
                     : null,

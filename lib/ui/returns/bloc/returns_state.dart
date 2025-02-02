@@ -17,6 +17,7 @@ class ReturnsState {
   final bool isFetchingOrderItems;
   final RefundSuccessModel refundSuccessModel;
   final OrderLine lastSelectedItem;
+  final String? commonSelectedReason;
 
   const ReturnsState({
     this.isLoading = false,
@@ -34,6 +35,7 @@ class ReturnsState {
     this.isFetchingOrderItems = false,
     this.refundSuccessModel = const RefundSuccessModel(),
     this.lastSelectedItem = const OrderLine(),
+    this.commonSelectedReason,
   });
 
   ReturnsState copyWith({
@@ -51,25 +53,28 @@ class ReturnsState {
     RefundSuccessModel? refundSuccessModel,
     bool? isConfirmReturnBtnEnabled,
     OrderLine? lastSelectedItem,
+    String? commonSelectedReason,
   }) {
     return ReturnsState(
-        isLoading: isLoading ?? this.isLoading,
-        isError: isError ?? this.isError,
-        errorMessage: errorMessage ?? this.errorMessage,
-        customerOrdersList: customerOrdersList ?? this.customerOrdersList,
-        orderItemsData: orderItemsData ?? this.orderItemsData,
-        isProceedBtnEnabled: isProceedBtnEnabled ?? this.isProceedBtnEnabled,
-        isCustomerOrdersDataFetched:
-            isCustomerOrdersDataFetched ?? this.isCustomerOrdersDataFetched,
-        isOrderItemsFetched: isOrderItemsFetched ?? this.isOrderItemsFetched,
-        isConfirmReturnBtnEnabled:
-            isConfirmReturnBtnEnabled ?? this.isConfirmReturnBtnEnabled,
-        isOrderReturnedSuccessfully:
-            isOrderReturnedSuccessfully ?? this.isOrderReturnedSuccessfully,
-        isFetchingOrderItems: isFetchingOrderItems ?? this.isFetchingOrderItems,
-        isReturningOrders: isReturningOrders ?? this.isReturningOrders,
-        refundSuccessModel: refundSuccessModel ?? this.refundSuccessModel,
-        lastSelectedItem: lastSelectedItem ?? this.lastSelectedItem);
+      isLoading: isLoading ?? this.isLoading,
+      isError: isError ?? this.isError,
+      errorMessage: errorMessage ?? this.errorMessage,
+      customerOrdersList: customerOrdersList ?? this.customerOrdersList,
+      orderItemsData: orderItemsData ?? this.orderItemsData,
+      isProceedBtnEnabled: isProceedBtnEnabled ?? this.isProceedBtnEnabled,
+      isCustomerOrdersDataFetched:
+          isCustomerOrdersDataFetched ?? this.isCustomerOrdersDataFetched,
+      isOrderItemsFetched: isOrderItemsFetched ?? this.isOrderItemsFetched,
+      isConfirmReturnBtnEnabled:
+          isConfirmReturnBtnEnabled ?? this.isConfirmReturnBtnEnabled,
+      isOrderReturnedSuccessfully:
+          isOrderReturnedSuccessfully ?? this.isOrderReturnedSuccessfully,
+      isFetchingOrderItems: isFetchingOrderItems ?? this.isFetchingOrderItems,
+      isReturningOrders: isReturningOrders ?? this.isReturningOrders,
+      refundSuccessModel: refundSuccessModel ?? this.refundSuccessModel,
+      lastSelectedItem: lastSelectedItem ?? this.lastSelectedItem,
+      commonSelectedReason: commonSelectedReason ?? this.commonSelectedReason,
+    );
   }
 
   ReturnsState updateSelectedParameters({
@@ -87,21 +92,24 @@ class ReturnsState {
     bool? isConfirmReturnBtnEnabled,
     RefundSuccessModel? refundSuccessModel,
     OrderLine? lastSelectedItem,
+    String? commonSelectedReason,
   }) {
     return ReturnsState(
-        isLoading: isLoading ?? false,
-        isError: isError ?? false,
-        errorMessage: errorMessage ?? '',
-        isFetchingOrderItems: isFetchingOrderItems ?? false,
-        isProceedBtnEnabled: isProceedBtnEnabled ?? false,
-        customerOrdersList: customerOrdersList ?? const [],
-        orderItemsData: orderItemsData ?? const OrderItemsModel(),
-        isCustomerOrdersDataFetched: isCustomerOrdersDataFetched ?? false,
-        isOrderItemsFetched: isOrderItemsFetched ?? false,
-        isConfirmReturnBtnEnabled: isConfirmReturnBtnEnabled ?? false,
-        isOrderReturnedSuccessfully: isOrderReturnedSuccessfully ?? false,
-        isReturningOrders: isReturningOrders ?? false,
-        refundSuccessModel: refundSuccessModel ?? const RefundSuccessModel(),
-        lastSelectedItem: lastSelectedItem ?? this.lastSelectedItem);
+      isLoading: isLoading ?? false,
+      isError: isError ?? false,
+      errorMessage: errorMessage ?? '',
+      isFetchingOrderItems: isFetchingOrderItems ?? false,
+      isProceedBtnEnabled: isProceedBtnEnabled ?? false,
+      customerOrdersList: customerOrdersList ?? const [],
+      orderItemsData: orderItemsData ?? const OrderItemsModel(),
+      isCustomerOrdersDataFetched: isCustomerOrdersDataFetched ?? false,
+      isOrderItemsFetched: isOrderItemsFetched ?? false,
+      isConfirmReturnBtnEnabled: isConfirmReturnBtnEnabled ?? false,
+      isOrderReturnedSuccessfully: isOrderReturnedSuccessfully ?? false,
+      isReturningOrders: isReturningOrders ?? false,
+      refundSuccessModel: refundSuccessModel ?? const RefundSuccessModel(),
+      lastSelectedItem: lastSelectedItem ?? this.lastSelectedItem,
+      commonSelectedReason: commonSelectedReason ?? this.commonSelectedReason,
+    );
   }
 }

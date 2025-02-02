@@ -29,10 +29,12 @@ final class UpdateSelectedItem extends ReturnsEvent {
     required this.orderItems,
     this.reason = '',
     required this.orderLine,
+    this.updateCommonReason = false,
   });
 
   final String id;
   final String reason;
+  final bool updateCommonReason;
   final OrderItemsModel orderItems;
   final OrderLine orderLine;
 }
@@ -79,4 +81,23 @@ final class ValidateConfirmReturnEvent extends ReturnsEvent {
     required this.phoneNumber,
     required this.name,
   });
+}
+
+final class UpdateCommonReasonEvent extends ReturnsEvent {
+  UpdateCommonReasonEvent(this.orderItemsModel, this.reason);
+
+  final OrderItemsModel orderItemsModel;
+  final String reason;
+}
+
+final class OnSelectAllBtnEvent extends ReturnsEvent {
+  OnSelectAllBtnEvent(this.orderItemsModel);
+
+  final OrderItemsModel orderItemsModel;
+}
+
+final class ResetValuesOnDialogCloseEvent extends ReturnsEvent {
+  ResetValuesOnDialogCloseEvent(this.orderItemsModel);
+
+  final OrderItemsModel orderItemsModel;
 }
