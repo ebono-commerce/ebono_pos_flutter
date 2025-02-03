@@ -12,6 +12,7 @@ class OrderItemsTableData {
   List<Widget> buildOrderItemsTableHeader({
     Function()? onTapSelectAll,
     required bool isAllOrdersSelected,
+    bool hideButton = false,
   }) {
     return [
       Padding(
@@ -35,35 +36,37 @@ class OrderItemsTableData {
             style: Theme.of(context).textTheme.labelMedium?.copyWith(
                 fontWeight: FontWeight.w100, color: CustomColors.greyFont),
           )),
-      Container(
-        margin: EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-        child: ElevatedButton(
-          onPressed: onTapSelectAll,
-          style: ElevatedButton.styleFrom(
-            elevation: 1,
-            padding: EdgeInsets.symmetric(horizontal: 1, vertical: 20),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-            backgroundColor: CustomColors.secondaryColor,
-          ),
-          child: Center(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Text(
-                  isAllOrdersSelected ? "Un Select All" : "Select All",
-                  style: TextStyle(
-                    color: CustomColors.black,
-                    fontSize: 14,
+      hideButton
+          ? Padding(padding: const EdgeInsets.all(10.0), child: Text(""))
+          : Container(
+              margin: EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+              child: ElevatedButton(
+                onPressed: onTapSelectAll,
+                style: ElevatedButton.styleFrom(
+                  elevation: 1,
+                  padding: EdgeInsets.symmetric(horizontal: 1, vertical: 20),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  backgroundColor: CustomColors.secondaryColor,
+                ),
+                child: Center(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        isAllOrdersSelected ? "Un Select All" : "Select All",
+                        style: TextStyle(
+                          color: CustomColors.black,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ],
+              ),
             ),
-          ),
-        ),
-      ),
     ];
   }
 

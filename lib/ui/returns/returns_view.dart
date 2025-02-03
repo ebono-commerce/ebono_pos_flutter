@@ -2,7 +2,6 @@ import 'package:ebono_pos/constants/custom_colors.dart';
 import 'package:ebono_pos/ui/common_text_field.dart';
 import 'package:ebono_pos/ui/custom_keyboard/custom_num_pad.dart';
 import 'package:ebono_pos/ui/home/home_controller.dart';
-import 'package:ebono_pos/ui/home/widgets/add_customer_widget.dart';
 import 'package:ebono_pos/ui/home/widgets/quick_action_buttons.dart';
 import 'package:ebono_pos/ui/returns/bloc/returns_bloc.dart';
 import 'package:ebono_pos/ui/returns/data/customer_table_data.dart';
@@ -112,8 +111,6 @@ class _ReturnsViewState extends State<ReturnsView> {
   }
 
   void _resetAllValues() {
-    /*customerNumberTextController.clear();
-    orderNumberTextController.clear();*/
     isCustomerOrdersFetched = false;
     isOrderItemsFetched = false;
     numPadTextController.clear();
@@ -170,6 +167,16 @@ class _ReturnsViewState extends State<ReturnsView> {
             if (state.isOrderItemsFetched) {
               isOrderItemsFetched = true;
               isCustomerOrdersFetched = false;
+              orderNumberTextController.clear();
+              numPadTextController.clear();
+              _customerDetails = state.orderItemsData.customer ?? Customer();
+              setState(() {});
+            }
+
+            if (state.resetAllValues == true) {
+              isOrderItemsFetched = false;
+              isCustomerOrdersFetched = false;
+              customerNumberTextController.clear();
               orderNumberTextController.clear();
               numPadTextController.clear();
               _customerDetails = state.orderItemsData.customer ?? Customer();
@@ -233,8 +240,6 @@ class _ReturnsViewState extends State<ReturnsView> {
                                       FetchOrderDataBasedOnOrderId(
                                         orderId: orderId!,
                                         isRetrivingOrderItems: true,
-                                        customerOrderDetailsList:
-                                            state.customerOrdersList,
                                       ),
                                     );
                                   },
@@ -258,10 +263,11 @@ class _ReturnsViewState extends State<ReturnsView> {
                                   isAllOrdersSelected:
                                       state.orderItemsData.isAllOrdersSelected,
                                   onTapSelectAll: () {
-                                    returnsBloc.add(
-                                      OnSelectAllBtnEvent(state.orderItemsData),
-                                    );
+                                    returnsBloc.add(OnSelectAllBtnEvent());
                                   },
+                                  hideButton: state
+                                          .orderItemsData.orderLines?.isEmpty ==
+                                      true,
                                 ),
                                 tableRowsData:
                                     _orderItemsTableData.buildTableRows(
@@ -277,7 +283,7 @@ class _ReturnsViewState extends State<ReturnsView> {
                                     }
                                     returnsBloc.add(UpdateSelectedItem(
                                       id: orderLine.orderLineId ?? '',
-                                      orderItems: state.orderItemsData,
+                                      // orderItems: state.orderItemsData,
                                       orderLine: orderLine,
                                     ));
                                   },
@@ -522,35 +528,9 @@ class _ReturnsViewState extends State<ReturnsView> {
                       if ((returnsBloc.state.lastSelectedItem.returnableQuantity
                               ?.quantityNumber)! >=
                           double.parse(numPadTextController.text)) {
-                        final updatedItem =
-                            returnsBloc.state.lastSelectedItem.copyWith(
-                          returnedQuantity: returnsBloc.state.lastSelectedItem
-                                      .returnableQuantity?.quantityUom ==
-                                  "pcs"
-                              ? int.parse(numPadTextController.text.toString())
-                              : double.parse(
-                                  numPadTextController.text.toString(),
-                                ),
-                        );
-
-                        final updatedOrderLines = returnsBloc
-                            .state.orderItemsData.orderLines
-                            ?.map((item) {
-                          if (item.orderLineId == updatedItem.orderLineId) {
-                            return updatedItem;
-                          }
-                          return item;
-                        }).toList();
-
-                        final updatedOrderItemsData =
-                            returnsBloc.state.orderItemsData.copyWith(
-                          orderLines: updatedOrderLines,
-                        );
-
-                        returnsBloc.add(UpdateSelectedItem(
-                          id: updatedItem.orderLineId ?? '',
-                          orderItems: updatedOrderItemsData,
-                          orderLine: updatedItem,
+                        returnsBloc.add(UpdateOrderLineQuantity(
+                          id: returnsBloc.state.lastSelectedItem.orderLineId!,
+                          quantity: numPadTextController.text.toString(),
                         ));
                       } else {
                         Get.snackbar(
@@ -644,10 +624,6 @@ class _ReturnsViewState extends State<ReturnsView> {
               child: ElevatedButton(
                 onPressed: state.isProceedBtnEnabled
                     ? () async {
-                        /* TODO: if billed with store proxy number ::> add customer & verify otp */
-                        /* TODO: if exsisting customer and not verified, verify otp */
-                        /* TODO: if exsisting customer & verified proceed for return */
-
                         await showDialog(
                           context: context,
                           builder: (BuildContext context) {
@@ -672,9 +648,7 @@ class _ReturnsViewState extends State<ReturnsView> {
                         );
 
                         // Clearing Dropdown values on dialog close
-                        returnsBloc.add(
-                          ResetValuesOnDialogCloseEvent(state.orderItemsData),
-                        );
+                        returnsBloc.add(ResetValuesOnDialogCloseEvent());
                       }
                     : null,
                 style: ElevatedButton.styleFrom(

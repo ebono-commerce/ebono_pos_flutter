@@ -18,6 +18,7 @@ class ReturnsState {
   final RefundSuccessModel refundSuccessModel;
   final OrderLine lastSelectedItem;
   final String? commonSelectedReason;
+  final bool? resetAllValues;
 
   const ReturnsState({
     this.isLoading = false,
@@ -35,9 +36,11 @@ class ReturnsState {
     this.isFetchingOrderItems = false,
     this.refundSuccessModel = const RefundSuccessModel(),
     this.lastSelectedItem = const OrderLine(),
-    this.commonSelectedReason,
+    this.commonSelectedReason = '',
+    this.resetAllValues = false,
   });
 
+  /* it updates current provided value and does not distrub other variables */
   ReturnsState copyWith({
     bool? isLoading,
     bool? isError,
@@ -46,14 +49,16 @@ class ReturnsState {
     OrderItemsModel? orderItemsData,
     bool? isCustomerOrdersDataFetched,
     bool? isOrderItemsFetched,
+    bool? isOrderDetailsFetching,
     bool? isProceedBtnEnabled,
     bool? isOrderReturnedSuccessfully,
     bool? isReturningOrders,
+    bool? isConfirmReturnBtnEnabled,
     bool? isFetchingOrderItems,
     RefundSuccessModel? refundSuccessModel,
-    bool? isConfirmReturnBtnEnabled,
     OrderLine? lastSelectedItem,
     String? commonSelectedReason,
+    bool? resetAllValues,
   }) {
     return ReturnsState(
       isLoading: isLoading ?? this.isLoading,
@@ -61,23 +66,27 @@ class ReturnsState {
       errorMessage: errorMessage ?? this.errorMessage,
       customerOrdersList: customerOrdersList ?? this.customerOrdersList,
       orderItemsData: orderItemsData ?? this.orderItemsData,
-      isProceedBtnEnabled: isProceedBtnEnabled ?? this.isProceedBtnEnabled,
       isCustomerOrdersDataFetched:
           isCustomerOrdersDataFetched ?? this.isCustomerOrdersDataFetched,
       isOrderItemsFetched: isOrderItemsFetched ?? this.isOrderItemsFetched,
-      isConfirmReturnBtnEnabled:
-          isConfirmReturnBtnEnabled ?? this.isConfirmReturnBtnEnabled,
+      isOrderDetailsFetching:
+          isOrderDetailsFetching ?? this.isOrderDetailsFetching,
+      isProceedBtnEnabled: isProceedBtnEnabled ?? this.isProceedBtnEnabled,
       isOrderReturnedSuccessfully:
           isOrderReturnedSuccessfully ?? this.isOrderReturnedSuccessfully,
-      isFetchingOrderItems: isFetchingOrderItems ?? this.isFetchingOrderItems,
       isReturningOrders: isReturningOrders ?? this.isReturningOrders,
+      isConfirmReturnBtnEnabled:
+          isConfirmReturnBtnEnabled ?? this.isConfirmReturnBtnEnabled,
+      isFetchingOrderItems: isFetchingOrderItems ?? this.isFetchingOrderItems,
       refundSuccessModel: refundSuccessModel ?? this.refundSuccessModel,
       lastSelectedItem: lastSelectedItem ?? this.lastSelectedItem,
       commonSelectedReason: commonSelectedReason ?? this.commonSelectedReason,
+      resetAllValues: resetAllValues ?? this.resetAllValues,
     );
   }
 
-  ReturnsState updateSelectedParameters({
+  /* FYI: what ever gives as input it will update and reset remaining to default values */
+  ReturnsState updateInputValuesAndResetRemaining({
     bool? isLoading,
     bool? isError,
     String? errorMessage,
@@ -85,14 +94,16 @@ class ReturnsState {
     OrderItemsModel? orderItemsData,
     bool? isCustomerOrdersDataFetched,
     bool? isOrderItemsFetched,
+    bool? isOrderDetailsFetching,
     bool? isProceedBtnEnabled,
     bool? isOrderReturnedSuccessfully,
     bool? isReturningOrders,
-    bool? isFetchingOrderItems,
     bool? isConfirmReturnBtnEnabled,
+    bool? isFetchingOrderItems,
     RefundSuccessModel? refundSuccessModel,
     OrderLine? lastSelectedItem,
     String? commonSelectedReason,
+    bool? resetAllValues,
   }) {
     return ReturnsState(
       isLoading: isLoading ?? false,
@@ -110,6 +121,7 @@ class ReturnsState {
       refundSuccessModel: refundSuccessModel ?? const RefundSuccessModel(),
       lastSelectedItem: lastSelectedItem ?? this.lastSelectedItem,
       commonSelectedReason: commonSelectedReason ?? this.commonSelectedReason,
+      resetAllValues: resetAllValues ?? false,
     );
   }
 }

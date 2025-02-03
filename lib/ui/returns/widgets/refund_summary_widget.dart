@@ -262,10 +262,7 @@ class _ReturnSummaryWidgetState extends State<ReturnSummaryWidget> {
                                       state.commonSelectedReason ?? '',
                                   onReasonSelected: (reason) {
                                     returnsBloc.add(
-                                      UpdateCommonReasonEvent(
-                                        state.orderItemsData,
-                                        reason,
-                                      ),
+                                      UpdateCommonReasonEvent(reason),
                                     );
                                   },
                                 ),
@@ -285,7 +282,6 @@ class _ReturnSummaryWidgetState extends State<ReturnSummaryWidget> {
                                         .add(UpdateSelectedItem(
                                           id: orderLineId,
                                           reason: reason,
-                                          orderItems: state.orderItemsData,
                                           orderLine: state.lastSelectedItem,
                                         ));
                                   },
@@ -434,9 +430,9 @@ class _ReturnSummaryWidgetState extends State<ReturnSummaryWidget> {
                             Get.snackbar(
                                 "Invalid Reason", "Please Select the reason");
                           } else {
-                            context.read<ReturnsBloc>().add(
-                                  ProceedToReturnItems(state.orderItemsData),
-                                );
+                            context
+                                .read<ReturnsBloc>()
+                                .add(ProceedToReturnItems());
                           }
                         }
                       : null,

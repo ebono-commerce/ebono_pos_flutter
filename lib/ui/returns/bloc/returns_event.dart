@@ -15,18 +15,15 @@ final class FetchOrderDataBasedOnOrderId extends ReturnsEvent {
   FetchOrderDataBasedOnOrderId({
     required this.orderId,
     this.isRetrivingOrderItems = false,
-    this.customerOrderDetailsList = const [],
   });
 
   final String orderId;
   final bool isRetrivingOrderItems;
-  final List<CustomerOrderDetails> customerOrderDetailsList;
 }
 
 final class UpdateSelectedItem extends ReturnsEvent {
   UpdateSelectedItem({
     required this.id,
-    required this.orderItems,
     this.reason = '',
     required this.orderLine,
     this.updateCommonReason = false,
@@ -35,69 +32,33 @@ final class UpdateSelectedItem extends ReturnsEvent {
   final String id;
   final String reason;
   final bool updateCommonReason;
-  final OrderItemsModel orderItems;
   final OrderLine orderLine;
 }
 
-final class UpdateCustomerData extends ReturnsEvent {
-  UpdateCustomerData(this.customerName, this.customerNumber, this.orderItems);
-
-  final String customerName;
-  final String customerNumber;
-  final OrderItemsModel orderItems;
-}
-
-final class UpdateReturnReasonBasedOnId extends ReturnsEvent {
-  UpdateReturnReasonBasedOnId({
-    required this.id,
-    required this.reason,
-    required this.orderItems,
-  });
-
-  final String id;
-  final String reason;
-  final OrderItemsModel orderItems;
-}
-
 final class ProceedToReturnItems extends ReturnsEvent {
-  ProceedToReturnItems(this.orderItemsModel);
-
-  final OrderItemsModel orderItemsModel;
-}
-
-final class AddReturnQuantityEvent extends ReturnsEvent {
-  AddReturnQuantityEvent(this.quantity);
-
-  final int quantity;
-}
-
-final class ValidateConfirmReturnEvent extends ReturnsEvent {
-  final String name;
-  final String phoneNumber;
-  final OrderItemsModel orderItemsModel;
-
-  ValidateConfirmReturnEvent({
-    required this.orderItemsModel,
-    required this.phoneNumber,
-    required this.name,
-  });
+  ProceedToReturnItems();
 }
 
 final class UpdateCommonReasonEvent extends ReturnsEvent {
-  UpdateCommonReasonEvent(this.orderItemsModel, this.reason);
+  UpdateCommonReasonEvent(this.reason);
 
-  final OrderItemsModel orderItemsModel;
   final String reason;
 }
 
 final class OnSelectAllBtnEvent extends ReturnsEvent {
-  OnSelectAllBtnEvent(this.orderItemsModel);
-
-  final OrderItemsModel orderItemsModel;
+  OnSelectAllBtnEvent();
 }
 
 final class ResetValuesOnDialogCloseEvent extends ReturnsEvent {
-  ResetValuesOnDialogCloseEvent(this.orderItemsModel);
+  ResetValuesOnDialogCloseEvent();
+}
 
-  final OrderItemsModel orderItemsModel;
+class UpdateOrderLineQuantity extends ReturnsEvent {
+  final String id;
+  final String quantity;
+
+  UpdateOrderLineQuantity({
+    required this.id,
+    required this.quantity,
+  });
 }

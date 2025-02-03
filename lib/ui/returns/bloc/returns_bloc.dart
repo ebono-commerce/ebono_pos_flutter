@@ -18,21 +18,24 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
     on<UpdateSelectedItem>(_onUpdateSelectedItem);
     on<ProceedToReturnItems>(_proccedToReturnItems);
     on<ReturnsResetEvent>(_resetReturns);
-    on<ValidateConfirmReturnEvent>(_validateConfirmReturnBtn);
     on<OnSelectAllBtnEvent>(_onSelectAllBtn);
     on<UpdateCommonReasonEvent>(_updateCommonReason);
     on<ResetValuesOnDialogCloseEvent>(_resetValuesOnDialogClose);
+    on<UpdateOrderLineQuantity>(_onUpdateOrderLineQuantity);
   }
 
   void _onReturnsEvent(ReturnsEvent event, Emitter<ReturnsState> emit) {
-    emit(state.updateSelectedParameters(isLoading: true));
+    /* always triggers loading event when ever event is added */
+    emit(state.copyWith(isLoading: true));
   }
 
   Future<void> _resetReturns(
     ReturnsResetEvent event,
     Emitter<ReturnsState> emit,
   ) async {
-    emit(state.updateSelectedParameters());
+    emit(state.updateInputValuesAndResetRemaining(
+      resetAllValues: true,
+    ));
   }
 
   Future<void> _proccedToReturnItems(
@@ -40,30 +43,31 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
     Emitter<ReturnsState> emit,
   ) async {
     try {
-      emit(state.updateSelectedParameters(
+      emit(state.copyWith(
         isOrderReturnedSuccessfully: false,
         isReturningOrders: true,
-        orderItemsData: event.orderItemsModel,
       ));
 
-      final response = await returnsRepository.proceedToReturnItems(
-        refundItems: event.orderItemsModel.copyWith(
-          orderLines: event.orderItemsModel.orderLines!
-              .where((order) => order.isSelected)
-              .toList(),
-        ),
+      final payloadData = state.orderItemsData.copyWith(
+        orderLines: state.orderItemsData.orderLines
+            ?.where((order) => order.isSelected == true)
+            .toList(),
       );
 
-      emit(state.updateSelectedParameters(
+      final response = await returnsRepository.proceedToReturnItems(
+        refundItems: payloadData,
+      );
+
+      emit(state.updateInputValuesAndResetRemaining(
         isOrderReturnedSuccessfully: true,
         isConfirmReturnBtnEnabled: false,
         refundSuccessModel: response,
       ));
     } catch (e) {
-      emit(state.updateSelectedParameters(
+      emit(state.updateInputValuesAndResetRemaining(
         isError: true,
         errorMessage: e.toString(),
-        orderItemsData: event.orderItemsModel,
+        orderItemsData: state.orderItemsData,
       ));
     }
   }
@@ -78,14 +82,16 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
         phoneNumber: event.customerMobileNumber,
       );
 
-      emit(state.updateSelectedParameters(
+      emit(state.updateInputValuesAndResetRemaining(
         isCustomerOrdersDataFetched: true,
         isLoading: false,
         customerOrdersList: customerOrdersList,
       ));
     } catch (e) {
-      emit(state.updateSelectedParameters(
+      emit(state.copyWith(
         isError: true,
+        isCustomerOrdersDataFetched: false,
+        isLoading: false,
         errorMessage: e.toString(),
       ));
     }
@@ -97,7 +103,7 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
   ) async {
     try {
       if (event.isRetrivingOrderItems) {
-        final updatedItems = event.customerOrderDetailsList.map((customer) {
+        final updatedItems = state.customerOrdersList.map((customer) {
           if (customer.orderNumber == event.orderId) {
             return customer.copyWith(isLoading: true);
           }
@@ -105,8 +111,9 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
         }).toList();
 
         emit(
-          state.updateSelectedParameters(
+          state.updateInputValuesAndResetRemaining(
             customerOrdersList: updatedItems,
+            isCustomerOrdersDataFetched: true,
             isFetchingOrderItems: event.isRetrivingOrderItems,
           ),
         );
@@ -117,15 +124,15 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
         orderId: event.orderId,
       );
 
-      emit(state.updateSelectedParameters(
+      emit(state.updateInputValuesAndResetRemaining(
         isOrderItemsFetched: true,
         orderItemsData: orderItemsData,
       ));
     } catch (e) {
-      emit(state.updateSelectedParameters(
+      emit(state.updateInputValuesAndResetRemaining(
         isError: true,
         customerOrdersList:
-            event.isRetrivingOrderItems ? event.customerOrderDetailsList : [],
+            event.isRetrivingOrderItems ? state.customerOrdersList : [],
         errorMessage: e.toString(),
       ));
     }
@@ -137,16 +144,16 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
   ) async {
     try {
       var updatedOrderItems = event.reason.isEmpty
-          ? event.orderItems.copyWith(
-              orderLines: event.orderItems.orderLines?.map((item) {
+          ? state.orderItemsData.copyWith(
+              orderLines: state.orderItemsData.orderLines?.map((item) {
                 if (item.orderLineId == event.id) {
                   return item.copyWith(isSelected: !item.isSelected);
                 }
                 return item;
               }).toList(),
             )
-          : event.orderItems.copyWith(
-              orderLines: event.orderItems.orderLines?.map((item) {
+          : state.orderItemsData.copyWith(
+              orderLines: state.orderItemsData.orderLines?.map((item) {
                 if (item.orderLineId == event.id) {
                   return item.copyWith(returnReason: event.reason);
                 }
@@ -186,7 +193,7 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
                 order.returnedQuantity.toString().isNotEmpty,
           );
 
-      emit(state.updateSelectedParameters(
+      emit(state.updateInputValuesAndResetRemaining(
         lastSelectedItem: event.orderLine,
         orderItemsData: updatedOrderItems,
         isConfirmReturnBtnEnabled: isBtnEnabled2,
@@ -194,37 +201,7 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
       ));
     } catch (e) {
       emit(
-        state.updateSelectedParameters(
-          isError: true,
-          errorMessage: e.toString(),
-        ),
-      );
-    }
-  }
-
-  Future<void> _validateConfirmReturnBtn(
-    ValidateConfirmReturnEvent event,
-    Emitter<ReturnsState> emit,
-  ) async {
-    try {
-      bool isBtnEnabled = event.orderItemsModel.orderLines?.any((order) =>
-              order.isSelected &&
-              order.returnedQuantity != null &&
-              order.returnedQuantity.toString().isNotEmpty) ==
-          true;
-
-      isBtnEnabled =
-          event.name.trim().isNotEmpty && event.phoneNumber.trim().isNotEmpty;
-
-      emit(
-        state.updateSelectedParameters(
-          isConfirmReturnBtnEnabled: isBtnEnabled,
-          orderItemsData: event.orderItemsModel,
-        ),
-      );
-    } catch (e) {
-      emit(
-        state.updateSelectedParameters(
+        state.updateInputValuesAndResetRemaining(
           isError: true,
           errorMessage: e.toString(),
         ),
@@ -236,13 +213,13 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
     OnSelectAllBtnEvent event,
     Emitter<ReturnsState> emit,
   ) async {
-    OrderItemsModel updatedOrderItems = event.orderItemsModel;
+    OrderItemsModel updatedOrderItems = state.orderItemsData;
     try {
-      updatedOrderItems = event.orderItemsModel.copyWith(
-        orderLines: event.orderItemsModel.orderLines?.map((item) {
+      updatedOrderItems = state.orderItemsData.copyWith(
+        orderLines: state.orderItemsData.orderLines?.map((item) {
           return item.copyWith(
-            isSelected: !event.orderItemsModel.isAllOrdersSelected,
-            returnedQuantity: !event.orderItemsModel.isAllOrdersSelected
+            isSelected: !state.orderItemsData.isAllOrdersSelected,
+            returnedQuantity: !state.orderItemsData.isAllOrdersSelected
                 ? item.returnableQuantity?.quantityUom == "pcs"
                     ? int.parse(
                         item.returnableQuantity?.quantityNumber.toString() ??
@@ -254,7 +231,7 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
                 : '',
           );
         }).toList(),
-        isAllOrdersSelected: !event.orderItemsModel.isAllOrdersSelected,
+        isAllOrdersSelected: !state.orderItemsData.isAllOrdersSelected,
       );
 
       /* checking if any orderline is selected */
@@ -271,13 +248,13 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
       final isBtnEnabled =
           isQuantityEnteredonSelected && isItemsSelected == true;
 
-      emit(state.updateSelectedParameters(
+      emit(state.updateInputValuesAndResetRemaining(
         isProceedBtnEnabled: isBtnEnabled,
         orderItemsData: updatedOrderItems,
       ));
     } catch (e) {
       emit(
-        state.updateSelectedParameters(
+        state.updateInputValuesAndResetRemaining(
           isError: true,
           orderItemsData: updatedOrderItems,
           errorMessage: e.toString(),
@@ -291,8 +268,8 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
     Emitter<ReturnsState> emit,
   ) async {
     try {
-      final updatedOrderItems = event.orderItemsModel.copyWith(
-        orderLines: event.orderItemsModel.orderLines
+      final updatedOrderItems = state.orderItemsData.copyWith(
+        orderLines: state.orderItemsData.orderLines
             ?.where((order) => order.isSelected == true)
             .map((orderLine) {
           return orderLine.copyWith(returnReason: event.reason);
@@ -309,14 +286,14 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
                 order.returnedQuantity.toString().isNotEmpty,
           );
 
-      emit(state.updateSelectedParameters(
+      emit(state.updateInputValuesAndResetRemaining(
         orderItemsData: updatedOrderItems,
         isConfirmReturnBtnEnabled: isBtnEnabled2,
         commonSelectedReason: event.reason,
       ));
     } catch (e) {
       emit(
-        state.updateSelectedParameters(
+        state.updateInputValuesAndResetRemaining(
           isError: true,
           errorMessage: e.toString(),
         ),
@@ -328,18 +305,83 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
     ResetValuesOnDialogCloseEvent event,
     Emitter<ReturnsState> emit,
   ) async {
-    final updatedOrderItems = event.orderItemsModel.copyWith(
-      orderLines: event.orderItemsModel.orderLines?.map((orderLine) {
+    final updatedOrderItems = state.orderItemsData.copyWith(
+      orderLines: state.orderItemsData.orderLines?.map((orderLine) {
         return orderLine.copyWith(
           returnReason: '',
         );
       }).toList(),
     );
-    emit(state.updateSelectedParameters(
-      isConfirmReturnBtnEnabled: false,
+
+    /* checking if any orderline is selected */
+    final isItemsSelected = updatedOrderItems.orderLines
+        ?.any((orderLine) => orderLine.isSelected == true);
+
+    /* checking if all selected items return quantity entered */
+    final isQuantityEnteredonSelected = updatedOrderItems.orderLines
+        ?.where((orderLine) => orderLine.isSelected == true)
+        .every((order) =>
+            order.returnedQuantity != null &&
+            order.returnedQuantity.toString().isNotEmpty);
+
+    final isBtnEnabled =
+        isQuantityEnteredonSelected == true && isItemsSelected == true;
+
+    emit(state.updateInputValuesAndResetRemaining(
       orderItemsData: updatedOrderItems,
-      isProceedBtnEnabled: false,
+      isProceedBtnEnabled: isBtnEnabled,
       commonSelectedReason: '',
     ));
+  }
+
+  Future<void> _onUpdateOrderLineQuantity(
+    UpdateOrderLineQuantity event,
+    Emitter<ReturnsState> emit,
+  ) async {
+    try {
+      final updatedItem = state.lastSelectedItem.copyWith(
+        isSelected: !state.lastSelectedItem.isSelected,
+        returnedQuantity:
+            state.lastSelectedItem.returnableQuantity?.quantityUom == "pcs"
+                ? int.parse(event.quantity)
+                : double.parse(event.quantity),
+      );
+
+      final updatedOrderLines = state.orderItemsData.orderLines?.map((item) {
+        if (item.orderLineId == updatedItem.orderLineId) {
+          return updatedItem;
+        }
+        return item;
+      }).toList();
+
+      final updatedOrderItemsData = state.orderItemsData.copyWith(
+        orderLines: updatedOrderLines,
+      );
+
+      /* checking if any orderline is selected */
+      final isItemsSelected = updatedOrderItemsData.orderLines
+          ?.any((orderLine) => orderLine.isSelected == true);
+
+      /* checking if all selected items return quantity entered */
+      final isQuantityEnteredonSelected = updatedOrderItemsData.orderLines!
+          .where((orderLine) => orderLine.isSelected == true)
+          .every((order) =>
+              order.returnedQuantity != null &&
+              order.returnedQuantity.toString().isNotEmpty);
+
+      final isBtnEnabled =
+          isQuantityEnteredonSelected && isItemsSelected == true;
+
+      emit(state.copyWith(
+        orderItemsData: updatedOrderItemsData,
+        isProceedBtnEnabled: isBtnEnabled,
+        lastSelectedItem: updatedItem,
+      ));
+    } catch (e) {
+      emit(state.copyWith(
+        isError: true,
+        errorMessage: e.toString(),
+      ));
+    }
   }
 }
