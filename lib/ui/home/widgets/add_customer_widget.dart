@@ -60,8 +60,6 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
   void initState() {
     super.initState();
 
-    print("disableFormFields : ${widget.disableFormFields}");
-
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (widget.customerMobileNumber != null &&
           widget.customerName != null &&
