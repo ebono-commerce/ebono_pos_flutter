@@ -60,8 +60,6 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
   void initState() {
     super.initState();
 
-    print("disableFormFields : ${widget.disableFormFields}");
-
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (widget.customerMobileNumber != null &&
           widget.customerName != null &&
@@ -117,7 +115,7 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
     }
 
     activeFocusNode =
-        widget.disableFormFields == true ? FocusNode() : phoneNumberFocusNode;
+        widget.disableFormFields ? FocusNode() : phoneNumberFocusNode;
     phoneNumberFocusNode.addListener(() {
       setState(() {
         if (phoneNumberFocusNode.hasFocus) {
