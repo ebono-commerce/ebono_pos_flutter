@@ -2,6 +2,7 @@ import 'package:ebono_pos/constants/custom_colors.dart';
 import 'package:ebono_pos/ui/common_text_field.dart';
 import 'package:ebono_pos/ui/custom_keyboard/custom_num_pad.dart';
 import 'package:ebono_pos/ui/home/home_controller.dart';
+import 'package:ebono_pos/ui/home/widgets/add_customer_widget.dart';
 import 'package:ebono_pos/ui/home/widgets/quick_action_buttons.dart';
 import 'package:ebono_pos/ui/returns/bloc/returns_bloc.dart';
 import 'package:ebono_pos/ui/returns/data/customer_table_data.dart';
@@ -44,6 +45,12 @@ class _ReturnsViewState extends State<ReturnsView> {
   bool isOrderItemsFetched = false;
   bool triggerProceedToPayDialog = false;
   bool isOrderDetailsRetrieving = false;
+  bool isCustomerDialogOpened = false;
+  bool displayCustomerOrdersTableData = false;
+  bool displayOrderItemsTableData = false;
+  bool hideFormField = false;
+  bool isDialogForVerifyCustomer = false;
+  bool isDialogForAddNewCustomer = false;
 
   Customer _customerDetails = Customer();
 
@@ -112,6 +119,7 @@ class _ReturnsViewState extends State<ReturnsView> {
 
   void _resetAllValues() {
     isCustomerOrdersFetched = false;
+    hideFormField = false;
     isOrderItemsFetched = false;
     numPadTextController.clear();
     _customerDetails = const Customer();
@@ -139,6 +147,43 @@ class _ReturnsViewState extends State<ReturnsView> {
     }
   }
 
+  void showCustomerVerificationDialog({
+    required String name,
+    required String mobileNumber,
+  }) async {
+    await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20.0),
+          ),
+          child: AddCustomerWidget(
+            context,
+            isDialogForReturns: true,
+            customerMobileNumber: mobileNumber,
+            customerName: name,
+            disableFormFields: isDialogForAddNewCustomer ? false : true,
+            isDialogForAddCustomerFromReturns: isDialogForAddNewCustomer,
+            onOTPVerifiedSuccessfully: (status) {
+              if (status) {
+                /* clear the home controller values set & show customer orders data */
+                displayCustomerOrdersTableData = true;
+                isCustomerOrdersFetched = true;
+                hideFormField = true;
+
+                Get.back();
+              }
+            },
+          ),
+        );
+      },
+    );
+
+    setState(() => isCustomerDialogOpened = false);
+  }
+
   @override
   void dispose() {
     customerNumberTextController.dispose();
@@ -155,32 +200,74 @@ class _ReturnsViewState extends State<ReturnsView> {
           bloc: returnsBloc,
           listener: (context, state) {
             if (state.isCustomerOrdersDataFetched) {
-              isCustomerOrdersFetched = true;
+              /* these parameters are used to hide tables when user verification is required */
+              displayCustomerOrdersTableData =
+                  state.customerOrders.isCustomerVerificationRequired == false;
+              isCustomerOrdersFetched = displayCustomerOrdersTableData;
               isOrderItemsFetched = false;
+              isDialogForVerifyCustomer = true;
+              isDialogForAddNewCustomer = false;
+
+              /* clearing the un-used values */
               customerNumberTextController.clear();
               numPadTextController.clear();
-              _customerDetails = state.customerOrdersList.isNotEmpty
-                  ? state.customerOrdersList.first.customer ?? Customer()
-                  : Customer();
+              displayOrderItemsTableData = false;
+              _customerDetails =
+                  state.customerOrders.customerOrderList.isNotEmpty
+                      ? state.customerOrders.customerOrderList.first.customer ??
+                          Customer()
+                      : Customer();
               setState(() {});
             }
+
             if (state.isOrderItemsFetched) {
-              isOrderItemsFetched = true;
+              /* these parameters are used to hide tables when user verification is required */
+              displayOrderItemsTableData =
+                  state.orderItemsData.isCustomerVerificationRequired == false;
+              isOrderItemsFetched = displayOrderItemsTableData;
               isCustomerOrdersFetched = false;
+              isDialogForVerifyCustomer =
+                  state.orderItemsData.customer?.isProxyNumber == false;
+              isDialogForAddNewCustomer =
+                  state.orderItemsData.customer?.isProxyNumber == true;
+
+              /* clearing the un-used values */
               orderNumberTextController.clear();
               numPadTextController.clear();
               _customerDetails = state.orderItemsData.customer ?? Customer();
+              displayCustomerOrdersTableData = false;
               setState(() {});
             }
 
             if (state.resetAllValues == true) {
+              /* resetting all values */
               isOrderItemsFetched = false;
               isCustomerOrdersFetched = false;
               customerNumberTextController.clear();
               orderNumberTextController.clear();
               numPadTextController.clear();
+              displayCustomerOrdersTableData = false;
+              displayOrderItemsTableData = false;
               _customerDetails = state.orderItemsData.customer ?? Customer();
               setState(() {});
+            }
+
+            if (state.displayVerifyUserDialog == true &&
+                isCustomerDialogOpened == false) {
+              showCustomerVerificationDialog(
+                mobileNumber: state.customerOrders.customerOrderList.first
+                        .customer?.phoneNumber?.number ??
+                    'NA',
+                name: state.customerOrders.customerOrderList.first.customer
+                        ?.customerName ??
+                    'NA',
+              );
+
+              /* ensuring table data is not visible when verification pop-up opens */
+              displayCustomerOrdersTableData = false;
+              displayOrderItemsTableData = false;
+              isDialogForVerifyCustomer = true;
+              setState(() => isCustomerDialogOpened = true);
             }
 
             if (state.isError) {
@@ -211,7 +298,8 @@ class _ReturnsViewState extends State<ReturnsView> {
                                 ? "Order #"
                                 : "Order #${state.orderItemsData.orderNumber ?? ""}",
                           ),
-                          if (!isCustomerOrdersFetched && !isOrderItemsFetched)
+                          if ((!isCustomerOrdersFetched &&
+                              !isOrderItemsFetched))
                             CustomTableWidget(
                               headers:
                                   _customerTableData.buildInitialTableHeader(),
@@ -225,8 +313,9 @@ class _ReturnsViewState extends State<ReturnsView> {
                                 5: FlexColumnWidth(1),
                               },
                             ),
-                          if (isCustomerOrdersFetched ||
-                              state.isFetchingOrderItems)
+                          if ((isCustomerOrdersFetched ||
+                                  state.isFetchingOrderItems) &&
+                              displayCustomerOrdersTableData)
                             Expanded(
                               child: CustomTableWidget(
                                 headers: _customerTableData
@@ -234,7 +323,7 @@ class _ReturnsViewState extends State<ReturnsView> {
                                 tableRowsData:
                                     _customerTableData.buildTableRows(
                                   customerOrderDetails:
-                                      state.customerOrdersList,
+                                      state.customerOrders.customerOrderList,
                                   onClickRetrive: (orderId) {
                                     returnsBloc.add(
                                       FetchOrderDataBasedOnOrderId(
@@ -255,7 +344,8 @@ class _ReturnsViewState extends State<ReturnsView> {
                               ),
                             ),
                           if (isOrderItemsFetched &&
-                              !state.isFetchingOrderItems)
+                              !state.isFetchingOrderItems &&
+                              displayOrderItemsTableData)
                             Expanded(
                               child: CustomTableWidget(
                                 headers: _orderItemsTableData
@@ -525,9 +615,12 @@ class _ReturnsViewState extends State<ReturnsView> {
                     } else if (activeFocusNode == orderNumberFocusNode) {
                       orderNumberFocusNode.unfocus();
                     } else if (activeFocusNode == numPadFocusNode) {
-                      if ((returnsBloc.state.lastSelectedItem.returnableQuantity
-                              ?.quantityNumber)! >=
-                          double.parse(numPadTextController.text)) {
+                      /* check for not empty & returnable quantity isNot greaterthan eligible quantity */
+                      if (numPadTextController.text.trim().isNotEmpty &&
+                          (returnsBloc.state.lastSelectedItem.returnableQuantity
+                                  ?.quantityNumber)! >=
+                              double.parse(numPadTextController.text)) {
+                        /* when appropriate weigh or quantity is selected from numpad */
                         returnsBloc.add(UpdateOrderLineQuantity(
                           id: returnsBloc.state.lastSelectedItem.orderLineId!,
                           quantity: numPadTextController.text.toString(),
@@ -646,7 +739,6 @@ class _ReturnsViewState extends State<ReturnsView> {
                             );
                           },
                         );
-
                         // Clearing Dropdown values on dialog close
                         returnsBloc.add(ResetValuesOnDialogCloseEvent());
                       }
