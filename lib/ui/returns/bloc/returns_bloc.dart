@@ -77,7 +77,7 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
     Emitter<ReturnsState> emit,
   ) async {
     try {
-      List<CustomerOrderDetails> customerOrdersList =
+      CustomerOrders customerOrders =
           await returnsRepository.fetchCustomerOrderDetails(
         phoneNumber: event.customerMobileNumber,
       );
@@ -85,7 +85,8 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
       emit(state.updateInputValuesAndResetRemaining(
         isCustomerOrdersDataFetched: true,
         isLoading: false,
-        customerOrdersList: customerOrdersList,
+        displayVerifyUserDialog: customerOrders.isCustomerVerificationRequired,
+        customerOrders: customerOrders,
       ));
     } catch (e) {
       emit(state.copyWith(
@@ -94,6 +95,8 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
         isLoading: false,
         errorMessage: e.toString(),
       ));
+    } finally {
+      emit(state.copyWith(displayVerifyUserDialog: false));
     }
   }
 
@@ -103,7 +106,8 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
   ) async {
     try {
       if (event.isRetrivingOrderItems) {
-        final updatedItems = state.customerOrdersList.map((customer) {
+        final updatedItems =
+            state.customerOrders.customerOrderList.map((customer) {
           if (customer.orderNumber == event.orderId) {
             return customer.copyWith(isLoading: true);
           }
@@ -112,7 +116,9 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
 
         emit(
           state.updateInputValuesAndResetRemaining(
-            customerOrdersList: updatedItems,
+            customerOrders: state.customerOrders.copyWith(
+              customerOrderList: updatedItems,
+            ),
             isCustomerOrdersDataFetched: true,
             isFetchingOrderItems: event.isRetrivingOrderItems,
           ),
@@ -126,13 +132,15 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
 
       emit(state.updateInputValuesAndResetRemaining(
         isOrderItemsFetched: true,
+        displayVerifyUserDialog: orderItemsData.isCustomerVerificationRequired,
         orderItemsData: orderItemsData,
       ));
     } catch (e) {
       emit(state.updateInputValuesAndResetRemaining(
         isError: true,
-        customerOrdersList:
-            event.isRetrivingOrderItems ? state.customerOrdersList : [],
+        customerOrders: event.isRetrivingOrderItems
+            ? state.customerOrders
+            : const CustomerOrders(),
         errorMessage: e.toString(),
       ));
     }

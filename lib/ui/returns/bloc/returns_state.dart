@@ -5,7 +5,7 @@ class ReturnsState {
   final bool isLoading;
   final bool isError;
   final String errorMessage;
-  final List<CustomerOrderDetails> customerOrdersList;
+  final CustomerOrders customerOrders;
   final OrderItemsModel orderItemsData;
   final bool isCustomerOrdersDataFetched;
   final bool isOrderItemsFetched;
@@ -19,12 +19,14 @@ class ReturnsState {
   final OrderLine lastSelectedItem;
   final String? commonSelectedReason;
   final bool? resetAllValues;
+  final bool? displayAddNewUserDialog;
+  final bool? displayVerifyUserDialog;
 
   const ReturnsState({
     this.isLoading = false,
     this.isError = false,
     this.errorMessage = '',
-    this.customerOrdersList = const [],
+    this.customerOrders = const CustomerOrders(),
     this.orderItemsData = const OrderItemsModel(),
     this.isCustomerOrdersDataFetched = false,
     this.isOrderItemsFetched = false,
@@ -38,6 +40,8 @@ class ReturnsState {
     this.lastSelectedItem = const OrderLine(),
     this.commonSelectedReason = '',
     this.resetAllValues = false,
+    this.displayAddNewUserDialog = false,
+    this.displayVerifyUserDialog = false,
   });
 
   /* it updates current provided value and does not distrub other variables */
@@ -45,7 +49,7 @@ class ReturnsState {
     bool? isLoading,
     bool? isError,
     String? errorMessage,
-    List<CustomerOrderDetails>? customerOrdersList,
+    CustomerOrders? customerOrders,
     OrderItemsModel? orderItemsData,
     bool? isCustomerOrdersDataFetched,
     bool? isOrderItemsFetched,
@@ -59,12 +63,14 @@ class ReturnsState {
     OrderLine? lastSelectedItem,
     String? commonSelectedReason,
     bool? resetAllValues,
+    bool? displayAddNewUserDialog,
+    bool? displayVerifyUserDialog,
   }) {
     return ReturnsState(
       isLoading: isLoading ?? this.isLoading,
       isError: isError ?? this.isError,
       errorMessage: errorMessage ?? this.errorMessage,
-      customerOrdersList: customerOrdersList ?? this.customerOrdersList,
+      customerOrders: customerOrders ?? this.customerOrders,
       orderItemsData: orderItemsData ?? this.orderItemsData,
       isCustomerOrdersDataFetched:
           isCustomerOrdersDataFetched ?? this.isCustomerOrdersDataFetched,
@@ -82,6 +88,10 @@ class ReturnsState {
       lastSelectedItem: lastSelectedItem ?? this.lastSelectedItem,
       commonSelectedReason: commonSelectedReason ?? this.commonSelectedReason,
       resetAllValues: resetAllValues ?? this.resetAllValues,
+      displayAddNewUserDialog:
+          displayAddNewUserDialog ?? this.displayAddNewUserDialog,
+      displayVerifyUserDialog:
+          displayVerifyUserDialog ?? this.displayVerifyUserDialog,
     );
   }
 
@@ -90,7 +100,7 @@ class ReturnsState {
     bool? isLoading,
     bool? isError,
     String? errorMessage,
-    List<CustomerOrderDetails>? customerOrdersList,
+    CustomerOrders? customerOrders,
     OrderItemsModel? orderItemsData,
     bool? isCustomerOrdersDataFetched,
     bool? isOrderItemsFetched,
@@ -104,6 +114,8 @@ class ReturnsState {
     OrderLine? lastSelectedItem,
     String? commonSelectedReason,
     bool? resetAllValues,
+    bool? displayAddNewUserDialog,
+    bool? displayVerifyUserDialog,
   }) {
     return ReturnsState(
       isLoading: isLoading ?? false,
@@ -111,7 +123,7 @@ class ReturnsState {
       errorMessage: errorMessage ?? '',
       isFetchingOrderItems: isFetchingOrderItems ?? false,
       isProceedBtnEnabled: isProceedBtnEnabled ?? false,
-      customerOrdersList: customerOrdersList ?? const [],
+      customerOrders: customerOrders ?? const CustomerOrders(),
       orderItemsData: orderItemsData ?? const OrderItemsModel(),
       isCustomerOrdersDataFetched: isCustomerOrdersDataFetched ?? false,
       isOrderItemsFetched: isOrderItemsFetched ?? false,
@@ -122,6 +134,8 @@ class ReturnsState {
       lastSelectedItem: lastSelectedItem ?? this.lastSelectedItem,
       commonSelectedReason: commonSelectedReason ?? this.commonSelectedReason,
       resetAllValues: resetAllValues ?? false,
+      displayAddNewUserDialog: displayAddNewUserDialog ?? false,
+      displayVerifyUserDialog: displayVerifyUserDialog ?? false,
     );
   }
 }

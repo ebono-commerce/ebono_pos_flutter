@@ -92,6 +92,7 @@ class HomeController extends GetxController {
   var isOTPResendingOrVerifying = false.obs;
   var otpErrorMessage = ''.obs;
   var triggerCustomOTPValidation = false.obs;
+  var isOTPTriggering = false.obs;
 
   var isScanApiError = false.obs;
   var isAutoWeighDetection = false.obs;
@@ -919,9 +920,13 @@ class HomeController extends GetxController {
     required String phoneNumber,
     required String otp,
     required bool isResendOTP,
+    bool disableLoading = false,
   }) async {
     try {
-      isOTPResendingOrVerifying.value = true;
+      /* to show loader when resend otp is triggered */
+      isOTPResendingOrVerifying.value = !disableLoading;
+      /* to show loader while manually triggering otp */
+      isOTPTriggering.value = true;
       final result = await _homeRepository.generateORValidateOTP(
         tiggerOTP: tiggerOTP,
         phoneNumber: phoneNumber,
@@ -940,6 +945,8 @@ class HomeController extends GetxController {
       triggerCustomOTPValidation.value = true;
     } finally {
       isOTPResendingOrVerifying.value = false;
+      isOTPTriggering.value = false;
+      isOTPVerified.value = false;
     }
   }
 
