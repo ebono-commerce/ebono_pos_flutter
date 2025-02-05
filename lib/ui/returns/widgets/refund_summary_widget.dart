@@ -307,35 +307,35 @@ class _ReturnSummaryWidgetState extends State<ReturnSummaryWidget> {
                           ],
                         ),
                       ),
-                      if (widget.customer.isProxyNumber == true)
-                        Visibility(
-                          visible: widget.customer.isProxyNumber!,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              CustomQwertyPad(
-                                textController: _qwertyPadController,
-                                focusNode: activeFocusNode!,
-                                onValueChanged: (value) {
-                                  if (activeFocusNode == phoneNumberFocusNode) {
-                                    homeController.phoneNumber.value = value;
-                                  } else if (activeFocusNode ==
-                                      customerNameFocusNode) {
-                                    homeController.customerName.value = value;
-                                  }
-                                },
-                                onEnterPressed: (value) {
-                                  if (activeFocusNode == phoneNumberFocusNode) {
-                                    customerNameFocusNode.requestFocus();
-                                  } else if (activeFocusNode ==
-                                      customerNameFocusNode) {
-                                    customerNameFocusNode.unfocus();
-                                  }
-                                },
-                              ),
-                            ],
-                          ),
-                        )
+                      // if (widget.customer.isProxyNumber == true)
+                      //   Visibility(
+                      //     visible: widget.customer.isProxyNumber!,
+                      //     child: Row(
+                      //       mainAxisAlignment: MainAxisAlignment.center,
+                      //       children: [
+                      //         CustomQwertyPad(
+                      //           textController: _qwertyPadController,
+                      //           focusNode: activeFocusNode!,
+                      //           onValueChanged: (value) {
+                      //             if (activeFocusNode == phoneNumberFocusNode) {
+                      //               homeController.phoneNumber.value = value;
+                      //             } else if (activeFocusNode ==
+                      //                 customerNameFocusNode) {
+                      //               homeController.customerName.value = value;
+                      //             }
+                      //           },
+                      //           onEnterPressed: (value) {
+                      //             if (activeFocusNode == phoneNumberFocusNode) {
+                      //               customerNameFocusNode.requestFocus();
+                      //             } else if (activeFocusNode ==
+                      //                 customerNameFocusNode) {
+                      //               customerNameFocusNode.unfocus();
+                      //             }
+                      //           },
+                      //         ),
+                      //       ],
+                      //     ),
+                      //   )
                     ],
                   ),
           );
@@ -412,7 +412,7 @@ class _ReturnSummaryWidgetState extends State<ReturnSummaryWidget> {
               padding: EdgeInsets.only(
                 right: 20,
                 left: 20,
-                bottom: widget.customer.isProxyNumber == true ? 8 : 0,
+                bottom: 0,
               ),
               child: SizedBox(
                 width: double.infinity,

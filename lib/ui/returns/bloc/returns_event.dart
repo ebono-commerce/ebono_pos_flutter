@@ -54,11 +54,21 @@ final class ResetValuesOnDialogCloseEvent extends ReturnsEvent {
 }
 
 class UpdateOrderLineQuantity extends ReturnsEvent {
-  final String id;
-  final String quantity;
-
   UpdateOrderLineQuantity({
     required this.id,
     required this.quantity,
   });
+
+  final String id;
+  final String quantity;
+}
+
+class UpdateOrderItemsInternalState extends ReturnsEvent {
+  UpdateOrderItemsInternalState({
+    required this.customerName,
+    required this.customerNumber,
+  });
+
+  final String customerName;
+  final String customerNumber;
 }
