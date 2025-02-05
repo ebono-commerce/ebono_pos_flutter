@@ -98,6 +98,7 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
       emit(state.copyWith(
         isCustomerOrdersDataFetched: false,
         isOrderItemsFetched: false,
+        isError: false,
       ));
     }
   }
@@ -150,6 +151,7 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
         isOrderItemsFetched: false,
         isFetchingOrderItems: false,
         isCustomerOrdersDataFetched: false,
+        isError: false,
       ));
     }
   }
@@ -433,6 +435,7 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
       emit(state.copyWith(
         isOrderItemsFetched: false,
         isCustomerOrdersDataFetched: false,
+        isError: false,
       ));
     }
   }

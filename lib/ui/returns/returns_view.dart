@@ -271,7 +271,6 @@ class _ReturnsViewState extends State<ReturnsView> {
                 displayOrderItemsTableData = false;
                 displayInitialEmptyTable = false;
                 displayFormField = false;
-
                 /* clearing the un-used values */
                 customerNumberTextController.clear();
                 numPadTextController.clear();
@@ -329,6 +328,7 @@ class _ReturnsViewState extends State<ReturnsView> {
                 displayCustomerOrdersTableData = false;
                 displayInitialEmptyTable = false;
                 displayFormField = false;
+                isOrderItemsFetched = true;
 
                 /* clearing the un-used values */
                 orderNumberTextController.clear();
@@ -346,10 +346,13 @@ class _ReturnsViewState extends State<ReturnsView> {
               customerNumberTextController.clear();
               orderNumberTextController.clear();
               numPadTextController.clear();
+              isCustomerOrdersFetched = false;
+              isOrderItemsFetched = false;
               displayOrderItemsTableData = false;
               _customerDetails = state.orderItemsData.customer ?? Customer();
               setState(() {});
-            } else if (state.isError) {
+            }
+            if (state.isError) {
               Get.snackbar(
                 "Error Fetching Customer Orders",
                 state.errorMessage,
