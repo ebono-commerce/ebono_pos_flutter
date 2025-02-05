@@ -16,7 +16,7 @@ jobs:
     steps:
       # Checkout the code
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v2
 
       # Install system dependencies
       - name: Install required dependencies
