@@ -162,7 +162,7 @@ class _ReturnsViewState extends State<ReturnsView> {
     bool isDialogForAddCustomer = false,
     String? orderId,
   }) async {
-    final result = await showDialog(
+    await showDialog(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
@@ -185,6 +185,8 @@ class _ReturnsViewState extends State<ReturnsView> {
                   setState(() {
                     displayCustomerOrdersTableData = true;
                     displayOrderItemsTableData = false;
+                    displayFormField = false;
+                    displayInitialEmptyTable = false;
                   });
                   returnsBloc.add(FetchCustomerOrdersData(mobileNumber));
                 }
@@ -196,6 +198,8 @@ class _ReturnsViewState extends State<ReturnsView> {
                   setState(() {
                     displayCustomerOrdersTableData = false;
                     displayOrderItemsTableData = true;
+                    displayFormField = false;
+                    displayInitialEmptyTable = false;
                   });
 
                   returnsBloc.add(
@@ -214,19 +218,14 @@ class _ReturnsViewState extends State<ReturnsView> {
                 setState(() => isCustomerDialogOpened == false);
               }
 
-              Navigator.pop(context, "Programatically");
+              Get.back();
             },
           ),
         );
       },
     );
 
-    if (result != null) {
-      setState(() {
-        displayFormField = false;
-        displayInitialEmptyTable = false;
-      });
-    }
+    homeController.displayOTPScreen.value = false;
 
     setState(() => isCustomerDialogOpened = false);
   }
@@ -529,7 +528,7 @@ class _ReturnsViewState extends State<ReturnsView> {
                           orderNumberTextController.text.isEmpty) {
                         return 'Phone number must be 10 digits';
                       } else if (displayProxyNumberError) {
-                        return "Please enter customer number";
+                        return "Please search with customer number";
                       }
                       return null;
                     },

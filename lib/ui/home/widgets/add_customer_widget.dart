@@ -201,10 +201,6 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
   @override
   void dispose() {
     super.dispose();
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      homeController.displayOTPScreen.value = false;
-    });
   }
 
   /*@override
