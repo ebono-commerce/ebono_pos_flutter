@@ -71,8 +71,8 @@ class _AddCustomerStaticWidgetState extends State<AddCustomerStaticWidget>
                     padding: const EdgeInsets.symmetric(
                         vertical: 10.0, horizontal: 10),
                     child: InkWell(
-                      onTap: () {
-                        showDialog(
+                      onTap: () async {
+                        await showDialog(
                           context: context,
                           builder: (BuildContext context) {
                             return Dialog(
@@ -83,6 +83,7 @@ class _AddCustomerStaticWidgetState extends State<AddCustomerStaticWidget>
                             );
                           },
                         );
+                        homeController.displayOTPScreen.value = false;
                       },
                       child: IgnorePointer(
                         child: TextField(
@@ -188,8 +189,8 @@ class _AddCustomerStaticWidgetState extends State<AddCustomerStaticWidget>
                     padding: const EdgeInsets.symmetric(
                         vertical: 10.0, horizontal: 10),
                     child: InkWell(
-                      onTap: () {
-                        showDialog(
+                      onTap: () async {
+                        await showDialog(
                           context: context,
                           builder: (BuildContext context) {
                             return Dialog(
@@ -200,6 +201,7 @@ class _AddCustomerStaticWidgetState extends State<AddCustomerStaticWidget>
                             );
                           },
                         );
+                        homeController.displayOTPScreen.value = false;
                       },
                       child: IgnorePointer(
                         child: TextField(

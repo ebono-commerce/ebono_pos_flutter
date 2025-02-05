@@ -162,8 +162,8 @@ class _OrdersSectionState extends State<OrdersSection>
             flex: 1,
             child: QuickActionButtons(
               color: Colors.white,
-              onCustomerPressed: () {
-                showDialog(
+              onCustomerPressed: () async {
+                await showDialog(
                   context: context,
                   builder: (BuildContext context) {
                     return Dialog(
@@ -174,10 +174,11 @@ class _OrdersSectionState extends State<OrdersSection>
                     );
                   },
                 );
+                homeController.displayOTPScreen.value = false;
               },
-              onHoldCartPressed: () {
+              onHoldCartPressed: () async {
                 if (homeController.isContionueWithOutCustomer.value) {
-                  showDialog(
+                  await showDialog(
                     context: context,
                     builder: (BuildContext context) {
                       return Dialog(
@@ -191,6 +192,7 @@ class _OrdersSectionState extends State<OrdersSection>
                       );
                     },
                   );
+                  homeController.displayOTPScreen.value = false;
                 } else {
                   AuthModes enableHoldCartMode = AuthModeExtension.fromString(
                       homeController.isEnableHoldCartEnabled.value);
