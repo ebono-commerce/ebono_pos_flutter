@@ -6,12 +6,12 @@ on:
 
   # Allow auto-trigger on push to the 'deployment' branch
   #push:
-    #branches:
-      #- Deployment
+  #branches:
+  #- Deployment
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
       # Checkout the code
@@ -28,7 +28,7 @@ jobs:
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.27.1'
+          flutter-version: "3.27.1"
 
       # Get version
       - name: Get version from pubspec.yaml
