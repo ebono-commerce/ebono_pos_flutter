@@ -52,7 +52,7 @@ jobs:
 
       # Optional: Upload artifacts (deb file)
       - name: Upload build artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: dev-release-${{ steps.version.outputs.version }}
           path: dist/
