@@ -80,7 +80,8 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
         if (widget.dialogContext.mounted &&
             homeController
                     .customerResponse.value.isCustomerVerificationRequired ==
-                false) {
+                false &&
+            widget.isDialogForReturns == false) {
           Get.back();
         }
       }
@@ -520,21 +521,72 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
                         visible: widget.isDialogForReturns,
                         child: _buildCustomButton(
                           onPressed: () async {
-                            homeController.displayOTPScreen.value = true;
-                            homeController.phoneNumber.value =
-                                widget.customerMobileNumber.toString();
-                            homeController.generateORValidateOTP(
-                              tiggerOTP: true,
-                              phoneNumber:
-                                  widget.customerMobileNumber.toString(),
-                              otp: '',
-                              isResendOTP: false,
-                              disableLoading: true,
-                            );
+                            // if (homeController.getCustomerDetailsResponse.value
+                            //             .existingCustomer ==
+                            //         true &&
+                            //     widget.isDialogForAddCustomerFromReturns) {
+                            //   widget.onOTPVerifiedSuccessfully?.call(true);
+                            // } else {
+                            /* add customer name & call fetch customer api */
+                            if (widget.isDialogForAddCustomerFromReturns ==
+                                false) {
+                              homeController.displayOTPScreen.value = true;
+                              homeController.phoneNumber.value =
+                                  widget.customerMobileNumber.toString();
+                              homeController.generateORValidateOTP(
+                                tiggerOTP: true,
+                                phoneNumber:
+                                    widget.customerMobileNumber.toString(),
+                                otp: '',
+                                isResendOTP: false,
+                                disableLoading: true,
+                              );
+                            } else {
+                              // if (homeController.customerName.isNotEmpty) {
+                              homeController.isCustomerProxySelected.value =
+                                  true;
+                              homeController.isContionueWithOutCustomer.value =
+                                  false;
+                              await homeController.fetchCustomer(
+                                showOTPScreen: homeController
+                                            .getCustomerDetailsResponse
+                                            .value
+                                            .isCustomerVerificationRequired ==
+                                        true
+                                    ? true
+                                    : false,
+                                isFromReturns: widget.isDialogForReturns,
+                              );
+                              if (homeController.getCustomerDetailsResponse
+                                      .value.isCustomerVerificationRequired ==
+                                  false) {
+                                widget.onOTPVerifiedSuccessfully?.call(true);
+                              }
+                              // }
+                            }
+                            // }
                           },
                           isLoading: homeController.isOTPTriggering.value,
                           buttonText: widget.isDialogForAddCustomerFromReturns
-                              ? "ADD CUSTOMER & VERIFY"
+                              ? (homeController.getCustomerDetailsResponse.value
+                                              .existingCustomer ==
+                                          true &&
+                                      homeController
+                                              .getCustomerDetailsResponse
+                                              .value
+                                              .isCustomerVerificationRequired ==
+                                          false)
+                                  ? "ADD CUSTOMER"
+                                  : (homeController.getCustomerDetailsResponse
+                                                  .value.existingCustomer ==
+                                              true &&
+                                          homeController
+                                                  .getCustomerDetailsResponse
+                                                  .value
+                                                  .isCustomerVerificationRequired ==
+                                              true)
+                                      ? "VERIFY CUSTOMER"
+                                      : "ADD CUSTOMER & VERIFY"
                               : "VERIFY CUSTOMER",
                         ),
                       ),
@@ -663,9 +715,10 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
           padding: const EdgeInsets.symmetric(horizontal: 1, vertical: 1),
           shape: RoundedRectangleBorder(
             side: BorderSide(
-              color: homeController.customerName.isNotEmpty && !isDisabled
-                  ? CustomColors.secondaryColor
-                  : CustomColors.cardBackground,
+              color:
+                  homeController.customerName.isNotEmpty && isDisabled == false
+                      ? CustomColors.secondaryColor
+                      : CustomColors.cardBackground,
             ),
             borderRadius: BorderRadius.circular(10),
           ),

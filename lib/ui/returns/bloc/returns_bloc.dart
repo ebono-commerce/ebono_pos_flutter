@@ -22,6 +22,7 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
     on<UpdateCommonReasonEvent>(_updateCommonReason);
     on<ResetValuesOnDialogCloseEvent>(_resetValuesOnDialogClose);
     on<UpdateOrderLineQuantity>(_onUpdateOrderLineQuantity);
+    on<UpdateOrderItemsInternalState>(_onUpdateOrderItemsInternalState);
   }
 
   void _onReturnsEvent(ReturnsEvent event, Emitter<ReturnsState> emit) {
@@ -84,8 +85,6 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
 
       emit(state.updateInputValuesAndResetRemaining(
         isCustomerOrdersDataFetched: true,
-        isLoading: false,
-        displayVerifyUserDialog: customerOrders.isCustomerVerificationRequired,
         customerOrders: customerOrders,
       ));
     } catch (e) {
@@ -96,7 +95,10 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
         errorMessage: e.toString(),
       ));
     } finally {
-      emit(state.copyWith(displayVerifyUserDialog: false));
+      emit(state.copyWith(
+        isCustomerOrdersDataFetched: false,
+        isOrderItemsFetched: false,
+      ));
     }
   }
 
@@ -119,7 +121,7 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
             customerOrders: state.customerOrders.copyWith(
               customerOrderList: updatedItems,
             ),
-            isCustomerOrdersDataFetched: true,
+            // isCustomerOrdersDataFetched: true,
             isFetchingOrderItems: event.isRetrivingOrderItems,
           ),
         );
@@ -132,7 +134,7 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
 
       emit(state.updateInputValuesAndResetRemaining(
         isOrderItemsFetched: true,
-        displayVerifyUserDialog: orderItemsData.isCustomerVerificationRequired,
+        isFetchingOrderItems: true,
         orderItemsData: orderItemsData,
       ));
     } catch (e) {
@@ -142,6 +144,12 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
             ? state.customerOrders
             : const CustomerOrders(),
         errorMessage: e.toString(),
+      ));
+    } finally {
+      emit(state.copyWith(
+        isOrderItemsFetched: false,
+        isFetchingOrderItems: false,
+        isCustomerOrdersDataFetched: false,
       ));
     }
   }
@@ -389,6 +397,42 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
       emit(state.copyWith(
         isError: true,
         errorMessage: e.toString(),
+      ));
+    }
+  }
+
+  Future<void> _onUpdateOrderItemsInternalState(
+    UpdateOrderItemsInternalState event,
+    Emitter<ReturnsState> emit,
+  ) async {
+    try {
+      final updatedOrderItemsData = state.orderItemsData.copyWith(
+        isCustomerVerificationRequired: false,
+        customer: state.orderItemsData.customer?.copyWith(
+          customerName: event.customerName,
+          phoneNumber: state.orderItemsData.customer?.phoneNumber?.copyWith(
+            number: event.customerNumber,
+          ),
+          isProxyNumber: false,
+        ),
+      );
+
+      emit(
+        state.copyWith(
+          isOrderItemsFetched: true,
+          isFetchingOrderItems: true,
+          orderItemsData: updatedOrderItemsData,
+        ),
+      );
+    } catch (e) {
+      emit(state.copyWith(
+        isError: true,
+        errorMessage: e.toString(),
+      ));
+    } finally {
+      emit(state.copyWith(
+        isOrderItemsFetched: false,
+        isCustomerOrdersDataFetched: false,
       ));
     }
   }

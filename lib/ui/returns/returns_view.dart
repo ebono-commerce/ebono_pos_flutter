@@ -37,23 +37,27 @@ class _ReturnsViewState extends State<ReturnsView> {
   final FocusNode numPadFocusNode = FocusNode();
 
   FocusNode? activeFocusNode;
-
   final _formKey = GlobalKey<FormState>();
 
   /* State Management */
   bool isCustomerOrdersFetched = false;
   bool isOrderItemsFetched = false;
-  bool triggerProceedToPayDialog = false;
-  bool isOrderDetailsRetrieving = false;
-  bool isCustomerDialogOpened = false;
+  bool displayProxyNumberError = false;
+  bool showOrderItemsOnSuccess = false;
+  bool showCustomerOrdersOnSuccess = false;
+  String? storeTempOrderId;
+
+  /* New Flags to show or hide the table data */
   bool displayCustomerOrdersTableData = false;
   bool displayOrderItemsTableData = false;
-  bool hideFormField = false;
-  bool isDialogForVerifyCustomer = false;
-  bool isDialogForAddNewCustomer = false;
+  bool displayFormField = true;
+  bool displayInitialEmptyTable = true;
 
+  /* Flags for dialog */
+  bool isCustomerDialogOpened = false;
+
+  /* For Table Data */
   Customer _customerDetails = Customer();
-
   late CustomerTableData _customerTableData;
   late OrderItemsTableData _orderItemsTableData;
   late ReturnsConfirmationTableData _returnsConfirmationTableData;
@@ -119,7 +123,6 @@ class _ReturnsViewState extends State<ReturnsView> {
 
   void _resetAllValues() {
     isCustomerOrdersFetched = false;
-    hideFormField = false;
     isOrderItemsFetched = false;
     numPadTextController.clear();
     _customerDetails = const Customer();
@@ -134,12 +137,18 @@ class _ReturnsViewState extends State<ReturnsView> {
     bool hasCustomerNumber =
         customerNumberTextController.text.trim().isNotEmpty;
 
+    setState(() => displayProxyNumberError = false);
     if (_formKey.currentState!.validate()) {
-      if (hasCustomerNumber) {
+      if (homeController.customerProxyNumber.value ==
+          customerNumberTextController.text.trim()) {
+        setState(() => displayProxyNumberError = true);
+        _formKey.currentState?.validate();
+      } else if (hasCustomerNumber) {
         returnsBloc.add(
           FetchCustomerOrdersData(customerNumberTextController.text),
         );
       } else {
+        setState(() => storeTempOrderId = orderNumberTextController.text);
         returnsBloc.add(
           FetchOrderDataBasedOnOrderId(orderId: orderNumberTextController.text),
         );
@@ -147,11 +156,13 @@ class _ReturnsViewState extends State<ReturnsView> {
     }
   }
 
-  void showCustomerVerificationDialog({
+  void addORVerifyCustomerDialog({
     required String name,
     required String mobileNumber,
+    bool isDialogForAddCustomer = false,
+    String? orderId,
   }) async {
-    await showDialog(
+    final result = await showDialog(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
@@ -163,23 +174,59 @@ class _ReturnsViewState extends State<ReturnsView> {
             context,
             isDialogForReturns: true,
             customerMobileNumber: mobileNumber,
+            isDialogForAddCustomerFromReturns: isDialogForAddCustomer,
             customerName: name,
-            disableFormFields: isDialogForAddNewCustomer ? false : true,
-            isDialogForAddCustomerFromReturns: isDialogForAddNewCustomer,
+            disableFormFields: isDialogForAddCustomer ? false : true,
             onOTPVerifiedSuccessfully: (status) {
-              if (status) {
-                /* clear the home controller values set & show customer orders data */
-                displayCustomerOrdersTableData = true;
-                isCustomerOrdersFetched = true;
-                hideFormField = true;
+              if (status == true && isDialogForAddCustomer == false) {
+                /* to display customer data */
+                if (showCustomerOrdersOnSuccess == true &&
+                    showOrderItemsOnSuccess == false) {
+                  setState(() {
+                    displayCustomerOrdersTableData = true;
+                    displayOrderItemsTableData = false;
+                  });
+                  returnsBloc.add(FetchCustomerOrdersData(mobileNumber));
+                }
 
-                Get.back();
+                /* to display order items data */
+                if (showOrderItemsOnSuccess == true &&
+                    storeTempOrderId != null &&
+                    showCustomerOrdersOnSuccess == false) {
+                  setState(() {
+                    displayCustomerOrdersTableData = false;
+                    displayOrderItemsTableData = true;
+                  });
+
+                  returnsBloc.add(
+                    FetchOrderDataBasedOnOrderId(orderId: storeTempOrderId!),
+                  );
+                }
+              } else if (status == true && isDialogForAddCustomer == true) {
+                /* upon success, we are updating customer data & verification status in internal state */
+                returnsBloc.add(
+                  UpdateOrderItemsInternalState(
+                    customerName: homeController
+                        .getCustomerDetailsResponse.value.customerName,
+                    customerNumber: homeController.phoneNumber.value,
+                  ),
+                );
+                setState(() => isCustomerDialogOpened == false);
               }
+
+              Navigator.pop(context, "Programatically");
             },
           ),
         );
       },
     );
+
+    if (result != null) {
+      setState(() {
+        displayFormField = false;
+        displayInitialEmptyTable = false;
+      });
+    }
 
     setState(() => isCustomerDialogOpened = false);
   }
@@ -199,78 +246,111 @@ class _ReturnsViewState extends State<ReturnsView> {
         child: BlocConsumer<ReturnsBloc, ReturnsState>(
           bloc: returnsBloc,
           listener: (context, state) {
-            if (state.isCustomerOrdersDataFetched) {
-              /* these parameters are used to hide tables when user verification is required */
-              displayCustomerOrdersTableData =
-                  state.customerOrders.isCustomerVerificationRequired == false;
-              isCustomerOrdersFetched = displayCustomerOrdersTableData;
-              isOrderItemsFetched = false;
-              isDialogForVerifyCustomer = true;
-              isDialogForAddNewCustomer = false;
+            if (state.isCustomerOrdersDataFetched == true) {
+              /* check whether customer needs veritication or not*/
+              if (state.customerOrders.isCustomerVerificationRequired == true &&
+                  state.customerOrders.customerOrderList.isNotEmpty &&
+                  isCustomerDialogOpened == false) {
+                setState(() {
+                  showCustomerOrdersOnSuccess = true;
+                  showOrderItemsOnSuccess = false;
+                });
+                addORVerifyCustomerDialog(
+                  mobileNumber: state.customerOrders.customerOrderList.first
+                          .customer?.phoneNumber?.number ??
+                      'NA',
+                  name: state.customerOrders.customerOrderList.first.customer
+                          ?.customerName ??
+                      'NA',
+                  isDialogForAddCustomer: false,
+                  orderId: null,
+                );
+              } else {
+                /* New parameters to show or hide table */
+                displayCustomerOrdersTableData = true;
+                isCustomerOrdersFetched = true;
+                displayOrderItemsTableData = false;
+                displayInitialEmptyTable = false;
+                displayFormField = false;
 
-              /* clearing the un-used values */
-              customerNumberTextController.clear();
-              numPadTextController.clear();
-              displayOrderItemsTableData = false;
-              _customerDetails =
-                  state.customerOrders.customerOrderList.isNotEmpty
-                      ? state.customerOrders.customerOrderList.first.customer ??
-                          Customer()
-                      : Customer();
-              setState(() {});
-            }
-
-            if (state.isOrderItemsFetched) {
-              /* these parameters are used to hide tables when user verification is required */
-              displayOrderItemsTableData =
-                  state.orderItemsData.isCustomerVerificationRequired == false;
-              isOrderItemsFetched = displayOrderItemsTableData;
-              isCustomerOrdersFetched = false;
-              isDialogForVerifyCustomer =
-                  state.orderItemsData.customer?.isProxyNumber == false;
-              isDialogForAddNewCustomer =
-                  state.orderItemsData.customer?.isProxyNumber == true;
-
-              /* clearing the un-used values */
-              orderNumberTextController.clear();
-              numPadTextController.clear();
-              _customerDetails = state.orderItemsData.customer ?? Customer();
-              displayCustomerOrdersTableData = false;
-              setState(() {});
-            }
-
-            if (state.resetAllValues == true) {
-              /* resetting all values */
-              isOrderItemsFetched = false;
-              isCustomerOrdersFetched = false;
-              customerNumberTextController.clear();
-              orderNumberTextController.clear();
-              numPadTextController.clear();
-              displayCustomerOrdersTableData = false;
-              displayOrderItemsTableData = false;
-              _customerDetails = state.orderItemsData.customer ?? Customer();
-              setState(() {});
-            }
-
-            if (state.displayVerifyUserDialog == true &&
-                isCustomerDialogOpened == false) {
-              showCustomerVerificationDialog(
-                mobileNumber: state.customerOrders.customerOrderList.first
-                        .customer?.phoneNumber?.number ??
-                    'NA',
-                name: state.customerOrders.customerOrderList.first.customer
-                        ?.customerName ??
-                    'NA',
-              );
-
-              /* ensuring table data is not visible when verification pop-up opens */
-              displayCustomerOrdersTableData = false;
-              displayOrderItemsTableData = false;
-              isDialogForVerifyCustomer = true;
+                /* clearing the un-used values */
+                customerNumberTextController.clear();
+                numPadTextController.clear();
+                _customerDetails = state
+                        .customerOrders.customerOrderList.isNotEmpty
+                    ? state.customerOrders.customerOrderList.first.customer ??
+                        Customer()
+                    : Customer();
+              }
               setState(() => isCustomerDialogOpened = true);
-            }
+            } else if (state.isOrderItemsFetched == true) {
+              /* check whether customer needs veritication or not*/
+              if (state.orderItemsData.isCustomerVerificationRequired == true &&
+                  state.orderItemsData.orderLines?.isNotEmpty == true &&
+                  state.orderItemsData.customer?.isProxyNumber == false &&
+                  isCustomerDialogOpened == false) {
+                setState(() {
+                  showOrderItemsOnSuccess = true;
+                  showCustomerOrdersOnSuccess = false;
+                });
+                addORVerifyCustomerDialog(
+                  mobileNumber:
+                      state.orderItemsData.customer?.phoneNumber?.number ??
+                          'NA',
+                  name: state.orderItemsData.customer?.customerName ?? 'NA',
+                  orderId: state.orderItemsData.orderNumber,
+                  isDialogForAddCustomer: false,
+                );
+                setState(() {
+                  isCustomerDialogOpened = true;
+                });
+              }
+              /* when search with order id which is billed with store proxy number */
+              else if (state.orderItemsData.isCustomerVerificationRequired ==
+                      true &&
+                  state.orderItemsData.orderLines?.isNotEmpty == true &&
+                  state.orderItemsData.customer?.isProxyNumber == true &&
+                  isCustomerDialogOpened == false) {
+                setState(() {
+                  showOrderItemsOnSuccess = false;
+                  showCustomerOrdersOnSuccess = false;
+                });
+                addORVerifyCustomerDialog(
+                  mobileNumber: '',
+                  name: '',
+                  isDialogForAddCustomer: true,
+                  orderId: state.orderItemsData.orderNumber,
+                );
+                setState(() {
+                  isCustomerDialogOpened = true;
+                });
+              } else {
+                /* New parameters to show or hide table */
+                displayOrderItemsTableData = true;
+                displayCustomerOrdersTableData = false;
+                displayInitialEmptyTable = false;
+                displayFormField = false;
 
-            if (state.isError) {
+                /* clearing the un-used values */
+                orderNumberTextController.clear();
+                numPadTextController.clear();
+              }
+              setState(() => isCustomerDialogOpened = true);
+            } else
+            /* resetting all values */
+            if (state.resetAllValues == true) {
+              displayCustomerOrdersTableData = false;
+              displayCustomerOrdersTableData = false;
+              displayInitialEmptyTable = true;
+              displayFormField = true;
+              isCustomerDialogOpened = false;
+              customerNumberTextController.clear();
+              orderNumberTextController.clear();
+              numPadTextController.clear();
+              displayOrderItemsTableData = false;
+              _customerDetails = state.orderItemsData.customer ?? Customer();
+              setState(() {});
+            } else if (state.isError) {
               Get.snackbar(
                 "Error Fetching Customer Orders",
                 state.errorMessage,
@@ -298,8 +378,7 @@ class _ReturnsViewState extends State<ReturnsView> {
                                 ? "Order #"
                                 : "Order #${state.orderItemsData.orderNumber ?? ""}",
                           ),
-                          if ((!isCustomerOrdersFetched &&
-                              !isOrderItemsFetched))
+                          if (displayInitialEmptyTable == true)
                             CustomTableWidget(
                               headers:
                                   _customerTableData.buildInitialTableHeader(),
@@ -313,9 +392,8 @@ class _ReturnsViewState extends State<ReturnsView> {
                                 5: FlexColumnWidth(1),
                               },
                             ),
-                          if ((isCustomerOrdersFetched ||
-                                  state.isFetchingOrderItems) &&
-                              displayCustomerOrdersTableData)
+                          /*isCustomerOrdersFetched ||  state.isFetchingOrderItems */
+                          if (displayCustomerOrdersTableData)
                             Expanded(
                               child: CustomTableWidget(
                                 headers: _customerTableData
@@ -343,9 +421,8 @@ class _ReturnsViewState extends State<ReturnsView> {
                                 },
                               ),
                             ),
-                          if (isOrderItemsFetched &&
-                              !state.isFetchingOrderItems &&
-                              displayOrderItemsTableData)
+                          /*isOrderItemsFetched && !state.isFetchingOrderItems */
+                          if (displayOrderItemsTableData)
                             Expanded(
                               child: CustomTableWidget(
                                 headers: _orderItemsTableData
@@ -387,8 +464,7 @@ class _ReturnsViewState extends State<ReturnsView> {
                                 },
                               ),
                             ),
-                          if (!isCustomerOrdersFetched && !isOrderItemsFetched)
-                            _buildFormUI(state.isLoading),
+                          if (displayFormField) _buildFormUI(state.isLoading),
                         ],
                       ),
                     ),
@@ -452,6 +528,8 @@ class _ReturnsViewState extends State<ReturnsView> {
                           customerNumberTextController.text.trim().isEmpty &&
                           orderNumberTextController.text.isEmpty) {
                         return 'Phone number must be 10 digits';
+                      } else if (displayProxyNumberError) {
+                        return "Please enter customer number";
                       }
                       return null;
                     },
