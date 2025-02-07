@@ -135,8 +135,8 @@ class _PriceOverrideWithAuthWidgetState
                               children: [
                                 Padding(
                                   padding: const EdgeInsets.all(10.0),
-                                  child: commonTextField(
-                                    label: "Login Id",
+                                  child: CommonTextField(
+                                    labelText: "Login Id",
                                     controller: loginIdController,
                                     focusNode: loginIdFocusNode,
                                     onValueChanged: (value) => value,
@@ -144,8 +144,8 @@ class _PriceOverrideWithAuthWidgetState
                                 ),
                                 Padding(
                                   padding: const EdgeInsets.all(10.0),
-                                  child: commonTextField(
-                                    label: "Password",
+                                  child: CommonTextField(
+                                    labelText: "Password",
                                     controller: passwordController,
                                     focusNode: passwordFocusNode,
                                     obscureText: true,
@@ -349,8 +349,8 @@ class _PriceOverrideWithAuthWidgetState
 
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 10.0),
-            child: commonTextField(
-              label: "Enter New price",
+            child: CommonTextField(
+              labelText: "Enter New price",
               controller: priceController,
               focusNode: priceFocusNode,
               obscureText: false,
@@ -399,9 +399,9 @@ class _PriceOverrideWithAuthWidgetState
                       )
                     ]))
                     .then((value) {
-                      if(value != null){
-                        Navigator.pop(widget.dialogContext);
-                      }
+                  if (value != null) {
+                    Navigator.pop(widget.dialogContext);
+                  }
                 });
               }
             : null,

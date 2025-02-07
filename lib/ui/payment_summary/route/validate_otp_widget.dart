@@ -14,16 +14,13 @@ import 'package:get/get.dart';
 class ValidateOtpWidget extends StatefulWidget {
   final BuildContext dialogContext;
 
-
   const ValidateOtpWidget(this.dialogContext, {super.key});
 
   @override
-  State<ValidateOtpWidget> createState() =>
-      _ValidateOtpWidgetState();
+  State<ValidateOtpWidget> createState() => _ValidateOtpWidgetState();
 }
 
-class _ValidateOtpWidgetState
-    extends State<ValidateOtpWidget> {
+class _ValidateOtpWidgetState extends State<ValidateOtpWidget> {
   HomeController homeController = Get.find<HomeController>();
   final TextEditingController otpController = TextEditingController();
   final TextEditingController _numPadController = TextEditingController();
@@ -31,7 +28,6 @@ class _ValidateOtpWidgetState
   late ThemeData theme;
 
   PaymentBloc paymentBloc = Get.find<PaymentBloc>();
-
 
   @override
   void initState() {
@@ -60,114 +56,114 @@ class _ValidateOtpWidgetState
     return BlocProvider.value(
       value: paymentBloc,
       child: BlocListener<PaymentBloc, PaymentState>(
-          listener: (BuildContext context, PaymentState state) {
-            if(state.isWalletChargeSuccess){
-              paymentBloc.add(WalletIdealEvent());
-              Navigator.pop(widget.dialogContext);
-            }
-            if(state.isWalletChargeError){
-              Get.snackbar("Charge Wallet error", state.errorMessage ?? "");
-            }
+        listener: (BuildContext context, PaymentState state) {
+          if (state.isWalletChargeSuccess) {
+            paymentBloc.add(WalletIdealEvent());
+            Navigator.pop(widget.dialogContext);
+          }
+          if (state.isWalletChargeError) {
+            Get.snackbar("Charge Wallet error", state.errorMessage ?? "");
+          }
         },
-        child: BlocBuilder<PaymentBloc, PaymentState>(
-            builder: (context, state) {
-              return Column(
-                mainAxisAlignment: MainAxisAlignment.start,
+        child:
+            BlocBuilder<PaymentBloc, PaymentState>(builder: (context, state) {
+          return Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(
+                width: 900,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(right: 18.0, top: 18),
+                      child: InkWell(
+                        onTap: () {
+                          Navigator.pop(widget.dialogContext);
+                        },
+                        child: SvgPicture.asset(
+                          'assets/images/ic_close.svg',
+                          semanticsLabel: 'cash icon,',
+                          width: 30,
+                          height: 30,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  SizedBox(width: 900,
-                    child:  Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      mainAxisSize: MainAxisSize.max,
+                  SizedBox(
+                    width: 400,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Padding(
-                          padding: const EdgeInsets.only(right: 18.0, top: 18),
-                          child: InkWell(
-                            onTap: () {
-                              Navigator.pop(widget.dialogContext);
-                            },
-                            child: SvgPicture.asset(
-                              'assets/images/ic_close.svg',
-                              semanticsLabel: 'cash icon,',
-                              width: 30,
-                              height: 30,
-                            ),
+                        const SizedBox(height: 30),
+                        Text(
+                          "Enter Wallet OTP",
+                          style: theme.textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: CustomColors.black,
                           ),
                         ),
-                      ],
-                    ),),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      SizedBox(
-                        width: 400,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
+                        const SizedBox(height: 10),
+                        Text(
+                          "enter the Otp send to customer",
+                          style: theme.textTheme.labelMedium?.copyWith(
+                            fontWeight: FontWeight.normal,
+                            color: CustomColors.greyFont,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const SizedBox(height: 30),
-                            Text(
-                              "Enter Wallet OTP",
-                              style: theme.textTheme.titleLarge?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: CustomColors.black,
+                            Padding(
+                              padding: const EdgeInsets.all(10.0),
+                              child: CommonTextField(
+                                labelText: "Customer Otp",
+                                controller: otpController,
+                                focusNode: couponCodeFocusNode,
+                                onValueChanged: (value) => value,
                               ),
-                            ),
-                            const SizedBox(height: 10),
-                            Text(
-                              "enter the Otp send to customer",
-                              style: theme.textTheme.labelMedium?.copyWith(
-                                fontWeight: FontWeight.normal,
-                                color: CustomColors.greyFont,
-                              ),
-                            ),
-                            const SizedBox(height: 10),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.all(10.0),
-                                  child: commonTextField(
-                                    label: "Customer Otp",
-                                    controller: otpController,
-                                    focusNode: couponCodeFocusNode,
-                                    onValueChanged: (value) =>
-                                    value,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 20),
-                            Row(
-                              children: [
-                                Expanded(flex: 1, child: applyButton()),
-                                Expanded(flex: 1, child: closeButton())
-                              ],
                             ),
                           ],
                         ),
-                      ),
-                      SizedBox(
-                        width: 400,
-                        child: CustomNumPad(
-                          textController: _numPadController,
-                          focusNode: couponCodeFocusNode,
-                          onEnterPressed: (value) {
-                            if (!couponCodeFocusNode.hasFocus) {
-                              couponCodeFocusNode.requestFocus();
-                            } else {
-                              couponCodeFocusNode.unfocus();
-                            }
-                          },
+                        const SizedBox(height: 20),
+                        Row(
+                          children: [
+                            Expanded(flex: 1, child: applyButton()),
+                            Expanded(flex: 1, child: closeButton())
+                          ],
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                  const SizedBox(height: 30),
+                  SizedBox(
+                    width: 400,
+                    child: CustomNumPad(
+                      textController: _numPadController,
+                      focusNode: couponCodeFocusNode,
+                      onEnterPressed: (value) {
+                        if (!couponCodeFocusNode.hasFocus) {
+                          couponCodeFocusNode.requestFocus();
+                        } else {
+                          couponCodeFocusNode.unfocus();
+                        }
+                      },
+                    ),
+                  ),
                 ],
-              );
-            }
-        ),
+              ),
+              const SizedBox(height: 30),
+            ],
+          );
+        }),
       ),
     );
   }

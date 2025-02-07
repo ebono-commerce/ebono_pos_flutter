@@ -159,8 +159,7 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                         ?.firstOrNull
                         ?.applicableBalance ??
                     '';
-              }
-              else{
+              } else {
                 walletTextController.text = '';
               }
             }
@@ -359,7 +358,7 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                       label: 'Cash', value: cashPaymentTextController.text),
                   tenderDetailRow(
                       label: 'Online', value: onlinePaymentTextController.text),
-                 /* tenderDetailRow(
+                  /* tenderDetailRow(
                       label: 'Wallet', value: walletTextController.text),*/
                 ],
               ),
@@ -574,13 +573,13 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
               ignoring: readOnly,
               child: SizedBox(
                 width: 140,
-                child: commonTextField(
-                    label: inputHint,
+                child: CommonTextField(
+                    labelText: inputHint,
                     focusNode: focusNode,
                     controller: controller,
                     readOnly: readOnly,
                     onValueChanged: (value) {
-                      print('commonTextField $value');
+                      print('CommonTextField $value');
                     },
                     validator: validator),
               ),
@@ -675,8 +674,8 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                         children: [
                           SizedBox(
                             width: 140,
-                            child: commonTextField(
-                                label: 'Enter Amount',
+                            child: CommonTextField(
+                                labelText: 'Enter Amount',
                                 focusNode: cashPaymentFocusNode,
                                 controller: cashPaymentTextController,
                                 readOnly: false,
@@ -740,13 +739,13 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                             ignoring: true,
                             child: SizedBox(
                               width: 140,
-                              child: commonTextField(
-                                  label: 'Enter Amount',
+                              child: CommonTextField(
+                                  labelText: 'Enter Amount',
                                   focusNode: onlinePaymentFocusNode,
                                   controller: onlinePaymentTextController,
                                   readOnly: true,
                                   onValueChanged: (value) {
-                                    print('commonTextField $value');
+                                    print('CommonTextField $value');
                                   },
                                   validator: (value) {
                                     if (paymentBloc.onlineAmount >= 0 &&
@@ -882,9 +881,17 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                     controller: walletTextController,
                     focusNode: walletPaymentFocusNode,
                     readOnly: true,
-                    onPressed: (double.parse(paymentBloc.paymentSummaryResponse.redeemablePaymentOptions?.firstOrNull?.applicableBalance ?? '0') >0)? () {
-                      paymentBloc.add(WalletAuthenticationEvent());
-                    }:null,
+                    onPressed: (double.parse(paymentBloc
+                                    .paymentSummaryResponse
+                                    .redeemablePaymentOptions
+                                    ?.firstOrNull
+                                    ?.applicableBalance ??
+                                '0') >
+                            0)
+                        ? () {
+                            paymentBloc.add(WalletAuthenticationEvent());
+                          }
+                        : null,
                     validator: null),
 
                 //loyaltyPointsRedemption(),

@@ -79,7 +79,7 @@ class _RegisterSectionState extends State<RegisterSection>
             .hasMatch(openingFloatPaymentTextController.text)) {
           if (openingFloatPaymentTextController.text.contains('.')) {
             openingFloatPaymentTextController.text =
-            openingFloatPaymentTextController.text.split('.')[0];
+                openingFloatPaymentTextController.text.split('.')[0];
           }
         }
 
@@ -125,14 +125,12 @@ class _RegisterSectionState extends State<RegisterSection>
         if (upiSlipCountFocusNode.hasFocus) {
           activeFocusNode = upiSlipCountFocusNode;
         }
-        if (RegExp(r'^\d*\.?\d*$')
-            .hasMatch(upiSlipCountTextController.text)) {
+        if (RegExp(r'^\d*\.?\d*$').hasMatch(upiSlipCountTextController.text)) {
           // If it contains a decimal point, set the text to an empty string or handle accordingly
           if (upiSlipCountTextController.text.contains('.')) {
-
             upiSlipCountTextController.text =
-              upiSlipCountTextController.text.split('.')[0];
-        }
+                upiSlipCountTextController.text.split('.')[0];
+          }
         }
         numPadTextController.text = upiSlipCountTextController.text;
       });
@@ -142,14 +140,12 @@ class _RegisterSectionState extends State<RegisterSection>
         if (cardSlipCountFocusNode.hasFocus) {
           activeFocusNode = cardSlipCountFocusNode;
         }
-        if (RegExp(r'^\d*\.?\d*$')
-            .hasMatch(cardSlipCountTextController.text)) {
+        if (RegExp(r'^\d*\.?\d*$').hasMatch(cardSlipCountTextController.text)) {
           // If it contains a decimal point, set the text to an empty string or handle accordingly
           if (cardSlipCountTextController.text.contains('.')) {
-
             cardSlipCountTextController.text =
-              cardSlipCountTextController.text.split('.')[0];
-        }
+                cardSlipCountTextController.text.split('.')[0];
+          }
         }
         numPadTextController.text = cardSlipCountTextController.text;
       });
@@ -185,23 +181,27 @@ class _RegisterSectionState extends State<RegisterSection>
       return openingFloatPaymentTextController.text.isNotEmpty;
     } else {
       // CLOSE case: dynamically check modes and their respective controllers
-      bool isCashValid = homeController.allowedPaymentModes.any((mode) => mode.paymentOptionCode == 'Cash')
+      bool isCashValid = homeController.allowedPaymentModes
+              .any((mode) => mode.paymentOptionCode == 'Cash')
           ? cashPaymentTextController.text.isNotEmpty
           : true;
 
-      bool isUpiValid = homeController.allowedPaymentModes.any((mode) => mode.paymentOptionCode == 'UPI')
-          ? upiPaymentTextController.text.isNotEmpty && upiSlipCountTextController.text.isNotEmpty
+      bool isUpiValid = homeController.allowedPaymentModes
+              .any((mode) => mode.paymentOptionCode == 'UPI')
+          ? upiPaymentTextController.text.isNotEmpty &&
+              upiSlipCountTextController.text.isNotEmpty
           : true;
 
-      bool isCardValid = homeController.allowedPaymentModes.any((mode) => mode.paymentOptionCode == 'Card')
-          ? cardsPaymentTextController.text.isNotEmpty && cardSlipCountTextController.text.isNotEmpty
+      bool isCardValid = homeController.allowedPaymentModes
+              .any((mode) => mode.paymentOptionCode == 'Card')
+          ? cardsPaymentTextController.text.isNotEmpty &&
+              cardSlipCountTextController.text.isNotEmpty
           : true;
 
       // The button is enabled if all relevant conditions are satisfied
       return isCashValid && isUpiValid && isCardValid;
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -749,12 +749,12 @@ class _RegisterSectionState extends State<RegisterSection>
                   Spacer(),
                   SizedBox(
                     width: 140,
-                    child: commonTextField(
-                        label: "Enter Amount",
+                    child: CommonTextField(
+                        labelText: "Enter Amount",
                         focusNode: openingFloatPaymentFocusNode,
                         controller: openingFloatPaymentTextController,
                         onValueChanged: (value) {
-                          print('commonTextField $value');
+                          print('CommonTextField $value');
                         }),
                   ),
                   Spacer(),
@@ -868,131 +868,134 @@ class _RegisterSectionState extends State<RegisterSection>
                 SizedBox(
                   height: 10,
                 ),
-                if ( homeController.allowedPaymentModes.any((mode) => mode.paymentOptionCode == 'CASH'))
+                if (homeController.allowedPaymentModes
+                    .any((mode) => mode.paymentOptionCode == 'CASH'))
                   Container(
-                  // color: Colors.amberAccent,
-                  padding: const EdgeInsets.symmetric(
-                      vertical: 10.0, horizontal: 10),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      SizedBox(
-                        width: 140,
-                        child: Text(
-                          "Cash payments",
-                          style: theme.textTheme.bodyMedium
-                              ?.copyWith(fontWeight: FontWeight.w500),
+                    // color: Colors.amberAccent,
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 10.0, horizontal: 10),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        SizedBox(
+                          width: 140,
+                          child: Text(
+                            "Cash payments",
+                            style: theme.textTheme.bodyMedium
+                                ?.copyWith(fontWeight: FontWeight.w500),
+                          ),
                         ),
-                      ),
-                      Spacer(),
-                      SizedBox(
-                        width: 140,
-                        child: commonTextField(
-                            label: "Enter Amount",
-                            readOnly: false,
-                            focusNode: cashPaymentFocusNode,
-                            controller: cashPaymentTextController,
-                            onValueChanged: (value) {
-                              print('commonTextField $value');
-                            }),
-                      ),
-                      Spacer(),
-                      SizedBox(width: 140, child: Container()),
-                      Spacer()
-                    ],
+                        Spacer(),
+                        SizedBox(
+                          width: 140,
+                          child: CommonTextField(
+                              labelText: "Enter Amount",
+                              readOnly: false,
+                              focusNode: cashPaymentFocusNode,
+                              controller: cashPaymentTextController,
+                              onValueChanged: (value) {
+                                print('CommonTextField $value');
+                              }),
+                        ),
+                        Spacer(),
+                        SizedBox(width: 140, child: Container()),
+                        Spacer()
+                      ],
+                    ),
                   ),
-                ),
-                if ( homeController.allowedPaymentModes.any((mode) => mode.paymentOptionCode == 'CARD'))
+                if (homeController.allowedPaymentModes
+                    .any((mode) => mode.paymentOptionCode == 'CARD'))
                   Container(
-                  // color: Colors.amberAccent,
-                  padding: const EdgeInsets.symmetric(
-                      vertical: 10.0, horizontal: 10),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      SizedBox(
-                        width: 140,
-                        child: Text(
-                          "Card",
-                          style: theme.textTheme.bodyMedium
-                              ?.copyWith(fontWeight: FontWeight.w500),
+                    // color: Colors.amberAccent,
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 10.0, horizontal: 10),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        SizedBox(
+                          width: 140,
+                          child: Text(
+                            "Card",
+                            style: theme.textTheme.bodyMedium
+                                ?.copyWith(fontWeight: FontWeight.w500),
+                          ),
                         ),
-                      ),
-                      Spacer(),
-                      SizedBox(
-                        width: 140,
-                        child: commonTextField(
-                            label: "Enter Amount",
-                            readOnly: false,
-                            focusNode: cardsPaymentFocusNode,
-                            controller: cardsPaymentTextController,
-                            onValueChanged: (value) {
-                              print('commonTextField $value');
-                            }),
-                      ),
-                      Spacer(),
-                      SizedBox(
-                        width: 140,
-                        child: commonTextField(
-                            label: "Enter Count",
-                            readOnly: false,
-                            focusNode: cardSlipCountFocusNode,
-                            controller: cardSlipCountTextController,
-                            onValueChanged: (value) {
-                              print('commonTextField $value');
-                            }),
-                      ),
-                      Spacer()
-                    ],
+                        Spacer(),
+                        SizedBox(
+                          width: 140,
+                          child: CommonTextField(
+                              labelText: "Enter Amount",
+                              readOnly: false,
+                              focusNode: cardsPaymentFocusNode,
+                              controller: cardsPaymentTextController,
+                              onValueChanged: (value) {
+                                print('CommonTextField $value');
+                              }),
+                        ),
+                        Spacer(),
+                        SizedBox(
+                          width: 140,
+                          child: CommonTextField(
+                              labelText: "Enter Count",
+                              readOnly: false,
+                              focusNode: cardSlipCountFocusNode,
+                              controller: cardSlipCountTextController,
+                              onValueChanged: (value) {
+                                print('CommonTextField $value');
+                              }),
+                        ),
+                        Spacer()
+                      ],
+                    ),
                   ),
-                ),
-                if ( homeController.allowedPaymentModes.any((mode) => mode.paymentOptionCode == 'UPI'))
+                if (homeController.allowedPaymentModes
+                    .any((mode) => mode.paymentOptionCode == 'UPI'))
                   Container(
-                  // color: Colors.amberAccent,
-                  padding: const EdgeInsets.symmetric(
-                      vertical: 10.0, horizontal: 10),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      SizedBox(
-                        width: 140,
-                        child: Text(
-                          "UPI payments",
-                          style: theme.textTheme.bodyMedium
-                              ?.copyWith(fontWeight: FontWeight.w500),
+                    // color: Colors.amberAccent,
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 10.0, horizontal: 10),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        SizedBox(
+                          width: 140,
+                          child: Text(
+                            "UPI payments",
+                            style: theme.textTheme.bodyMedium
+                                ?.copyWith(fontWeight: FontWeight.w500),
+                          ),
                         ),
-                      ),
-                      Spacer(),
-                      SizedBox(
-                        width: 140,
-                        child: commonTextField(
-                            label: "Enter Amount",
-                            readOnly: false,
-                            focusNode: upiPaymentFocusNode,
-                            controller: upiPaymentTextController,
-                            onValueChanged: (value) {
-                              print('commonTextField $value');
-                            }),
-                      ),
-                      Spacer(),
-                      SizedBox(
-                        width: 140,
-                        child: commonTextField(
-                            label: "Enter Count",
-                            readOnly: false,
-                            focusNode: upiSlipCountFocusNode,
-                            controller: upiSlipCountTextController,
-                            onValueChanged: (value) {
-                              print('commonTextField $value');
-                            }),
-                      ),
-                      Spacer()
-                    ],
+                        Spacer(),
+                        SizedBox(
+                          width: 140,
+                          child: CommonTextField(
+                              labelText: "Enter Amount",
+                              readOnly: false,
+                              focusNode: upiPaymentFocusNode,
+                              controller: upiPaymentTextController,
+                              onValueChanged: (value) {
+                                print('CommonTextField $value');
+                              }),
+                        ),
+                        Spacer(),
+                        SizedBox(
+                          width: 140,
+                          child: CommonTextField(
+                              labelText: "Enter Count",
+                              readOnly: false,
+                              focusNode: upiSlipCountFocusNode,
+                              controller: upiSlipCountTextController,
+                              onValueChanged: (value) {
+                                print('CommonTextField $value');
+                              }),
+                        ),
+                        Spacer()
+                      ],
+                    ),
                   ),
-                ),
                 SizedBox(
                   height: 10,
                 ),
@@ -1015,12 +1018,12 @@ class _RegisterSectionState extends State<RegisterSection>
       ),
       child: SizedBox(
         width: double.maxFinite,
-        child: commonTextField(
-            label: "Add comments here",
+        child: CommonTextField(
+            labelText: "Add comments here",
             focusNode: openCommentFocusNode,
             controller: openCommentTextController,
             onValueChanged: (value) {
-              print('commonTextField $value');
+              print('CommonTextField $value');
             }),
       ),
     );
@@ -1033,12 +1036,12 @@ class _RegisterSectionState extends State<RegisterSection>
       ),
       child: SizedBox(
         width: double.maxFinite,
-        child: commonTextField(
-            label: "Add comments here",
+        child: CommonTextField(
+            labelText: "Add comments here",
             focusNode: closeCommentFocusNode,
             controller: closeCommentTextController,
             onValueChanged: (value) {
-              print('commonTextField $value');
+              print('CommonTextField $value');
             }),
       ),
     );

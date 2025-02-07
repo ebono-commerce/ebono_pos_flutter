@@ -112,7 +112,8 @@ class _LoginPageState extends State<LoginPage> {
               try {
                 print("Initializing WeighingScaleService...");
                 if (!Get.isRegistered<WeighingScaleService>()) {
-                  Get.put<WeighingScaleService>(WeighingScaleService(Get.find<SharedPreferenceHelper>()));
+                  Get.put<WeighingScaleService>(
+                      WeighingScaleService(Get.find<SharedPreferenceHelper>()));
                 }
 
                 print("WeighingScaleService initialized successfully!");
@@ -239,8 +240,8 @@ class _LoginPageState extends State<LoginPage> {
               width: 175,
               height: 175,
             ),
-            SizedBox(height: 20,),
-            VersionWidget(fontSize: 16,),
+            SizedBox(height: 20),
+            VersionWidget(fontSize: 16),
             SizedBox(height: 30),
             Text(
               'Welcome Back',
@@ -254,7 +255,6 @@ class _LoginPageState extends State<LoginPage> {
               style: theme.textTheme.headlineSmall
                   ?.copyWith(color: Colors.black45),
             ),
-
           ],
         ),
       ),
@@ -277,8 +277,8 @@ class _LoginPageState extends State<LoginPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               // Login Id input
-              commonTextField(
-                label: 'Login Id',
+              CommonTextField(
+                labelText: 'Login Id',
                 focusNode: loginIdFocusNode,
                 controller: loginIdController,
                 validator: (value) {
@@ -293,8 +293,8 @@ class _LoginPageState extends State<LoginPage> {
               SizedBox(height: 20),
 
               // Password input
-              commonTextField(
-                label: 'Enter Password',
+              CommonTextField(
+                labelText: 'Enter Password',
                 focusNode: passwordFocusNode,
                 controller: passwordController,
                 obscureText: true,
@@ -806,6 +806,64 @@ class _LoginPageState extends State<LoginPage> {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  InputDecoration textFieldDecoration({
+    required bool isFocused,
+    required String label,
+    filled = true,
+    String? labelText,
+    Widget? prefixIcon,
+    Widget? suffixWidget,
+    String? helperText,
+    TextStyle? helperTextStyle,
+  }) {
+    return InputDecoration(
+      filled: filled,
+      prefixIcon: prefixIcon,
+      fillColor: isFocused ? CustomColors.accentColor : Colors.white,
+      labelText: label,
+      labelStyle: TextStyle(color: CustomColors.enabledLabelColor),
+      enabledBorder: enabledBorder(),
+      focusedBorder: focusedBorder(),
+      errorBorder: errorBorder(),
+      focusedErrorBorder: errorBorder(),
+      suffixText: labelText,
+      suffix: suffixWidget,
+      helperText: helperText,
+      helperStyle: helperTextStyle,
+      helperMaxLines: 1,
+    );
+  }
+
+  OutlineInputBorder enabledBorder() {
+    return OutlineInputBorder(
+      borderRadius: BorderRadius.circular(10),
+      borderSide: BorderSide(
+        color: CustomColors.enabledBorderColor,
+        width: 1.0,
+      ),
+    );
+  }
+
+  OutlineInputBorder focusedBorder() {
+    return OutlineInputBorder(
+      borderRadius: BorderRadius.circular(10),
+      borderSide: BorderSide(
+        color: CustomColors.activatedBorderColor,
+        width: 1.0,
+      ),
+    );
+  }
+
+  OutlineInputBorder errorBorder() {
+    return OutlineInputBorder(
+      borderRadius: BorderRadius.circular(10),
+      borderSide: BorderSide(
+        color: CustomColors.red, // Set this to your preferred error color
+        width: 1.0,
       ),
     );
   }
