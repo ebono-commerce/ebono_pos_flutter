@@ -4,12 +4,14 @@ import 'package:flutter/material.dart';
 
 class ReturnReasonDropdownWidget extends StatefulWidget {
   final List<String> returnReasons;
+  final String? selectedReason;
   final Function(String) onReasonSelected;
 
   const ReturnReasonDropdownWidget({
     super.key,
     required this.returnReasons,
     required this.onReasonSelected,
+    this.selectedReason,
   });
 
   @override
@@ -19,21 +21,12 @@ class ReturnReasonDropdownWidget extends StatefulWidget {
 
 class _ReturnReasonDropdownWidgetState
     extends State<ReturnReasonDropdownWidget> {
-  String? selectedReason;
   bool isDropdownOpened = false;
   final _formKey = GlobalKey<FormState>();
 
-  final List<String> returnReasons = [
-    'Wrong item',
-    'Damaged product',
-    'Expired product',
-    'Price mismatch',
-    'Changed my mind',
-  ];
-
   List<DropdownMenuItem<String>> _addDividersAfterItems() {
     List<DropdownMenuItem<String>> menuItems = [];
-    for (var item in returnReasons) {
+    for (var item in widget.returnReasons) {
       menuItems.addAll(
         [
           DropdownMenuItem<String>(
@@ -77,15 +70,18 @@ class _ReturnReasonDropdownWidgetState
       child: DropdownButtonFormField2<String>(
         isExpanded: true,
         hint: Text("Select a Reason"),
+        value: widget.selectedReason?.isNotEmpty == true
+            ? widget.selectedReason
+            : null,
         decoration: InputDecoration(
-          label: isDropdownOpened || selectedReason != null
+          label: isDropdownOpened || widget.selectedReason != null
               ? Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 5),
                   child: Text("Select For Return"),
                 )
               : null,
           hintMaxLines: 1,
-         // maintainHintHeight: true,
+          // maintainHintHeight: true,
           hintStyle: TextStyle(color: CustomColors.greyFont, fontSize: 16),
           labelStyle: TextStyle(color: CustomColors.greyFont),
           floatingLabelStyle: TextStyle(color: CustomColors.greyFont),
@@ -119,7 +115,7 @@ class _ReturnReasonDropdownWidgetState
                   ? Text(
                       item.value.toString(),
                       style: TextStyle(
-                        fontSize: 16,
+                        fontSize: 14,
                         color: CustomColors.black,
                       ),
                     )
@@ -134,9 +130,9 @@ class _ReturnReasonDropdownWidgetState
           return null;
         },
         onChanged: (value) {
-          setState(() {
-            selectedReason = value;
-          });
+          // setState(() {
+          //   _selectedReason = value;
+          // });
           if (value != null) {
             widget.onReasonSelected(value);
           }

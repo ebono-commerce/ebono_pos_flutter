@@ -92,6 +92,13 @@ class _OrdersSectionState extends State<OrdersSection>
       }
     });
 
+    ever(homeController.clearWeightOnSuccess, (value) {
+      if (value == true) {
+        numPadTextController.clear();
+        homeController.clearWeightOnSuccess.value = false;
+      }
+    });
+
     WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ever(homeController.scanProductsResponse, (value) {
@@ -162,8 +169,8 @@ class _OrdersSectionState extends State<OrdersSection>
             flex: 1,
             child: QuickActionButtons(
               color: Colors.white,
-              onCustomerPressed: () {
-                showDialog(
+              onCustomerPressed: () async {
+                await showDialog(
                   context: context,
                   builder: (BuildContext context) {
                     return Dialog(
@@ -174,20 +181,25 @@ class _OrdersSectionState extends State<OrdersSection>
                     );
                   },
                 );
+                homeController.displayOTPScreen.value = false;
               },
-              onHoldCartPressed: () {
+              onHoldCartPressed: () async {
                 if (homeController.isContionueWithOutCustomer.value) {
-                  showDialog(
+                  await showDialog(
                     context: context,
                     builder: (BuildContext context) {
                       return Dialog(
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20.0),
                         ),
-                        child: AddCustomerWidget(context),
+                        child: AddCustomerWidget(
+                          context,
+                          isDialogForHoldCart: true,
+                        ),
                       );
                     },
                   );
+                  homeController.displayOTPScreen.value = false;
                 } else {
                   AuthModes enableHoldCartMode = AuthModeExtension.fromString(
                       homeController.isEnableHoldCartEnabled.value);
@@ -1011,6 +1023,7 @@ class _OrdersSectionState extends State<OrdersSection>
                                               .isQuantitySelected.value = false;
                                           homeController.isAutoWeighDetection
                                               .value = false;
+                                          homeController.clearWeightOnSuccess.value = true;
                                           setState(() {
                                             numPadTextController.text = '0';
                                             numPadTextController.clear();

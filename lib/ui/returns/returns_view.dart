@@ -2,6 +2,7 @@ import 'package:ebono_pos/constants/custom_colors.dart';
 import 'package:ebono_pos/ui/common_text_field.dart';
 import 'package:ebono_pos/ui/custom_keyboard/custom_num_pad.dart';
 import 'package:ebono_pos/ui/home/home_controller.dart';
+import 'package:ebono_pos/ui/home/widgets/add_customer_widget.dart';
 import 'package:ebono_pos/ui/home/widgets/quick_action_buttons.dart';
 import 'package:ebono_pos/ui/returns/bloc/returns_bloc.dart';
 import 'package:ebono_pos/ui/returns/data/customer_table_data.dart';
@@ -36,17 +37,27 @@ class _ReturnsViewState extends State<ReturnsView> {
   final FocusNode numPadFocusNode = FocusNode();
 
   FocusNode? activeFocusNode;
-
   final _formKey = GlobalKey<FormState>();
 
   /* State Management */
   bool isCustomerOrdersFetched = false;
   bool isOrderItemsFetched = false;
-  bool triggerProceedToPayDialog = false;
-  bool isOrderDetailsRetrieving = false;
+  bool displayProxyNumberError = false;
+  bool showOrderItemsOnSuccess = false;
+  bool showCustomerOrdersOnSuccess = false;
+  String? storeTempOrderId;
 
+  /* New Flags to show or hide the table data */
+  bool displayCustomerOrdersTableData = false;
+  bool displayOrderItemsTableData = false;
+  bool displayFormField = true;
+  bool displayInitialEmptyTable = true;
+
+  /* Flags for dialog */
+  bool isCustomerDialogOpened = false;
+
+  /* For Table Data */
   Customer _customerDetails = Customer();
-
   late CustomerTableData _customerTableData;
   late OrderItemsTableData _orderItemsTableData;
   late ReturnsConfirmationTableData _returnsConfirmationTableData;
@@ -111,8 +122,6 @@ class _ReturnsViewState extends State<ReturnsView> {
   }
 
   void _resetAllValues() {
-    /*customerNumberTextController.clear();
-    orderNumberTextController.clear();*/
     isCustomerOrdersFetched = false;
     isOrderItemsFetched = false;
     numPadTextController.clear();
@@ -128,17 +137,97 @@ class _ReturnsViewState extends State<ReturnsView> {
     bool hasCustomerNumber =
         customerNumberTextController.text.trim().isNotEmpty;
 
+    setState(() => displayProxyNumberError = false);
     if (_formKey.currentState!.validate()) {
-      if (hasCustomerNumber) {
+      if (homeController.customerProxyNumber.value ==
+          customerNumberTextController.text.trim()) {
+        setState(() => displayProxyNumberError = true);
+        _formKey.currentState?.validate();
+      } else if (hasCustomerNumber) {
         returnsBloc.add(
           FetchCustomerOrdersData(customerNumberTextController.text),
         );
       } else {
+        setState(() => storeTempOrderId = orderNumberTextController.text);
         returnsBloc.add(
           FetchOrderDataBasedOnOrderId(orderId: orderNumberTextController.text),
         );
       }
     }
+  }
+
+  void addORVerifyCustomerDialog({
+    required String name,
+    required String mobileNumber,
+    bool isDialogForAddCustomer = false,
+    String? orderId,
+  }) async {
+    await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20.0),
+          ),
+          child: AddCustomerWidget(
+            context,
+            isDialogForReturns: true,
+            customerMobileNumber: mobileNumber,
+            isDialogForAddCustomerFromReturns: isDialogForAddCustomer,
+            customerName: name,
+            disableFormFields: isDialogForAddCustomer ? false : true,
+            onOTPVerifiedSuccessfully: (status) {
+              if (status == true && isDialogForAddCustomer == false) {
+                /* to display customer data */
+                if (showCustomerOrdersOnSuccess == true &&
+                    showOrderItemsOnSuccess == false) {
+                  setState(() {
+                    displayCustomerOrdersTableData = true;
+                    displayOrderItemsTableData = false;
+                    displayFormField = false;
+                    displayInitialEmptyTable = false;
+                  });
+                  returnsBloc.add(FetchCustomerOrdersData(mobileNumber));
+                }
+
+                /* to display order items data */
+                if (showOrderItemsOnSuccess == true &&
+                    storeTempOrderId != null &&
+                    showCustomerOrdersOnSuccess == false) {
+                  setState(() {
+                    displayCustomerOrdersTableData = false;
+                    displayOrderItemsTableData = true;
+                    displayFormField = false;
+                    displayInitialEmptyTable = false;
+                  });
+
+                  returnsBloc.add(
+                    FetchOrderDataBasedOnOrderId(orderId: storeTempOrderId!),
+                  );
+                }
+              } else if (status == true && isDialogForAddCustomer == true) {
+                /* upon success, we are updating customer data & verification status in internal state */
+                returnsBloc.add(
+                  UpdateOrderItemsInternalState(
+                    customerName: homeController
+                        .getCustomerDetailsResponse.value.customerName,
+                    customerNumber: homeController.phoneNumber.value,
+                  ),
+                );
+                setState(() => isCustomerDialogOpened == false);
+              }
+
+              Get.back();
+            },
+          ),
+        );
+      },
+    );
+
+    homeController.displayOTPScreen.value = false;
+
+    setState(() => isCustomerDialogOpened = false);
   }
 
   @override
@@ -156,25 +245,113 @@ class _ReturnsViewState extends State<ReturnsView> {
         child: BlocConsumer<ReturnsBloc, ReturnsState>(
           bloc: returnsBloc,
           listener: (context, state) {
-            if (state.isCustomerOrdersDataFetched) {
-              isCustomerOrdersFetched = true;
-              isOrderItemsFetched = false;
+            if (state.isCustomerOrdersDataFetched == true) {
+              /* check whether customer needs veritication or not*/
+              if (state.customerOrders.isCustomerVerificationRequired == true &&
+                  state.customerOrders.customerOrderList.isNotEmpty &&
+                  isCustomerDialogOpened == false) {
+                setState(() {
+                  showCustomerOrdersOnSuccess = true;
+                  showOrderItemsOnSuccess = false;
+                });
+                addORVerifyCustomerDialog(
+                  mobileNumber: state.customerOrders.customerOrderList.first
+                          .customer?.phoneNumber?.number ??
+                      'NA',
+                  name: state.customerOrders.customerOrderList.first.customer
+                          ?.customerName ??
+                      'NA',
+                  isDialogForAddCustomer: false,
+                  orderId: null,
+                );
+              } else {
+                /* New parameters to show or hide table */
+                displayCustomerOrdersTableData = true;
+                isCustomerOrdersFetched = true;
+                displayOrderItemsTableData = false;
+                displayInitialEmptyTable = false;
+                displayFormField = false;
+                /* clearing the un-used values */
+                customerNumberTextController.clear();
+                numPadTextController.clear();
+                _customerDetails = state
+                        .customerOrders.customerOrderList.isNotEmpty
+                    ? state.customerOrders.customerOrderList.first.customer ??
+                        Customer()
+                    : Customer();
+              }
+              setState(() => isCustomerDialogOpened = true);
+            } else if (state.isOrderItemsFetched == true) {
+              /* check whether customer needs veritication or not*/
+              if (state.orderItemsData.isCustomerVerificationRequired == true &&
+                  state.orderItemsData.orderLines?.isNotEmpty == true &&
+                  state.orderItemsData.customer?.isProxyNumber == false &&
+                  isCustomerDialogOpened == false) {
+                setState(() {
+                  showOrderItemsOnSuccess = true;
+                  showCustomerOrdersOnSuccess = false;
+                });
+                addORVerifyCustomerDialog(
+                  mobileNumber:
+                      state.orderItemsData.customer?.phoneNumber?.number ??
+                          'NA',
+                  name: state.orderItemsData.customer?.customerName ?? 'NA',
+                  orderId: state.orderItemsData.orderNumber,
+                  isDialogForAddCustomer: false,
+                );
+                setState(() {
+                  isCustomerDialogOpened = true;
+                });
+              }
+              /* when search with order id which is billed with store proxy number */
+              else if (state.orderItemsData.isCustomerVerificationRequired ==
+                      true &&
+                  state.orderItemsData.orderLines?.isNotEmpty == true &&
+                  state.orderItemsData.customer?.isProxyNumber == true &&
+                  isCustomerDialogOpened == false) {
+                setState(() {
+                  showOrderItemsOnSuccess = false;
+                  showCustomerOrdersOnSuccess = false;
+                });
+                addORVerifyCustomerDialog(
+                  mobileNumber: '',
+                  name: '',
+                  isDialogForAddCustomer: true,
+                  orderId: state.orderItemsData.orderNumber,
+                );
+                setState(() {
+                  isCustomerDialogOpened = true;
+                });
+              } else {
+                /* New parameters to show or hide table */
+                displayOrderItemsTableData = true;
+                displayCustomerOrdersTableData = false;
+                displayInitialEmptyTable = false;
+                displayFormField = false;
+                isOrderItemsFetched = true;
+
+                /* clearing the un-used values */
+                orderNumberTextController.clear();
+                numPadTextController.clear();
+              }
+              setState(() => isCustomerDialogOpened = true);
+            } else
+            /* resetting all values */
+            if (state.resetAllValues == true) {
+              displayCustomerOrdersTableData = false;
+              displayCustomerOrdersTableData = false;
+              displayInitialEmptyTable = true;
+              displayFormField = true;
+              isCustomerDialogOpened = false;
               customerNumberTextController.clear();
-              numPadTextController.clear();
-              _customerDetails = state.customerOrdersList.isNotEmpty
-                  ? state.customerOrdersList.first.customer ?? Customer()
-                  : Customer();
-              setState(() {});
-            }
-            if (state.isOrderItemsFetched) {
-              isOrderItemsFetched = true;
-              isCustomerOrdersFetched = false;
               orderNumberTextController.clear();
               numPadTextController.clear();
+              isCustomerOrdersFetched = false;
+              isOrderItemsFetched = false;
+              displayOrderItemsTableData = false;
               _customerDetails = state.orderItemsData.customer ?? Customer();
               setState(() {});
             }
-
             if (state.isError) {
               Get.snackbar(
                 "Error Fetching Customer Orders",
@@ -203,7 +380,7 @@ class _ReturnsViewState extends State<ReturnsView> {
                                 ? "Order #"
                                 : "Order #${state.orderItemsData.orderNumber ?? ""}",
                           ),
-                          if (!isCustomerOrdersFetched && !isOrderItemsFetched)
+                          if (displayInitialEmptyTable == true)
                             CustomTableWidget(
                               headers:
                                   _customerTableData.buildInitialTableHeader(),
@@ -217,8 +394,8 @@ class _ReturnsViewState extends State<ReturnsView> {
                                 5: FlexColumnWidth(1),
                               },
                             ),
-                          if (isCustomerOrdersFetched ||
-                              state.isFetchingOrderItems)
+                          /*isCustomerOrdersFetched ||  state.isFetchingOrderItems */
+                          if (displayCustomerOrdersTableData)
                             Expanded(
                               child: CustomTableWidget(
                                 headers: _customerTableData
@@ -226,14 +403,12 @@ class _ReturnsViewState extends State<ReturnsView> {
                                 tableRowsData:
                                     _customerTableData.buildTableRows(
                                   customerOrderDetails:
-                                      state.customerOrdersList,
+                                      state.customerOrders.customerOrderList,
                                   onClickRetrive: (orderId) {
                                     returnsBloc.add(
                                       FetchOrderDataBasedOnOrderId(
                                         orderId: orderId!,
                                         isRetrivingOrderItems: true,
-                                        customerOrderDetailsList:
-                                            state.customerOrdersList,
                                       ),
                                     );
                                   },
@@ -248,12 +423,21 @@ class _ReturnsViewState extends State<ReturnsView> {
                                 },
                               ),
                             ),
-                          if (isOrderItemsFetched &&
-                              !state.isFetchingOrderItems)
+                          /*isOrderItemsFetched && !state.isFetchingOrderItems */
+                          if (displayOrderItemsTableData)
                             Expanded(
                               child: CustomTableWidget(
                                 headers: _orderItemsTableData
-                                    .buildOrderItemsTableHeader(),
+                                    .buildOrderItemsTableHeader(
+                                  isAllOrdersSelected:
+                                      state.orderItemsData.isAllOrdersSelected,
+                                  onTapSelectAll: () {
+                                    returnsBloc.add(OnSelectAllBtnEvent());
+                                  },
+                                  hideButton: state
+                                          .orderItemsData.orderLines?.isEmpty ==
+                                      true,
+                                ),
                                 tableRowsData:
                                     _orderItemsTableData.buildTableRows(
                                   orderItemsData: state.orderItemsData,
@@ -268,7 +452,7 @@ class _ReturnsViewState extends State<ReturnsView> {
                                     }
                                     returnsBloc.add(UpdateSelectedItem(
                                       id: orderLine.orderLineId ?? '',
-                                      orderItems: state.orderItemsData,
+                                      // orderItems: state.orderItemsData,
                                       orderLine: orderLine,
                                     ));
                                   },
@@ -282,8 +466,7 @@ class _ReturnsViewState extends State<ReturnsView> {
                                 },
                               ),
                             ),
-                          if (!isCustomerOrdersFetched && !isOrderItemsFetched)
-                            _buildFormUI(state.isLoading),
+                          if (displayFormField) _buildFormUI(state.isLoading),
                         ],
                       ),
                     ),
@@ -347,6 +530,8 @@ class _ReturnsViewState extends State<ReturnsView> {
                           customerNumberTextController.text.trim().isEmpty &&
                           orderNumberTextController.text.isEmpty) {
                         return 'Phone number must be 10 digits';
+                      } else if (displayProxyNumberError) {
+                        return "Please search with customer number";
                       }
                       return null;
                     },
@@ -510,38 +695,15 @@ class _ReturnsViewState extends State<ReturnsView> {
                     } else if (activeFocusNode == orderNumberFocusNode) {
                       orderNumberFocusNode.unfocus();
                     } else if (activeFocusNode == numPadFocusNode) {
-                      if ((returnsBloc.state.lastSelectedItem.returnableQuantity
-                              ?.quantityNumber)! >=
-                          double.parse(numPadTextController.text)) {
-                        final updatedItem =
-                            returnsBloc.state.lastSelectedItem.copyWith(
-                          returnedQuantity: returnsBloc.state.lastSelectedItem
-                                      .returnableQuantity?.quantityUom ==
-                                  "pcs"
-                              ? int.parse(numPadTextController.text.toString())
-                              : double.parse(
-                                  numPadTextController.text.toString(),
-                                ),
-                        );
-
-                        final updatedOrderLines = returnsBloc
-                            .state.orderItemsData.orderLines
-                            ?.map((item) {
-                          if (item.orderLineId == updatedItem.orderLineId) {
-                            return updatedItem;
-                          }
-                          return item;
-                        }).toList();
-
-                        final updatedOrderItemsData =
-                            returnsBloc.state.orderItemsData.copyWith(
-                          orderLines: updatedOrderLines,
-                        );
-
-                        returnsBloc.add(UpdateSelectedItem(
-                          id: updatedItem.orderLineId ?? '',
-                          orderItems: updatedOrderItemsData,
-                          orderLine: updatedItem,
+                      /* check for not empty & returnable quantity isNot greaterthan eligible quantity */
+                      if (numPadTextController.text.trim().isNotEmpty &&
+                          (returnsBloc.state.lastSelectedItem.returnableQuantity
+                                  ?.quantityNumber)! >=
+                              double.parse(numPadTextController.text)) {
+                        /* when appropriate weigh or quantity is selected from numpad */
+                        returnsBloc.add(UpdateOrderLineQuantity(
+                          id: returnsBloc.state.lastSelectedItem.orderLineId!,
+                          quantity: numPadTextController.text.toString(),
                         ));
                       } else {
                         Get.snackbar(
@@ -634,8 +796,8 @@ class _ReturnsViewState extends State<ReturnsView> {
               padding: EdgeInsets.only(left: 4, right: 4, top: 10, bottom: 4),
               child: ElevatedButton(
                 onPressed: state.isProceedBtnEnabled
-                    ? () {
-                        showDialog(
+                    ? () async {
+                        await showDialog(
                           context: context,
                           builder: (BuildContext context) {
                             return Dialog(
@@ -657,6 +819,8 @@ class _ReturnsViewState extends State<ReturnsView> {
                             );
                           },
                         );
+                        // Clearing Dropdown values on dialog close
+                        returnsBloc.add(ResetValuesOnDialogCloseEvent());
                       }
                     : null,
                 style: ElevatedButton.styleFrom(

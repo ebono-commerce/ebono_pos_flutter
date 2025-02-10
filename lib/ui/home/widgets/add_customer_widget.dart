@@ -1,6 +1,10 @@
+import 'dart:async';
+
 import 'package:ebono_pos/constants/custom_colors.dart';
+import 'package:ebono_pos/extensions/string_extension.dart';
 import 'package:ebono_pos/ui/custom_keyboard/custom_querty_pad.dart';
 import 'package:ebono_pos/ui/home/home_controller.dart';
+import 'package:ebono_pos/ui/home/model/customer_details_response.dart';
 import 'package:ebono_pos/utils/common_methods.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -9,11 +13,23 @@ import 'package:get/get.dart';
 class AddCustomerWidget extends StatefulWidget {
   final BuildContext dialogContext;
   final bool isDialogForHoldCart;
+  final bool isDialogForReturns;
+  final bool isDialogForAddCustomerFromReturns;
+  final bool disableFormFields;
+  final String? customerName;
+  final String? customerMobileNumber;
+  final Function(bool status)? onOTPVerifiedSuccessfully;
 
   const AddCustomerWidget(
     this.dialogContext, {
     super.key,
     this.isDialogForHoldCart = false,
+    this.isDialogForReturns = false,
+    this.disableFormFields = false,
+    this.customerMobileNumber,
+    this.customerName,
+    this.onOTPVerifiedSuccessfully,
+    this.isDialogForAddCustomerFromReturns = false,
   });
 
   @override
@@ -21,36 +37,86 @@ class AddCustomerWidget extends StatefulWidget {
 }
 
 class _AddCustomerWidgetState extends State<AddCustomerWidget> {
-  HomeController homeController = Get.find<HomeController>();
+  final homeController = Get.find<HomeController>();
   final TextEditingController _controllerPhoneNumber = TextEditingController();
   final TextEditingController _controllerCustomerName = TextEditingController();
   final TextEditingController _qwertyPadController = TextEditingController();
+  final TextEditingController _otpTextController = TextEditingController();
+
   final FocusNode customerNameFocusNode = FocusNode();
   final FocusNode phoneNumberFocusNode = FocusNode();
+  final FocusNode otpFocusNode = FocusNode();
+
   FocusNode? activeFocusNode;
   late ThemeData theme;
+
+  final _formKey = GlobalKey<FormState>();
+
+  int _remainingTime = 30; // Initial timer value
+  Timer? _timer;
+  bool isResendOTPBtnEnabled = false;
 
   @override
   void initState() {
     super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (widget.customerMobileNumber != null &&
+          widget.customerName != null &&
+          widget.isDialogForAddCustomerFromReturns == false) {
+        setState(() {
+          _controllerCustomerName.text = widget.customerName ?? '';
+          _controllerPhoneNumber.text = widget.customerMobileNumber ?? '';
+        });
+      }
+    });
+
     ever(homeController.customerName, (value) {
       _controllerCustomerName.text = value.toString();
     });
 
     ever(homeController.customerResponse, (value) {
       if (value.phoneNumber != null) {
-        if (widget.dialogContext.mounted) {
-          widget.isDialogForHoldCart
-              ? () {}
-              : Navigator.pop(widget.dialogContext);
+        if (widget.dialogContext.mounted &&
+            homeController
+                    .customerResponse.value.isCustomerVerificationRequired ==
+                false &&
+            widget.isDialogForReturns == false) {
+          Get.back();
         }
+      }
+    });
+
+    ever(homeController.triggerCustomOTPValidation, (value) {
+      if (value == true) {
+        _formKey.currentState?.validate();
+      }
+    });
+
+    ever(homeController.isOTPVerified, (value) {
+      if (value == true) {
+        if (widget.isDialogForReturns == true) {
+          /* triggering the fn to do respective actions in previous screen */
+          widget.onOTPVerifiedSuccessfully?.call(value);
+        } else {
+          Get.back();
+        }
+        homeController.isOTPVerified.value = false;
+      }
+    });
+
+    ever(homeController.displayOTPScreen, (value) {
+      if (mounted && value == true) {
+        _startTimer();
       }
     });
 
     if (!phoneNumberFocusNode.hasFocus) {
       phoneNumberFocusNode.requestFocus();
     }
-    activeFocusNode = phoneNumberFocusNode;
+
+    activeFocusNode =
+        widget.disableFormFields ? FocusNode() : phoneNumberFocusNode;
     phoneNumberFocusNode.addListener(() {
       setState(() {
         if (phoneNumberFocusNode.hasFocus) {
@@ -76,10 +142,65 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
           _controllerPhoneNumber.text = _qwertyPadController.text;
         } else if (activeFocusNode == customerNameFocusNode) {
           _controllerCustomerName.text = _qwertyPadController.text;
+        } else if (activeFocusNode == otpFocusNode) {
+          _otpTextController.text = _qwertyPadController.text;
         }
         //}
       });
     });
+
+    otpFocusNode.addListener(() {
+      setState(() {
+        if (otpFocusNode.hasFocus) {
+          activeFocusNode = otpFocusNode;
+        }
+        _qwertyPadController.text = _otpTextController.text;
+      });
+    });
+  }
+
+  void _startTimer() {
+    setState(() {
+      _remainingTime = 30; // Reset the timer to 30 seconds
+      isResendOTPBtnEnabled = false;
+    });
+    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+      if (mounted) {
+        setState(() {
+          if (_remainingTime > 0) {
+            _remainingTime--;
+          } else {
+            _stopTimer();
+            _executeLogic(); // Execute your logic here
+          }
+        });
+      }
+    });
+  }
+
+  void _stopTimer() {
+    if (_timer != null) {
+      _timer!.cancel();
+      _timer = null;
+    }
+  }
+
+  void _executeLogic() {
+    // Your logic when the timer reaches 0
+    setState(() {
+      isResendOTPBtnEnabled = true;
+    });
+  }
+
+  String _formatTime(int seconds) {
+    final int minutes = seconds ~/ 60;
+    final int remainingSeconds = seconds % 60;
+    return '${minutes.toString().padLeft(2, '0')}:${remainingSeconds.toString().padLeft(2, '0')}';
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   /*@override
@@ -154,7 +275,18 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
                   padding: const EdgeInsets.only(right: 18.0, top: 18),
                   child: InkWell(
                     onTap: () {
+                      _controllerCustomerName.clear();
+                      _controllerPhoneNumber.clear();
+                      _qwertyPadController.clear();
+                      homeController.getCustomerDetailsResponse.value =
+                          CustomerDetailsResponse();
                       Navigator.pop(widget.dialogContext);
+                      if (widget.isDialogForReturns == true) {
+                        Get.snackbar(
+                          'No Return',
+                          'Return will not be processed without OTP verification',
+                        );
+                      }
                     },
                     child: SvgPicture.asset(
                       'assets/images/ic_close.svg',
@@ -169,67 +301,293 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
           ),
           SizedBox(
             width: 400,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Text(
-                  "Add customer details",
-                  style: theme.textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: CustomColors.black,
-                  ),
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  "Add customer details before starting the sale",
-                  style: theme.textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.normal,
-                    color: CustomColors.black,
-                  ),
-                ),
-                const SizedBox(height: 10),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildTextField(
-                      label: "Enter Customer Mobile Number",
-                      controller: _controllerPhoneNumber,
-                      focusNode: phoneNumberFocusNode,
-                      onChanged: (value) =>
-                          homeController.phoneNumber.value = value,
-                      suffixIcon: _buildSearchButton(),
+            child: homeController.displayOTPScreen.value == true
+                ? Form(
+                    key: _formKey,
+                    child: Column(
+                      children: [
+                        Text(
+                          "Verify With OTP",
+                          style: theme.textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: CustomColors.black,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        RichText(
+                          text: TextSpan(children: [
+                            TextSpan(
+                              text: "4 digit OTP has been sent to ",
+                              style: theme.textTheme.titleSmall?.copyWith(
+                                fontWeight: FontWeight.normal,
+                                color: CustomColors.greyFont,
+                              ),
+                            ),
+                            TextSpan(
+                              text: homeController.phoneNumber.value,
+                              style: theme.textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: CustomColors.black,
+                              ),
+                            ),
+                          ]),
+                        ),
+                        if (widget.isDialogForReturns) ...[
+                          const SizedBox(height: 10),
+                          Text(
+                            "Return will not be processed without OTP verification",
+                            style: theme.textTheme.titleSmall?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: CustomColors.black,
+                            ),
+                          ),
+                        ],
+                        const SizedBox(height: 20),
+                        _buildTextField(
+                          label: "Enter OTP",
+                          controller: _otpTextController,
+                          focusNode: otpFocusNode,
+                          onChanged: (value) =>
+                              homeController.otpNumber.value = value,
+                          validator: (value) {
+                            if (value == null) {
+                              return "Please Enter OTP";
+                            }
+                            if (value.length < 4 || value.length > 4) {
+                              return "Please Enter Valid OTP";
+                            }
+                            if (homeController
+                                    .triggerCustomOTPValidation.value ==
+                                true) {
+                              return homeController.otpErrorMessage.value;
+                            }
+                            return null;
+                          },
+                        ),
+                        SizedBox(height: 30),
+                        _buildCustomButton(
+                          onPressed: () {
+                            homeController.triggerCustomOTPValidation.value =
+                                false;
+                            if (_formKey.currentState?.validate() == true) {
+                              homeController.generateORValidateOTP(
+                                tiggerOTP: false,
+                                isResendOTP: false,
+                                phoneNumber: homeController.phoneNumber.value,
+                                otp: _otpTextController.text.trim(),
+                              );
+                            }
+                          },
+                          isBtnEnabled:
+                              homeController.isOTPResendingOrVerifying.value ==
+                                  false,
+                          buttonText: "Verify",
+                          isLoading:
+                              homeController.isOTPResendingOrVerifying.value ==
+                                  true,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        SizedBox(height: 15),
+                        _buildCustomButton(
+                          onPressed: () async {
+                            _startTimer();
+                            await homeController.generateORValidateOTP(
+                              tiggerOTP: true,
+                              isResendOTP: true,
+                              phoneNumber: homeController.phoneNumber.value,
+                              otp: '',
+                            );
+                          },
+                          isBtnEnabled: isResendOTPBtnEnabled,
+                          buttonText:
+                              "Resend OTP ${_formatTime(_remainingTime).compareTo("00:00") == 0 ? "" : _formatTime(_remainingTime)}",
+                          enableBackground: false,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        SizedBox(height: 15),
+                      ],
                     ),
-                    _buildTextField(
-                      label: "Customer Name",
-                      controller: _controllerCustomerName,
-                      focusNode: customerNameFocusNode,
-                      onChanged: (value) =>
-                          homeController.customerName.value = value,
-                      //readOnly: homeController.phoneNumber.isEmpty,
-                      suffixIcon: _buildSelectButton(),
-                    ),
-                    if (homeController.getCustomerDetailsResponse.value
-                            .existingCustomer !=
-                        null)
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                        child: Text(
-                          homeController.getCustomerDetailsResponse.value
-                                      .existingCustomer ==
-                                  true
-                              ? 'Existing Customer'
-                              : 'New Customer',
-                          textAlign: TextAlign.center,
-                          style: theme.textTheme.labelMedium
-                              ?.copyWith(color: CustomColors.green),
+                  )
+                : Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        "Add customer details",
+                        style: theme.textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: CustomColors.black,
                         ),
                       ),
-                  ],
-                ),
-                const SizedBox(height: 20),
-                _buildContinueWithoutCustomerButton(),
-              ],
-            ),
+                      const SizedBox(height: 10),
+                      Text(
+                        "Add customer details before starting the sale",
+                        style: theme.textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.normal,
+                          color: CustomColors.black,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildTextField(
+                            label: "Enter Customer Mobile Number",
+                            controller: _controllerPhoneNumber,
+                            focusNode: widget.disableFormFields == true
+                                ? FocusNode()
+                                : phoneNumberFocusNode,
+                            onChanged: (value) =>
+                                homeController.phoneNumber.value = value,
+                            suffixIcon: _buildSearchButton(
+                              isDisabled: widget.disableFormFields == true,
+                            ),
+                            isEnabled: widget.disableFormFields == false,
+                            readOnly: widget.disableFormFields == true,
+                          ),
+                          _buildTextField(
+                            label: "Customer Name",
+                            controller: _controllerCustomerName,
+                            focusNode: widget.disableFormFields == true
+                                ? FocusNode()
+                                : customerNameFocusNode,
+                            onChanged: (value) =>
+                                homeController.customerName.value = value,
+                            suffixIcon: widget.isDialogForAddCustomerFromReturns
+                                ? null
+                                : _buildSelectButton(
+                                    isDisabled:
+                                        widget.disableFormFields == true,
+                                  ),
+                            isEnabled: widget.disableFormFields == false,
+                            readOnly: widget.disableFormFields == true,
+                          ),
+                          if (homeController.getCustomerDetailsResponse.value
+                                  .existingCustomer !=
+                              null)
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 10.0),
+                              child: Text(
+                                homeController.getCustomerDetailsResponse.value
+                                            .existingCustomer ==
+                                        true
+                                    ? homeController.getCustomerDetailsResponse
+                                        .value.customerStatus!
+                                        .replaceAll('_', ' ')
+                                        .replaceAll('PENDING', 'REQUIRED')
+                                        .toTitleCase()
+                                    : 'New Customer Verification Required',
+                                textAlign: TextAlign.center,
+                                style: theme.textTheme.labelMedium?.copyWith(
+                                  color: homeController
+                                                  .getCustomerDetailsResponse
+                                                  .value
+                                                  .isCustomerVerificationRequired ==
+                                              true &&
+                                          homeController
+                                                  .getCustomerDetailsResponse
+                                                  .value
+                                                  .existingCustomer ==
+                                              true
+                                      ? Colors.red
+                                      : CustomColors.green,
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                      const SizedBox(height: 20),
+                      Visibility(
+                        visible: widget.isDialogForReturns == false,
+                        child: _buildCustomButton(
+                          onPressed: () {
+                            homeController.phoneNumber.value =
+                                homeController.customerProxyNumber.value;
+                            homeController.customerName.value =
+                                homeController.customerProxyName.value;
+                            homeController.isCustomerProxySelected.value = true;
+                            homeController.isContionueWithOutCustomer.value =
+                                true;
+                            homeController.fetchCustomer();
+                          },
+                          isBtnEnabled: !widget.isDialogForHoldCart,
+                        ),
+                      ),
+                      Visibility(
+                        visible: widget.isDialogForReturns,
+                        child: _buildCustomButton(
+                          onPressed: () async {
+                            // if (homeController.getCustomerDetailsResponse.value
+                            //             .existingCustomer ==
+                            //         true &&
+                            //     widget.isDialogForAddCustomerFromReturns) {
+                            //   widget.onOTPVerifiedSuccessfully?.call(true);
+                            // } else {
+                            /* add customer name & call fetch customer api */
+                            if (widget.isDialogForAddCustomerFromReturns ==
+                                false) {
+                              homeController.displayOTPScreen.value = true;
+                              homeController.phoneNumber.value =
+                                  widget.customerMobileNumber.toString();
+                              homeController.generateORValidateOTP(
+                                tiggerOTP: true,
+                                phoneNumber:
+                                    widget.customerMobileNumber.toString(),
+                                otp: '',
+                                isResendOTP: false,
+                                disableLoading: true,
+                              );
+                            } else {
+                              // if (homeController.customerName.isNotEmpty) {
+                              homeController.isCustomerProxySelected.value =
+                                  true;
+                              homeController.isContionueWithOutCustomer.value =
+                                  false;
+                              await homeController.fetchCustomer(
+                                showOTPScreen: homeController
+                                            .getCustomerDetailsResponse
+                                            .value
+                                            .isCustomerVerificationRequired ==
+                                        true
+                                    ? true
+                                    : false,
+                                isFromReturns: widget.isDialogForReturns,
+                              );
+                              if (homeController.getCustomerDetailsResponse
+                                      .value.isCustomerVerificationRequired ==
+                                  false) {
+                                widget.onOTPVerifiedSuccessfully?.call(true);
+                              }
+                              // }
+                            }
+                            // }
+                          },
+                          isLoading: homeController.isOTPTriggering.value,
+                          buttonText: widget.isDialogForAddCustomerFromReturns
+                              ? (homeController.getCustomerDetailsResponse.value
+                                              .existingCustomer ==
+                                          true &&
+                                      homeController
+                                              .getCustomerDetailsResponse
+                                              .value
+                                              .isCustomerVerificationRequired ==
+                                          false)
+                                  ? "ADD CUSTOMER"
+                                  : (homeController.getCustomerDetailsResponse
+                                                  .value.existingCustomer ==
+                                              true &&
+                                          homeController
+                                                  .getCustomerDetailsResponse
+                                                  .value
+                                                  .isCustomerVerificationRequired ==
+                                              true)
+                                      ? "VERIFY CUSTOMER"
+                                      : "ADD CUSTOMER & VERIFY"
+                              : "VERIFY CUSTOMER",
+                        ),
+                      ),
+                    ],
+                  ),
           ),
           const SizedBox(height: 20),
           SizedBox(
@@ -263,42 +621,50 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
     required TextEditingController controller,
     required FocusNode focusNode,
     required ValueChanged<String> onChanged,
+    String? Function(String? value)? validator,
     bool readOnly = false,
     Widget? suffixIcon,
+    bool isEnabled = true,
   }) {
     return Container(
       padding: const EdgeInsets.all(10),
-      child: TextField(
+      child: TextFormField(
+        enabled: isEnabled,
         controller: controller,
         focusNode: focusNode,
         onChanged: onChanged,
         readOnly: readOnly,
+        validator: validator,
         decoration: _buildInputDecoration(label, suffixIcon),
       ),
     );
   }
 
-  Widget _buildSearchButton() {
+  Widget _buildSearchButton({
+    bool isDisabled = false,
+  }) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 5, vertical: 1),
       width: 100,
       child: ElevatedButton(
-        onPressed: homeController.phoneNumber.value.isNotEmpty
-            ? () {
-                if (isValidPhoneNumber(homeController.phoneNumber.value)) {
-                  homeController.getCustomerDetails();
-                } else {
-                  Get.snackbar('Invalid Phone Number',
-                      'Please enter valid 10 digit phone number');
-                }
-              }
-            : null,
+        onPressed: isDisabled
+            ? null
+            : homeController.phoneNumber.value.isNotEmpty
+                ? () {
+                    if (isValidPhoneNumber(homeController.phoneNumber.value)) {
+                      homeController.getCustomerDetails();
+                    } else {
+                      Get.snackbar('Invalid Phone Number',
+                          'Please enter valid 10 digit phone number');
+                    }
+                  }
+                : null,
         style: ElevatedButton.styleFrom(
           elevation: 1,
           padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
           shape: RoundedRectangleBorder(
             side: BorderSide(
-              color: homeController.phoneNumber.isNotEmpty
+              color: homeController.phoneNumber.isNotEmpty && !isDisabled
                   ? CustomColors.secondaryColor
                   : CustomColors.cardBackground,
             ),
@@ -317,26 +683,38 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
     );
   }
 
-  Widget _buildSelectButton() {
+  Widget _buildSelectButton({
+    bool isDisabled = false,
+  }) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 5, vertical: 1),
       width: 100,
       child: ElevatedButton(
-        onPressed: homeController.customerName.isNotEmpty
-            ? () {
-                homeController.isCustomerProxySelected.value = true;
-                homeController.isContionueWithOutCustomer.value = false;
-                homeController.fetchCustomer();
-              }
-            : null,
+        onPressed: isDisabled
+            ? null
+            : homeController.customerName.isNotEmpty
+                ? () {
+                    homeController.isCustomerProxySelected.value = true;
+                    homeController.isContionueWithOutCustomer.value = false;
+                    homeController.fetchCustomer(
+                      showOTPScreen: homeController.getCustomerDetailsResponse
+                                  .value.isCustomerVerificationRequired ==
+                              true
+                          ? true
+                          : false,
+                      isFromReturns: widget.isDialogForReturns,
+                    );
+                  }
+                : null,
         style: ElevatedButton.styleFrom(
           elevation: 1,
           padding: const EdgeInsets.symmetric(horizontal: 1, vertical: 1),
           shape: RoundedRectangleBorder(
             side: BorderSide(
-              color: homeController.customerName.isNotEmpty
-                  ? CustomColors.secondaryColor
-                  : CustomColors.cardBackground,
+              color:
+                  homeController.customerName.isNotEmpty && isDisabled == false
+                      ? CustomColors.secondaryColor
+                      : CustomColors.cardBackground,
             ),
             borderRadius: BorderRadius.circular(10),
           ),
@@ -358,38 +736,50 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
     );
   }
 
-  Widget _buildContinueWithoutCustomerButton() {
+  Widget _buildCustomButton({
+    String buttonText = "Continue Without Customer Number",
+    required Function()? onPressed,
+    bool isBtnEnabled = true,
+    bool enableBackground = true,
+    bool isLoading = false,
+    FontWeight fontWeight = FontWeight.bold,
+  }) {
     return Container(
       height: 60,
       padding: EdgeInsets.symmetric(horizontal: 5.0, vertical: 5),
       child: ElevatedButton(
-        onPressed: homeController.isContionueWithOutCustomer.value
-            ? null
-            : () {
-                homeController.phoneNumber.value =
-                    homeController.customerProxyNumber.value;
-                homeController.customerName.value = 'Admin';
-                homeController.isCustomerProxySelected.value = true;
-                homeController.isContionueWithOutCustomer.value = true;
-                homeController.fetchCustomer();
-              },
+        onPressed: isBtnEnabled ? onPressed : null,
         style: ElevatedButton.styleFrom(
           elevation: 1,
           padding: EdgeInsets.symmetric(horizontal: 1, vertical: 20),
           shape: RoundedRectangleBorder(
-            side: BorderSide(color: CustomColors.primaryColor),
+            side: BorderSide(
+              color:
+                  isBtnEnabled ? CustomColors.primaryColor : CustomColors.grey,
+            ),
             borderRadius: BorderRadius.circular(10),
           ),
-          backgroundColor: CustomColors.keyBoardBgColor,
+          backgroundColor:
+              enableBackground ? CustomColors.keyBoardBgColor : Colors.white,
         ),
         child: Center(
-          child: Text(
-            "Continue Without Customer Number",
-            style: TextStyle(
-                color: CustomColors.primaryColor,
-                fontSize: 14,
-                fontWeight: FontWeight.bold),
-          ),
+          child: isLoading
+              ? SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(),
+                )
+              : Text(
+                  // "Continue Without Customer Number",
+                  buttonText,
+                  style: TextStyle(
+                    color: isBtnEnabled
+                        ? CustomColors.primaryColor
+                        : CustomColors.greyFont,
+                    fontSize: 14,
+                    fontWeight: fontWeight,
+                  ),
+                ),
         ),
       ),
     );

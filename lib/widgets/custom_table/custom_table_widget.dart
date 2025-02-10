@@ -29,6 +29,7 @@ class CustomTableWidget extends StatelessWidget {
         children: [
           Table(
             columnWidths: columnWidths,
+            defaultVerticalAlignment: TableCellVerticalAlignment.middle,
             children: [
               _buildTableHeader(context),
             ],

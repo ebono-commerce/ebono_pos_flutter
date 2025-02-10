@@ -5,11 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class AddCustomerStaticWidget extends StatefulWidget {
-
   const AddCustomerStaticWidget({super.key});
 
   @override
-  State<AddCustomerStaticWidget> createState() => _AddCustomerStaticWidgetState();
+  State<AddCustomerStaticWidget> createState() =>
+      _AddCustomerStaticWidgetState();
 }
 
 class _AddCustomerStaticWidgetState extends State<AddCustomerStaticWidget>
@@ -31,7 +31,6 @@ class _AddCustomerStaticWidgetState extends State<AddCustomerStaticWidget>
     });
     super.initState();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -72,8 +71,8 @@ class _AddCustomerStaticWidgetState extends State<AddCustomerStaticWidget>
                     padding: const EdgeInsets.symmetric(
                         vertical: 10.0, horizontal: 10),
                     child: InkWell(
-                      onTap: () {
-                        showDialog(
+                      onTap: () async {
+                        await showDialog(
                           context: context,
                           builder: (BuildContext context) {
                             return Dialog(
@@ -84,6 +83,7 @@ class _AddCustomerStaticWidgetState extends State<AddCustomerStaticWidget>
                             );
                           },
                         );
+                        homeController.displayOTPScreen.value = false;
                       },
                       child: IgnorePointer(
                         child: TextField(
@@ -189,8 +189,8 @@ class _AddCustomerStaticWidgetState extends State<AddCustomerStaticWidget>
                     padding: const EdgeInsets.symmetric(
                         vertical: 10.0, horizontal: 10),
                     child: InkWell(
-                      onTap: () {
-                        showDialog(
+                      onTap: () async {
+                        await showDialog(
                           context: context,
                           builder: (BuildContext context) {
                             return Dialog(
@@ -201,6 +201,7 @@ class _AddCustomerStaticWidgetState extends State<AddCustomerStaticWidget>
                             );
                           },
                         );
+                        homeController.displayOTPScreen.value = false;
                       },
                       child: IgnorePointer(
                         child: TextField(
@@ -335,12 +336,14 @@ class _AddCustomerStaticWidgetState extends State<AddCustomerStaticWidget>
               padding: EdgeInsets.symmetric(horizontal: 5.0, vertical: 5),
               child: ElevatedButton(
                 onPressed: () {
-                  homeController.phoneNumber.value = homeController.customerProxyNumber.value;
-                  homeController.customerName.value = 'Admin';
+                  homeController.phoneNumber.value =
+                      homeController.customerProxyNumber.value;
+                  homeController.customerName.value =
+                      homeController.customerProxyName.value;
                   homeController.isCustomerProxySelected.value = true;
                   homeController.isContionueWithOutCustomer.value = true;
                   homeController.fetchCustomer();
-                  },
+                },
                 style: ElevatedButton.styleFrom(
                   elevation: 1,
                   padding: EdgeInsets.symmetric(horizontal: 1, vertical: 20),

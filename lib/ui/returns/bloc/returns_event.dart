@@ -15,68 +15,60 @@ final class FetchOrderDataBasedOnOrderId extends ReturnsEvent {
   FetchOrderDataBasedOnOrderId({
     required this.orderId,
     this.isRetrivingOrderItems = false,
-    this.customerOrderDetailsList = const [],
   });
 
   final String orderId;
   final bool isRetrivingOrderItems;
-  final List<CustomerOrderDetails> customerOrderDetailsList;
 }
 
 final class UpdateSelectedItem extends ReturnsEvent {
   UpdateSelectedItem({
     required this.id,
-    required this.orderItems,
     this.reason = '',
     required this.orderLine,
+    this.updateCommonReason = false,
   });
 
   final String id;
   final String reason;
-  final OrderItemsModel orderItems;
+  final bool updateCommonReason;
   final OrderLine orderLine;
 }
 
-final class UpdateCustomerData extends ReturnsEvent {
-  UpdateCustomerData(this.customerName, this.customerNumber, this.orderItems);
-
-  final String customerName;
-  final String customerNumber;
-  final OrderItemsModel orderItems;
+final class ProceedToReturnItems extends ReturnsEvent {
+  ProceedToReturnItems();
 }
 
-final class UpdateReturnReasonBasedOnId extends ReturnsEvent {
-  UpdateReturnReasonBasedOnId({
+final class UpdateCommonReasonEvent extends ReturnsEvent {
+  UpdateCommonReasonEvent(this.reason);
+
+  final String reason;
+}
+
+final class OnSelectAllBtnEvent extends ReturnsEvent {
+  OnSelectAllBtnEvent();
+}
+
+final class ResetValuesOnDialogCloseEvent extends ReturnsEvent {
+  ResetValuesOnDialogCloseEvent();
+}
+
+class UpdateOrderLineQuantity extends ReturnsEvent {
+  UpdateOrderLineQuantity({
     required this.id,
-    required this.reason,
-    required this.orderItems,
+    required this.quantity,
   });
 
   final String id;
-  final String reason;
-  final OrderItemsModel orderItems;
+  final String quantity;
 }
 
-final class ProceedToReturnItems extends ReturnsEvent {
-  ProceedToReturnItems(this.orderItemsModel);
-
-  final OrderItemsModel orderItemsModel;
-}
-
-final class AddReturnQuantityEvent extends ReturnsEvent {
-  AddReturnQuantityEvent(this.quantity);
-
-  final int quantity;
-}
-
-final class ValidateConfirmReturnEvent extends ReturnsEvent {
-  final String name;
-  final String phoneNumber;
-  final OrderItemsModel orderItemsModel;
-
-  ValidateConfirmReturnEvent({
-    required this.orderItemsModel,
-    required this.phoneNumber,
-    required this.name,
+class UpdateOrderItemsInternalState extends ReturnsEvent {
+  UpdateOrderItemsInternalState({
+    required this.customerName,
+    required this.customerNumber,
   });
+
+  final String customerName;
+  final String customerNumber;
 }
