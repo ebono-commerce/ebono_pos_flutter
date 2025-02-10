@@ -930,8 +930,8 @@ class _OrdersSectionState extends State<OrdersSection>
                       children: [
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                          child: CommonTextField(
-                            labelText: homeController.isQuantitySelected.value
+                          child: commonTextField(
+                            label: homeController.isQuantitySelected.value
                                 ? homeController.selectedItemData.value.item
                                             ?.isWeighedItem ==
                                         true
@@ -960,12 +960,10 @@ class _OrdersSectionState extends State<OrdersSection>
                                   if (isValidOfferId(
                                           numPadTextController.text.trim()) ||
                                       numPadTextController.text
-                                          .trim()
-                                          .toUpperCase()
+                                          .trim().toUpperCase()
                                           .contains("W")) {
-                                    homeController.scanApiCall(
-                                        numPadTextController.text
-                                            .toUpperCase());
+                                    homeController
+                                        .scanApiCall(numPadTextController.text.toUpperCase());
 
                                     homeController.isQuantitySelected.value =
                                         false;
@@ -1020,8 +1018,8 @@ class _OrdersSectionState extends State<OrdersSection>
                                               numPadTextController.text),
                                         )
                                             .then((val) {
-                                          homeController
-                                              .isQuantitySelected.value = false;
+                                          homeController.isQuantitySelected
+                                              .value = false;
                                           homeController.isAutoWeighDetection
                                               .value = false;
                                           setState(() {

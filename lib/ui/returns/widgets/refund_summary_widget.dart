@@ -381,8 +381,8 @@ class _ReturnSummaryWidgetState extends State<ReturnSummaryWidget> {
                   children: [
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                      child: CommonTextField(
-                        labelText: "Enter Customer Mobile Number",
+                      child: commonTextField(
+                        label: "Enter Customer Mobile Number",
                         controller: _controllerPhoneNumber,
                         focusNode: phoneNumberFocusNode,
                         /*validator: (value) {
@@ -402,8 +402,8 @@ class _ReturnSummaryWidgetState extends State<ReturnSummaryWidget> {
                     ),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                      child: CommonTextField(
-                        labelText: "Customer Name",
+                      child: commonTextField(
+                        label: "Customer Name",
                         controller: _controllerCustomerName,
                         focusNode: customerNameFocusNode,
                         /* validator: (value) {

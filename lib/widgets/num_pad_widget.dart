@@ -186,8 +186,8 @@ class NumPadWidget extends StatelessWidget {
                     children: [
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                        child: CommonTextField(
-                          labelText: 'Enter Code, Quantity',
+                        child: commonTextField(
+                          label: 'Enter Code, Quantity',
                           focusNode: textFieldFocusNode,
                           readOnly: false,
                           controller: textFieldTextEditingController,

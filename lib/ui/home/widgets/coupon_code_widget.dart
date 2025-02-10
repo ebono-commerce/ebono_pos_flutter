@@ -178,8 +178,8 @@ class _CouponCodeWidgetState extends State<CouponCodeWidget> {
                     padding: const EdgeInsets.symmetric(horizontal: 5),
                     child: Form(
                       key: _formKey,
-                      child: CommonTextField(
-                        labelText: "Coupon Code",
+                      child: commonTextField(
+                        label: "Coupon Code",
                         controller: couponCodeController,
                         focusNode: couponCodeFocusNode,
                         readOnly: isInvalidCoupon,

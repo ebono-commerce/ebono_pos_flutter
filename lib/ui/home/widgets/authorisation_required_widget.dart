@@ -10,6 +10,7 @@ import 'package:get/get.dart';
 class AuthorisationRequiredWidget extends StatefulWidget {
   final BuildContext dialogContext;
 
+
   const AuthorisationRequiredWidget(this.dialogContext, {super.key});
 
   @override
@@ -67,14 +68,14 @@ class _AuthorisationRequiredWidgetState
     });
   }
 
+
   @override
   Widget build(BuildContext context) {
     theme = Theme.of(context);
     return Column(
       children: [
-        SizedBox(
-          width: 900,
-          child: Row(
+        SizedBox(width: 900,
+          child:  Row(
             mainAxisAlignment: MainAxisAlignment.end,
             mainAxisSize: MainAxisSize.max,
             children: [
@@ -93,14 +94,13 @@ class _AuthorisationRequiredWidgetState
                 ),
               ),
             ],
-          ),
-        ),
+          ),),
         SizedBox(
           width: 400,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Text(
+                Text(
                 "Authorization required!",
                 style: theme.textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.bold,
@@ -113,21 +113,23 @@ class _AuthorisationRequiredWidgetState
                 children: [
                   Padding(
                     padding: const EdgeInsets.all(10.0),
-                    child: CommonTextField(
-                      labelText: "Login Id",
+                    child: commonTextField(
+                      label: "Login Id",
                       controller: loginIdController,
                       focusNode: loginIdFocusNode,
-                      onValueChanged: (value) => value,
+                      onValueChanged: (value) =>
+                      value,
                     ),
                   ),
                   Padding(
                     padding: const EdgeInsets.all(10.0),
-                    child: CommonTextField(
-                      labelText: "Password",
+                    child: commonTextField(
+                      label: "Password",
                       controller: passwordController,
                       focusNode: passwordFocusNode,
                       obscureText: true,
-                      onValueChanged: (value) => value,
+                      onValueChanged: (value) =>
+                      value,
                       //readOnly: homeController.phoneNumber.isEmpty,
                     ),
                   ),
@@ -152,7 +154,8 @@ class _AuthorisationRequiredWidgetState
             onEnterPressed: (value) {
               if (activeFocusNode == loginIdFocusNode) {
                 passwordFocusNode.requestFocus();
-              } else if (activeFocusNode == passwordFocusNode) {
+              } else if (activeFocusNode ==
+                  passwordFocusNode) {
                 passwordFocusNode.unfocus();
               }
             },

@@ -244,8 +244,8 @@ class _OrderOnHoldState extends State<OrderOnHold> with WidgetsBindingObserver {
                       children: [
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                          child: CommonTextField(
-                            labelText: ' Enter Code, Quantity ',
+                          child: commonTextField(
+                            label: ' Enter Code, Quantity ',
                             focusNode:
                                 (homeController.cartId.value.isNotEmpty &&
                                         homeController.registerId.isNotEmpty)

@@ -335,10 +335,10 @@ class _ReturnsViewState extends State<ReturnsView> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  CommonTextField(
+                  commonTextField(
                     focusNode: customerNumberFocusNode,
                     controller: customerNumberTextController,
-                    labelText: "Enter Customer Mobile Number",
+                    label: "Enter Customer Mobile Number",
                     validator: (value) {
                       if ((value == null || value.isEmpty) &&
                           orderNumberTextController.text.isEmpty) {
@@ -354,10 +354,10 @@ class _ReturnsViewState extends State<ReturnsView> {
                   const SizedBox(height: 20),
                   const ORWidget(),
                   const SizedBox(height: 20),
-                  CommonTextField(
+                  commonTextField(
                     focusNode: orderNumberFocusNode,
                     controller: orderNumberTextController,
-                    labelText: "Enter Order Number",
+                    label: "Enter Order Number",
                     validator: (value) {
                       if ((value == null || value.isEmpty) &&
                           customerNumberTextController.text.isEmpty) {
@@ -460,8 +460,8 @@ class _ReturnsViewState extends State<ReturnsView> {
                 if (isOrderItemsFetched)
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                    child: CommonTextField(
-                      labelText: 'Enter Quantity',
+                    child: commonTextField(
+                      label: 'Enter Quantity',
                       focusNode: numPadFocusNode,
                       readOnly: false,
                       controller: numPadTextController,
