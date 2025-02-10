@@ -1,3 +1,4 @@
+import 'package:ebono_pos/extensions/string_extension.dart';
 import 'package:ebono_pos/ui/returns/models/customer_order_model.dart';
 
 class OrderItemsModel {
@@ -6,6 +7,8 @@ class OrderItemsModel {
   final Customer? customer;
   final List<OrderLine>? orderLines;
   final List<String> refundModes;
+  final bool isAllOrdersSelected;
+  final bool? isCustomerVerificationRequired;
 
   const OrderItemsModel({
     this.orderNumber,
@@ -13,6 +16,8 @@ class OrderItemsModel {
     this.customer,
     this.deliveryGroupId,
     this.refundModes = const <String>[],
+    this.isAllOrdersSelected = false,
+    this.isCustomerVerificationRequired,
   });
 
   Map<String, dynamic> toJSON() {
@@ -22,6 +27,8 @@ class OrderItemsModel {
       "order_lines": orderLines == null
           ? []
           : List<dynamic>.from(orderLines!.map((x) => x.toJSON())),
+      "return_reasons": refundModes,
+      "isCustomerVerificationRequired": isCustomerVerificationRequired,
     };
   }
 
@@ -47,7 +54,12 @@ class OrderItemsModel {
           ? []
           : List<OrderLine>.from(
               map["order_lines"].map((x) => OrderLine.fromJSON(x))),
-      refundModes: List<String>.from(map['return_modes'] ?? []),
+      refundModes: map['return_modes'] != null
+          ? List<String>.from(map['return_modes']!
+              .map((x) => x.toString().replaceAll('_', ' ').toTitleCase()))
+          : [],
+      isCustomerVerificationRequired:
+          map['is_customer_verification_required'] ?? true,
     );
   }
 
@@ -56,12 +68,19 @@ class OrderItemsModel {
     Customer? customer,
     String? deliveryGroupId,
     List<OrderLine>? orderLines,
+    bool? isAllOrdersSelected,
+    List<String>? refundModes,
+    bool? isCustomerVerificationRequired,
   }) {
     return OrderItemsModel(
       orderNumber: orderNumber ?? this.orderNumber,
       deliveryGroupId: deliveryGroupId ?? this.deliveryGroupId,
       customer: customer ?? this.customer,
       orderLines: orderLines ?? this.orderLines,
+      isAllOrdersSelected: isAllOrdersSelected ?? this.isAllOrdersSelected,
+      refundModes: refundModes ?? this.refundModes,
+      isCustomerVerificationRequired:
+          isCustomerVerificationRequired ?? this.isCustomerVerificationRequired,
     );
   }
 }

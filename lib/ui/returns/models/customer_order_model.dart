@@ -1,3 +1,43 @@
+class CustomerOrders {
+  final List<CustomerOrderDetails> customerOrderList;
+  final bool isCustomerVerificationRequired;
+
+  const CustomerOrders({
+    this.customerOrderList = const <CustomerOrderDetails>[],
+    this.isCustomerVerificationRequired = false,
+  });
+
+  Map<String, dynamic> toJson() {
+    return <String, dynamic>{
+      'orders': customerOrderList.map((x) => x.toJSON()).toList(),
+      'is_customer_verification_required': isCustomerVerificationRequired,
+    };
+  }
+
+  factory CustomerOrders.fromJSON(Map<String, dynamic> map) {
+    return CustomerOrders(
+      customerOrderList: List<CustomerOrderDetails>.from(
+        (map['orders']).map<CustomerOrderDetails>(
+          (x) => CustomerOrderDetails.fromJSON(x as Map<String, dynamic>),
+        ),
+      ),
+      isCustomerVerificationRequired:
+          map['is_customer_verification_required'] ?? false,
+    );
+  }
+
+  CustomerOrders copyWith({
+    List<CustomerOrderDetails>? customerOrderList,
+    bool? isCustomerVerificationRequired,
+  }) {
+    return CustomerOrders(
+      customerOrderList: customerOrderList ?? this.customerOrderList,
+      isCustomerVerificationRequired:
+          isCustomerVerificationRequired ?? this.isCustomerVerificationRequired,
+    );
+  }
+}
+
 class CustomerOrderDetails {
   final String? orderNumber;
   final String? outletId;

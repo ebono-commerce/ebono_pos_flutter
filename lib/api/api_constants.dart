@@ -44,6 +44,11 @@ class ApiConstants {
   static final walletCharge = 'checkout/api/v1/pos/cart/wallet-charge';
   static final getInvoice = '/account/api/v1/pos/invoice';
 
+  static otp({
+    required bool tiggerOTP,
+  }) =>
+      '/account/api/v1/pos/otp/${tiggerOTP ? 'generate' : 'validate'}';
+
   static String applyCoupon(String cartId) =>
       'checkout/api/v1/pos/cart/$cartId/coupon';
 
