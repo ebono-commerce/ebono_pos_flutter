@@ -9,7 +9,7 @@ class ReturnsRepository {
 
   ReturnsRepository(this._apiHelper);
 
-  Future<List<CustomerOrderDetails>> fetchCustomerOrderDetails({
+  Future<CustomerOrders> fetchCustomerOrderDetails({
     required String phoneNumber,
   }) async {
     try {
@@ -17,11 +17,7 @@ class ReturnsRepository {
         "${ApiConstants.orders}?phone_number=$phoneNumber",
       );
 
-      List<dynamic> customerOrdersList = response['orders'];
-
-      List<CustomerOrderDetails> data = customerOrdersList
-          .map((order) => CustomerOrderDetails.fromJSON(order))
-          .toList();
+      CustomerOrders data = CustomerOrders.fromJSON(response);
 
       return data;
     } catch (e) {

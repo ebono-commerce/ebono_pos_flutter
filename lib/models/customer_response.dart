@@ -16,6 +16,7 @@ class CustomerResponse {
   String? customerName;
   String? walletBalance;
   String? loyaltyPoints;
+  bool? isCustomerVerificationRequired;
 
   CustomerResponse({
     this.cartId,
@@ -23,6 +24,7 @@ class CustomerResponse {
     this.customerName,
     this.walletBalance,
     this.loyaltyPoints,
+    this.isCustomerVerificationRequired,
   });
 
   factory CustomerResponse.fromJson(Map<String, dynamic> json) =>
@@ -30,6 +32,8 @@ class CustomerResponse {
         cartId: json["cart_id"],
         walletBalance: json["wallet_balance"],
         loyaltyPoints: json["loyalty_points"],
+        isCustomerVerificationRequired:
+            json["is_customer_verification_required"],
         phoneNumber: json["phone_number"] == null
             ? null
             : PhoneNumber.fromJson(json["phone_number"]),
@@ -39,6 +43,7 @@ class CustomerResponse {
   Map<String, dynamic> toJson() => {
         "cart_id": cartId,
         "phone_number": phoneNumber?.toJson(),
+        "is_customer_verification_required": isCustomerVerificationRequired,
         "customer_name": customerName,
         "wallet_balance": walletBalance,
         "loyalty_points": loyaltyPoints,

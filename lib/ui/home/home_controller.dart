@@ -54,6 +54,7 @@ class HomeController extends GetxController {
   var scanCode = ''.obs;
   var cartId = ''.obs;
   var registerId = ''.obs;
+  var clearWeightOnSuccess = false.obs;
 
   // for register section
   var cashPayment = ''.obs;
@@ -80,6 +81,20 @@ class HomeController extends GetxController {
   String selectedOutletId = '';
   String selectedTerminalId = '';
   RxString customerProxyNumber = ''.obs;
+  RxString customerProxyName = ''.obs;
+  RxString otpNumber = ''.obs;
+
+  /* OTP Related */
+  var displayOTPScreen = false.obs;
+  var resendOTPBtnEnabled = false.obs;
+
+  var isResendOTPRequested = false.obs;
+  var isOTPVerified = false.obs;
+  var isOTPResendingOrVerifying = false.obs;
+  var otpErrorMessage = ''.obs;
+  var triggerCustomOTPValidation = false.obs;
+  var isOTPTriggering = false.obs;
+
   var isScanApiError = false.obs;
   var isAutoWeighDetection = false.obs;
   var isReturnViewReset = false.obs;
@@ -139,6 +154,8 @@ class HomeController extends GetxController {
         hiveStorageHelper.read(SharedPreferenceConstants.selectedPosMode);
     customerProxyNumber.value =
         hiveStorageHelper.read(SharedPreferenceConstants.customerProxyNumber);
+    customerProxyName.value =
+        hiveStorageHelper.read(SharedPreferenceConstants.customerProxyName);
 
     registerId.value =
         hiveStorageHelper.read(SharedPreferenceConstants.registerId);
@@ -380,7 +397,10 @@ class HomeController extends GetxController {
     }
   }
 
-  fetchCustomer() async {
+  fetchCustomer({
+    bool showOTPScreen = false,
+    bool isFromReturns = false,
+  }) async {
     try {
       var response = await _homeRepository.fetchCustomer(CustomerRequest(
           phoneNumber: phoneNumber.value,
@@ -397,13 +417,19 @@ class HomeController extends GetxController {
       hiveStorageHelper.save(SharedPreferenceConstants.sessionCustomerName,
           customerResponse.value.customerName);
 
-      if (cartId.value.isNotEmpty && isCustomerProxySelected.value) {
-        mergeCart(phoneNumber.value);
-        isCustomerProxySelected.value = false;
-      } else {
-        cartId.value = customerResponse.value.cartId.toString();
-        hiveStorageHelper.save(SharedPreferenceConstants.cartId, cartId.value);
-        fetchCartDetails();
+      if (showOTPScreen) {
+        displayOTPScreen.value = true;
+      }
+      if (!isFromReturns) {
+        if (cartId.value.isNotEmpty && isCustomerProxySelected.value) {
+          mergeCart(phoneNumber.value);
+          isCustomerProxySelected.value = false;
+        } else {
+          cartId.value = customerResponse.value.cartId.toString();
+          hiveStorageHelper.save(
+              SharedPreferenceConstants.cartId, cartId.value);
+          fetchCartDetails();
+        }
       }
     } catch (e) {
       Get.snackbar('Error while fetching customer data', '$e');
@@ -888,6 +914,41 @@ class HomeController extends GetxController {
       );
     }
     return response;
+  }
+
+  Future<void> generateORValidateOTP({
+    required bool tiggerOTP,
+    required String phoneNumber,
+    required String otp,
+    required bool isResendOTP,
+    bool disableLoading = false,
+  }) async {
+    try {
+      /* to show loader when resend otp is triggered */
+      isOTPResendingOrVerifying.value = !disableLoading;
+      /* to show loader while manually triggering otp */
+      isOTPTriggering.value = true;
+      final result = await _homeRepository.generateORValidateOTP(
+        tiggerOTP: tiggerOTP,
+        phoneNumber: phoneNumber,
+        otp: otp,
+      );
+
+      if (isResendOTP == false && tiggerOTP == false) {
+        isOTPVerified.value = result;
+      }
+
+      otpErrorMessage.value = '';
+      triggerCustomOTPValidation.value = false;
+    } catch (e) {
+      otpErrorMessage.value = e.toString().split('|').last;
+      isOTPVerified.value = false;
+      triggerCustomOTPValidation.value = true;
+    } finally {
+      isOTPResendingOrVerifying.value = false;
+      isOTPTriggering.value = false;
+      isOTPVerified.value = false;
+    }
   }
 
   @override

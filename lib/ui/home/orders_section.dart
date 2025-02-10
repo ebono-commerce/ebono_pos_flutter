@@ -92,6 +92,13 @@ class _OrdersSectionState extends State<OrdersSection>
       }
     });
 
+    ever(homeController.clearWeightOnSuccess, (value) {
+      if (value == true) {
+        numPadTextController.clear();
+        homeController.clearWeightOnSuccess.value = false;
+      }
+    });
+
     WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ever(homeController.scanProductsResponse, (value) {
@@ -960,10 +967,12 @@ class _OrdersSectionState extends State<OrdersSection>
                                   if (isValidOfferId(
                                           numPadTextController.text.trim()) ||
                                       numPadTextController.text
-                                          .trim().toUpperCase()
+                                          .trim()
+                                          .toUpperCase()
                                           .contains("W")) {
-                                    homeController
-                                        .scanApiCall(numPadTextController.text.toUpperCase());
+                                    homeController.scanApiCall(
+                                        numPadTextController.text
+                                            .toUpperCase());
 
                                     homeController.isQuantitySelected.value =
                                         false;
@@ -1018,10 +1027,11 @@ class _OrdersSectionState extends State<OrdersSection>
                                               numPadTextController.text),
                                         )
                                             .then((val) {
-                                          homeController.isQuantitySelected
-                                              .value = false;
+                                          homeController
+                                              .isQuantitySelected.value = false;
                                           homeController.isAutoWeighDetection
                                               .value = false;
+                                          homeController.clearWeightOnSuccess.value = true;
                                           setState(() {
                                             numPadTextController.text = '0';
                                             numPadTextController.clear();
