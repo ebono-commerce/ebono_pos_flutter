@@ -1,6 +1,5 @@
 import 'package:ebono_pos/constants/custom_colors.dart';
 import 'package:ebono_pos/models/scan_products_response.dart';
-import 'package:ebono_pos/ui/common_text_field.dart';
 import 'package:ebono_pos/ui/custom_keyboard/custom_querty_pad.dart';
 import 'package:ebono_pos/ui/search/bloc/search_bloc.dart';
 import 'package:ebono_pos/ui/search/data/search_products_table_data.dart';
@@ -106,87 +105,166 @@ class _SearchProductsViewState extends State<SearchProductsView> {
         },
         buildWhen: (previous, current) => current.isResetAll == false,
         builder: (context, state) {
-          return Column(
-            children: [
-              Flexible(
-                flex: 5,
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: isGridView
-                          ? CustomTableWidget(
-                              scrollController: _scrollController,
-                              headers: searchProductsTableData
-                                  .buildScanProductsTableHeaders(),
-                              tableRowsData:
-                                  searchProductsTableData.buildTableRows(
-                                scanProductResponseList:
-                                    state.searchResultsData,
-                              ),
-                              emptyDataMessage: "No Products Found",
-                              columnWidths: {
-                                0: FlexColumnWidth(1),
-                                1: FlexColumnWidth(3.5),
-                                2: FlexColumnWidth(2),
-                                3: FlexColumnWidth(1),
-                              },
-                            )
-                          : _buildGridView(state.searchResultsData),
-                    ),
-                    SizedBox(
-                      width: 150,
-                      child: Column(
-                        children: [
-                          SizedBox(height: 10),
-                          _buildCloseButton(),
-                          SizedBox(height: 5),
-                          _buildUpButton(),
-                          SizedBox(height: 5),
-                          _buildDownButton(),
-                          SizedBox(height: 5),
-                          _buildGridNListButton(),
-                          Spacer(),
-                          _buildClearButton(),
-                          SizedBox(height: 10),
-                        ],
+          return Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Column(
+              children: [
+                Flexible(
+                  flex: 5,
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: isGridView
+                            ? CustomTableWidget(
+                                scrollController: _scrollController,
+                                headers: searchProductsTableData
+                                    .buildScanProductsTableHeaders(),
+                                tableRowsData:
+                                    searchProductsTableData.buildTableRows(
+                                  scanProductResponseList:
+                                      state.searchResultsData,
+                                ),
+                                emptyDataMessage: "No Products Found",
+                                columnWidths: {
+                                  0: FlexColumnWidth(1),
+                                  1: FlexColumnWidth(3.5),
+                                  2: FlexColumnWidth(1.5),
+                                  3: FlexColumnWidth(1),
+                                },
+                              )
+                            : _buildGridView(state.searchResultsData),
                       ),
-                    )
-                  ],
+                      SizedBox(
+                        width: 150,
+                        child: Column(
+                          children: [
+                            SizedBox(height: 10),
+                            _buildCloseButton(),
+                            SizedBox(height: 5),
+                            _buildUpButton(),
+                            SizedBox(height: 5),
+                            _buildDownButton(),
+                            SizedBox(height: 5),
+                            _buildGridNListButton(),
+                            Spacer(),
+                            _buildClearButton(),
+                            SizedBox(height: 10),
+                          ],
+                        ),
+                      )
+                    ],
+                  ),
                 ),
-              ),
-              Container(
-                height: 55,
-                margin: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                child: CommonTextField(
-                  labelText: "",
-                  controller: searchTextController,
-                  fillColor: Colors.white,
-                  focusNode: searchFocusNode,
-                  onValueChanged: (value) {},
-                  suffixWidget: _buildSelectButton(isLoading: state.isLoading),
+                Flexible(
+                  flex: 5,
+                  child: SizedBox(
+                    width: 900,
+                    child: Column(
+                      children: [
+                        Container(
+                          height: 55,
+                          margin: EdgeInsets.symmetric(
+                              vertical: 10, horizontal: 40),
+                          child: _buildTextField(
+                            label: "",
+                            controller: searchTextController,
+                            focusNode: searchFocusNode,
+                            onChanged: (value) {},
+                            suffixIcon:
+                                _buildSelectButton(isLoading: state.isLoading),
+                          ),
+                        ),
+                        CustomQwertyPad(
+                          textController: _qwertyPadController,
+                          focusNode: activeFocusNode!,
+                          onEnterPressed: (value) {
+                            if (state.isLoading == false &&
+                                value.isNotEmpty &&
+                                mounted) {
+                              context
+                                  .read<SearchBloc>()
+                                  .add(TriggerSearchEvent(value));
+                            } else {
+                              Get.snackbar("SEARCH CANNOT BE EMPTY",
+                                  "please enter the product name");
+                            }
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-              ),
-              Flexible(
-                flex: 5,
-                child: CustomQwertyPad(
-                  textController: _qwertyPadController,
-                  focusNode: activeFocusNode!,
-                  onEnterPressed: (value) {
-                    if (state.isLoading == false &&
-                        value.isNotEmpty &&
-                        mounted) {
-                      context.read<SearchBloc>().add(TriggerSearchEvent(value));
-                    } else {
-                      Get.snackbar("SEARCH CANNOT BE EMPTY",
-                          "please enter the product name");
-                    }
-                  },
-                ),
-              ),
-            ],
+              ],
+            ),
           );
         },
       ),
+    );
+  }
+
+  Widget _buildTextField({
+    required String label,
+    required TextEditingController controller,
+    required FocusNode focusNode,
+    required ValueChanged<String> onChanged,
+    bool readOnly = false,
+    Widget? suffixIcon,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(2),
+      child: TextField(
+        controller: controller,
+        focusNode: focusNode,
+        onChanged: onChanged,
+        readOnly: readOnly,
+        decoration: _buildInputDecoration(label, suffixIcon),
+      ),
+    );
+  }
+
+  InputDecoration _buildInputDecoration(String label, Widget? suffixIcon) {
+    return InputDecoration(
+      fillColor: Colors.white,
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: BorderSide(color: Colors.grey.shade300, width: 1),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: BorderSide(color: Colors.grey.shade300, width: 1),
+      ),
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: BorderSide(color: Colors.red, width: 1),
+      ),
+      focusedErrorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: BorderSide(
+          color: Colors.red,
+          width: 1,
+        ),
+      ),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: BorderSide(
+          color: Colors.grey.shade300,
+          width: 1,
+        ),
+      ),
+      label: RichText(
+        text: TextSpan(
+          children: [
+            TextSpan(
+              text: label,
+              style: TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.normal,
+              ),
+            ),
+          ],
+        ),
+      ),
+      suffixIcon: suffixIcon,
     );
   }
 
@@ -394,8 +472,10 @@ class _SearchProductsViewState extends State<SearchProductsView> {
 
   Widget _buildSelectButton({bool isLoading = false}) {
     return Container(
+      // padding: EdgeInsets.symmetric(horizontal: 0, vertical: 5),
       padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
       width: 100,
+      height: 60,
       child: ElevatedButton(
         onPressed: () {
           if (searchTextController.text.trim().isNotEmpty &&

@@ -71,7 +71,7 @@ class SearchProductsTableData {
         ),
         TableCellWidget(
           text: scanProductsResponse.productType.toString(),
-          width: 300,
+          width: 220,
         ),
         TableCellWidget(
           text: getFormattedPrice(scanProductsResponse),

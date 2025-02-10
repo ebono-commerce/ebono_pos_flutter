@@ -49,4 +49,7 @@ class ApiConstants {
 
   static String removeCoupon(String cartId) =>
       'checkout/api/v1/pos/cart/$cartId/coupon/remove';
+
+  static String searchItems(String searchText) =>
+      'catalog/api/v1/pos/products/fetch/$searchText';
 }
