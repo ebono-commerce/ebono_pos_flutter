@@ -8,6 +8,7 @@ import 'package:ebono_pos/ui/login/repository/login_repository.dart';
 import 'package:ebono_pos/ui/payment_summary/repository/PaymentRepository.dart';
 import 'package:ebono_pos/ui/returns/bloc/returns_bloc.dart';
 import 'package:ebono_pos/ui/returns/repository/returns_repository.dart';
+import 'package:ebono_pos/ui/search/repository/search_repository.dart';
 import 'package:get/get.dart';
 
 class InitialBinding extends Bindings {
@@ -26,6 +27,7 @@ class InitialBinding extends Bindings {
     Get.put<ReturnsRepository>(ReturnsRepository(Get.find<ApiHelper>()));
     Get.put<HomeRepository>(HomeRepository(Get.find<ApiHelper>()));
     Get.put<PaymentRepository>(PaymentRepository(Get.find<ApiHelper>()));
+    Get.put<SearchRepository>(SearchRepository(Get.find<ApiHelper>()));
 
     /*// Register LoginBloc as a singleton
     Get.put<LoginBloc>(LoginBloc(

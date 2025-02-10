@@ -7,6 +7,7 @@ class CustomTableWidget extends StatelessWidget {
   final List<TableRow> tableRowsData;
   final String emptyDataMessage;
   final Map<int, TableColumnWidth> columnWidths;
+  final ScrollController? scrollController;
 
   const CustomTableWidget({
     super.key,
@@ -14,6 +15,7 @@ class CustomTableWidget extends StatelessWidget {
     required this.tableRowsData,
     required this.columnWidths,
     this.emptyDataMessage = '',
+    this.scrollController,
   });
 
   @override
@@ -45,6 +47,7 @@ class CustomTableWidget extends StatelessWidget {
                           ),
                         )
                       : SingleChildScrollView(
+                          controller: scrollController,
                           child: Table(
                             columnWidths: columnWidths,
                             children: tableRowsData,

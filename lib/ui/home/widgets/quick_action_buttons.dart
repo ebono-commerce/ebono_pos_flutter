@@ -36,33 +36,59 @@ class QuickActionButtons extends StatelessWidget {
             Expanded(
               child: Column(
                 children: [
-                  actionButton("Customer", context, onCustomerPressed),
-                  actionButton("Search items", context, onSearchItemsPressed),
                   actionButton(
-                      "Inventory inquiry", context, onInventoryInquiryPressed),
-                  actionButton("Coupons", context, onCouponsPressed),
+                      label: "Customer",
+                      context: context,
+                      onPressed: onCustomerPressed),
                   actionButton(
-                      "Sales Associate", context, onSalesAssociatePressed),
+                      label: "Search items",
+                      context: context,
+                      onPressed: onSearchItemsPressed),
+                  actionButton(
+                      label: "Inventory inquiry",
+                      context: context,
+                      onLongPress: onInventoryInquiryPressed),
+                  actionButton(
+                      label: "Coupons",
+                      context: context,
+                      onPressed: onCouponsPressed),
+                  actionButton(
+                      label: "Sales Associate",
+                      context: context,
+                      onPressed: onSalesAssociatePressed),
                 ],
               ),
             ),
-            actionButton("Clear cart", context, onClearCartPressed),
-            actionButton("Hold cart", context, onHoldCartPressed),
-            VersionWidget(fontSize: 8,)
+            actionButton(
+                label: "Clear cart",
+                context: context,
+                onPressed: onClearCartPressed),
+            actionButton(
+                label: "Hold cart",
+                context: context,
+                onPressed: onHoldCartPressed),
+            VersionWidget(
+              fontSize: 8,
+            )
           ],
         ),
       ),
     );
   }
 
-  Widget actionButton(
-      String label, BuildContext context, VoidCallback? onPressed) {
+  Widget actionButton({
+    required String label,
+    required BuildContext context,
+    VoidCallback? onPressed,
+    VoidCallback? onLongPress,
+  }) {
     return Container(
       width: 220,
       height: 80,
       padding: EdgeInsets.symmetric(horizontal: 5.0, vertical: 10),
       child: ElevatedButton(
         onPressed: onPressed,
+        onLongPress: onLongPress,
         style: ElevatedButton.styleFrom(
           elevation: 1,
           padding: EdgeInsets.symmetric(horizontal: 1, vertical: 20),

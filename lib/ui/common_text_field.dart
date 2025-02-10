@@ -11,7 +11,7 @@ Widget commonTextField({
   Function(String)? onValueChanged,
   Function()? onEditingComplete,
   Function()? onTap,
-  String? suffixLabel = '',
+  String? suffixLabel,
   Widget? suffixWidget,
   String? helperText,
   TextStyle? helperTextStyle,
@@ -23,12 +23,13 @@ Widget commonTextField({
     validator: validator,
     readOnly: readOnly,
     decoration: textFieldDecoration(
-        isFocused: focusNode.hasFocus,
-        label: label,
-        helperText: helperText,
-        helperTextStyle: helperTextStyle,
-        suffixLabel: suffixLabel,
-        suffixWidget: suffixWidget),
+      isFocused: focusNode.hasFocus,
+      label: label,
+      helperText: helperText,
+      helperTextStyle: helperTextStyle,
+      suffixLabel: suffixLabel,
+      suffixWidget: suffixWidget,
+    ),
     onTap: () {
       onTap;
     },
