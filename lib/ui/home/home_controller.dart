@@ -54,6 +54,7 @@ class HomeController extends GetxController {
   var scanCode = ''.obs;
   var cartId = ''.obs;
   var registerId = ''.obs;
+  var clearWeightOnSuccess = false.obs;
 
   // for register section
   var cashPayment = ''.obs;

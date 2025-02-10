@@ -92,6 +92,13 @@ class _OrdersSectionState extends State<OrdersSection>
       }
     });
 
+    ever(homeController.clearWeightOnSuccess, (value) {
+      if (value == true) {
+        numPadTextController.clear();
+        homeController.clearWeightOnSuccess.value = false;
+      }
+    });
+
     WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ever(homeController.scanProductsResponse, (value) {
@@ -1016,6 +1023,7 @@ class _OrdersSectionState extends State<OrdersSection>
                                               .isQuantitySelected.value = false;
                                           homeController.isAutoWeighDetection
                                               .value = false;
+                                          homeController.clearWeightOnSuccess.value = true;
                                           setState(() {
                                             numPadTextController.text = '0';
                                             numPadTextController.clear();
