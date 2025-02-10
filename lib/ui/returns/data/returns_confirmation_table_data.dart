@@ -9,7 +9,11 @@ class ReturnsConfirmationTableData {
 
   const ReturnsConfirmationTableData({required this.context});
 
-  List<Widget> buildReturnOrderItemsTableHeader() {
+  List<Widget> buildReturnOrderItemsTableHeader({
+    required Function(String reason) onReasonSelected,
+    required List<String> returnReasons,
+    required String selectedReason,
+  }) {
     return [
       Padding(
           padding: const EdgeInsets.all(10.0),
@@ -32,7 +36,17 @@ class ReturnsConfirmationTableData {
             style: Theme.of(context).textTheme.labelMedium?.copyWith(
                 fontWeight: FontWeight.w100, color: CustomColors.greyFont),
           )),
-      Padding(padding: const EdgeInsets.all(10.0), child: Text("")),
+      Padding(
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10.0),
+        child: SizedBox(
+          height: 45,
+          child: ReturnReasonDropdownWidget(
+            returnReasons: returnReasons,
+            selectedReason: selectedReason,
+            onReasonSelected: onReasonSelected,
+          ),
+        ),
+      ),
     ];
   }
 
@@ -76,6 +90,7 @@ class ReturnsConfirmationTableData {
             height: 45,
             child: ReturnReasonDropdownWidget(
               returnReasons: returnReasons,
+              selectedReason: orderLine.returnReason,
               onReasonSelected: onReasonSelected,
             ),
           ),

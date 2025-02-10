@@ -1,11 +1,9 @@
 import 'package:ebono_pos/constants/custom_colors.dart';
-import 'package:ebono_pos/ui/common_text_field.dart';
 import 'package:ebono_pos/ui/custom_keyboard/custom_querty_pad.dart';
 import 'package:ebono_pos/ui/home/home_controller.dart';
 import 'package:ebono_pos/ui/returns/bloc/returns_bloc.dart';
 import 'package:ebono_pos/ui/returns/data/returns_confirmation_table_data.dart';
 import 'package:ebono_pos/ui/returns/models/customer_order_model.dart';
-import 'package:ebono_pos/utils/common_methods.dart';
 import 'package:ebono_pos/widgets/custom_table/custom_table_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -257,7 +255,17 @@ class _ReturnSummaryWidgetState extends State<ReturnSummaryWidget> {
                               flex: 8, // width
                               child: CustomTableWidget(
                                 headers: widget.returnsConfirmationTableData
-                                    .buildReturnOrderItemsTableHeader(),
+                                    .buildReturnOrderItemsTableHeader(
+                                  returnReasons:
+                                      state.orderItemsData.refundModes,
+                                  selectedReason:
+                                      state.commonSelectedReason ?? '',
+                                  onReasonSelected: (reason) {
+                                    returnsBloc.add(
+                                      UpdateCommonReasonEvent(reason),
+                                    );
+                                  },
+                                ),
                                 tableRowsData: widget
                                     .returnsConfirmationTableData
                                     .buildTableRows(
@@ -274,7 +282,6 @@ class _ReturnSummaryWidgetState extends State<ReturnSummaryWidget> {
                                         .add(UpdateSelectedItem(
                                           id: orderLineId,
                                           reason: reason,
-                                          orderItems: state.orderItemsData,
                                           orderLine: state.lastSelectedItem,
                                         ));
                                   },
@@ -300,35 +307,35 @@ class _ReturnSummaryWidgetState extends State<ReturnSummaryWidget> {
                           ],
                         ),
                       ),
-                      if (widget.customer.isProxyNumber == true)
-                        Visibility(
-                          visible: widget.customer.isProxyNumber!,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              CustomQwertyPad(
-                                textController: _qwertyPadController,
-                                focusNode: activeFocusNode!,
-                                onValueChanged: (value) {
-                                  if (activeFocusNode == phoneNumberFocusNode) {
-                                    homeController.phoneNumber.value = value;
-                                  } else if (activeFocusNode ==
-                                      customerNameFocusNode) {
-                                    homeController.customerName.value = value;
-                                  }
-                                },
-                                onEnterPressed: (value) {
-                                  if (activeFocusNode == phoneNumberFocusNode) {
-                                    customerNameFocusNode.requestFocus();
-                                  } else if (activeFocusNode ==
-                                      customerNameFocusNode) {
-                                    customerNameFocusNode.unfocus();
-                                  }
-                                },
-                              ),
-                            ],
-                          ),
-                        )
+                      // if (widget.customer.isProxyNumber == true)
+                      //   Visibility(
+                      //     visible: widget.customer.isProxyNumber!,
+                      //     child: Row(
+                      //       mainAxisAlignment: MainAxisAlignment.center,
+                      //       children: [
+                      //         CustomQwertyPad(
+                      //           textController: _qwertyPadController,
+                      //           focusNode: activeFocusNode!,
+                      //           onValueChanged: (value) {
+                      //             if (activeFocusNode == phoneNumberFocusNode) {
+                      //               homeController.phoneNumber.value = value;
+                      //             } else if (activeFocusNode ==
+                      //                 customerNameFocusNode) {
+                      //               homeController.customerName.value = value;
+                      //             }
+                      //           },
+                      //           onEnterPressed: (value) {
+                      //             if (activeFocusNode == phoneNumberFocusNode) {
+                      //               customerNameFocusNode.requestFocus();
+                      //             } else if (activeFocusNode ==
+                      //                 customerNameFocusNode) {
+                      //               customerNameFocusNode.unfocus();
+                      //             }
+                      //           },
+                      //         ),
+                      //       ],
+                      //     ),
+                      //   )
                     ],
                   ),
           );
@@ -353,7 +360,7 @@ class _ReturnSummaryWidgetState extends State<ReturnSummaryWidget> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
-              padding: const EdgeInsets.only(left: 15, top: 4, right: 15),
+              padding: const EdgeInsets.only(left: 15, top: 10, right: 15),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -369,59 +376,7 @@ class _ReturnSummaryWidgetState extends State<ReturnSummaryWidget> {
                 ],
               ),
             ),
-            Visibility(
-              visible: widget.customer.isProxyNumber!,
-              child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                      child: commonTextField(
-                        label: "Enter Customer Mobile Number",
-                        controller: _controllerPhoneNumber,
-                        focusNode: phoneNumberFocusNode,
-                        /*validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return "Please Enter Phone Number";
-                          }
-                          if (value.isNotEmpty &&
-                              (value.length < 10 || value.length > 10)) {
-                            return "Please Enter Valid Phone Number";
-                          }
-                          return null;
-                        },*/
-                      ),
-                    ),
-                    SizedBox(
-                      height: 14,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                      child: commonTextField(
-                        label: "Customer Name",
-                        controller: _controllerCustomerName,
-                        focusNode: customerNameFocusNode,
-                        /* validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return "Please Enter Customer Name";
-                          } else {
-                            return null;
-                          }
-                        },*/
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            widget.customer.isProxyNumber == true
-                ? SizedBox(height: 14)
-                : Expanded(child: SizedBox()),
+            SizedBox(height: 20),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 0),
               child: Row(
@@ -457,18 +412,16 @@ class _ReturnSummaryWidgetState extends State<ReturnSummaryWidget> {
               padding: EdgeInsets.only(
                 right: 20,
                 left: 20,
-                bottom: widget.customer.isProxyNumber == true ? 8 : 0,
+                bottom: 0,
               ),
               child: SizedBox(
                 width: double.infinity,
                 height: 60,
                 child: ElevatedButton(
-                  onPressed: state.orderItemsData.customer?.isProxyNumber ==
-                          false
+                  onPressed: state.isConfirmReturnBtnEnabled
                       ? () {
                           if (state.orderItemsData.orderLines!
-                                  .where((orderLine) =>
-                                      orderLine.isSelected == true)
+                                  .where((orderLine) => orderLine.isSelected)
                                   .any((orderLine) =>
                                       (orderLine.returnReason == null ||
                                           orderLine.returnReason?.isEmpty ==
@@ -477,47 +430,12 @@ class _ReturnSummaryWidgetState extends State<ReturnSummaryWidget> {
                             Get.snackbar(
                                 "Invalid Reason", "Please Select the reason");
                           } else {
-                            context.read<ReturnsBloc>().add(
-                                  ProceedToReturnItems(state.orderItemsData),
-                                );
+                            context
+                                .read<ReturnsBloc>()
+                                .add(ProceedToReturnItems());
                           }
                         }
-                      : isValidPhoneNumber(_controllerPhoneNumber.text) &&
-                              _controllerCustomerName.text.isNotEmpty
-                          ? () {
-                              if (state.orderItemsData.orderLines!
-                                      .where((orderLine) =>
-                                          orderLine.isSelected == true)
-                                      .any((orderLine) =>
-                                          (orderLine.returnReason == null ||
-                                              orderLine.returnReason?.isEmpty ==
-                                                  true)) ==
-                                  true) {
-                                Get.snackbar("Invalid Reason",
-                                    "Please Select the reason");
-                              } else {
-                                var orderData = state.orderItemsData;
-
-                                if (orderData.customer!.isProxyNumber!) {
-                                  orderData = orderData.copyWith(
-                                    customer: orderData.customer!.copyWith(
-                                      customerName:
-                                          _controllerCustomerName.text,
-                                      phoneNumber: orderData
-                                          .customer!.phoneNumber!
-                                          .copyWith(
-                                        number: _controllerPhoneNumber.text,
-                                      ),
-                                    ),
-                                  );
-                                }
-
-                                context.read<ReturnsBloc>().add(
-                                      ProceedToReturnItems(orderData),
-                                    );
-                              }
-                            }
-                          : null,
+                      : null,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: CustomColors.secondaryColor,
                     shape: RoundedRectangleBorder(
@@ -534,6 +452,7 @@ class _ReturnSummaryWidgetState extends State<ReturnSummaryWidget> {
                 ),
               ),
             ),
+            SizedBox(height: 20),
           ],
         ),
       ),

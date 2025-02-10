@@ -169,8 +169,8 @@ class _OrdersSectionState extends State<OrdersSection>
             flex: 1,
             child: QuickActionButtons(
               color: Colors.white,
-              onCustomerPressed: () {
-                showDialog(
+              onCustomerPressed: () async {
+                await showDialog(
                   context: context,
                   builder: (BuildContext context) {
                     return Dialog(
@@ -181,20 +181,25 @@ class _OrdersSectionState extends State<OrdersSection>
                     );
                   },
                 );
+                homeController.displayOTPScreen.value = false;
               },
-              onHoldCartPressed: () {
+              onHoldCartPressed: () async {
                 if (homeController.isContionueWithOutCustomer.value) {
-                  showDialog(
+                  await showDialog(
                     context: context,
                     builder: (BuildContext context) {
                       return Dialog(
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20.0),
                         ),
-                        child: AddCustomerWidget(context),
+                        child: AddCustomerWidget(
+                          context,
+                          isDialogForHoldCart: true,
+                        ),
                       );
                     },
                   );
+                  homeController.displayOTPScreen.value = false;
                 } else {
                   AuthModes enableHoldCartMode = AuthModeExtension.fromString(
                       homeController.isEnableHoldCartEnabled.value);
@@ -954,10 +959,12 @@ class _OrdersSectionState extends State<OrdersSection>
                                   if (isValidOfferId(
                                           numPadTextController.text.trim()) ||
                                       numPadTextController.text
-                                          .trim().toUpperCase()
+                                          .trim()
+                                          .toUpperCase()
                                           .contains("W")) {
-                                    homeController
-                                        .scanApiCall(numPadTextController.text.toUpperCase());
+                                    homeController.scanApiCall(
+                                        numPadTextController.text
+                                            .toUpperCase());
 
                                     homeController.isQuantitySelected.value =
                                         false;
@@ -1012,8 +1019,8 @@ class _OrdersSectionState extends State<OrdersSection>
                                               numPadTextController.text),
                                         )
                                             .then((val) {
-                                          homeController.isQuantitySelected
-                                              .value = false;
+                                          homeController
+                                              .isQuantitySelected.value = false;
                                           homeController.isAutoWeighDetection
                                               .value = false;
                                           homeController.clearWeightOnSuccess.value = true;

@@ -296,4 +296,21 @@ class HomeRepository {
       throw Exception('$e');
     }
   }
+
+  Future<bool> generateORValidateOTP({
+    required bool tiggerOTP,
+    required String phoneNumber,
+    required String otp,
+  }) async {
+    try {
+      await _apiHelper.post(
+        ApiConstants.otp(tiggerOTP: tiggerOTP),
+        data: {'phone_number': phoneNumber, if (otp.isNotEmpty) 'otp': otp},
+      );
+
+      return true;
+    } catch (e) {
+      throw Exception('$e');
+    }
+  }
 }
