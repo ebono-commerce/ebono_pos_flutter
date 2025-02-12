@@ -37,6 +37,7 @@ class _LoginPageState extends State<LoginPage> {
   FocusNode? activeFocusNode;
 
   final _formKey = GlobalKey<FormState>();
+  final _portSelectionFormKey = GlobalKey<FormState>();
 
   final loginBloc = LoginBloc(Get.find<LoginRepository>(),
       Get.find<SharedPreferenceHelper>(), Get.find<HiveStorageHelper>());
@@ -112,7 +113,8 @@ class _LoginPageState extends State<LoginPage> {
               try {
                 print("Initializing WeighingScaleService...");
                 if (!Get.isRegistered<WeighingScaleService>()) {
-                  Get.put<WeighingScaleService>(WeighingScaleService(Get.find<SharedPreferenceHelper>()));
+                  Get.put<WeighingScaleService>(
+                      WeighingScaleService(Get.find<SharedPreferenceHelper>()));
                 }
 
                 print("WeighingScaleService initialized successfully!");
@@ -239,8 +241,12 @@ class _LoginPageState extends State<LoginPage> {
               width: 175,
               height: 175,
             ),
-            SizedBox(height: 20,),
-            VersionWidget(fontSize: 16,),
+            SizedBox(
+              height: 20,
+            ),
+            VersionWidget(
+              fontSize: 16,
+            ),
             SizedBox(height: 30),
             Text(
               'Welcome Back',
@@ -254,7 +260,6 @@ class _LoginPageState extends State<LoginPage> {
               style: theme.textTheme.headlineSmall
                   ?.copyWith(color: Colors.black45),
             ),
-
           ],
         ),
       ),
@@ -619,9 +624,8 @@ class _LoginPageState extends State<LoginPage> {
   Widget portSelectionWidget(BuildContext context, LoginBloc loginBloc) {
     var availablePorts = loginBloc.availablePorts;
     var availablePrinters = loginBloc.availablePrinters;
-    var selectedPort = availablePorts.isNotEmpty ? availablePorts.first : '';
-    var selectedPrinter =
-        availablePrinters.isNotEmpty ? availablePrinters.first : '';
+    String? selectedPort;
+    String? selectedPrinter;
     return Card(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(15.0),
@@ -630,120 +634,145 @@ class _LoginPageState extends State<LoginPage> {
       elevation: 10,
       child: Container(
         padding: EdgeInsets.all(40),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            availablePrinters.isNotEmpty
-                ? DropdownSearch<String>(
-                    key: printerDropDownKey,
-                    items: (filter, infiniteScrollProps) => availablePrinters,
-                    decoratorProps: DropDownDecoratorProps(
+        child: Form(
+          key: _portSelectionFormKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              availablePrinters.isNotEmpty
+                  ? DropdownSearch<String>(
+                      key: printerDropDownKey,
+                      items: (filter, infiniteScrollProps) => availablePrinters,
+                      decoratorProps: DropDownDecoratorProps(
                         decoration: textFieldDecoration(
-                            isFocused:
-                                printerDropDownKey.currentState?.isFocused ==
-                                    true,
-                            label: 'Select the thermal printer')),
-                    onChanged: (value) async {
-                      if (value != null) {
-                        selectedPrinter = value;
-                      }
-                    },
-                    suffixProps: DropdownSuffixProps(
-                        dropdownButtonProps: DropdownButtonProps(
-                      iconOpened: Icon(Icons.keyboard_arrow_up),
-                      iconClosed: Icon(Icons.keyboard_arrow_down),
-                    )),
-                    selectedItem: availablePrinters.first,
-                    popupProps: PopupProps.menu(
-                      showSearchBox: false,
-                      fit: FlexFit.loose,
-                      showSelectedItems: true,
-                    ),
-                    //dropdownBuilder: (ctx, selectedItem) => Text(selectedItem!.name),
-                  )
-                : Text('No printer found',
-                    style: theme.textTheme.bodyLarge
-                        ?.copyWith(color: Colors.black45)),
-            SizedBox(height: 20),
-            availablePorts.isNotEmpty
-                ? DropdownSearch<String>(
-                    key: portDropDownKey,
-                    items: (filter, infiniteScrollProps) => availablePorts,
-                    decoratorProps: DropDownDecoratorProps(
-                        decoration: textFieldDecoration(
-                            isFocused:
-                                portDropDownKey.currentState?.isFocused == true,
-                            label: 'Select weighing scale port')),
-                    onChanged: (value) async {
-                      if (value != null) {
-                        selectedPort = value;
-                      }
-                    },
-                    suffixProps: DropdownSuffixProps(
-                        dropdownButtonProps: DropdownButtonProps(
-                      iconOpened: Icon(Icons.keyboard_arrow_up),
-                      iconClosed: Icon(Icons.keyboard_arrow_down),
-                    )),
-                    selectedItem: availablePorts.first,
-                    popupProps: PopupProps.menu(
-                      showSearchBox: false,
-                      fit: FlexFit.loose,
-                      showSelectedItems: true,
-                    ),
-                    //dropdownBuilder: (ctx, selectedItem) => Text(selectedItem!.name),
-                  )
-                : Text('No port found',
-                    style: theme.textTheme.bodyLarge
-                        ?.copyWith(color: Colors.black45)),
-
-            SizedBox(height: 20),
-            // Sign in button
-            SizedBox(
-              width: double.infinity,
-              height: 60,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Theme.of(context).colorScheme.secondary,
-                  textStyle: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.w500,
+                          isFocused:
+                              printerDropDownKey.currentState?.isFocused ==
+                                  true,
+                          label: 'Select the thermal printer',
+                        ),
                       ),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
+                      onChanged: (value) async {
+                        if (value != null) {
+                          selectedPrinter = value;
+                        }
+                      },
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return "please select thermal printer";
+                        }
+                        return null;
+                      },
+                      suffixProps: DropdownSuffixProps(
+                          dropdownButtonProps: DropdownButtonProps(
+                        iconOpened: Icon(Icons.keyboard_arrow_up),
+                        iconClosed: Icon(Icons.keyboard_arrow_down),
+                      )),
+                      selectedItem: selectedPrinter,
+                      popupProps: PopupProps.menu(
+                        showSearchBox: false,
+                        fit: FlexFit.loose,
+                        showSelectedItems: true,
+                      ),
+                      //dropdownBuilder: (ctx, selectedItem) => Text(selectedItem!.name),
+                    )
+                  : Text(
+                      'No printer found',
+                      style: theme.textTheme.bodyLarge
+                          ?.copyWith(color: Colors.black45),
+                    ),
+              SizedBox(height: 20),
+              availablePorts.isNotEmpty
+                  ? DropdownSearch<String>(
+                      key: portDropDownKey,
+                      items: (filter, infiniteScrollProps) => availablePorts,
+                      decoratorProps: DropDownDecoratorProps(
+                          decoration: textFieldDecoration(
+                              isFocused:
+                                  portDropDownKey.currentState?.isFocused ==
+                                      true,
+                              label: 'Select weighing scale port')),
+                      onChanged: (value) async {
+                        if (value != null) {
+                          selectedPort = value;
+                        }
+                      },
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return "please select weighing scale port";
+                        }
+                        return null;
+                      },
+                      suffixProps: DropdownSuffixProps(
+                          dropdownButtonProps: DropdownButtonProps(
+                        iconOpened: Icon(Icons.keyboard_arrow_up),
+                        iconClosed: Icon(Icons.keyboard_arrow_down),
+                      )),
+                      selectedItem: selectedPort,
+                      popupProps: PopupProps.menu(
+                        showSearchBox: false,
+                        fit: FlexFit.loose,
+                        showSelectedItems: true,
+                      ),
+                      //dropdownBuilder: (ctx, selectedItem) => Text(selectedItem!.name),
+                    )
+                  : Text(
+                      'No port found',
+                      style: theme.textTheme.bodyLarge
+                          ?.copyWith(color: Colors.black45),
+                    ),
+
+              SizedBox(height: 20),
+              // Sign in button
+              SizedBox(
+                width: double.infinity,
+                height: 60,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).colorScheme.secondary,
+                    textStyle: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.w500,
+                        ),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    elevation: 6,
                   ),
-                  elevation: 6,
-                ),
-                onPressed: () {
-                  Future.delayed(Duration(milliseconds: 400), () {
-                    if (availablePorts.isNotEmpty) {
-                      loginBloc.add(
-                        SelectPort(selectedPort),
-                      );
-                    } else {
-                      loginBloc.add(
-                        SelectPort(''),
-                      );
+                  onPressed: () {
+                    if (_portSelectionFormKey.currentState?.validate() ==
+                        true) {
+                      Future.delayed(Duration(milliseconds: 400), () {
+                        if (availablePorts.isNotEmpty) {
+                          loginBloc.add(
+                            SelectPort(selectedPort!),
+                          );
+                        } else {
+                          loginBloc.add(
+                            SelectPort(''),
+                          );
+                        }
+                        if (availablePrinters.isNotEmpty) {
+                          loginBloc.add(
+                            SelectPrinter(selectedPrinter!),
+                          );
+                        } else {
+                          loginBloc.add(
+                            SelectPrinter(''),
+                          );
+                        }
+                      });
                     }
-                    if (availablePrinters.isNotEmpty) {
-                      loginBloc.add(
-                        SelectPrinter(selectedPrinter),
-                      );
-                    } else {
-                      loginBloc.add(
-                        SelectPrinter(''),
-                      );
-                    }
-                  });
-                },
-                child: Text(
-                  'Continue',
+                  },
+                  child: Text(
+                    'Continue',
+                  ),
                 ),
               ),
-            ),
-            SizedBox(height: 10),
-          ],
+              SizedBox(height: 10),
+            ],
+          ),
         ),
       ),
     );
