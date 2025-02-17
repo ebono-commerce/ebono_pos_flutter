@@ -278,6 +278,8 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
                       _controllerCustomerName.clear();
                       _controllerPhoneNumber.clear();
                       _qwertyPadController.clear();
+                      homeController.customerName.value = '';
+                      homeController.phoneNumber.value = '';
                       homeController.getCustomerDetailsResponse.value =
                           CustomerDetailsResponse();
                       Navigator.pop(widget.dialogContext);

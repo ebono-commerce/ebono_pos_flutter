@@ -388,6 +388,7 @@ class HomeController extends GetxController {
           await _homeRepository.getCustomerDetails(phoneNumber.value);
       getCustomerDetailsResponse.value = response;
       if (getCustomerDetailsResponse.value.customerName?.isNotEmpty == true) {
+        customerName.value = '';
         customerName.value =
             getCustomerDetailsResponse.value.customerName.toString();
       }
@@ -402,6 +403,8 @@ class HomeController extends GetxController {
     bool isFromReturns = false,
   }) async {
     try {
+      final skipMergeCart =
+          customerResponse.value.phoneNumber?.number == phoneNumber.value;
       var response = await _homeRepository.fetchCustomer(CustomerRequest(
           phoneNumber: phoneNumber.value,
           customerName: customerName.value,
@@ -421,7 +424,9 @@ class HomeController extends GetxController {
         displayOTPScreen.value = true;
       }
       if (!isFromReturns) {
-        if (cartId.value.isNotEmpty && isCustomerProxySelected.value) {
+        if (cartId.value.isNotEmpty &&
+            isCustomerProxySelected.value &&
+            !skipMergeCart) {
           mergeCart(phoneNumber.value);
           isCustomerProxySelected.value = false;
         } else {
@@ -649,12 +654,10 @@ class HomeController extends GetxController {
                   "${hiveStorageHelper.read(SharedPreferenceConstants.selectedTerminalId)}",
               holdCartId: id));
       cartResponse.value = response;
-      if (cartResponse.value != null) {
-        /* resetting the exsisting state */
-        isCustomerProxySelected.value = true;
-        clearHoldCartOrders();
-        selectedTabButton.value = 2;
-      }
+      /* resetting the exsisting state */
+      isCustomerProxySelected.value = true;
+      clearHoldCartOrders();
+      selectedTabButton.value = 2;
     } catch (e) {
       Get.snackbar('Error while resuming cart', '$e');
     }
