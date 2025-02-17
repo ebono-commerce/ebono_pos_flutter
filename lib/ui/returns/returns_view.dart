@@ -809,8 +809,8 @@ class _ReturnsViewState extends State<ReturnsView> {
                                 returnsConfirmationTableData:
                                     _returnsConfirmationTableData,
                                 onTapClose: () {
-                                  _resetAllValues();
                                   Get.back();
+                                  _resetAllValues();
                                 },
                                 onPaymentModeSelected: (String mode) {
                                   // Handle payment mode selection

@@ -172,8 +172,8 @@ class _OrdersSectionState extends State<OrdersSection>
                 absorbing: homeController.registerId.value.isEmpty,
                 child: QuickActionButtons(
                   color: Colors.white,
-                  onCustomerPressed: () {
-                    showDialog(
+                  onCustomerPressed: () async {
+                    await showDialog(
                       context: context,
                       builder: (BuildContext context) {
                         return Dialog(
@@ -184,6 +184,8 @@ class _OrdersSectionState extends State<OrdersSection>
                         );
                       },
                     );
+
+                    homeController.displayOTPScreen.value = false;
                   },
                   onHoldCartPressed: () {
                     if (homeController.isContionueWithOutCustomer.value) {
@@ -1031,7 +1033,8 @@ class _OrdersSectionState extends State<OrdersSection>
                                               .isQuantitySelected.value = false;
                                           homeController.isAutoWeighDetection
                                               .value = false;
-                                          homeController.clearWeightOnSuccess.value = true;
+                                          homeController.clearWeightOnSuccess
+                                              .value = true;
                                           setState(() {
                                             numPadTextController.text = '0';
                                             numPadTextController.clear();
@@ -1060,7 +1063,7 @@ class _OrdersSectionState extends State<OrdersSection>
                               if (homeController.cartId.value.isNotEmpty &&
                                   homeController.registerId.isNotEmpty) {
                                 if (isValidOfferId(text) ||
-                                    (text.trim().length >= 1 &&
+                                    (text.trim().isNotEmpty &&
                                         text.length <= 3)) {
                                   homeController
                                       .scanApiCall(numPadTextController.text);
