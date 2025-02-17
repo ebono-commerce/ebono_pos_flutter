@@ -74,6 +74,7 @@ class OrderItemsTableData {
     required OrderItemsModel orderItemsData,
     required ReturnsBloc returnsBLoc,
     required Function(OrderLine orderLine)? onTapSelectedButton,
+    required Function(OrderLine orderLine)? onTapTextFieldButton,
   }) {
     if (orderItemsData.orderLines == null ||
         orderItemsData.orderLines!.isEmpty) {
@@ -85,6 +86,7 @@ class OrderItemsTableData {
         orderLine: orderLine,
         returnsBLoc: returnsBLoc,
         onTap: () => onTapSelectedButton?.call(orderLine),
+        onTapTextField: () => onTapTextFieldButton?.call(orderLine),
       );
     }).toList();
   }
@@ -93,6 +95,7 @@ class OrderItemsTableData {
     required OrderLine orderLine,
     required ReturnsBloc returnsBLoc,
     required Function()? onTap,
+    required Function()? onTapTextField,
   }) {
     var borderColor = (orderLine.isSelected == true &&
             orderLine.orderLineId ==
@@ -109,7 +112,7 @@ class OrderItemsTableData {
         TableCellWidget(text: orderLine.item!.skuCode!, width: 110),
         TableCellWidget(text: orderLine.item!.skuTitle!, width: 300),
         InkWell(
-          onTap: onTap,
+          onTap: onTapTextField,
           child: Padding(
             padding:
                 const EdgeInsets.symmetric(vertical: 15.0, horizontal: 20.0),

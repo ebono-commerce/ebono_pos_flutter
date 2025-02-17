@@ -217,7 +217,6 @@ class _ReturnsViewState extends State<ReturnsView> {
                 );
                 setState(() => isCustomerDialogOpened == false);
               }
-
               Get.back();
             },
           ),
@@ -328,6 +327,7 @@ class _ReturnsViewState extends State<ReturnsView> {
                 displayCustomerOrdersTableData = false;
                 displayInitialEmptyTable = false;
                 displayFormField = false;
+                isCustomerOrdersFetched = false;
                 isOrderItemsFetched = true;
 
                 /* clearing the un-used values */
@@ -352,6 +352,17 @@ class _ReturnsViewState extends State<ReturnsView> {
               _customerDetails = state.orderItemsData.customer ?? Customer();
               setState(() {});
             }
+
+            /* if nothing is selected clearing numpad */
+            if (state.orderItemsData.orderLines
+                    ?.every((orderitem) => orderitem.isSelected == false) ==
+                true) {
+              numPadTextController.clear();
+              numPadFocusNode.unfocus();
+            } else {
+              numPadFocusNode.requestFocus();
+            }
+
             if (state.isError) {
               Get.snackbar(
                 "Error Fetching Customer Orders",
@@ -442,6 +453,20 @@ class _ReturnsViewState extends State<ReturnsView> {
                                     _orderItemsTableData.buildTableRows(
                                   orderItemsData: state.orderItemsData,
                                   returnsBLoc: returnsBloc,
+                                  onTapTextFieldButton: (orderLine) {
+                                    if (orderLine.isSelected == true) {
+                                      numPadTextController.text =
+                                          '${orderLine.returnedQuantity ?? ''}';
+                                      numPadFocusNode.requestFocus();
+                                    }
+                                    returnsBloc.add(
+                                      UpdateSelectedItem(
+                                        id: orderLine.orderLineId!,
+                                        isSelected: true,
+                                        orderLine: orderLine,
+                                      ),
+                                    );
+                                  },
                                   onTapSelectedButton: (orderLine) {
                                     if (!orderLine.isSelected) {
                                       numPadFocusNode.requestFocus();
@@ -454,6 +479,7 @@ class _ReturnsViewState extends State<ReturnsView> {
                                       id: orderLine.orderLineId ?? '',
                                       // orderItems: state.orderItemsData,
                                       orderLine: orderLine,
+                                      isSelected: !orderLine.isSelected,
                                     ));
                                   },
                                 ),

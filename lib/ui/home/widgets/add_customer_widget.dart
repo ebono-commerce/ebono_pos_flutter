@@ -75,6 +75,13 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
       _controllerCustomerName.text = value.toString();
     });
 
+    ever(homeController.resendOTPCount, (value) {
+      if (value > 2) {
+        /* error message indicating max otp limit reached */
+        _formKey.currentState?.validate();
+      }
+    });
+
     ever(homeController.customerResponse, (value) {
       if (value.phoneNumber != null) {
         if (widget.dialogContext.mounted &&
@@ -200,6 +207,7 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
 
   @override
   void dispose() {
+    homeController.resendOTPCount.value = 0;
     super.dispose();
   }
 
@@ -344,7 +352,10 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
                             ),
                           ),
                         ],
-                        const SizedBox(height: 20),
+                        SizedBox(
+                            height: homeController.displayOTPScreen.value
+                                ? 10
+                                : 20),
                         _buildTextField(
                           label: "Enter OTP",
                           controller: _otpTextController,
@@ -366,7 +377,10 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
                             return null;
                           },
                         ),
-                        SizedBox(height: 30),
+                        SizedBox(
+                            height: homeController.displayOTPScreen.value
+                                ? 10
+                                : 30),
                         _buildCustomButton(
                           onPressed: () {
                             homeController.triggerCustomOTPValidation.value =
@@ -391,15 +405,20 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
                         ),
                         SizedBox(height: 15),
                         _buildCustomButton(
-                          onPressed: () async {
-                            _startTimer();
-                            await homeController.generateORValidateOTP(
-                              tiggerOTP: true,
-                              isResendOTP: true,
-                              phoneNumber: homeController.phoneNumber.value,
-                              otp: '',
-                            );
-                          },
+                          onPressed: homeController.resendOTPCount.value > 2
+                              ? null
+                              : () async {
+                                  if (homeController.resendOTPCount.value < 3) {
+                                    _startTimer();
+                                    await homeController.generateORValidateOTP(
+                                      tiggerOTP: true,
+                                      isResendOTP: true,
+                                      phoneNumber:
+                                          homeController.phoneNumber.value,
+                                      otp: '',
+                                    );
+                                  }
+                                },
                           isBtnEnabled: isResendOTPBtnEnabled,
                           buttonText:
                               "Resend OTP ${_formatTime(_remainingTime).compareTo("00:00") == 0 ? "" : _formatTime(_remainingTime)}",
@@ -591,7 +610,7 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
                     ],
                   ),
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: homeController.displayOTPScreen.value ? 10 : 20),
           SizedBox(
             width: 900,
             child: CustomQwertyPad(

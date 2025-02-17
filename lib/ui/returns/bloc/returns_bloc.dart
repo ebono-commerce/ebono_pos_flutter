@@ -165,7 +165,11 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
           ? state.orderItemsData.copyWith(
               orderLines: state.orderItemsData.orderLines?.map((item) {
                 if (item.orderLineId == event.id) {
-                  return item.copyWith(isSelected: !item.isSelected);
+                  return item.copyWith(
+                    isSelected: event.isSelected,
+                    returnedQuantity:
+                        !event.isSelected ? "" : item.returnedQuantity,
+                  );
                 }
                 return item;
               }).toList(),
@@ -276,6 +280,7 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
           isError: true,
           orderItemsData: updatedOrderItems,
           errorMessage: e.toString(),
+          lastSelectedItem: OrderLine(),
         ),
       );
     }
@@ -358,7 +363,7 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
   ) async {
     try {
       final updatedItem = state.lastSelectedItem.copyWith(
-        isSelected: !state.lastSelectedItem.isSelected,
+        isSelected: true,
         returnedQuantity:
             state.lastSelectedItem.returnableQuantity?.quantityUom == "pcs"
                 ? int.parse(event.quantity)
