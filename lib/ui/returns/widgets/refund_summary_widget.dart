@@ -380,7 +380,9 @@ class _ReturnSummaryWidgetState extends State<ReturnSummaryWidget> {
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 0),
               child: Row(
                 children: [
-                  Expanded(
+                  // CR:cash payment mode removed
+                  /*
+                      Expanded(
                     child: _buildPaymentOption(
                       title: 'Cash',
                       path: 'assets/images/cash.svg',
@@ -391,6 +393,7 @@ class _ReturnSummaryWidgetState extends State<ReturnSummaryWidget> {
                     ),
                   ),
                   const SizedBox(width: 15),
+                 */
                   Expanded(
                     child: _buildPaymentOption(
                       title: 'Wallet',
@@ -398,7 +401,7 @@ class _ReturnSummaryWidgetState extends State<ReturnSummaryWidget> {
                       isSelected: true,
                       onTap: () => widget.onPaymentModeSelected('wallet'),
                       context: context,
-                      textStyle: bodyLargeBlack,
+                      textStyle: bodyLargeBlack!,
                     ),
                   ),
                 ],

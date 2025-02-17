@@ -112,7 +112,11 @@ class _ReturnsViewState extends State<ReturnsView> {
     numPadTextController.addListener(() {
       setState(() {
         if (activeFocusNode == customerNumberFocusNode) {
-          customerNumberTextController.text = numPadTextController.text;
+          if(numPadTextController.text.length <= 10){
+            customerNumberTextController.text = numPadTextController.text;
+          }else{
+            numPadTextController.text = numPadTextController.text.substring(0, 10);
+          }
         } else if (activeFocusNode == orderNumberFocusNode) {
           orderNumberTextController.text = numPadTextController.text;
         }
@@ -555,6 +559,7 @@ class _ReturnsViewState extends State<ReturnsView> {
                     focusNode: customerNumberFocusNode,
                     controller: customerNumberTextController,
                     label: "Enter Customer Mobile Number",
+                    acceptableLength: 10,
                     validator: (value) {
                       if ((value == null || value.isEmpty) &&
                           orderNumberTextController.text.isEmpty) {
@@ -568,6 +573,9 @@ class _ReturnsViewState extends State<ReturnsView> {
                       }
                       return null;
                     },
+                    onTap: (){
+                      orderNumberTextController.clear();
+                    }
                   ),
                   const SizedBox(height: 20),
                   const ORWidget(),
@@ -583,6 +591,9 @@ class _ReturnsViewState extends State<ReturnsView> {
                       }
                       return null;
                     },
+                    onTap: (){
+                      customerNumberTextController.clear();
+                    }
                   ),
                   Container(
                     margin: const EdgeInsets.only(top: 30),

@@ -97,7 +97,7 @@ class OrderDetailsWidget extends StatelessWidget {
                         text: TextSpan(
                           children: <TextSpan>[
                             TextSpan(
-                              text: 'Wallet balance: - ',
+                              text: 'Wallet balance: ',
                               style: TextStyle(
                                   color: Colors.grey,
                                   fontSize: 12,
@@ -126,7 +126,7 @@ class OrderDetailsWidget extends StatelessWidget {
                         text: TextSpan(
                           children: <TextSpan>[
                             TextSpan(
-                              text: 'Contact No.: ',
+                              text: 'Contact No: ',
                               style: TextStyle(
                                   color: Colors.grey,
                                   fontSize: 12,
@@ -150,7 +150,7 @@ class OrderDetailsWidget extends StatelessWidget {
                         text: TextSpan(
                           children: <TextSpan>[
                             TextSpan(
-                              text: 'Loyalty Points: - ',
+                              text: 'Loyalty Points: ',
                               style: TextStyle(
                                   color: Colors.grey,
                                   fontSize: 12,
