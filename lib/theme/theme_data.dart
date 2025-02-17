@@ -17,6 +17,7 @@ ThemeData themeData(BuildContext context) {
           onError: Colors.white,
           surface: Colors.white,
           onSurface: Colors.black),
+      textSelectionTheme: TextSelectionThemeData(selectionColor: Colors.transparent),
       textTheme: GoogleFonts.interTextTheme(
         Theme.of(context).textTheme,
       ).copyWith(

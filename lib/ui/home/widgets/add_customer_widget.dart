@@ -302,112 +302,117 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
           SizedBox(
             width: 400,
             child: homeController.displayOTPScreen.value == true
-                ? Form(
-                    key: _formKey,
-                    child: Column(
-                      children: [
-                        Text(
-                          "Verify With OTP",
-                          style: theme.textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: CustomColors.black,
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        RichText(
-                          text: TextSpan(children: [
-                            TextSpan(
-                              text: "4 digit OTP has been sent to ",
-                              style: theme.textTheme.titleSmall?.copyWith(
-                                fontWeight: FontWeight.normal,
-                                color: CustomColors.greyFont,
-                              ),
-                            ),
-                            TextSpan(
-                              text: homeController.phoneNumber.value,
-                              style: theme.textTheme.titleMedium?.copyWith(
+                ? Builder(
+                  builder: (context) {
+                    otpFocusNode.requestFocus();
+                    return Form(
+                        key: _formKey,
+                        child: Column(
+                          children: [
+                            Text(
+                              "Verify With OTP",
+                              style: theme.textTheme.titleLarge?.copyWith(
                                 fontWeight: FontWeight.bold,
                                 color: CustomColors.black,
                               ),
                             ),
-                          ]),
-                        ),
-                        if (widget.isDialogForReturns) ...[
-                          const SizedBox(height: 10),
-                          Text(
-                            "Return will not be processed without OTP verification",
-                            style: theme.textTheme.titleSmall?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: CustomColors.black,
+                            const SizedBox(height: 10),
+                            RichText(
+                              text: TextSpan(children: [
+                                TextSpan(
+                                  text: "4 digit OTP has been sent to ",
+                                  style: theme.textTheme.titleSmall?.copyWith(
+                                    fontWeight: FontWeight.normal,
+                                    color: CustomColors.greyFont,
+                                  ),
+                                ),
+                                TextSpan(
+                                  text: homeController.phoneNumber.value,
+                                  style: theme.textTheme.titleMedium?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color: CustomColors.black,
+                                  ),
+                                ),
+                              ]),
                             ),
-                          ),
-                        ],
-                        const SizedBox(height: 20),
-                        _buildTextField(
-                          label: "Enter OTP",
-                          controller: _otpTextController,
-                          focusNode: otpFocusNode,
-                          onChanged: (value) =>
-                              homeController.otpNumber.value = value,
-                          validator: (value) {
-                            if (value == null) {
-                              return "Please Enter OTP";
-                            }
-                            if (value.length < 4 || value.length > 4) {
-                              return "Please Enter Valid OTP";
-                            }
-                            if (homeController
-                                    .triggerCustomOTPValidation.value ==
-                                true) {
-                              return homeController.otpErrorMessage.value;
-                            }
-                            return null;
-                          },
+                            if (widget.isDialogForReturns) ...[
+                              const SizedBox(height: 10),
+                              Text(
+                                "Return will not be processed without OTP verification",
+                                style: theme.textTheme.titleSmall?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: CustomColors.black,
+                                ),
+                              ),
+                            ],
+                            const SizedBox(height: 20),
+                            _buildTextField(
+                              label: "Enter OTP",
+                              controller: _otpTextController,
+                              focusNode: otpFocusNode,
+                              onChanged: (value) =>
+                                  homeController.otpNumber.value = value,
+                              validator: (value) {
+                                if (value == null) {
+                                  return "Please Enter OTP";
+                                }
+                                if (value.length < 4 || value.length > 4) {
+                                  return "Please Enter Valid OTP";
+                                }
+                                if (homeController
+                                        .triggerCustomOTPValidation.value ==
+                                    true) {
+                                  return homeController.otpErrorMessage.value;
+                                }
+                                return null;
+                              },
+                            ),
+                            SizedBox(height: 30),
+                            _buildCustomButton(
+                              onPressed: () {
+                                homeController.triggerCustomOTPValidation.value =
+                                    false;
+                                if (_formKey.currentState?.validate() == true) {
+                                  homeController.generateORValidateOTP(
+                                    tiggerOTP: false,
+                                    isResendOTP: false,
+                                    phoneNumber: homeController.phoneNumber.value,
+                                    otp: _otpTextController.text.trim(),
+                                  );
+                                }
+                              },
+                              isBtnEnabled:
+                                  homeController.isOTPResendingOrVerifying.value ==
+                                      false,
+                              buttonText: "Verify",
+                              isLoading:
+                                  homeController.isOTPResendingOrVerifying.value ==
+                                      true,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            SizedBox(height: 15),
+                            _buildCustomButton(
+                              onPressed: () async {
+                                _startTimer();
+                                await homeController.generateORValidateOTP(
+                                  tiggerOTP: true,
+                                  isResendOTP: true,
+                                  phoneNumber: homeController.phoneNumber.value,
+                                  otp: '',
+                                );
+                              },
+                              isBtnEnabled: isResendOTPBtnEnabled,
+                              buttonText:
+                                  "Resend OTP ${_formatTime(_remainingTime).compareTo("00:00") == 0 ? "" : _formatTime(_remainingTime)}",
+                              enableBackground: false,
+                              fontWeight: FontWeight.w500,
+                            ),
+                            SizedBox(height: 15),
+                          ],
                         ),
-                        SizedBox(height: 30),
-                        _buildCustomButton(
-                          onPressed: () {
-                            homeController.triggerCustomOTPValidation.value =
-                                false;
-                            if (_formKey.currentState?.validate() == true) {
-                              homeController.generateORValidateOTP(
-                                tiggerOTP: false,
-                                isResendOTP: false,
-                                phoneNumber: homeController.phoneNumber.value,
-                                otp: _otpTextController.text.trim(),
-                              );
-                            }
-                          },
-                          isBtnEnabled:
-                              homeController.isOTPResendingOrVerifying.value ==
-                                  false,
-                          buttonText: "Verify",
-                          isLoading:
-                              homeController.isOTPResendingOrVerifying.value ==
-                                  true,
-                          fontWeight: FontWeight.w600,
-                        ),
-                        SizedBox(height: 15),
-                        _buildCustomButton(
-                          onPressed: () async {
-                            _startTimer();
-                            await homeController.generateORValidateOTP(
-                              tiggerOTP: true,
-                              isResendOTP: true,
-                              phoneNumber: homeController.phoneNumber.value,
-                              otp: '',
-                            );
-                          },
-                          isBtnEnabled: isResendOTPBtnEnabled,
-                          buttonText:
-                              "Resend OTP ${_formatTime(_remainingTime).compareTo("00:00") == 0 ? "" : _formatTime(_remainingTime)}",
-                          enableBackground: false,
-                          fontWeight: FontWeight.w500,
-                        ),
-                        SizedBox(height: 15),
-                      ],
-                    ),
-                  )
+                      );
+                  }
+                )
                 : Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
