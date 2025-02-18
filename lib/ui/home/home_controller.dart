@@ -87,13 +87,13 @@ class HomeController extends GetxController {
   /* OTP Related */
   var displayOTPScreen = false.obs;
   var resendOTPBtnEnabled = false.obs;
-
   var isResendOTPRequested = false.obs;
   var isOTPVerified = false.obs;
   var isOTPResendingOrVerifying = false.obs;
   var otpErrorMessage = ''.obs;
   var triggerCustomOTPValidation = false.obs;
   var isOTPTriggering = false.obs;
+  var resendOTPCount = 0.obs;
 
   var isScanApiError = false.obs;
   var isAutoWeighDetection = false.obs;
@@ -388,6 +388,7 @@ class HomeController extends GetxController {
           await _homeRepository.getCustomerDetails(phoneNumber.value);
       getCustomerDetailsResponse.value = response;
       if (getCustomerDetailsResponse.value.customerName?.isNotEmpty == true) {
+        customerName.value = '';
         customerName.value =
             getCustomerDetailsResponse.value.customerName.toString();
       }
@@ -402,6 +403,8 @@ class HomeController extends GetxController {
     bool isFromReturns = false,
   }) async {
     try {
+      final skipMergeCart =
+          customerResponse.value.phoneNumber?.number == phoneNumber.value;
       var response = await _homeRepository.fetchCustomer(CustomerRequest(
           phoneNumber: phoneNumber.value,
           customerName: customerName.value,
@@ -419,9 +422,15 @@ class HomeController extends GetxController {
 
       if (showOTPScreen) {
         displayOTPScreen.value = true;
+        Get.snackbar(
+          'OTP SENT SUCCESSFULLY',
+          "OTP sent to $phoneNumber successfully",
+        );
       }
       if (!isFromReturns) {
-        if (cartId.value.isNotEmpty && isCustomerProxySelected.value) {
+        if (cartId.value.isNotEmpty &&
+            isCustomerProxySelected.value &&
+            !skipMergeCart) {
           mergeCart(phoneNumber.value);
           isCustomerProxySelected.value = false;
         } else {
@@ -649,12 +658,10 @@ class HomeController extends GetxController {
                   "${hiveStorageHelper.read(SharedPreferenceConstants.selectedTerminalId)}",
               holdCartId: id));
       cartResponse.value = response;
-      if (cartResponse.value != null) {
-        /* resetting the exsisting state */
-        isCustomerProxySelected.value = true;
-        clearHoldCartOrders();
-        selectedTabButton.value = 2;
-      }
+      /* resetting the exsisting state */
+      isCustomerProxySelected.value = true;
+      clearHoldCartOrders();
+      selectedTabButton.value = 2;
     } catch (e) {
       Get.snackbar('Error while resuming cart', '$e');
     }
@@ -924,23 +931,41 @@ class HomeController extends GetxController {
     bool disableLoading = false,
   }) async {
     try {
+      /* check to count otp's resent and restrict */
+      if (isResendOTP) resendOTPCount.value++;
+      isOTPVerified.value = false;
+
+      otpErrorMessage.value = '';
+      triggerCustomOTPValidation.value = false;
+
+      if (resendOTPCount.value > 2 &&
+          (isResendOTP == true || tiggerOTP == true)) {
+        return;
+      }
+
       /* to show loader when resend otp is triggered */
       isOTPResendingOrVerifying.value = !disableLoading;
       /* to show loader while manually triggering otp */
       isOTPTriggering.value = true;
+
       final result = await _homeRepository.generateORValidateOTP(
         tiggerOTP: tiggerOTP,
         phoneNumber: phoneNumber,
         otp: otp,
       );
 
+      if (result == true && (tiggerOTP == true || isResendOTP == true)) {
+        Get.snackbar(
+          'OTP SENT SUCCESSFULLY',
+          "OTP sent to $phoneNumber successfully",
+        );
+      }
+
       if (isResendOTP == false && tiggerOTP == false) {
         isOTPVerified.value = result;
       }
-
-      otpErrorMessage.value = '';
-      triggerCustomOTPValidation.value = false;
     } catch (e) {
+      Get.snackbar('FAILED TO SEND OTP', e.toString());
       otpErrorMessage.value = e.toString().split('|').last;
       isOTPVerified.value = false;
       triggerCustomOTPValidation.value = true;

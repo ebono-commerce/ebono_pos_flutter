@@ -20,6 +20,8 @@ class PaymentState {
   final bool isWalletAuthenticationError;
   final bool isWalletChargeSuccess;
   final bool isWalletChargeError;
+  final bool isVerifyOTPLoading;
+  final bool isResendOTPLoading;
 
   const PaymentState({
     this.initialState = false,
@@ -43,6 +45,8 @@ class PaymentState {
     this.isWalletAuthenticationError = false,
     this.isWalletChargeSuccess = false,
     this.isWalletChargeError = false,
+    this.isResendOTPLoading = false,
+    this.isVerifyOTPLoading = false,
   });
 
   PaymentState copyWith({
@@ -67,6 +71,8 @@ class PaymentState {
     bool? isWalletAuthenticationError,
     bool? isWalletChargeSuccess,
     bool? isWalletChargeError,
+    bool? isResendOTPLoading,
+    bool? isVerifyOTPLoading,
   }) {
     return PaymentState(
       initialState: initialState ?? this.initialState,
@@ -82,8 +88,7 @@ class PaymentState {
       isPaymentSummarySuccess:
           isPaymentSummarySuccess ?? this.isPaymentSummarySuccess,
       isPlaceOrderSuccess: isPlaceOrderSuccess ?? this.isPlaceOrderSuccess,
-      isPlaceOrderError:
-      isPlaceOrderError ?? this.isPlaceOrderError,
+      isPlaceOrderError: isPlaceOrderError ?? this.isPlaceOrderError,
       isPaymentSummaryError:
           isPaymentSummaryError ?? this.isPaymentSummaryError,
       errorMessage: errorMessage ?? this.errorMessage,
@@ -91,16 +96,17 @@ class PaymentState {
       balancePayableAmount: balancePayableAmount ?? this.balancePayableAmount,
       isOnlinePaymentSuccess:
           isOnlinePaymentSuccess ?? this.isOnlinePaymentSuccess,
-      allowPlaceOrder:
-      allowPlaceOrder ?? this.allowPlaceOrder,
-      allowPrintInvoice:
-      allowPrintInvoice ?? this.allowPrintInvoice,
+      allowPlaceOrder: allowPlaceOrder ?? this.allowPlaceOrder,
+      allowPrintInvoice: allowPrintInvoice ?? this.allowPrintInvoice,
       isWalletAuthenticationSuccess:
-      isWalletAuthenticationSuccess ?? this.isWalletAuthenticationSuccess,
-      isWalletAuthenticationError: isWalletAuthenticationError ?? this.isWalletAuthenticationError,
+          isWalletAuthenticationSuccess ?? this.isWalletAuthenticationSuccess,
+      isWalletAuthenticationError:
+          isWalletAuthenticationError ?? this.isWalletAuthenticationError,
       isWalletChargeSuccess:
-      isWalletChargeSuccess ?? this.isWalletChargeSuccess,
+          isWalletChargeSuccess ?? this.isWalletChargeSuccess,
       isWalletChargeError: isWalletChargeError ?? this.isWalletChargeError,
+      isVerifyOTPLoading: isVerifyOTPLoading ?? this.isVerifyOTPLoading,
+      isResendOTPLoading: isResendOTPLoading ?? this.isResendOTPLoading,
     );
   }
 }

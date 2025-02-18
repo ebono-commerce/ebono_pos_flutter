@@ -131,7 +131,7 @@ class ReturnsState {
       isOrderReturnedSuccessfully: isOrderReturnedSuccessfully ?? false,
       isReturningOrders: isReturningOrders ?? false,
       refundSuccessModel: refundSuccessModel ?? const RefundSuccessModel(),
-      lastSelectedItem: lastSelectedItem ?? this.lastSelectedItem,
+      lastSelectedItem: lastSelectedItem ?? const OrderLine(),
       commonSelectedReason: commonSelectedReason ?? this.commonSelectedReason,
       resetAllValues: resetAllValues ?? false,
       displayAddNewUserDialog: displayAddNewUserDialog ?? false,

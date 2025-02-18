@@ -111,10 +111,11 @@ class _ReturnsViewState extends State<ReturnsView> {
     numPadTextController.addListener(() {
       setState(() {
         if (activeFocusNode == customerNumberFocusNode) {
-          if(numPadTextController.text.length <= 10){
+          if (numPadTextController.text.length <= 10) {
             customerNumberTextController.text = numPadTextController.text;
-          }else{
-            numPadTextController.text = numPadTextController.text.substring(0, 10);
+          } else {
+            numPadTextController.text =
+                numPadTextController.text.substring(0, 10);
           }
         } else if (activeFocusNode == orderNumberFocusNode) {
           orderNumberTextController.text = numPadTextController.text;
@@ -230,6 +231,7 @@ class _ReturnsViewState extends State<ReturnsView> {
     );
 
     homeController.displayOTPScreen.value = false;
+    homeController.getCustomerDetailsResponse.value.existingCustomer = null;
 
     setState(() => isCustomerDialogOpened = false);
   }
@@ -332,6 +334,7 @@ class _ReturnsViewState extends State<ReturnsView> {
                 displayCustomerOrdersTableData = false;
                 displayInitialEmptyTable = false;
                 displayFormField = false;
+                isCustomerOrdersFetched = false;
                 isOrderItemsFetched = true;
 
                 /* clearing the un-used values */
@@ -356,6 +359,17 @@ class _ReturnsViewState extends State<ReturnsView> {
               _customerDetails = state.orderItemsData.customer ?? Customer();
               setState(() {});
             }
+
+            /* if nothing is selected clearing numpad */
+            if (state.orderItemsData.orderLines
+                    ?.every((orderitem) => orderitem.isSelected == false) ==
+                true) {
+              numPadTextController.clear();
+              numPadFocusNode.unfocus();
+            } else {
+              numPadFocusNode.requestFocus();
+            }
+
             if (state.isError) {
               Get.snackbar(
                 "Error Fetching Customer Orders",
@@ -446,6 +460,20 @@ class _ReturnsViewState extends State<ReturnsView> {
                                     _orderItemsTableData.buildTableRows(
                                   orderItemsData: state.orderItemsData,
                                   returnsBLoc: returnsBloc,
+                                  onTapTextFieldButton: (orderLine) {
+                                    if (orderLine.isSelected == true) {
+                                      numPadTextController.text =
+                                          '${orderLine.returnedQuantity ?? ''}';
+                                      numPadFocusNode.requestFocus();
+                                    }
+                                    returnsBloc.add(
+                                      UpdateSelectedItem(
+                                        id: orderLine.orderLineId!,
+                                        isSelected: true,
+                                        orderLine: orderLine,
+                                      ),
+                                    );
+                                  },
                                   onTapSelectedButton: (orderLine) {
                                     if (!orderLine.isSelected) {
                                       numPadFocusNode.requestFocus();
@@ -458,6 +486,7 @@ class _ReturnsViewState extends State<ReturnsView> {
                                       id: orderLine.orderLineId ?? '',
                                       // orderItems: state.orderItemsData,
                                       orderLine: orderLine,
+                                      isSelected: !orderLine.isSelected,
                                     ));
                                   },
                                 ),
@@ -523,45 +552,43 @@ class _ReturnsViewState extends State<ReturnsView> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   commonTextField(
-                    focusNode: customerNumberFocusNode,
-                    controller: customerNumberTextController,
-                    label: "Enter Customer Mobile Number",
-                    acceptableLength: 10,
-                    validator: (value) {
-                      if ((value == null || value.isEmpty) &&
-                          orderNumberTextController.text.isEmpty) {
-                        return 'Please enter a phone number';
-                      } else if (value!.length != 10 &&
-                          customerNumberTextController.text.trim().isEmpty &&
-                          orderNumberTextController.text.isEmpty) {
-                        return 'Phone number must be 10 digits';
-                      } else if (displayProxyNumberError) {
-                        return "Please search with customer number";
-                      }
-                      return null;
-                    },
-                    onTap: (){
-                      orderNumberTextController.clear();
-                    }
-                  ),
+                      focusNode: customerNumberFocusNode,
+                      controller: customerNumberTextController,
+                      label: "Enter Customer Mobile Number",
+                      acceptableLength: 10,
+                      validator: (value) {
+                        if ((value == null || value.isEmpty) &&
+                            orderNumberTextController.text.isEmpty) {
+                          return 'Please enter a phone number';
+                        } else if (value!.length != 10 &&
+                            customerNumberTextController.text.trim().isEmpty &&
+                            orderNumberTextController.text.isEmpty) {
+                          return 'Phone number must be 10 digits';
+                        } else if (displayProxyNumberError) {
+                          return "Please search with customer number";
+                        }
+                        return null;
+                      },
+                      onTap: () {
+                        orderNumberTextController.clear();
+                      }),
                   const SizedBox(height: 20),
                   const ORWidget(),
                   const SizedBox(height: 20),
                   commonTextField(
-                    focusNode: orderNumberFocusNode,
-                    controller: orderNumberTextController,
-                    label: "Enter Order Number",
-                    validator: (value) {
-                      if ((value == null || value.isEmpty) &&
-                          customerNumberTextController.text.isEmpty) {
-                        return 'Please enter order number';
-                      }
-                      return null;
-                    },
-                    onTap: (){
-                      customerNumberTextController.clear();
-                    }
-                  ),
+                      focusNode: orderNumberFocusNode,
+                      controller: orderNumberTextController,
+                      label: "Enter Order Number",
+                      validator: (value) {
+                        if ((value == null || value.isEmpty) &&
+                            customerNumberTextController.text.isEmpty) {
+                          return 'Please enter order number';
+                        }
+                        return null;
+                      },
+                      onTap: () {
+                        customerNumberTextController.clear();
+                      }),
                   Container(
                     margin: const EdgeInsets.only(top: 30),
                     child: SizedBox(
@@ -820,8 +847,8 @@ class _ReturnsViewState extends State<ReturnsView> {
                                 returnsConfirmationTableData:
                                     _returnsConfirmationTableData,
                                 onTapClose: () {
-                                  _resetAllValues();
                                   Get.back();
+                                  _resetAllValues();
                                 },
                                 onPaymentModeSelected: (String mode) {
                                   // Handle payment mode selection
