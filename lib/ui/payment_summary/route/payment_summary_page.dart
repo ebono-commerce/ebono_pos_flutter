@@ -209,10 +209,6 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
               cashPaymentTextController.clear();
             }
 
-            if(state.isWalletChargeSuccess && (state.balancePayableAmount ?? 0) <= 0){
-              cashPaymentTextController.clear();
-            }
-
             if (state.isWalletAuthenticationError) {
               Get.snackbar(
                   "Wallet Authentication Error", state.errorMessage ?? "");
