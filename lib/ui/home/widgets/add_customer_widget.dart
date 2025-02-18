@@ -308,6 +308,7 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
             ),
           ),
           Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
               SizedBox(height: 20),
               SizedBox(
@@ -394,9 +395,7 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
                                 },
                               ),
                               SizedBox(
-                                  height: homeController.displayOTPScreen.value
-                                      ? 10
-                                      : 30),
+                                  height: widget.isDialogForReturns ? 10 : 20),
                               _buildCustomButton(
                                 onPressed: () {
                                   homeController
@@ -452,7 +451,6 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
                                 enableBackground: false,
                                 fontWeight: FontWeight.w500,
                               ),
-                              SizedBox(height: 15),
                             ],
                           ),
                         );
@@ -671,6 +669,7 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
                   },
                 ),
               ),
+              SizedBox(height: 18),
             ],
           ),
         ],
