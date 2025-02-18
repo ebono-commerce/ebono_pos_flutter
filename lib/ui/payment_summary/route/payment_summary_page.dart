@@ -36,6 +36,7 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
   String input = '';
   HomeController homeController = Get.find<HomeController>();
   bool isOnline = false;
+  bool isVerifyDialogOpen = false;
 
   final FocusNode cashPaymentFocusNode = FocusNode();
   final FocusNode onlinePaymentFocusNode = FocusNode();
@@ -116,6 +117,22 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
     super.initState();
   }
 
+  void showOTPDialog() async {
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20.0),
+          ),
+          child: ValidateOtpWidget(context),
+        );
+      },
+    );
+
+    setState(() => isVerifyDialogOpen = false);
+  }
+
   @override
   Widget build(BuildContext context) {
     theme = Theme.of(context);
@@ -134,7 +151,7 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
       body: BlocProvider(
         create: (context) => paymentBloc,
         child: BlocListener<PaymentBloc, PaymentState>(
-          listener: (BuildContext context, PaymentState state) {
+          listener: (BuildContext context, PaymentState state) async {
             if (state.showPaymentPopup && state.isPaymentStartSuccess) {
               _showPaymentDialog();
             }
@@ -159,8 +176,7 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                         ?.firstOrNull
                         ?.applicableBalance ??
                     '';
-              }
-              else{
+              } else {
                 walletTextController.text = '';
               }
             }
@@ -175,24 +191,17 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
               Get.snackbar("Place Order Error", state.errorMessage ?? "");
             }
 
-            if (state.isWalletAuthenticationSuccess) {
+            if (state.isWalletAuthenticationSuccess &&
+                isVerifyDialogOpen == false) {
               print(
                   'wallet authentication state is ${state.isWalletAuthenticationSuccess}');
               paymentBloc.add(WalletIdealEvent());
               print(
                   'wallet authentication state is ${state.isWalletAuthenticationSuccess}');
 
-              showDialog(
-                context: context,
-                builder: (BuildContext context) {
-                  return Dialog(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20.0),
-                    ),
-                    child: ValidateOtpWidget(context),
-                  );
-                },
-              );
+              showOTPDialog();
+
+              setState(() => isVerifyDialogOpen = true);
             }
 
             if (state.isWalletAuthenticationError) {
@@ -359,7 +368,7 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                       label: 'Cash', value: cashPaymentTextController.text),
                   tenderDetailRow(
                       label: 'Online', value: onlinePaymentTextController.text),
-                 /* tenderDetailRow(
+                  /* tenderDetailRow(
                       label: 'Wallet', value: walletTextController.text),*/
                 ],
               ),
@@ -882,9 +891,17 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                     controller: walletTextController,
                     focusNode: walletPaymentFocusNode,
                     readOnly: true,
-                    onPressed: (double.parse(paymentBloc.paymentSummaryResponse.redeemablePaymentOptions?.firstOrNull?.applicableBalance ?? '0') >0)? () {
-                      paymentBloc.add(WalletAuthenticationEvent());
-                    }:null,
+                    onPressed: (double.parse(paymentBloc
+                                    .paymentSummaryResponse
+                                    .redeemablePaymentOptions
+                                    ?.firstOrNull
+                                    ?.applicableBalance ??
+                                '0') >
+                            0)
+                        ? () {
+                            paymentBloc.add(WalletAuthenticationEvent());
+                          }
+                        : null,
                     validator: null),
 
                 //loyaltyPointsRedemption(),

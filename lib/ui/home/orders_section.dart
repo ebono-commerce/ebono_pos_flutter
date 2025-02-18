@@ -1236,8 +1236,11 @@ class _OrdersSectionState extends State<OrdersSection>
                               : () {
                                   PaymentSummaryRequest request =
                                       PaymentSummaryRequest(
-                                          phoneNumber:
-                                              homeController.phoneNumber.value,
+                                          phoneNumber: homeController
+                                              .customerResponse
+                                              .value
+                                              .phoneNumber!
+                                              .number,
                                           cartId: homeController.cartId.value,
                                           customer: null,
                                           cartType: homeController

@@ -938,12 +938,8 @@ class HomeController extends GetxController {
       otpErrorMessage.value = '';
       triggerCustomOTPValidation.value = false;
 
-      if (resendOTPCount.value > 2) {
-        Get.snackbar(
-          'OTP LIMIT EXCEEDED',
-          "Max OTP Limit exceeded, please try again later",
-        );
-
+      if (resendOTPCount.value > 2 &&
+          (isResendOTP == true || tiggerOTP == true)) {
         return;
       }
 

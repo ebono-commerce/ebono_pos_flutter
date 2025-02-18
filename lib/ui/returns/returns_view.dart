@@ -2,6 +2,7 @@ import 'package:ebono_pos/constants/custom_colors.dart';
 import 'package:ebono_pos/ui/common_text_field.dart';
 import 'package:ebono_pos/ui/custom_keyboard/custom_num_pad.dart';
 import 'package:ebono_pos/ui/home/home_controller.dart';
+import 'package:ebono_pos/ui/home/model/customer_details_response.dart';
 import 'package:ebono_pos/ui/home/widgets/add_customer_widget.dart';
 import 'package:ebono_pos/ui/home/widgets/quick_action_buttons.dart';
 import 'package:ebono_pos/ui/returns/bloc/returns_bloc.dart';
@@ -162,7 +163,7 @@ class _ReturnsViewState extends State<ReturnsView> {
     bool isDialogForAddCustomer = false,
     String? orderId,
   }) async {
-    await showDialog(
+    final result = await showDialog(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
@@ -217,12 +218,18 @@ class _ReturnsViewState extends State<ReturnsView> {
                 );
                 setState(() => isCustomerDialogOpened == false);
               }
-              Get.back();
+              Navigator.pop(context, "AUTO");
             },
           ),
         );
       },
     );
+
+    if (result == null) {
+      /* when user closed dialog manually, need to reset */
+      homeController.getCustomerDetailsResponse.value =
+          CustomerDetailsResponse();
+    }
 
     homeController.displayOTPScreen.value = false;
 

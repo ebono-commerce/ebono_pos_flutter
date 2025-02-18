@@ -494,11 +494,21 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
 
   Future<void> _walletAuthentication(
       WalletAuthenticationEvent event, Emitter<PaymentState> emit) async {
-    emit(state.copyWith(isLoading: true, initialState: false));
+    emit(state.copyWith(
+      isLoading: true,
+      initialState: false,
+      isResendOTPLoading: event.isResendOTP,
+      isVerifyOTPLoading: !event.isResendOTP,
+    ));
 
     try {
       var response = await _paymentRepository.walletAuthentication(
           PhoneNumberRequest(phoneNumber: paymentSummaryRequest.phoneNumber));
+
+      if (response.success == true) {
+        Get.snackbar('OTP SENT',
+            'otp sent successfully to ${paymentSummaryRequest.phoneNumber}');
+      }
 
       emit(state.copyWith(
           isLoading: false, isWalletAuthenticationSuccess: true));
@@ -507,12 +517,26 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
           isLoading: false,
           isWalletAuthenticationError: true,
           errorMessage: error.toString()));
+    } finally {
+      emit(state.copyWith(
+        isLoading: false,
+        isWalletChargeError: false,
+        isWalletAuthenticationError: false,
+        isWalletAuthenticationSuccess: false,
+        isVerifyOTPLoading: false,
+        isResendOTPLoading: false,
+      ));
     }
   }
 
   Future<void> _walletCharge(
       WalletChargeEvent event, Emitter<PaymentState> emit) async {
-    emit(state.copyWith(isLoading: true, initialState: false));
+    emit(state.copyWith(
+      isLoading: true,
+      isVerifyOTPLoading: true,
+      isResendOTPLoading: false,
+      initialState: false,
+    ));
 
     try {
       paymentSummaryResponse = await _paymentRepository.walletCharge(
@@ -534,6 +558,15 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
           isLoading: false,
           isWalletChargeError: true,
           errorMessage: error.toString()));
+    } finally {
+      emit(state.copyWith(
+        isLoading: false,
+        isWalletChargeError: false,
+        isWalletAuthenticationError: false,
+        isWalletChargeSuccess: false,
+        isVerifyOTPLoading: false,
+        isResendOTPLoading: false,
+      ));
     }
   }
 

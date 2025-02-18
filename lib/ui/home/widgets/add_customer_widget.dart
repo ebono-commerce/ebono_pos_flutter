@@ -68,18 +68,24 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
           _controllerCustomerName.text = widget.customerName ?? '';
           _controllerPhoneNumber.text = widget.customerMobileNumber ?? '';
         });
+        /* clearing existingCustomer on initital to avoid duplicate  */
+        homeController.getCustomerDetailsResponse.value.existingCustomer = null;
+
+        if (widget.isDialogForReturns == true &&
+            widget.isDialogForAddCustomerFromReturns == false) {
+          /* here setting error message as consistant accross application, making easier for cashier */
+          homeController.getCustomerDetailsResponse.value.existingCustomer =
+              true;
+          homeController.getCustomerDetailsResponse.value
+              .isCustomerVerificationRequired = true;
+          homeController.getCustomerDetailsResponse.value.customerStatus =
+              'EXISTING_CUSTOMER_VERIFICATION_PENDING';
+        }
       }
     });
 
     ever(homeController.customerName, (value) {
       _controllerCustomerName.text = value.toString();
-    });
-
-    ever(homeController.resendOTPCount, (value) {
-      if (value > 2) {
-        /* error message indicating max otp limit reached */
-        _formKey.currentState?.validate();
-      }
     });
 
     ever(homeController.customerResponse, (value) {
@@ -352,9 +358,21 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
                             ),
                           ),
                         ],
+                        if (homeController.resendOTPCount.value > 2) ...[
+                          SizedBox(height: 10),
+                          Text(
+                            "Max OTP Limit Reached",
+                            style: theme.textTheme.titleSmall?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: CustomColors.red,
+                            ),
+                          )
+                        ],
                         SizedBox(
                             height: homeController.displayOTPScreen.value
-                                ? 10
+                                ? homeController.resendOTPCount.value > 2
+                                    ? 5
+                                    : 10
                                 : 20),
                         _buildTextField(
                           label: "Enter OTP",
@@ -419,7 +437,8 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
                                     );
                                   }
                                 },
-                          isBtnEnabled: isResendOTPBtnEnabled,
+                          isBtnEnabled: isResendOTPBtnEnabled &&
+                              homeController.resendOTPCount.value < 3,
                           buttonText:
                               "Resend OTP ${_formatTime(_remainingTime).compareTo("00:00") == 0 ? "" : _formatTime(_remainingTime)}",
                           enableBackground: false,
