@@ -372,8 +372,11 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                       label: 'Cash', value: cashPaymentTextController.text),
                   tenderDetailRow(
                       label: 'Online', value: onlinePaymentTextController.text),
-                  /* tenderDetailRow(
-                      label: 'Wallet', value: walletTextController.text),*/
+                  Visibility(
+                    visible: data?.redeemedWalletAmount?.centAmount != 0,
+                    child: tenderDetailRow(
+                        label: 'Wallet', value: getActualPrice(data?.redeemedWalletAmount?.centAmount, data?.redeemedWalletAmount?.fraction)),
+                  ),
                 ],
               ),
             ),
@@ -400,7 +403,7 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
 
   Widget numpadSection(PaymentState state) {
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 20),
+      padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
       child: Column(
         children: [
           Container(
