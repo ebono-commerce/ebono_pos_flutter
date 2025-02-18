@@ -211,40 +211,37 @@ class _RegisterSectionState extends State<RegisterSection>
       backgroundColor: Colors.white,
       body: Stack(
         children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Obx(() => Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Expanded(
-                      flex: 7,
-                      child: Column(
-                        children: [
-                          _buildRegisterInfo(
-                              homeController.registerId.value, context),
-                          (homeController.registerId.value != "" &&
-                                  homeController.registerId.value != null)
-                              ? _buildCloseRegister()
-                              : _buildOpenRegister(),
-                        ],
-                      ),
+          Obx(() => Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Expanded(
+                    flex: 5,
+                    child: Column(
+                      children: [
+                        _buildRegisterInfo(
+                            homeController.registerId.value, context),
+                        (homeController.registerId.value != "" &&
+                                homeController.registerId.value != null)
+                            ? _buildCloseRegister()
+                            : _buildOpenRegister(),
+                      ],
                     ),
-                    Expanded(
-                      flex: 3,
-                      child: numpadSection(),
+                  ),
+                  Expanded(
+                    flex: 2,
+                    child: numpadSection(),
+                  ),
+                  Expanded(
+                    flex: 1,
+                    child: QuickActionButtons(
+                      // color: Colors.grey.shade100,
+                      color: Colors.white,
                     ),
-                    Expanded(
-                      flex: 1,
-                      child: QuickActionButtons(
-                        // color: Colors.grey.shade100,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ],
-                )),
-          ),
+                  ),
+                ],
+              )),
           homeController.isLoading.value
               ? Center(child: CircularProgressIndicator())
               : SizedBox(),
@@ -255,7 +252,7 @@ class _RegisterSectionState extends State<RegisterSection>
 
   Widget numpadSection() {
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+      padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
       child: Column(
         children: [
           Container(
