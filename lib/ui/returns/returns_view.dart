@@ -231,6 +231,7 @@ class _ReturnsViewState extends State<ReturnsView> {
     );
 
     homeController.displayOTPScreen.value = false;
+    homeController.getCustomerDetailsResponse.value.existingCustomer = null;
 
     setState(() => isCustomerDialogOpened = false);
   }
