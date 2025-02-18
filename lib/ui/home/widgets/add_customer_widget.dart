@@ -465,23 +465,6 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
                               color: CustomColors.black,
                             ),
                           ),
-                          _buildTextField(
-                            label: "Customer Name",
-                            controller: _controllerCustomerName,
-                            focusNode: widget.disableFormFields == true
-                                ? FocusNode()
-                                : customerNameFocusNode,
-                            onChanged: (value) =>
-                                homeController.customerName.value = value,
-                            suffixIcon: widget.isDialogForAddCustomerFromReturns
-                                ? null
-                                : _buildSelectButton(
-                                    isDisabled:
-                                        widget.disableFormFields == true,
-                                  ),
-                            isEnabled: widget.disableFormFields == false,
-                            readOnly: widget.disableFormFields == true,
-                          ),
                           const SizedBox(height: 10),
                           Text(
                             "Add customer details before starting the sale",
