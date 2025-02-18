@@ -56,7 +56,7 @@ class OrderItemsTableData {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Text(
-                        isAllOrdersSelected ? "Un Select All" : "Select All",
+                        isAllOrdersSelected ? "Unselect All" : "Select All",
                         style: TextStyle(
                           color: CustomColors.black,
                           fontSize: 14,

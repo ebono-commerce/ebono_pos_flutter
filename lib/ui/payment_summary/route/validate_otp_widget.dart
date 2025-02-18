@@ -228,12 +228,14 @@ class _ValidateOtpWidgetState extends State<ValidateOtpWidget> {
                           SizedBox(height: 10),
                           _buildCustomButton(
                             onPressed: () {
-                              if (resendOTPCount < 2) {
-                                paymentBloc.add(WalletAuthenticationEvent(
-                                  isResendOTP: true,
-                                ));
-                                _startTimer();
+                              if (resendOTPCount < 3) {
                                 setState(() => resendOTPCount++);
+                                if (resendOTPCount <= 2) {
+                                  paymentBloc.add(WalletAuthenticationEvent(
+                                    isResendOTP: true,
+                                  ));
+                                  _startTimer();
+                                }
                               }
                             },
                             isLoading: paymentBloc.state.isResendOTPLoading,

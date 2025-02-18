@@ -204,7 +204,8 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
               setState(() => isVerifyDialogOpen = true);
             }
 
-            if(state.isWalletChargeSuccess && (state.balancePayableAmount ?? 0) <= 0){
+            if (state.isWalletChargeSuccess &&
+                (state.balancePayableAmount ?? 0) <= 0) {
               cashPaymentTextController.clear();
             }
 
@@ -235,11 +236,11 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                         flex: 7,
                         child: state.isPaymentSummarySuccess
                             ? paymentModeSection(
-                                paymentBloc.paymentSummaryResponse,state)
+                                paymentBloc.paymentSummaryResponse, state)
                             : SizedBox(),
                       ),
                       Expanded(
-                        flex: 4,
+                        flex: 5,
                         child: state.isPaymentSummarySuccess
                             ? numpadSection(state)
                             : SizedBox(),
@@ -375,7 +376,10 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                   Visibility(
                     visible: data?.redeemedWalletAmount?.centAmount != 0,
                     child: tenderDetailRow(
-                        label: 'Wallet', value: getActualPrice(data?.redeemedWalletAmount?.centAmount, data?.redeemedWalletAmount?.fraction)),
+                        label: 'Wallet',
+                        value: getActualPrice(
+                            data?.redeemedWalletAmount?.centAmount,
+                            data?.redeemedWalletAmount?.fraction)),
                   ),
                 ],
               ),
@@ -387,7 +391,7 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
   }
 
 // Widget for Payment Mode Section
-  Widget paymentModeSection(PaymentSummaryResponse data,PaymentState state) {
+  Widget paymentModeSection(PaymentSummaryResponse data, PaymentState state) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
@@ -468,7 +472,8 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                   onValueChanged: (value) {
                     if (activeFocusNode == cashPaymentFocusNode) {
                       paymentBloc.cashPayment = value;
-                      if (double.parse(value) < paymentBloc.totalPayable) {
+                      if (value.isNotEmpty &&
+                          double.parse(value) < paymentBloc.totalPayable) {
                         onlinePaymentTextController.text =
                             '${(double.parse(value) - paymentBloc.totalPayable).abs()}';
                         paymentBloc.onlinePayment =
@@ -708,8 +713,9 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                     ],
                   ),
                   SizedBox(height: 16),
+
                   /// if payment amount is zero disable the state of buttons
-                  if((state.balancePayableAmount ?? 0.0 ) <= 0.0)...[
+                  if ((state.balancePayableAmount ?? 0.0) <= 0.0) ...[
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -721,7 +727,7 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                                   theme: theme,
                                   textStyle: theme.textTheme.bodyMedium,
                                   padding: EdgeInsets.all(12)),
-                              onPressed:  null,
+                              onPressed: null,
                               child: Row(
                                 children: [
                                   SvgPicture.asset(
@@ -740,8 +746,7 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                                   ),
                                 ],
                               ),
-                            )
-                        ),
+                            )),
                         Row(
                           children: [
                             IgnorePointer(
@@ -753,8 +758,7 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                                     focusNode: onlinePaymentFocusNode,
                                     controller: onlinePaymentTextController,
                                     readOnly: true,
-                                    onValueChanged: (value) {
-                                    }),
+                                    onValueChanged: (value) {}),
                               ),
                             ),
                             SizedBox(width: 14),
@@ -766,7 +770,7 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                                       theme: theme,
                                       textStyle: theme.textTheme.bodyMedium,
                                       padding: EdgeInsets.all(12)),
-                                  onPressed:  null,
+                                  onPressed: null,
                                   child: Text(
                                     'Generate link',
                                     style: TextStyle(
@@ -779,7 +783,7 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                         ),
                       ],
                     )
-                  ]else...[
+                  ] else ...[
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -792,16 +796,17 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                                   textStyle: theme.textTheme.bodyMedium,
                                   padding: EdgeInsets.all(12)),
                               onPressed: paymentBloc.cashPayment.isEmpty ||
-                                  double.parse(paymentBloc.cashPayment) <
-                                      paymentBloc.totalPayable
+                                      double.parse(paymentBloc.cashPayment) <
+                                          paymentBloc.totalPayable
                                   ? () {
-                                var balance = (paymentBloc.totalPayable -
-                                    (paymentBloc.cashAmount))
-                                    .abs()
-                                    .toString();
-                                paymentBloc.onlinePayment = balance;
-                                onlinePaymentTextController.text = balance;
-                              }
+                                      var balance = (paymentBloc.totalPayable -
+                                              (paymentBloc.cashAmount))
+                                          .abs()
+                                          .toString();
+                                      paymentBloc.onlinePayment = balance;
+                                      onlinePaymentTextController.text =
+                                          balance;
+                                    }
                                   : null,
                               child: Row(
                                 children: [
@@ -821,8 +826,7 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                                   ),
                                 ],
                               ),
-                            )
-                        ),
+                            )),
                         Row(
                           children: [
                             IgnorePointer(
@@ -861,10 +865,10 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                                       textStyle: theme.textTheme.bodyMedium,
                                       padding: EdgeInsets.all(12)),
                                   onPressed: onlinePaymentTextController
-                                      .value.text.isNotEmpty
+                                          .value.text.isNotEmpty
                                       ? () {
-                                    paymentBloc.add(PaymentStartEvent());
-                                  }
+                                          paymentBloc.add(PaymentStartEvent());
+                                        }
                                       : null,
                                   child: Text(
                                     'Generate link',

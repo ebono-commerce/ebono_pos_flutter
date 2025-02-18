@@ -61,6 +61,12 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      /* resetting otp count */
+      homeController.resendOTPCount.value = 0;
+
+      /* clearing existingCustomer on initital to avoid duplicate  */
+      homeController.getCustomerDetailsResponse.value.existingCustomer = null;
+
       if (widget.customerMobileNumber != null &&
           widget.customerName != null &&
           widget.isDialogForAddCustomerFromReturns == false) {
@@ -68,8 +74,6 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
           _controllerCustomerName.text = widget.customerName ?? '';
           _controllerPhoneNumber.text = widget.customerMobileNumber ?? '';
         });
-        /* clearing existingCustomer on initital to avoid duplicate  */
-        homeController.getCustomerDetailsResponse.value.existingCustomer = null;
 
         if (widget.isDialogForReturns == true &&
             widget.isDialogForAddCustomerFromReturns == false) {
@@ -211,12 +215,6 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
     return '${minutes.toString().padLeft(2, '0')}:${remainingSeconds.toString().padLeft(2, '0')}';
   }
 
-  @override
-  void dispose() {
-    homeController.resendOTPCount.value = 0;
-    super.dispose();
-  }
-
   /*@override
   void dispose() {
     _controllerPhoneNumber.dispose();
@@ -350,6 +348,16 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
                               ),
                             ]),
                           ),
+                          if (widget.isDialogForReturns) ...[
+                            const SizedBox(height: 10),
+                            Text(
+                              "Return will not be processed without OTP verification",
+                              style: theme.textTheme.titleSmall?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: CustomColors.black,
+                              ),
+                            ),
+                          ],
                           if (homeController.resendOTPCount.value > 2) ...[
                             SizedBox(height: 10),
                             Text(

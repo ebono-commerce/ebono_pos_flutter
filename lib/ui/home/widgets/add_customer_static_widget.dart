@@ -84,6 +84,8 @@ class _AddCustomerStaticWidgetState extends State<AddCustomerStaticWidget>
                           },
                         );
                         homeController.displayOTPScreen.value = false;
+                        homeController.getCustomerDetailsResponse.value
+                            .existingCustomer = null;
                       },
                       child: IgnorePointer(
                         child: TextField(
@@ -202,6 +204,8 @@ class _AddCustomerStaticWidgetState extends State<AddCustomerStaticWidget>
                           },
                         );
                         homeController.displayOTPScreen.value = false;
+                        homeController.getCustomerDetailsResponse.value
+                            .existingCustomer = null;
                       },
                       child: IgnorePointer(
                         child: TextField(

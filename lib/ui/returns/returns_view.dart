@@ -2,7 +2,6 @@ import 'package:ebono_pos/constants/custom_colors.dart';
 import 'package:ebono_pos/ui/common_text_field.dart';
 import 'package:ebono_pos/ui/custom_keyboard/custom_num_pad.dart';
 import 'package:ebono_pos/ui/home/home_controller.dart';
-import 'package:ebono_pos/ui/home/model/customer_details_response.dart';
 import 'package:ebono_pos/ui/home/widgets/add_customer_widget.dart';
 import 'package:ebono_pos/ui/home/widgets/quick_action_buttons.dart';
 import 'package:ebono_pos/ui/returns/bloc/returns_bloc.dart';
@@ -112,10 +111,11 @@ class _ReturnsViewState extends State<ReturnsView> {
     numPadTextController.addListener(() {
       setState(() {
         if (activeFocusNode == customerNumberFocusNode) {
-          if(numPadTextController.text.length <= 10){
+          if (numPadTextController.text.length <= 10) {
             customerNumberTextController.text = numPadTextController.text;
-          }else{
-            numPadTextController.text = numPadTextController.text.substring(0, 10);
+          } else {
+            numPadTextController.text =
+                numPadTextController.text.substring(0, 10);
           }
         } else if (activeFocusNode == orderNumberFocusNode) {
           orderNumberTextController.text = numPadTextController.text;
@@ -167,7 +167,7 @@ class _ReturnsViewState extends State<ReturnsView> {
     bool isDialogForAddCustomer = false,
     String? orderId,
   }) async {
-    final result = await showDialog(
+    await showDialog(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
@@ -222,18 +222,13 @@ class _ReturnsViewState extends State<ReturnsView> {
                 );
                 setState(() => isCustomerDialogOpened == false);
               }
-              Navigator.pop(context, "AUTO");
+
+              Get.back();
             },
           ),
         );
       },
     );
-
-    if (result == null) {
-      /* when user closed dialog manually, need to reset */
-      homeController.getCustomerDetailsResponse.value =
-          CustomerDetailsResponse();
-    }
 
     homeController.displayOTPScreen.value = false;
 
@@ -556,45 +551,43 @@ class _ReturnsViewState extends State<ReturnsView> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   commonTextField(
-                    focusNode: customerNumberFocusNode,
-                    controller: customerNumberTextController,
-                    label: "Enter Customer Mobile Number",
-                    acceptableLength: 10,
-                    validator: (value) {
-                      if ((value == null || value.isEmpty) &&
-                          orderNumberTextController.text.isEmpty) {
-                        return 'Please enter a phone number';
-                      } else if (value!.length != 10 &&
-                          customerNumberTextController.text.trim().isEmpty &&
-                          orderNumberTextController.text.isEmpty) {
-                        return 'Phone number must be 10 digits';
-                      } else if (displayProxyNumberError) {
-                        return "Please search with customer number";
-                      }
-                      return null;
-                    },
-                    onTap: (){
-                      orderNumberTextController.clear();
-                    }
-                  ),
+                      focusNode: customerNumberFocusNode,
+                      controller: customerNumberTextController,
+                      label: "Enter Customer Mobile Number",
+                      acceptableLength: 10,
+                      validator: (value) {
+                        if ((value == null || value.isEmpty) &&
+                            orderNumberTextController.text.isEmpty) {
+                          return 'Please enter a phone number';
+                        } else if (value!.length != 10 &&
+                            customerNumberTextController.text.trim().isEmpty &&
+                            orderNumberTextController.text.isEmpty) {
+                          return 'Phone number must be 10 digits';
+                        } else if (displayProxyNumberError) {
+                          return "Please search with customer number";
+                        }
+                        return null;
+                      },
+                      onTap: () {
+                        orderNumberTextController.clear();
+                      }),
                   const SizedBox(height: 20),
                   const ORWidget(),
                   const SizedBox(height: 20),
                   commonTextField(
-                    focusNode: orderNumberFocusNode,
-                    controller: orderNumberTextController,
-                    label: "Enter Order Number",
-                    validator: (value) {
-                      if ((value == null || value.isEmpty) &&
-                          customerNumberTextController.text.isEmpty) {
-                        return 'Please enter order number';
-                      }
-                      return null;
-                    },
-                    onTap: (){
-                      customerNumberTextController.clear();
-                    }
-                  ),
+                      focusNode: orderNumberFocusNode,
+                      controller: orderNumberTextController,
+                      label: "Enter Order Number",
+                      validator: (value) {
+                        if ((value == null || value.isEmpty) &&
+                            customerNumberTextController.text.isEmpty) {
+                          return 'Please enter order number';
+                        }
+                        return null;
+                      },
+                      onTap: () {
+                        customerNumberTextController.clear();
+                      }),
                   Container(
                     margin: const EdgeInsets.only(top: 30),
                     child: SizedBox(
