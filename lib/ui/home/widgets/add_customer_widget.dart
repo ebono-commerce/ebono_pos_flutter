@@ -464,8 +464,6 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
                               fontWeight: FontWeight.bold,
                               color: CustomColors.black,
                             ),
-                            isEnabled: widget.disableFormFields == false,
-                            readOnly: widget.disableFormFields == true,
                           ),
                           _buildTextField(
                             label: "Customer Name",
@@ -483,6 +481,7 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
                                   ),
                             isEnabled: widget.disableFormFields == false,
                             readOnly: widget.disableFormFields == true,
+                          ),
                           const SizedBox(height: 10),
                           Text(
                             "Add customer details before starting the sale",
