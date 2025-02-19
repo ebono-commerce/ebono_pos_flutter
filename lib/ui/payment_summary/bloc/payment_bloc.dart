@@ -330,12 +330,14 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
       emit(state.copyWith(isOnlinePaymentSuccess: true));
     }
     balancePayable = totalPayable - givenAmount;
-
     if (balancePayable <= 0) {
       if (onlinePayment.isNotEmpty && onlinePayment != '0') {
         if (state.isPaymentStatusSuccess) {
           allowPlaceOrder = true;
-        } else {
+        }else if(totalPayable == 0){
+          allowPlaceOrder = true;
+        }
+        else {
           allowPlaceOrder = false;
         }
       } else {
