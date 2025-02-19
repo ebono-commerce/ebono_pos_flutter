@@ -177,6 +177,7 @@ class _OrdersSectionState extends State<OrdersSection>
                       context: context,
                       builder: (BuildContext context) {
                         return Dialog(
+                          insetPadding: EdgeInsets.symmetric(vertical: 15.0),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(20.0),
                           ),
@@ -193,6 +194,7 @@ class _OrdersSectionState extends State<OrdersSection>
                         context: context,
                         builder: (BuildContext context) {
                           return Dialog(
+                            insetPadding: EdgeInsets.symmetric(vertical: 15.0),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(20.0),
                             ),

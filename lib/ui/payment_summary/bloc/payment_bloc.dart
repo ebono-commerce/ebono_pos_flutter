@@ -502,13 +502,8 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
     ));
 
     try {
-      var response = await _paymentRepository.walletAuthentication(
+      await _paymentRepository.walletAuthentication(
           PhoneNumberRequest(phoneNumber: paymentSummaryRequest.phoneNumber));
-
-      if (response.success == true) {
-        Get.snackbar('OTP SENT',
-            'otp sent successfully to ${paymentSummaryRequest.phoneNumber}');
-      }
 
       emit(state.copyWith(
           isLoading: false, isWalletAuthenticationSuccess: true));

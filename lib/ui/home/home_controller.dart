@@ -99,6 +99,9 @@ class HomeController extends GetxController {
   var isAutoWeighDetection = false.obs;
   var isReturnViewReset = false.obs;
 
+  /* wallet redeem */
+  var isOTPError = false.obs;
+
   /* RxDouble weight = 0.0.obs; // Observable weight value
   late DigitalWeighingScale digitalWeighingScale;
   final int rate = 9600;
@@ -954,18 +957,18 @@ class HomeController extends GetxController {
         otp: otp,
       );
 
-      if (result == true && (tiggerOTP == true || isResendOTP == true)) {
-        Get.snackbar(
-          'OTP SENT SUCCESSFULLY',
-          "OTP sent to $phoneNumber successfully",
-        );
-      }
+      // if (result == true && (tiggerOTP == true || isResendOTP == true)) {
+      //   Get.snackbar(
+      //     'OTP SENT SUCCESSFULLY',
+      //     "OTP sent to $phoneNumber successfully",
+      //   );
+      // }
 
       if (isResendOTP == false && tiggerOTP == false) {
         isOTPVerified.value = result;
       }
     } catch (e) {
-      Get.snackbar('FAILED TO SEND OTP', e.toString());
+      // Get.snackbar('FAILED TO SEND OTP', e.toString());
       otpErrorMessage.value = e.toString().split('|').last;
       isOTPVerified.value = false;
       triggerCustomOTPValidation.value = true;

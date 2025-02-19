@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:ebono_pos/constants/custom_colors.dart';
-import 'package:ebono_pos/ui/common_text_field.dart';
 import 'package:ebono_pos/ui/custom_keyboard/custom_querty_pad.dart';
 import 'package:ebono_pos/ui/home/home_controller.dart';
 import 'package:ebono_pos/ui/payment_summary/bloc/payment_bloc.dart';
@@ -115,41 +114,34 @@ class _ValidateOtpWidgetState extends State<ValidateOtpWidget> {
             Navigator.pop(widget.dialogContext);
           }
           if (state.isWalletChargeError) {
-            Get.snackbar("Charge Wallet error", state.errorMessage ?? "");
+            homeController.isOTPError.value = true;
+            // Get.snackbar("Charge Wallet error", state.errorMessage ?? "");
+            _formKey.currentState?.validate();
           }
         },
         child:
             BlocBuilder<PaymentBloc, PaymentState>(builder: (context, state) {
-          return Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
+          return Stack(
             children: [
-              SizedBox(
-                width: 900,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  mainAxisSize: MainAxisSize.max,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(right: 18.0, top: 18),
-                      child: InkWell(
-                        onTap: () {
-                          Navigator.pop(widget.dialogContext);
-                        },
-                        child: SvgPicture.asset(
-                          'assets/images/ic_close.svg',
-                          semanticsLabel: 'cash icon,',
-                          width: 30,
-                          height: 30,
-                        ),
-                      ),
-                    ),
-                  ],
+              Positioned(
+                top: 18,
+                right: 18,
+                child: InkWell(
+                  onTap: () {
+                    Navigator.pop(widget.dialogContext);
+                  },
+                  child: SvgPicture.asset(
+                    'assets/images/ic_close.svg',
+                    semanticsLabel: 'cash icon,',
+                    width: 30,
+                    height: 30,
+                  ),
                 ),
               ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.max,
                 children: [
                   SizedBox(
                     width: 400,
@@ -186,8 +178,8 @@ class _ValidateOtpWidgetState extends State<ValidateOtpWidget> {
                               ),
                             ]),
                           ),
-                          const SizedBox(height: 10),
                           if (resendOTPCount > 2) ...[
+                            const SizedBox(height: 10),
                             Text(
                               "Max OTP Limit Reached",
                               style: theme.textTheme.titleSmall?.copyWith(
@@ -196,24 +188,32 @@ class _ValidateOtpWidgetState extends State<ValidateOtpWidget> {
                               ),
                             )
                           ],
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: commonTextField(
-                              label: "Customer Otp",
-                              controller: otpController,
-                              focusNode: couponCodeFocusNode,
-                              onValueChanged: (value) => value,
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return "Please Enter OTP";
-                                }
-                                return null;
-                              },
-                            ),
+                          SizedBox(height: 15),
+                          _buildTextField(
+                            label: "Enter OTP",
+                            controller: otpController,
+                            focusNode: couponCodeFocusNode,
+                            onChanged: (value) => value,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return "Please Enter OTP";
+                              }
+                              if (value.length != 4) {
+                                return "OTP must be 4 digits";
+                              }
+                              if (homeController.isOTPError.value) {
+                                return paymentBloc.state.errorMessage
+                                        ?.split('|')
+                                        .last ??
+                                    "Invalid OTP";
+                              }
+                              return null;
+                            },
                           ),
-                          const SizedBox(height: 10),
+                          const SizedBox(height: 20),
                           _buildCustomButton(
                             onPressed: () {
+                              homeController.isOTPError.value = false;
                               if (_formKey.currentState?.validate() == true) {
                                 paymentBloc
                                     .add(WalletChargeEvent(otpController.text));
@@ -225,10 +225,10 @@ class _ValidateOtpWidgetState extends State<ValidateOtpWidget> {
                             isLoading: paymentBloc.state.isVerifyOTPLoading,
                             fontWeight: FontWeight.w600,
                           ),
-                          SizedBox(height: 10),
+                          SizedBox(height: 15),
                           _buildCustomButton(
                             onPressed: () {
-                              if (resendOTPCount < 3) {
+                              if (resendOTPCount <= 3) {
                                 setState(() => resendOTPCount++);
                                 if (resendOTPCount <= 2) {
                                   paymentBloc.add(WalletAuthenticationEvent(
@@ -321,6 +321,76 @@ class _ValidateOtpWidgetState extends State<ValidateOtpWidget> {
                 ),
         ),
       ),
+    );
+  }
+
+  Widget _buildTextField({
+    required String label,
+    required TextEditingController controller,
+    required FocusNode focusNode,
+    required ValueChanged<String> onChanged,
+    String? Function(String? value)? validator,
+    bool readOnly = false,
+    Widget? suffixIcon,
+    bool isEnabled = true,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(10),
+      child: TextFormField(
+        enabled: isEnabled,
+        controller: controller,
+        focusNode: focusNode,
+        onChanged: onChanged,
+        readOnly: readOnly,
+        validator: validator,
+        decoration: _buildInputDecoration(label, suffixIcon),
+      ),
+    );
+  }
+
+  InputDecoration _buildInputDecoration(String label, Widget? suffixIcon) {
+    return InputDecoration(
+      fillColor: Colors.white,
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: BorderSide(color: Colors.grey.shade300, width: 1),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: BorderSide(color: Colors.grey.shade300, width: 1),
+      ),
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: BorderSide(color: Colors.red, width: 1),
+      ),
+      focusedErrorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: BorderSide(
+          color: Colors.red,
+          width: 1,
+        ),
+      ),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: BorderSide(
+          color: Colors.grey.shade300,
+          width: 1,
+        ),
+      ),
+      label: RichText(
+        text: TextSpan(
+          children: [
+            TextSpan(
+              text: label,
+              style: TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.normal,
+              ),
+            ),
+          ],
+        ),
+      ),
+      suffixIcon: suffixIcon,
     );
   }
 }

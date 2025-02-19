@@ -172,6 +172,7 @@ class _ReturnsViewState extends State<ReturnsView> {
       barrierDismissible: false,
       builder: (BuildContext context) {
         return Dialog(
+          insetPadding: EdgeInsets.symmetric(vertical: 15.0),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20.0),
           ),
@@ -465,14 +466,14 @@ class _ReturnsViewState extends State<ReturnsView> {
                                       numPadTextController.text =
                                           '${orderLine.returnedQuantity ?? ''}';
                                       numPadFocusNode.requestFocus();
+                                      returnsBloc.add(
+                                        UpdateSelectedItem(
+                                          id: orderLine.orderLineId!,
+                                          isSelected: true,
+                                          orderLine: orderLine,
+                                        ),
+                                      );
                                     }
-                                    returnsBloc.add(
-                                      UpdateSelectedItem(
-                                        id: orderLine.orderLineId!,
-                                        isSelected: true,
-                                        orderLine: orderLine,
-                                      ),
-                                    );
                                   },
                                   onTapSelectedButton: (orderLine) {
                                     if (!orderLine.isSelected) {
@@ -733,21 +734,47 @@ class _ReturnsViewState extends State<ReturnsView> {
                     } else if (activeFocusNode == orderNumberFocusNode) {
                       orderNumberFocusNode.unfocus();
                     } else if (activeFocusNode == numPadFocusNode) {
-                      /* check for not empty & returnable quantity isNot greaterthan eligible quantity */
-                      if (numPadTextController.text.trim().isNotEmpty &&
-                          (returnsBloc.state.lastSelectedItem.returnableQuantity
-                                  ?.quantityNumber)! >=
-                              double.parse(numPadTextController.text)) {
-                        /* when appropriate weigh or quantity is selected from numpad */
-                        returnsBloc.add(UpdateOrderLineQuantity(
-                          id: returnsBloc.state.lastSelectedItem.orderLineId!,
-                          quantity: numPadTextController.text.toString(),
-                        ));
+                      if (numPadTextController.text.isEmpty) {
+                        return;
+                      } else
+                      /* checking whether user is entering or updating quantity for weigh items or non weigh items */
+                      if (returnsBloc.state.lastSelectedItem.returnableQuantity
+                              ?.quantityUom ==
+                          'pcs') {
+                        /* check for double i.e non-integer values */
+                        if (double.tryParse(numPadTextController.text)
+                                ?.truncateToDouble() !=
+                            double.tryParse(numPadTextController.text)) {
+                          Get.snackbar("Invalid Quantity",
+                              "Returnable quantity should be in Integer");
+                        } else if (int.parse(numPadTextController.text) <=
+                            returnsBloc.state.lastSelectedItem
+                                .returnableQuantity!.quantityNumber!) {
+                          returnsBloc.add(UpdateOrderLineQuantity(
+                            id: returnsBloc.state.lastSelectedItem.orderLineId!,
+                            quantity: numPadTextController.text,
+                          ));
+                        } else {
+                          Get.snackbar("Invalid Quantity",
+                              "Returnable quantity should not be more than ${returnsBloc.state.lastSelectedItem.returnableQuantity!.quantityNumber}");
+                        }
                       } else {
-                        Get.snackbar(
-                          "Invalid Quantity",
-                          "Returnable quantity should not be more than ${(returnsBloc.state.lastSelectedItem.returnableQuantity?.quantityNumber)!}",
-                        );
+                        /* check for not empty & returnable quantity isNot greaterthan eligible quantity */
+                        if (numPadTextController.text.trim().isNotEmpty &&
+                            (returnsBloc.state.lastSelectedItem
+                                    .returnableQuantity?.quantityNumber)! >=
+                                double.parse(numPadTextController.text)) {
+                          /* when appropriate weigh or quantity is selected from numpad */
+                          returnsBloc.add(UpdateOrderLineQuantity(
+                            id: returnsBloc.state.lastSelectedItem.orderLineId!,
+                            quantity: numPadTextController.text.toString(),
+                          ));
+                        } else {
+                          Get.snackbar(
+                            "Invalid Quantity",
+                            "Returnable quantity should not be more than ${(returnsBloc.state.lastSelectedItem.returnableQuantity?.quantityNumber)!}",
+                          );
+                        }
                       }
                     }
                   },
