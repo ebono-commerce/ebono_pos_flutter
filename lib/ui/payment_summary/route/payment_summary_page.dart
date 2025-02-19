@@ -372,14 +372,22 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                   ),
                   SizedBox(height: 12),
                   tenderDetailRow(
-                      label: 'Cash', value: cashPaymentTextController.text),
+                      label: 'Cash',
+                      value:  getActualPriceWithoutSymbol(
+                          int.tryParse(cashPaymentTextController.text),
+                          2)
+                  ),
                   tenderDetailRow(
-                      label: 'Online', value: onlinePaymentTextController.text),
+                      label: 'Online',
+                      value: getActualPriceWithoutSymbol(
+                        int.tryParse(onlinePaymentTextController.text),
+                        2)
+                  ),
                   Visibility(
                     visible: data?.redeemedWalletAmount?.centAmount != 0,
                     child: tenderDetailRow(
                         label: 'Wallet',
-                        value: getActualPrice(
+                        value: getActualPriceWithoutSymbol(
                             data?.redeemedWalletAmount?.centAmount,
                             data?.redeemedWalletAmount?.fraction)),
                   ),

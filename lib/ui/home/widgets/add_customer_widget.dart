@@ -46,6 +46,8 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
   final FocusNode customerNameFocusNode = FocusNode();
   final FocusNode phoneNumberFocusNode = FocusNode();
   final FocusNode otpFocusNode = FocusNode();
+  final RegExp otpRegex = RegExp(r'^[0-9]+$');
+
 
   FocusNode? activeFocusNode;
   late ThemeData theme;
@@ -387,7 +389,8 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
                                           return "Please Enter OTP";
                                         }
                                         if (value.length < 4 ||
-                                            value.length > 4) {
+                                            value.length > 4 ||
+                                            !otpRegex.hasMatch(value)) {
                                           return "Please Enter Valid OTP";
                                         }
                                         if (homeController
@@ -745,6 +748,7 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
             ? null
             : homeController.phoneNumber.value.isNotEmpty
                 ? () {
+                    _controllerCustomerName.clear();
                     if (isValidPhoneNumber(homeController.phoneNumber.value)) {
                       homeController.getCustomerDetails();
                     } else {

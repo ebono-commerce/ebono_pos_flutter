@@ -567,6 +567,8 @@ class _ReturnsViewState extends State<ReturnsView> {
                           return 'Phone number must be 10 digits';
                         } else if (displayProxyNumberError) {
                           return "Please search with customer number";
+                        }else if(customerNumberTextController.text.isNotEmpty && value.trim().length != 10){
+                          return 'Phone number must be 10 digits';
                         }
                         return null;
                       },
@@ -584,6 +586,8 @@ class _ReturnsViewState extends State<ReturnsView> {
                         if ((value == null || value.isEmpty) &&
                             customerNumberTextController.text.isEmpty) {
                           return 'Please enter order number';
+                        }else if(orderNumberTextController.text.isNotEmpty && value != null && value.length < 8){
+                          return "Please enter valid order number";
                         }
                         return null;
                       },
