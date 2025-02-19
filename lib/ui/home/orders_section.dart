@@ -1233,7 +1233,11 @@ class _OrdersSectionState extends State<OrdersSection>
                         padding: EdgeInsets.only(
                             left: 4, right: 4, top: 10, bottom: 4),
                         child: ElevatedButton(
-                          onPressed: homeController.isQuantityEmpty.value
+                          onPressed: homeController.isQuantityEmpty.value ||
+                                  homeController.cartId.value.isEmpty ||
+                                  homeController.cartResponse.value.cartLines
+                                          ?.isEmpty ==
+                                      true
                               ? null
                               : () {
                                   PaymentSummaryRequest request =

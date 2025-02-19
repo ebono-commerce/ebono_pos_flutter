@@ -399,7 +399,8 @@ class _ReturnsViewState extends State<ReturnsView> {
                                 ? "Order #"
                                 : "Order #${state.orderItemsData.orderNumber ?? ""}",
                           ),
-                          if (displayInitialEmptyTable == true)
+                          if (displayInitialEmptyTable == true &&
+                              homeController.registerId.value.isNotEmpty)
                             CustomTableWidget(
                               headers:
                                   _customerTableData.buildInitialTableHeader(),
@@ -500,7 +501,22 @@ class _ReturnsViewState extends State<ReturnsView> {
                                 },
                               ),
                             ),
-                          if (displayFormField) _buildFormUI(state.isLoading),
+                          if (displayFormField &&
+                              homeController.registerId.value.isNotEmpty) ...[
+                            _buildFormUI(state.isLoading)
+                          ],
+                          if (homeController.registerId.value.isEmpty) ...[
+                            Expanded(
+                              child: Center(
+                                child: _buildRegisterClosed(
+                                  context,
+                                  onPressed: () async {
+                                    homeController.selectedTabButton.value = 1;
+                                  },
+                                ),
+                              ),
+                            )
+                          ]
                         ],
                       ),
                     ),
@@ -567,7 +583,9 @@ class _ReturnsViewState extends State<ReturnsView> {
                           return 'Phone number must be 10 digits';
                         } else if (displayProxyNumberError) {
                           return "Please search with customer number";
-                        }else if(customerNumberTextController.text.isNotEmpty && value.trim().length != 10){
+                        } else if (customerNumberTextController
+                                .text.isNotEmpty &&
+                            value.trim().length != 10) {
                           return 'Phone number must be 10 digits';
                         }
                         return null;
@@ -586,7 +604,9 @@ class _ReturnsViewState extends State<ReturnsView> {
                         if ((value == null || value.isEmpty) &&
                             customerNumberTextController.text.isEmpty) {
                           return 'Please enter order number';
-                        }else if(orderNumberTextController.text.isNotEmpty && value != null && value.length < 8){
+                        } else if (orderNumberTextController.text.isNotEmpty &&
+                            value != null &&
+                            value.length < 8) {
                           return "Please enter valid order number";
                         }
                         return null;
@@ -642,6 +662,7 @@ class _ReturnsViewState extends State<ReturnsView> {
       child: Column(
         children: [
           Container(
+            margin: EdgeInsets.only(top: 10),
             decoration: BoxDecoration(
               color: Colors.white,
               border: Border.all(color: Colors.grey),
@@ -921,6 +942,62 @@ class _ReturnsViewState extends State<ReturnsView> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildRegisterClosed(BuildContext context, {VoidCallback? onPressed}) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisSize: MainAxisSize.max,
+      children: [
+        Center(
+          child: Text(
+            "Register is closed!",
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold, color: CustomColors.black),
+          ),
+        ),
+        SizedBox(
+          height: 10,
+        ),
+        Center(
+          child: Text(
+            "Set an opening float to start the sale",
+            style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.normal, color: CustomColors.black),
+          ),
+        ),
+        SizedBox(
+          height: 5,
+        ),
+        Container(
+          width: 150,
+          padding: EdgeInsets.symmetric(horizontal: 5.0, vertical: 10),
+          child: ElevatedButton(
+            onPressed: onPressed,
+            style: ElevatedButton.styleFrom(
+              elevation: 1,
+              padding: EdgeInsets.symmetric(horizontal: 1, vertical: 20),
+              shape: RoundedRectangleBorder(
+                side: BorderSide(color: CustomColors.secondaryColor),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              backgroundColor: CustomColors.secondaryColor,
+            ),
+            child: Center(
+              child: Text(
+                "Open register",
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.bold, color: CustomColors.black),
+              ),
+            ),
+          ),
+        ),
+        SizedBox(
+          height: 20,
+        ),
+      ],
     );
   }
 }
