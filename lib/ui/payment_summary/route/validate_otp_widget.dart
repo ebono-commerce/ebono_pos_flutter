@@ -7,6 +7,7 @@ import 'package:ebono_pos/ui/payment_summary/bloc/payment_bloc.dart';
 import 'package:ebono_pos/ui/payment_summary/bloc/payment_event.dart';
 import 'package:ebono_pos/ui/payment_summary/bloc/payment_state.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
@@ -45,14 +46,26 @@ class _ValidateOtpWidgetState extends State<ValidateOtpWidget> {
     }
 
     couponCodeFocusNode.addListener(() {
+      final numericValue =
+      _numPadController.text.replaceAll(RegExp(r'[^0-9]'), '');
       setState(() {
-        _numPadController.text = otpController.text;
+        if(numericValue.length > 4){
+        _numPadController.text = numericValue.substring(0,4);
+        }else{
+          _numPadController.text = numericValue;
+        }
       });
     });
 
     _numPadController.addListener(() {
+      final numericValue =
+      _numPadController.text.replaceAll(RegExp(r'[^0-9]'), '');
       setState(() {
-        otpController.text = _numPadController.text;
+        if(numericValue.length > 4){
+          otpController.text = numericValue.substring(0,4);
+        }else{
+          otpController.text = numericValue;
+        }
       });
     });
 
@@ -343,7 +356,9 @@ class _ValidateOtpWidgetState extends State<ValidateOtpWidget> {
         onChanged: onChanged,
         readOnly: readOnly,
         validator: validator,
+        maxLength: 4,
         decoration: _buildInputDecoration(label, suffixIcon),
+        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
       ),
     );
   }
@@ -351,6 +366,7 @@ class _ValidateOtpWidgetState extends State<ValidateOtpWidget> {
   InputDecoration _buildInputDecoration(String label, Widget? suffixIcon) {
     return InputDecoration(
       fillColor: Colors.white,
+      counterText: '',
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
         borderSide: BorderSide(color: Colors.grey.shade300, width: 1),

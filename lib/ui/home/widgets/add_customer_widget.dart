@@ -7,6 +7,7 @@ import 'package:ebono_pos/ui/home/home_controller.dart';
 import 'package:ebono_pos/ui/home/model/customer_details_response.dart';
 import 'package:ebono_pos/utils/common_methods.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 
@@ -159,15 +160,25 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
       setState(() {
         //if (_qwertyPadController.text.isNotEmpty) {
         if (activeFocusNode == phoneNumberFocusNode) {
-          _controllerPhoneNumber.text = _qwertyPadController.text;
+          final numericValue =
+          _qwertyPadController.text.replaceAll(RegExp(r'[^0-9]'), '');
+          _controllerPhoneNumber.text = numericValue;
         } else if (activeFocusNode == customerNameFocusNode) {
           _controllerCustomerName.text = _qwertyPadController.text;
         } else if (activeFocusNode == otpFocusNode) {
-          _otpTextController.text = _qwertyPadController.text;
+          final numericValue =
+          _qwertyPadController.text.replaceAll(RegExp(r'[^0-9]'), '');
+          if(numericValue.length >4){
+            _otpTextController.text =numericValue.substring(0,4);
+          }else{
+          _otpTextController.text = numericValue;
+          }
         }
         //}
       });
     });
+
+
 
     otpFocusNode.addListener(() {
       setState(() {
@@ -257,6 +268,7 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
           width: 1,
         ),
       ),
+      counterText: '',
       label: RichText(
         text: TextSpan(
           children: [
@@ -382,6 +394,8 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
                                     _buildTextField(
                                       label: "Enter OTP",
                                       controller: _otpTextController,
+                                      inputFormater: [FilteringTextInputFormatter.digitsOnly],
+                                      maxLength: 4,
                                       focusNode: otpFocusNode,
                                       onChanged: (value) => homeController
                                           .otpNumber.value = value,
@@ -693,7 +707,9 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
                         focusNode: activeFocusNode!,
                         onValueChanged: (value) {
                           if (activeFocusNode == phoneNumberFocusNode) {
-                            homeController.phoneNumber.value = value;
+                            final numericValue =
+                            value.replaceAll(RegExp(r'[^0-9]'), '');
+                            homeController.phoneNumber.value = numericValue;
                           } else if (activeFocusNode == customerNameFocusNode) {
                             homeController.customerName.value = value;
                           }
@@ -724,9 +740,11 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
     required FocusNode focusNode,
     required ValueChanged<String> onChanged,
     String? Function(String? value)? validator,
+    List<TextInputFormatter>? inputFormater,
     bool readOnly = false,
     Widget? suffixIcon,
     bool isEnabled = true,
+    int? maxLength,
   }) {
     return Container(
       padding: const EdgeInsets.all(10),
@@ -738,6 +756,8 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
         readOnly: readOnly,
         validator: validator,
         decoration: _buildInputDecoration(label, suffixIcon),
+        inputFormatters: inputFormater,
+        maxLength: maxLength,
       ),
     );
   }
