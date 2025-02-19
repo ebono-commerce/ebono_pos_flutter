@@ -85,7 +85,8 @@ class _ReturnsViewState extends State<ReturnsView> {
         if (customerNumberFocusNode.hasFocus) {
           activeFocusNode = customerNumberFocusNode;
         }
-        numPadTextController.text = customerNumberTextController.text;
+        numPadTextController.text =
+            customerNumberTextController.text.replaceAll(RegExp(r'[^0-9]'), '');
       });
     });
 
@@ -95,7 +96,8 @@ class _ReturnsViewState extends State<ReturnsView> {
           activeFocusNode = orderNumberFocusNode;
         }
 
-        numPadTextController.text = orderNumberTextController.text;
+        numPadTextController.text =
+            orderNumberTextController.text.replaceAll(RegExp(r'[^0-9]'), '');
       });
     });
 
@@ -112,13 +114,16 @@ class _ReturnsViewState extends State<ReturnsView> {
       setState(() {
         if (activeFocusNode == customerNumberFocusNode) {
           if (numPadTextController.text.length <= 10) {
-            customerNumberTextController.text = numPadTextController.text;
+            customerNumberTextController.text =
+                numPadTextController.text.replaceAll(RegExp(r'[^0-9]'), '');
           } else {
-            numPadTextController.text =
-                numPadTextController.text.substring(0, 10);
+            numPadTextController.text = numPadTextController.text
+                .substring(0, 10)
+                .replaceAll(RegExp(r'[^0-9]'), '');
           }
         } else if (activeFocusNode == orderNumberFocusNode) {
-          orderNumberTextController.text = numPadTextController.text;
+          orderNumberTextController.text =
+              numPadTextController.text.replaceAll(RegExp(r'[^0-9]'), '');
         }
       });
     });

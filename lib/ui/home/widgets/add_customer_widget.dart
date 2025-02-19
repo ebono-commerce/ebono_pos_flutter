@@ -49,7 +49,6 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
   final FocusNode otpFocusNode = FocusNode();
   final RegExp otpRegex = RegExp(r'^[0-9]+$');
 
-
   FocusNode? activeFocusNode;
   late ThemeData theme;
 
@@ -114,9 +113,8 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
     });
 
     ever(homeController.isOTPVerified, (value) {
-      if (value == true) {
-        if (widget.isDialogForReturns == true &&
-            widget.onOTPVerifiedSuccessfully != null) {
+      if (value == true && mounted) {
+        if (widget.isDialogForReturns == true) {
           /* triggering the fn to do respective actions in previous screen */
           widget.onOTPVerifiedSuccessfully?.call(value);
         } else {

@@ -153,9 +153,10 @@ class _ValidateOtpWidgetState extends State<ValidateOtpWidget> {
               ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.start,
                 mainAxisSize: MainAxisSize.max,
                 children: [
+                  SizedBox(height: 10),
                   SizedBox(
                     width: 400,
                     child: Form(

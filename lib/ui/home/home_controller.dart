@@ -937,8 +937,8 @@ class HomeController extends GetxController {
       /* check to count otp's resent and restrict */
       if (isResendOTP) resendOTPCount.value++;
 
-      isOTPVerified.value = false;
       otpErrorMessage.value = '';
+      isOTPVerified.value = false;
       triggerCustomOTPValidation.value = false;
 
       if (resendOTPCount.value > 2 &&
