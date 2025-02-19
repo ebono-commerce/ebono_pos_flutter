@@ -936,8 +936,8 @@ class HomeController extends GetxController {
     try {
       /* check to count otp's resent and restrict */
       if (isResendOTP) resendOTPCount.value++;
-      isOTPVerified.value = false;
 
+      isOTPVerified.value = false;
       otpErrorMessage.value = '';
       triggerCustomOTPValidation.value = false;
 
@@ -957,20 +957,13 @@ class HomeController extends GetxController {
         otp: otp,
       );
 
-      // if (result == true && (tiggerOTP == true || isResendOTP == true)) {
-      //   Get.snackbar(
-      //     'OTP SENT SUCCESSFULLY',
-      //     "OTP sent to $phoneNumber successfully",
-      //   );
-      // }
-
       if (isResendOTP == false && tiggerOTP == false) {
         isOTPVerified.value = result;
       }
-    } catch (e) {
-      // Get.snackbar('FAILED TO SEND OTP', e.toString());
-      otpErrorMessage.value = e.toString().split('|').last;
+    } catch (error) {
       isOTPVerified.value = false;
+      otpErrorMessage.value =
+          error.toString().split('|').lastOrNull ?? error.toString();
       triggerCustomOTPValidation.value = true;
     } finally {
       isOTPResendingOrVerifying.value = false;

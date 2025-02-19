@@ -114,7 +114,8 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
 
     ever(homeController.isOTPVerified, (value) {
       if (value == true) {
-        if (widget.isDialogForReturns == true) {
+        if (widget.isDialogForReturns == true &&
+            widget.onOTPVerifiedSuccessfully != null) {
           /* triggering the fn to do respective actions in previous screen */
           widget.onOTPVerifiedSuccessfully?.call(value);
         } else {
@@ -414,8 +415,12 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
                                           homeController.generateORValidateOTP(
                                             tiggerOTP: false,
                                             isResendOTP: false,
-                                            phoneNumber: homeController
-                                                .phoneNumber.value,
+                                            phoneNumber: widget
+                                                    .isDialogForReturns
+                                                ? widget.customerMobileNumber
+                                                    .toString()
+                                                : homeController
+                                                    .phoneNumber.value,
                                             otp: _otpTextController.text.trim(),
                                           );
                                         }
