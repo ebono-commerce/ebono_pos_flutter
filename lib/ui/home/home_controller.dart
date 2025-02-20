@@ -99,6 +99,9 @@ class HomeController extends GetxController {
   var isAutoWeighDetection = false.obs;
   var isReturnViewReset = false.obs;
 
+  /* wallet redeem */
+  var isOTPError = false.obs;
+
   /* RxDouble weight = 0.0.obs; // Observable weight value
   late DigitalWeighingScale digitalWeighingScale;
   final int rate = 9600;
@@ -422,10 +425,6 @@ class HomeController extends GetxController {
 
       if (showOTPScreen) {
         displayOTPScreen.value = true;
-        Get.snackbar(
-          'OTP SENT SUCCESSFULLY',
-          "OTP sent to $phoneNumber successfully",
-        );
       }
       if (!isFromReturns) {
         if (cartId.value.isNotEmpty &&
@@ -933,9 +932,9 @@ class HomeController extends GetxController {
     try {
       /* check to count otp's resent and restrict */
       if (isResendOTP) resendOTPCount.value++;
-      isOTPVerified.value = false;
 
       otpErrorMessage.value = '';
+      isOTPVerified.value = false;
       triggerCustomOTPValidation.value = false;
 
       if (resendOTPCount.value > 2 &&
@@ -954,20 +953,13 @@ class HomeController extends GetxController {
         otp: otp,
       );
 
-      if (result == true && (tiggerOTP == true || isResendOTP == true)) {
-        Get.snackbar(
-          'OTP SENT SUCCESSFULLY',
-          "OTP sent to $phoneNumber successfully",
-        );
-      }
-
       if (isResendOTP == false && tiggerOTP == false) {
         isOTPVerified.value = result;
       }
-    } catch (e) {
-      Get.snackbar('FAILED TO SEND OTP', e.toString());
-      otpErrorMessage.value = e.toString().split('|').last;
+    } catch (error) {
       isOTPVerified.value = false;
+      otpErrorMessage.value =
+          error.toString().split('|').lastOrNull ?? error.toString();
       triggerCustomOTPValidation.value = true;
     } finally {
       isOTPResendingOrVerifying.value = false;

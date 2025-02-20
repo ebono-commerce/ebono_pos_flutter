@@ -85,7 +85,8 @@ class _ReturnsViewState extends State<ReturnsView> {
         if (customerNumberFocusNode.hasFocus) {
           activeFocusNode = customerNumberFocusNode;
         }
-        numPadTextController.text = customerNumberTextController.text;
+        numPadTextController.text =
+            customerNumberTextController.text.replaceAll(RegExp(r'[^0-9]'), '');
       });
     });
 
@@ -95,7 +96,8 @@ class _ReturnsViewState extends State<ReturnsView> {
           activeFocusNode = orderNumberFocusNode;
         }
 
-        numPadTextController.text = orderNumberTextController.text;
+        numPadTextController.text =
+            orderNumberTextController.text.replaceAll(RegExp(r'[^0-9]'), '');
       });
     });
 
@@ -112,13 +114,16 @@ class _ReturnsViewState extends State<ReturnsView> {
       setState(() {
         if (activeFocusNode == customerNumberFocusNode) {
           if (numPadTextController.text.length <= 10) {
-            customerNumberTextController.text = numPadTextController.text;
+            customerNumberTextController.text =
+                numPadTextController.text.replaceAll(RegExp(r'[^0-9]'), '');
           } else {
-            numPadTextController.text =
-                numPadTextController.text.substring(0, 10);
+            numPadTextController.text = numPadTextController.text
+                .substring(0, 10)
+                .replaceAll(RegExp(r'[^0-9]'), '');
           }
         } else if (activeFocusNode == orderNumberFocusNode) {
-          orderNumberTextController.text = numPadTextController.text;
+          orderNumberTextController.text =
+              numPadTextController.text.replaceAll(RegExp(r'[^0-9]'), '');
         }
       });
     });
@@ -172,6 +177,7 @@ class _ReturnsViewState extends State<ReturnsView> {
       barrierDismissible: false,
       builder: (BuildContext context) {
         return Dialog(
+          insetPadding: EdgeInsets.symmetric(vertical: 15.0),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20.0),
           ),
@@ -398,7 +404,8 @@ class _ReturnsViewState extends State<ReturnsView> {
                                 ? "Order #"
                                 : "Order #${state.orderItemsData.orderNumber ?? ""}",
                           ),
-                          if (displayInitialEmptyTable == true)
+                          if (displayInitialEmptyTable == true &&
+                              homeController.registerId.value.isNotEmpty)
                             CustomTableWidget(
                               headers:
                                   _customerTableData.buildInitialTableHeader(),
@@ -465,14 +472,14 @@ class _ReturnsViewState extends State<ReturnsView> {
                                       numPadTextController.text =
                                           '${orderLine.returnedQuantity ?? ''}';
                                       numPadFocusNode.requestFocus();
+                                      returnsBloc.add(
+                                        UpdateSelectedItem(
+                                          id: orderLine.orderLineId!,
+                                          isSelected: true,
+                                          orderLine: orderLine,
+                                        ),
+                                      );
                                     }
-                                    returnsBloc.add(
-                                      UpdateSelectedItem(
-                                        id: orderLine.orderLineId!,
-                                        isSelected: true,
-                                        orderLine: orderLine,
-                                      ),
-                                    );
                                   },
                                   onTapSelectedButton: (orderLine) {
                                     if (!orderLine.isSelected) {
@@ -499,7 +506,22 @@ class _ReturnsViewState extends State<ReturnsView> {
                                 },
                               ),
                             ),
-                          if (displayFormField) _buildFormUI(state.isLoading),
+                          if (displayFormField &&
+                              homeController.registerId.value.isNotEmpty) ...[
+                            _buildFormUI(state.isLoading)
+                          ],
+                          if (homeController.registerId.value.isEmpty) ...[
+                            Expanded(
+                              child: Center(
+                                child: _buildRegisterClosed(
+                                  context,
+                                  onPressed: () async {
+                                    homeController.selectedTabButton.value = 1;
+                                  },
+                                ),
+                              ),
+                            )
+                          ]
                         ],
                       ),
                     ),
@@ -566,6 +588,10 @@ class _ReturnsViewState extends State<ReturnsView> {
                           return 'Phone number must be 10 digits';
                         } else if (displayProxyNumberError) {
                           return "Please search with customer number";
+                        } else if (customerNumberTextController
+                                .text.isNotEmpty &&
+                            value.trim().length != 10) {
+                          return 'Phone number must be 10 digits';
                         }
                         return null;
                       },
@@ -583,6 +609,10 @@ class _ReturnsViewState extends State<ReturnsView> {
                         if ((value == null || value.isEmpty) &&
                             customerNumberTextController.text.isEmpty) {
                           return 'Please enter order number';
+                        } else if (orderNumberTextController.text.isNotEmpty &&
+                            value != null &&
+                            value.length < 8) {
+                          return "Please enter valid order number";
                         }
                         return null;
                       },
@@ -637,6 +667,7 @@ class _ReturnsViewState extends State<ReturnsView> {
       child: Column(
         children: [
           Container(
+            margin: EdgeInsets.only(top: 10),
             decoration: BoxDecoration(
               color: Colors.white,
               border: Border.all(color: Colors.grey),
@@ -733,21 +764,47 @@ class _ReturnsViewState extends State<ReturnsView> {
                     } else if (activeFocusNode == orderNumberFocusNode) {
                       orderNumberFocusNode.unfocus();
                     } else if (activeFocusNode == numPadFocusNode) {
-                      /* check for not empty & returnable quantity isNot greaterthan eligible quantity */
-                      if (numPadTextController.text.trim().isNotEmpty &&
-                          (returnsBloc.state.lastSelectedItem.returnableQuantity
-                                  ?.quantityNumber)! >=
-                              double.parse(numPadTextController.text)) {
-                        /* when appropriate weigh or quantity is selected from numpad */
-                        returnsBloc.add(UpdateOrderLineQuantity(
-                          id: returnsBloc.state.lastSelectedItem.orderLineId!,
-                          quantity: numPadTextController.text.toString(),
-                        ));
+                      if (numPadTextController.text.isEmpty) {
+                        return;
+                      } else
+                      /* checking whether user is entering or updating quantity for weigh items or non weigh items */
+                      if (returnsBloc.state.lastSelectedItem.returnableQuantity
+                              ?.quantityUom ==
+                          'pcs') {
+                        /* check for double i.e non-integer values */
+                        if (double.tryParse(numPadTextController.text)
+                                ?.truncateToDouble() !=
+                            double.tryParse(numPadTextController.text)) {
+                          Get.snackbar("Invalid Quantity",
+                              "Returnable quantity should be in Integer");
+                        } else if (int.parse(numPadTextController.text) <=
+                            returnsBloc.state.lastSelectedItem
+                                .returnableQuantity!.quantityNumber!) {
+                          returnsBloc.add(UpdateOrderLineQuantity(
+                            id: returnsBloc.state.lastSelectedItem.orderLineId!,
+                            quantity: numPadTextController.text,
+                          ));
+                        } else {
+                          Get.snackbar("Invalid Quantity",
+                              "Returnable quantity should not be more than ${returnsBloc.state.lastSelectedItem.returnableQuantity!.quantityNumber}");
+                        }
                       } else {
-                        Get.snackbar(
-                          "Invalid Quantity",
-                          "Returnable quantity should not be more than ${(returnsBloc.state.lastSelectedItem.returnableQuantity?.quantityNumber)!}",
-                        );
+                        /* check for not empty & returnable quantity isNot greaterthan eligible quantity */
+                        if (numPadTextController.text.trim().isNotEmpty &&
+                            (returnsBloc.state.lastSelectedItem
+                                    .returnableQuantity?.quantityNumber)! >=
+                                double.parse(numPadTextController.text)) {
+                          /* when appropriate weigh or quantity is selected from numpad */
+                          returnsBloc.add(UpdateOrderLineQuantity(
+                            id: returnsBloc.state.lastSelectedItem.orderLineId!,
+                            quantity: numPadTextController.text.toString(),
+                          ));
+                        } else {
+                          Get.snackbar(
+                            "Invalid Quantity",
+                            "Returnable quantity should not be more than ${(returnsBloc.state.lastSelectedItem.returnableQuantity?.quantityNumber)!}",
+                          );
+                        }
                       }
                     }
                   },
@@ -890,6 +947,62 @@ class _ReturnsViewState extends State<ReturnsView> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildRegisterClosed(BuildContext context, {VoidCallback? onPressed}) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisSize: MainAxisSize.max,
+      children: [
+        Center(
+          child: Text(
+            "Register is closed!",
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold, color: CustomColors.black),
+          ),
+        ),
+        SizedBox(
+          height: 10,
+        ),
+        Center(
+          child: Text(
+            "Set an opening float to start the sale",
+            style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.normal, color: CustomColors.black),
+          ),
+        ),
+        SizedBox(
+          height: 5,
+        ),
+        Container(
+          width: 150,
+          padding: EdgeInsets.symmetric(horizontal: 5.0, vertical: 10),
+          child: ElevatedButton(
+            onPressed: onPressed,
+            style: ElevatedButton.styleFrom(
+              elevation: 1,
+              padding: EdgeInsets.symmetric(horizontal: 1, vertical: 20),
+              shape: RoundedRectangleBorder(
+                side: BorderSide(color: CustomColors.secondaryColor),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              backgroundColor: CustomColors.secondaryColor,
+            ),
+            child: Center(
+              child: Text(
+                "Open register",
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.bold, color: CustomColors.black),
+              ),
+            ),
+          ),
+        ),
+        SizedBox(
+          height: 20,
+        ),
+      ],
     );
   }
 }

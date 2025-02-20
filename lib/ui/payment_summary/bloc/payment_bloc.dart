@@ -330,12 +330,14 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
       emit(state.copyWith(isOnlinePaymentSuccess: true));
     }
     balancePayable = totalPayable - givenAmount;
-
     if (balancePayable <= 0) {
       if (onlinePayment.isNotEmpty && onlinePayment != '0') {
         if (state.isPaymentStatusSuccess) {
           allowPlaceOrder = true;
-        } else {
+        }else if(totalPayable == 0){
+          allowPlaceOrder = true;
+        }
+        else {
           allowPlaceOrder = false;
         }
       } else {
@@ -502,13 +504,8 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
     ));
 
     try {
-      var response = await _paymentRepository.walletAuthentication(
+      await _paymentRepository.walletAuthentication(
           PhoneNumberRequest(phoneNumber: paymentSummaryRequest.phoneNumber));
-
-      if (response.success == true) {
-        Get.snackbar('OTP SENT',
-            'otp sent successfully to ${paymentSummaryRequest.phoneNumber}');
-      }
 
       emit(state.copyWith(
           isLoading: false, isWalletAuthenticationSuccess: true));

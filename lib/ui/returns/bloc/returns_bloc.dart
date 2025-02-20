@@ -292,10 +292,11 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
   ) async {
     try {
       final updatedOrderItems = state.orderItemsData.copyWith(
-        orderLines: state.orderItemsData.orderLines
-            ?.where((order) => order.isSelected == true)
-            .map((orderLine) {
-          return orderLine.copyWith(returnReason: event.reason);
+        orderLines: state.orderItemsData.orderLines?.map((orderLine) {
+          if (orderLine.isSelected == true) {
+            return orderLine.copyWith(returnReason: event.reason);
+          }
+          return orderLine;
         }).toList(),
       );
 

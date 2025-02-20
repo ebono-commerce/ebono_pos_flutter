@@ -10,9 +10,7 @@ class HomeAppBar extends StatefulWidget {
   final bool showBackButton;
 
   const HomeAppBar(
-      {super.key,
-      required this.titleWidget,
-      this.showBackButton = false});
+      {super.key, required this.titleWidget, this.showBackButton = false});
 
   @override
   State<HomeAppBar> createState() => _HomeAppBarState();
@@ -21,7 +19,6 @@ class HomeAppBar extends StatefulWidget {
 class _HomeAppBarState extends State<HomeAppBar> {
   HomeController homeController = Get.find<HomeController>();
 
-
   @override
   Widget build(BuildContext context) {
     print(
@@ -29,6 +26,7 @@ class _HomeAppBarState extends State<HomeAppBar> {
     return AppBar(
       automaticallyImplyLeading: false,
       backgroundColor: Colors.grey.shade100,
+      scrolledUnderElevation: 0,
       title: Row(
         children: [
           widget.showBackButton == true

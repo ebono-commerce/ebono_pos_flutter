@@ -122,6 +122,7 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
       context: context,
       builder: (BuildContext context) {
         return Dialog(
+          insetPadding: EdgeInsets.symmetric(vertical: 15.0),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20.0),
           ),
@@ -129,6 +130,7 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
         );
       },
     );
+    homeController.isOTPError.value = false;
 
     setState(() => isVerifyDialogOpen = false);
   }
@@ -204,9 +206,11 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
               setState(() => isVerifyDialogOpen = true);
             }
 
-            if (state.isWalletChargeSuccess &&
-                (state.balancePayableAmount ?? 0) <= 0) {
+            if (state.isWalletChargeSuccess) {
               cashPaymentTextController.clear();
+              onlinePaymentTextController.clear();
+              paymentBloc.onlinePayment = '';
+              paymentBloc.cashPayment = '';
             }
 
             if (state.isWalletAuthenticationError) {
@@ -370,14 +374,18 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                   ),
                   SizedBox(height: 12),
                   tenderDetailRow(
-                      label: 'Cash', value: cashPaymentTextController.text),
+                      label: 'Cash',
+                      value: getTenderAmountString(cashPaymentTextController.text),
+                  ),
                   tenderDetailRow(
-                      label: 'Online', value: onlinePaymentTextController.text),
+                      label: 'Online',
+                      value: getTenderAmountString(onlinePaymentTextController.text),
+                  ),
                   Visibility(
                     visible: data?.redeemedWalletAmount?.centAmount != 0,
                     child: tenderDetailRow(
                         label: 'Wallet',
-                        value: getActualPrice(
+                        value: getActualPriceWithoutSymbol(
                             data?.redeemedWalletAmount?.centAmount,
                             data?.redeemedWalletAmount?.fraction)),
                   ),
@@ -670,7 +678,7 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                                 theme: theme,
                                 textStyle: theme.textTheme.bodyMedium,
                                 padding: EdgeInsets.all(12)),
-                            onPressed: () {
+                            onPressed: paymentBloc.totalPayable == 0 ? null : () {
                               cashPaymentFocusNode.requestFocus();
                             },
                             child: Row(
@@ -696,13 +704,16 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                         children: [
                           SizedBox(
                             width: 140,
-                            child: commonTextField(
-                                label: 'Enter Amount',
-                                focusNode: cashPaymentFocusNode,
-                                controller: cashPaymentTextController,
-                                readOnly: false,
-                                onValueChanged: (value) {},
-                                validator: null),
+                            child: IgnorePointer(
+                              ignoring: paymentBloc.totalPayable == 0,
+                              child: commonTextField(
+                                  label: 'Enter Amount',
+                                  focusNode: cashPaymentFocusNode,
+                                  controller: cashPaymentTextController,
+                                  readOnly: paymentBloc.totalPayable == 0,
+                                  onValueChanged: (value) {},
+                                  validator: null),
+                            ),
                           ),
                           SizedBox(width: 14),
                           SizedBox(
@@ -715,7 +726,7 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                   SizedBox(height: 16),
 
                   /// if payment amount is zero disable the state of buttons
-                  if ((state.balancePayableAmount ?? 0.0) <= 0.0) ...[
+                  if ((paymentBloc.totalPayable) <= 0.0) ...[
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
