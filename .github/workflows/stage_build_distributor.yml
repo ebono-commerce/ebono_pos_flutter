@@ -1,58 +1,131 @@
 name: Stage Distributor Build
 
 on:
-  # Allow manual trigger
   workflow_dispatch:
-
-  # Allow auto-trigger on push to the 'deployment' branch
   #push:
-  #branches:
-  #- Deployment
+  #  branches:
+  #    - Deployment
 
 jobs:
-  build:
+  setup:
     runs-on: ubuntu-22.04
-
+    outputs:
+      version: ${{ steps.version.outputs.version }}
     steps:
-      # Checkout the code
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Install system dependencies
-      - name: Install required dependencies
-        run: |
-          sudo apt-get update && sudo apt upgrade -y
-          sudo apt-get install -y clang cmake git ninja-build pkg-config libgtk-3-dev liblzma-dev libstdc++-12-dev libunwind-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev
+      - name: Cache Flutter dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            /opt/hostedtoolcache/flutter
+            ~/.pub-cache
+          key: ${{ runner.os }}-flutter-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-flutter-
 
-      # Set up Flutter
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
           flutter-version: "3.27.1"
 
-      # Get version
       - name: Get version from pubspec.yaml
         id: version
         run: |
           VERSION=$(grep '^version: ' pubspec.yaml | sed 's/version: //')
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
-      # Install Flutter dependencies
+  install_dependencies:
+    needs: setup
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Cache APT packages
+        uses: actions/cache@v3
+        with:
+          path: /var/cache/apt/archives
+          key: ${{ runner.os }}-apt-${{ hashFiles('**/workflow.yml') }}
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update && sudo apt upgrade -y
+          sudo apt-get install -y clang cmake git ninja-build pkg-config \
+            libgtk-3-dev liblzma-dev libstdc++-12-dev libunwind-dev \
+            libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev
+
+      - name: Restore Flutter cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            /opt/hostedtoolcache/flutter
+            ~/.pub-cache
+          key: ${{ runner.os }}-flutter-${{ hashFiles('**/pubspec.lock') }}
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.27.1"
+
       - name: Install Flutter dependencies
         run: flutter pub get
 
-      # Activate Flutter Distributor
       - name: Activate Flutter Distributor
         run: dart pub global activate flutter_distributor
 
-      # Generate the build using Flutter Distributor
+      - name: Cache workspace
+        uses: actions/cache@v3
+        with:
+          path: .
+          key: workspace-${{ github.sha }}
+
+  build:
+    needs: install_dependencies
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Restore workspace
+        uses: actions/cache@v3
+        with:
+          path: .
+          key: workspace-${{ github.sha }}
+
+      - name: Restore Flutter cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            /opt/hostedtoolcache/flutter
+            ~/.pub-cache
+          key: ${{ runner.os }}-flutter-${{ hashFiles('**/pubspec.lock') }}
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.27.1"
+
       - name: Build Stage Release
         run: |
           flutter_distributor release --name=stage --jobs=release-stage-linux-deb
 
-      # Optional: Upload artifacts (deb file)
+      - name: Cache dist directory
+        uses: actions/cache@v3
+        with:
+          path: dist
+          key: dist-${{ github.sha }}
+
+  artifacts:
+    needs: [build, setup]
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Restore dist directory
+        uses: actions/cache@v3
+        with:
+          path: dist
+          key: dist-${{ github.sha }}
+
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: stage-release-${{ steps.version.outputs.version }}
+          name: stage-release-${{ needs.setup.outputs.version }}
           path: dist/

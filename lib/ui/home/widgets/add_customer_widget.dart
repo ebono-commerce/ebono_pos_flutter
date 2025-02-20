@@ -159,24 +159,26 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
         //if (_qwertyPadController.text.isNotEmpty) {
         if (activeFocusNode == phoneNumberFocusNode) {
           final numericValue =
-          _qwertyPadController.text.replaceAll(RegExp(r'[^0-9]'), '');
-          _controllerPhoneNumber.text = numericValue;
+              _qwertyPadController.text.replaceAll(RegExp(r'[^0-9]'), '');
+          if (numericValue.length > 10) {
+            _controllerPhoneNumber.text = numericValue.substring(0, 10);
+          } else {
+            _controllerPhoneNumber.text = numericValue;
+          }
         } else if (activeFocusNode == customerNameFocusNode) {
           _controllerCustomerName.text = _qwertyPadController.text;
         } else if (activeFocusNode == otpFocusNode) {
           final numericValue =
-          _qwertyPadController.text.replaceAll(RegExp(r'[^0-9]'), '');
-          if(numericValue.length >4){
-            _otpTextController.text =numericValue.substring(0,4);
-          }else{
-          _otpTextController.text = numericValue;
+              _qwertyPadController.text.replaceAll(RegExp(r'[^0-9]'), '');
+          if (numericValue.length > 4) {
+            _otpTextController.text = numericValue.substring(0, 4);
+          } else {
+            _otpTextController.text = numericValue;
           }
         }
         //}
       });
     });
-
-
 
     otpFocusNode.addListener(() {
       setState(() {
@@ -392,7 +394,9 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
                                     _buildTextField(
                                       label: "Enter OTP",
                                       controller: _otpTextController,
-                                      inputFormater: [FilteringTextInputFormatter.digitsOnly],
+                                      inputFormater: [
+                                        FilteringTextInputFormatter.digitsOnly
+                                      ],
                                       maxLength: 4,
                                       focusNode: otpFocusNode,
                                       onChanged: (value) => homeController
@@ -516,6 +520,10 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
                                               : phoneNumberFocusNode,
                                       onChanged: (value) => homeController
                                           .phoneNumber.value = value,
+                                      maxLength: 10,
+                                      inputFormater: [
+                                        FilteringTextInputFormatter.digitsOnly
+                                      ],
                                       suffixIcon: _buildSearchButton(
                                         isDisabled:
                                             widget.disableFormFields == true,
@@ -706,8 +714,13 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
                         onValueChanged: (value) {
                           if (activeFocusNode == phoneNumberFocusNode) {
                             final numericValue =
-                            value.replaceAll(RegExp(r'[^0-9]'), '');
-                            homeController.phoneNumber.value = numericValue;
+                                value.replaceAll(RegExp(r'[^0-9]'), '');
+                            if (numericValue.length > 10) {
+                              homeController.phoneNumber.value =
+                                  numericValue.substring(0, 10);
+                            } else {
+                              homeController.phoneNumber.value = numericValue;
+                            }
                           } else if (activeFocusNode == customerNameFocusNode) {
                             homeController.customerName.value = value;
                           }

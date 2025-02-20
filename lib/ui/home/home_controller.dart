@@ -425,10 +425,6 @@ class HomeController extends GetxController {
 
       if (showOTPScreen) {
         displayOTPScreen.value = true;
-        Get.snackbar(
-          'OTP SENT SUCCESSFULLY',
-          "OTP sent to $phoneNumber successfully",
-        );
       }
       if (!isFromReturns) {
         if (cartId.value.isNotEmpty &&
