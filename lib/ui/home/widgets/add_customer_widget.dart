@@ -432,7 +432,9 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
                                             tiggerOTP: false,
                                             isResendOTP: false,
                                             phoneNumber: widget
-                                                    .isDialogForReturns
+                                                        .isDialogForReturns &&
+                                                    widget.isDialogForAddCustomerFromReturns ==
+                                                        false
                                                 ? widget.customerMobileNumber
                                                     .toString()
                                                 : homeController
