@@ -209,6 +209,8 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
             if (state.isWalletChargeSuccess) {
               cashPaymentTextController.clear();
               onlinePaymentTextController.clear();
+              paymentBloc.onlinePayment = '';
+              paymentBloc.cashPayment = '';
             }
 
             if (state.isWalletAuthenticationError) {
