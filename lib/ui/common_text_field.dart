@@ -15,6 +15,7 @@ Widget commonTextField({
   Widget? suffixWidget,
   String? helperText,
   TextStyle? helperTextStyle,
+  int? acceptableLength,
 }) {
   return TextFormField(
     focusNode: focusNode,
@@ -22,6 +23,7 @@ Widget commonTextField({
     controller: controller,
     validator: validator,
     readOnly: readOnly,
+    maxLength: acceptableLength,
     decoration: textFieldDecoration(
       isFocused: focusNode.hasFocus,
       label: label,
@@ -30,9 +32,7 @@ Widget commonTextField({
       suffixLabel: suffixLabel,
       suffixWidget: suffixWidget,
     ),
-    onTap: () {
-      onTap;
-    },
+    onTap: onTap,
     onEditingComplete: onEditingComplete,
     onChanged: (value) {
       if (onValueChanged != null) {
@@ -67,6 +67,7 @@ InputDecoration textFieldDecoration({
     helperText: helperText,
     helperStyle: helperTextStyle,
     helperMaxLines: 1,
+    counterText: '',
   );
 }
 

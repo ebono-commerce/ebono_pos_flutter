@@ -87,17 +87,20 @@ class HomeController extends GetxController {
   /* OTP Related */
   var displayOTPScreen = false.obs;
   var resendOTPBtnEnabled = false.obs;
-
   var isResendOTPRequested = false.obs;
   var isOTPVerified = false.obs;
   var isOTPResendingOrVerifying = false.obs;
   var otpErrorMessage = ''.obs;
   var triggerCustomOTPValidation = false.obs;
   var isOTPTriggering = false.obs;
+  var resendOTPCount = 0.obs;
 
   var isScanApiError = false.obs;
   var isAutoWeighDetection = false.obs;
   var isReturnViewReset = false.obs;
+
+  /* wallet redeem */
+  var isOTPError = false.obs;
 
   /* RxDouble weight = 0.0.obs; // Observable weight value
   late DigitalWeighingScale digitalWeighingScale;
@@ -388,6 +391,7 @@ class HomeController extends GetxController {
           await _homeRepository.getCustomerDetails(phoneNumber.value);
       getCustomerDetailsResponse.value = response;
       if (getCustomerDetailsResponse.value.customerName?.isNotEmpty == true) {
+        customerName.value = '';
         customerName.value =
             getCustomerDetailsResponse.value.customerName.toString();
       }
@@ -402,6 +406,8 @@ class HomeController extends GetxController {
     bool isFromReturns = false,
   }) async {
     try {
+      final skipMergeCart =
+          customerResponse.value.phoneNumber?.number == phoneNumber.value;
       var response = await _homeRepository.fetchCustomer(CustomerRequest(
           phoneNumber: phoneNumber.value,
           customerName: customerName.value,
@@ -421,7 +427,9 @@ class HomeController extends GetxController {
         displayOTPScreen.value = true;
       }
       if (!isFromReturns) {
-        if (cartId.value.isNotEmpty && isCustomerProxySelected.value) {
+        if (cartId.value.isNotEmpty &&
+            isCustomerProxySelected.value &&
+            !skipMergeCart) {
           mergeCart(phoneNumber.value);
           isCustomerProxySelected.value = false;
         } else {
@@ -649,12 +657,10 @@ class HomeController extends GetxController {
                   "${hiveStorageHelper.read(SharedPreferenceConstants.selectedTerminalId)}",
               holdCartId: id));
       cartResponse.value = response;
-      if (cartResponse.value != null) {
-        /* resetting the exsisting state */
-        isCustomerProxySelected.value = true;
-        clearHoldCartOrders();
-        selectedTabButton.value = 2;
-      }
+      /* resetting the exsisting state */
+      isCustomerProxySelected.value = true;
+      clearHoldCartOrders();
+      selectedTabButton.value = 2;
     } catch (e) {
       Get.snackbar('Error while resuming cart', '$e');
     }
@@ -924,10 +930,23 @@ class HomeController extends GetxController {
     bool disableLoading = false,
   }) async {
     try {
+      /* check to count otp's resent and restrict */
+      if (isResendOTP) resendOTPCount.value++;
+
+      otpErrorMessage.value = '';
+      isOTPVerified.value = false;
+      triggerCustomOTPValidation.value = false;
+
+      if (resendOTPCount.value > 2 &&
+          (isResendOTP == true || tiggerOTP == true)) {
+        return;
+      }
+
       /* to show loader when resend otp is triggered */
       isOTPResendingOrVerifying.value = !disableLoading;
       /* to show loader while manually triggering otp */
       isOTPTriggering.value = true;
+
       final result = await _homeRepository.generateORValidateOTP(
         tiggerOTP: tiggerOTP,
         phoneNumber: phoneNumber,
@@ -937,12 +956,10 @@ class HomeController extends GetxController {
       if (isResendOTP == false && tiggerOTP == false) {
         isOTPVerified.value = result;
       }
-
-      otpErrorMessage.value = '';
-      triggerCustomOTPValidation.value = false;
-    } catch (e) {
-      otpErrorMessage.value = e.toString().split('|').last;
+    } catch (error) {
       isOTPVerified.value = false;
+      otpErrorMessage.value =
+          error.toString().split('|').lastOrNull ?? error.toString();
       triggerCustomOTPValidation.value = true;
     } finally {
       isOTPResendingOrVerifying.value = false;

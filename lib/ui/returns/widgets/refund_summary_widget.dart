@@ -1,5 +1,4 @@
 import 'package:ebono_pos/constants/custom_colors.dart';
-import 'package:ebono_pos/ui/custom_keyboard/custom_querty_pad.dart';
 import 'package:ebono_pos/ui/home/home_controller.dart';
 import 'package:ebono_pos/ui/returns/bloc/returns_bloc.dart';
 import 'package:ebono_pos/ui/returns/data/returns_confirmation_table_data.dart';
@@ -381,7 +380,9 @@ class _ReturnSummaryWidgetState extends State<ReturnSummaryWidget> {
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 0),
               child: Row(
                 children: [
-                  Expanded(
+                  // CR:cash payment mode removed
+                  /*
+                      Expanded(
                     child: _buildPaymentOption(
                       title: 'Cash',
                       path: 'assets/images/cash.svg',
@@ -392,6 +393,7 @@ class _ReturnSummaryWidgetState extends State<ReturnSummaryWidget> {
                     ),
                   ),
                   const SizedBox(width: 15),
+                 */
                   Expanded(
                     child: _buildPaymentOption(
                       title: 'Wallet',
@@ -399,7 +401,7 @@ class _ReturnSummaryWidgetState extends State<ReturnSummaryWidget> {
                       isSelected: true,
                       onTap: () => widget.onPaymentModeSelected('wallet'),
                       context: context,
-                      textStyle: bodyLargeBlack,
+                      textStyle: bodyLargeBlack!,
                     ),
                   ),
                 ],

@@ -27,11 +27,13 @@ final class UpdateSelectedItem extends ReturnsEvent {
     this.reason = '',
     required this.orderLine,
     this.updateCommonReason = false,
+    this.isSelected = false,
   });
 
   final String id;
   final String reason;
   final bool updateCommonReason;
+  final bool isSelected;
   final OrderLine orderLine;
 }
 

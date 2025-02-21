@@ -14,7 +14,6 @@ import 'package:ebono_pos/ui/home/widgets/price_override_with_auth_widget.dart';
 import 'package:ebono_pos/ui/home/widgets/quick_action_buttons.dart';
 import 'package:ebono_pos/ui/payment_summary/model/payment_summary_request.dart';
 import 'package:ebono_pos/ui/payment_summary/weighing_scale_service.dart';
-import 'package:ebono_pos/ui/search/search_products_view.dart';
 import 'package:ebono_pos/utils/auth_modes.dart';
 import 'package:ebono_pos/utils/common_methods.dart';
 import 'package:ebono_pos/utils/dash_line.dart';
@@ -172,11 +171,12 @@ class _OrdersSectionState extends State<OrdersSection>
                 absorbing: homeController.registerId.value.isEmpty,
                 child: QuickActionButtons(
                   color: Colors.white,
-                  onCustomerPressed: () {
-                    showDialog(
+                  onCustomerPressed: () async {
+                    await showDialog(
                       context: context,
                       builder: (BuildContext context) {
                         return Dialog(
+                          insetPadding: EdgeInsets.symmetric(vertical: 15.0),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(20.0),
                           ),
@@ -184,6 +184,8 @@ class _OrdersSectionState extends State<OrdersSection>
                         );
                       },
                     );
+
+                    homeController.displayOTPScreen.value = false;
                   },
                   onHoldCartPressed: () {
                     if (homeController.isContionueWithOutCustomer.value) {
@@ -191,6 +193,7 @@ class _OrdersSectionState extends State<OrdersSection>
                         context: context,
                         builder: (BuildContext context) {
                           return Dialog(
+                            insetPadding: EdgeInsets.symmetric(vertical: 15.0),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(20.0),
                             ),
@@ -366,18 +369,19 @@ class _OrdersSectionState extends State<OrdersSection>
                   onInventoryInquiryPressed: () {
                     homeController.clearDataAndLogout();
                   },
+                  /* disabling search items feture as of now */
                   onSearchItemsPressed: () {
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return Dialog(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20.0),
-                          ),
-                          child: SearchProductsView(context),
-                        );
-                      },
-                    );
+                    // showDialog(
+                    //   context: context,
+                    //   builder: (BuildContext context) {
+                    //     return Dialog(
+                    //       shape: RoundedRectangleBorder(
+                    //         borderRadius: BorderRadius.circular(20.0),
+                    //       ),
+                    //       child: SearchProductsView(context),
+                    //     );
+                    //   },
+                    // );
                   },
                 ),
               ),
@@ -1031,7 +1035,8 @@ class _OrdersSectionState extends State<OrdersSection>
                                               .isQuantitySelected.value = false;
                                           homeController.isAutoWeighDetection
                                               .value = false;
-                                          homeController.clearWeightOnSuccess.value = true;
+                                          homeController.clearWeightOnSuccess
+                                              .value = true;
                                           setState(() {
                                             numPadTextController.text = '0';
                                             numPadTextController.clear();
@@ -1060,7 +1065,7 @@ class _OrdersSectionState extends State<OrdersSection>
                               if (homeController.cartId.value.isNotEmpty &&
                                   homeController.registerId.isNotEmpty) {
                                 if (isValidOfferId(text) ||
-                                    (text.trim().length >= 1 &&
+                                    (text.trim().isNotEmpty &&
                                         text.length <= 3)) {
                                   homeController
                                       .scanApiCall(numPadTextController.text);
@@ -1228,13 +1233,20 @@ class _OrdersSectionState extends State<OrdersSection>
                         padding: EdgeInsets.only(
                             left: 4, right: 4, top: 10, bottom: 4),
                         child: ElevatedButton(
-                          onPressed: homeController.isQuantityEmpty.value
+                          onPressed: homeController.isQuantityEmpty.value ||
+                                  homeController.cartId.value.isEmpty ||
+                                  homeController.cartResponse.value.cartLines
+                                          ?.isEmpty ==
+                                      true
                               ? null
                               : () {
                                   PaymentSummaryRequest request =
                                       PaymentSummaryRequest(
-                                          phoneNumber:
-                                              homeController.phoneNumber.value,
+                                          phoneNumber: homeController
+                                              .customerResponse
+                                              .value
+                                              .phoneNumber!
+                                              .number,
                                           cartId: homeController.cartId.value,
                                           customer: null,
                                           cartType: homeController
@@ -1585,7 +1597,7 @@ class _OrdersSectionState extends State<OrdersSection>
                         text: TextSpan(
                           children: <TextSpan>[
                             TextSpan(
-                              text: 'Wallet balance: - ',
+                              text: 'Wallet balance: ',
                               style: TextStyle(
                                   color: Colors.grey,
                                   fontSize: 12,
@@ -1615,7 +1627,7 @@ class _OrdersSectionState extends State<OrdersSection>
                         text: TextSpan(
                           children: <TextSpan>[
                             TextSpan(
-                              text: 'Contact No.: ',
+                              text: 'Contact No: ',
                               style: TextStyle(
                                   color: Colors.grey,
                                   fontSize: 12,
@@ -1642,7 +1654,7 @@ class _OrdersSectionState extends State<OrdersSection>
                         text: TextSpan(
                           children: <TextSpan>[
                             TextSpan(
-                              text: 'Loyalty Points: - ',
+                              text: 'Loyalty Points: ',
                               style: TextStyle(
                                   color: Colors.grey,
                                   fontSize: 12,

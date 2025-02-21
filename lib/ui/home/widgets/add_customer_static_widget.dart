@@ -76,6 +76,8 @@ class _AddCustomerStaticWidgetState extends State<AddCustomerStaticWidget>
                           context: context,
                           builder: (BuildContext context) {
                             return Dialog(
+                              insetPadding:
+                                  EdgeInsets.symmetric(vertical: 15.0),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(20.0),
                               ),
@@ -84,6 +86,8 @@ class _AddCustomerStaticWidgetState extends State<AddCustomerStaticWidget>
                           },
                         );
                         homeController.displayOTPScreen.value = false;
+                        homeController.getCustomerDetailsResponse.value
+                            .existingCustomer = null;
                       },
                       child: IgnorePointer(
                         child: TextField(
@@ -194,6 +198,8 @@ class _AddCustomerStaticWidgetState extends State<AddCustomerStaticWidget>
                           context: context,
                           builder: (BuildContext context) {
                             return Dialog(
+                              insetPadding:
+                                  EdgeInsets.symmetric(vertical: 15.0),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(20.0),
                               ),
@@ -202,6 +208,8 @@ class _AddCustomerStaticWidgetState extends State<AddCustomerStaticWidget>
                           },
                         );
                         homeController.displayOTPScreen.value = false;
+                        homeController.getCustomerDetailsResponse.value
+                            .existingCustomer = null;
                       },
                       child: IgnorePointer(
                         child: TextField(

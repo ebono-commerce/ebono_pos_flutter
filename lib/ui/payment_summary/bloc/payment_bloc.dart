@@ -330,12 +330,14 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
       emit(state.copyWith(isOnlinePaymentSuccess: true));
     }
     balancePayable = totalPayable - givenAmount;
-
     if (balancePayable <= 0) {
       if (onlinePayment.isNotEmpty && onlinePayment != '0') {
         if (state.isPaymentStatusSuccess) {
           allowPlaceOrder = true;
-        } else {
+        }else if(totalPayable == 0){
+          allowPlaceOrder = true;
+        }
+        else {
           allowPlaceOrder = false;
         }
       } else {
@@ -494,10 +496,15 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
 
   Future<void> _walletAuthentication(
       WalletAuthenticationEvent event, Emitter<PaymentState> emit) async {
-    emit(state.copyWith(isLoading: true, initialState: false));
+    emit(state.copyWith(
+      isLoading: true,
+      initialState: false,
+      isResendOTPLoading: event.isResendOTP,
+      isVerifyOTPLoading: !event.isResendOTP,
+    ));
 
     try {
-      var response = await _paymentRepository.walletAuthentication(
+      await _paymentRepository.walletAuthentication(
           PhoneNumberRequest(phoneNumber: paymentSummaryRequest.phoneNumber));
 
       emit(state.copyWith(
@@ -507,12 +514,26 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
           isLoading: false,
           isWalletAuthenticationError: true,
           errorMessage: error.toString()));
+    } finally {
+      emit(state.copyWith(
+        isLoading: false,
+        isWalletChargeError: false,
+        isWalletAuthenticationError: false,
+        isWalletAuthenticationSuccess: false,
+        isVerifyOTPLoading: false,
+        isResendOTPLoading: false,
+      ));
     }
   }
 
   Future<void> _walletCharge(
       WalletChargeEvent event, Emitter<PaymentState> emit) async {
-    emit(state.copyWith(isLoading: true, initialState: false));
+    emit(state.copyWith(
+      isLoading: true,
+      isVerifyOTPLoading: true,
+      isResendOTPLoading: false,
+      initialState: false,
+    ));
 
     try {
       paymentSummaryResponse = await _paymentRepository.walletCharge(
@@ -534,6 +555,15 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
           isLoading: false,
           isWalletChargeError: true,
           errorMessage: error.toString()));
+    } finally {
+      emit(state.copyWith(
+        isLoading: false,
+        isWalletChargeError: false,
+        isWalletAuthenticationError: false,
+        isWalletChargeSuccess: false,
+        isVerifyOTPLoading: false,
+        isResendOTPLoading: false,
+      ));
     }
   }
 

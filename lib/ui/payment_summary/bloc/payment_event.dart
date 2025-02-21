@@ -23,22 +23,24 @@ class PlaceOrderEvent extends PaymentEvent {}
 class GetInvoiceEvent extends PaymentEvent {}
 
 class GetBalancePayableAmountEvent extends PaymentEvent {
-   final String cash;
-   final String online;
-   final String wallet;
+  final String cash;
+  final String online;
+  final String wallet;
 
-   GetBalancePayableAmountEvent(this.cash, this.online, this.wallet);
+  GetBalancePayableAmountEvent(this.cash, this.online, this.wallet);
 }
 
-class WalletAuthenticationEvent extends PaymentEvent {}
+class WalletAuthenticationEvent extends PaymentEvent {
+  WalletAuthenticationEvent({this.isResendOTP = false});
+
+  final bool isResendOTP;
+}
 
 class WalletChargeEvent extends PaymentEvent {
   final String otp;
   WalletChargeEvent(this.otp);
 }
 
-class WalletIdealEvent extends PaymentEvent{}
+class WalletIdealEvent extends PaymentEvent {}
 
 class PaymentIdealEvent extends PaymentEvent {}
-
-
