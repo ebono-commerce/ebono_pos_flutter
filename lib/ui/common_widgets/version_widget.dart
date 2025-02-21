@@ -8,7 +8,7 @@ class VersionWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String environment = String.fromEnvironment('ENV', defaultValue: 'stage');
+    String environment = String.fromEnvironment('ENV', defaultValue: 'prod');
 
     return FutureBuilder<PackageInfo>(
       future: PackageInfo.fromPlatform(),
