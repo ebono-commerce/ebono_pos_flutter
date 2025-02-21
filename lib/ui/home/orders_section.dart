@@ -14,7 +14,6 @@ import 'package:ebono_pos/ui/home/widgets/price_override_with_auth_widget.dart';
 import 'package:ebono_pos/ui/home/widgets/quick_action_buttons.dart';
 import 'package:ebono_pos/ui/payment_summary/model/payment_summary_request.dart';
 import 'package:ebono_pos/ui/payment_summary/weighing_scale_service.dart';
-import 'package:ebono_pos/ui/search/search_products_view.dart';
 import 'package:ebono_pos/utils/auth_modes.dart';
 import 'package:ebono_pos/utils/common_methods.dart';
 import 'package:ebono_pos/utils/dash_line.dart';
@@ -370,18 +369,19 @@ class _OrdersSectionState extends State<OrdersSection>
                   onInventoryInquiryPressed: () {
                     homeController.clearDataAndLogout();
                   },
+                  /* disabling search items feture as of now */
                   onSearchItemsPressed: () {
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return Dialog(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20.0),
-                          ),
-                          child: SearchProductsView(context),
-                        );
-                      },
-                    );
+                    // showDialog(
+                    //   context: context,
+                    //   builder: (BuildContext context) {
+                    //     return Dialog(
+                    //       shape: RoundedRectangleBorder(
+                    //         borderRadius: BorderRadius.circular(20.0),
+                    //       ),
+                    //       child: SearchProductsView(context),
+                    //     );
+                    //   },
+                    // );
                   },
                 ),
               ),
