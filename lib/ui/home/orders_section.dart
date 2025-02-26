@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:ebono_pos/constants/custom_colors.dart';
 import 'package:ebono_pos/data_store/shared_preference_helper.dart';
 import 'package:ebono_pos/models/cart_response.dart';
@@ -36,6 +38,7 @@ class _OrdersSectionState extends State<OrdersSection>
   HomeController homeController = Get.find<HomeController>();
   late WeighingScaleService weighingScaleService =
       Get.find<WeighingScaleService>();
+  late StreamSubscription _dialogSubscription;
 
   @override
   void initState() {
@@ -125,8 +128,26 @@ class _OrdersSectionState extends State<OrdersSection>
         }
       });
     });
+    if (homeController.registerId.value.isNotEmpty &&
+         homeController.cartId.value.isNotEmpty) {
+      _requestFocusOnNumpad();
+    }
+
+    _dialogSubscription = homeController.logoutDialogStream.listen((dialogClosed) {
+      if (dialogClosed &&
+          homeController.registerId.value.isNotEmpty &&
+          homeController.cartId.value.isNotEmpty) {
+        _requestFocusOnNumpad();
+      }
+    });
 
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _dialogSubscription.cancel();
+    super.dispose();
   }
 
   @override
@@ -180,7 +201,10 @@ class _OrdersSectionState extends State<OrdersSection>
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(20.0),
                           ),
-                          child: AddCustomerWidget(context),
+                          child: AddCustomerWidget(
+                            context,
+                            onClose:_requestFocusOnNumpad
+                          ),
                         );
                       },
                     );
@@ -197,7 +221,10 @@ class _OrdersSectionState extends State<OrdersSection>
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(20.0),
                             ),
-                            child: AddCustomerWidget(context),
+                            child: AddCustomerWidget(
+                                context,
+                                onClose:_requestFocusOnNumpad,
+                            ),
                           );
                         },
                       );
@@ -233,7 +260,10 @@ class _OrdersSectionState extends State<OrdersSection>
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(20.0),
                           ),
-                          child: AuthorisationRequiredWidget(context),
+                          child: AuthorisationRequiredWidget(
+                              context,
+                              onClose: _requestFocusOnNumpad,
+                          ),
                         );
                       },
                     );
@@ -250,6 +280,7 @@ class _OrdersSectionState extends State<OrdersSection>
                             context,
                             couponDetails:
                                 homeController.cartResponse.value.couponDetails,
+                            onClose: _requestFocusOnNumpad,
                           ),
                         );
                       },
@@ -364,7 +395,9 @@ class _OrdersSectionState extends State<OrdersSection>
                           )
                         ],
                       ),
-                    );
+                    ).then((_){
+                      _requestFocusOnNumpad();
+                    });
                   },
                   onInventoryInquiryPressed: () {
                     homeController.clearDataAndLogout();
@@ -1736,6 +1769,12 @@ class _OrdersSectionState extends State<OrdersSection>
         ),
       ],
     );
+  }
+
+  _requestFocusOnNumpad(){
+    if (!numPadFocusNode.hasFocus) {
+      numPadFocusNode.requestFocus();
+    }
   }
 }
 

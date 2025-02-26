@@ -13,8 +13,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 
 class LogoutButton extends StatefulWidget {
-  const LogoutButton({super.key});
-
+  const LogoutButton({
+    super.key,
+    this.buttonWidth});
+  final double? buttonWidth;
   @override
   State<LogoutButton> createState() => _LogoutButtonState();
 }
@@ -104,7 +106,9 @@ class _LogoutButtonState extends State<LogoutButton> {
                       ),
                     ],
                   ),
-                );
+                ).then((_){
+                  homeController.notifyDialogClosed();
+                });
               } else {
                 loginBloc.add(LogoutButtonPressed(''));
               }
@@ -116,36 +120,34 @@ class _LogoutButtonState extends State<LogoutButton> {
   }
 
   Widget logoutButton(BuildContext context, VoidCallback onLogoutPressed) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 5.0, vertical: 10),
-      child: TextButton.icon(
-        onPressed: () {
-          onLogoutPressed();
-        },
-        style: ElevatedButton.styleFrom(
-          elevation: 1,
-          padding: EdgeInsets.symmetric(horizontal: 1, vertical: 20),
-          shape: RoundedRectangleBorder(
-            side: BorderSide(color: CustomColors.red, width: 1.5),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          backgroundColor: Colors.white,
+    return TextButton.icon(
+      onPressed: () {
+        onLogoutPressed();
+      },
+      style: ElevatedButton.styleFrom(
+        fixedSize: Size(widget.buttonWidth ?? 155, 50),
+        elevation: 1,
+        padding: EdgeInsets.symmetric(horizontal: 1, vertical: 20),
+        shape: RoundedRectangleBorder(
+          side: BorderSide(color: CustomColors.red, width: 1.5),
+          borderRadius: BorderRadius.circular(10),
         ),
-        icon: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-          child: Icon(
-            Icons.logout,
-            color: CustomColors.red,
-          ),
+        backgroundColor: Colors.white,
+      ),
+      icon: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+        child: Icon(
+          Icons.logout,
+          color: CustomColors.red,
         ),
-        label: Padding(
-          padding: const EdgeInsets.only(right: 8.0),
-          child: Text('LOGOUT',
-              style: Theme.of(context)
-                  .textTheme
-                  .labelLarge
-                  ?.copyWith(color: CustomColors.red)),
-        ),
+      ),
+      label: Padding(
+        padding: const EdgeInsets.only(right: 8.0),
+        child: Text('LOGOUT',
+            style: Theme.of(context)
+                .textTheme
+                .labelLarge
+                ?.copyWith(color: CustomColors.red)),
       ),
     );
   }
