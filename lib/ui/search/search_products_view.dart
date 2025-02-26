@@ -3,7 +3,7 @@ import 'package:ebono_pos/models/scan_products_response.dart';
 import 'package:ebono_pos/ui/custom_keyboard/custom_querty_pad.dart';
 import 'package:ebono_pos/ui/search/bloc/search_bloc.dart';
 import 'package:ebono_pos/ui/search/data/search_products_table_data.dart';
-import 'package:ebono_pos/utils/common_methods.dart';
+import 'package:ebono_pos/utils/price.dart';
 import 'package:ebono_pos/widgets/custom_table/custom_table_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -108,6 +108,7 @@ class _SearchProductsViewState extends State<SearchProductsView> {
           return Padding(
             padding: const EdgeInsets.all(12.0),
             child: Column(
+              mainAxisSize: MainAxisSize.max,
               children: [
                 Flexible(
                   flex: 5,
@@ -138,17 +139,17 @@ class _SearchProductsViewState extends State<SearchProductsView> {
                         width: 150,
                         child: Column(
                           children: [
-                            SizedBox(height: 10),
+                            SizedBox(height: 5),
                             _buildCloseButton(),
-                            SizedBox(height: 5),
+                            Spacer(),
                             _buildUpButton(),
-                            SizedBox(height: 5),
+                            Spacer(),
                             _buildDownButton(),
-                            SizedBox(height: 5),
+                            Spacer(),
                             _buildGridNListButton(),
                             Spacer(),
                             _buildClearButton(),
-                            SizedBox(height: 10),
+                            Spacer(),
                           ],
                         ),
                       )
@@ -157,40 +158,42 @@ class _SearchProductsViewState extends State<SearchProductsView> {
                 ),
                 Flexible(
                   flex: 5,
-                  child: SizedBox(
-                    width: 900,
-                    child: Column(
-                      children: [
-                        Container(
-                          height: 55,
-                          margin: EdgeInsets.symmetric(
-                              vertical: 10, horizontal: 40),
-                          child: _buildTextField(
-                            label: "",
-                            controller: searchTextController,
-                            focusNode: searchFocusNode,
-                            onChanged: (value) {},
-                            suffixIcon:
-                                _buildSelectButton(isLoading: state.isLoading),
+                  child: FittedBox(
+                    child: SizedBox(
+                      width: 900,
+                      child: Column(
+                        children: [
+                          Container(
+                            height: 55,
+                            margin: EdgeInsets.symmetric(
+                                vertical: 10, horizontal: 40),
+                            child: _buildTextField(
+                              label: "",
+                              controller: searchTextController,
+                              focusNode: searchFocusNode,
+                              onChanged: (value) {},
+                              suffixIcon: _buildSelectButton(
+                                  isLoading: state.isLoading),
+                            ),
                           ),
-                        ),
-                        CustomQwertyPad(
-                          textController: _qwertyPadController,
-                          focusNode: activeFocusNode!,
-                          onEnterPressed: (value) {
-                            if (state.isLoading == false &&
-                                value.isNotEmpty &&
-                                mounted) {
-                              context
-                                  .read<SearchBloc>()
-                                  .add(TriggerSearchEvent(value));
-                            } else {
-                              Get.snackbar("SEARCH CANNOT BE EMPTY",
-                                  "please enter the product name");
-                            }
-                          },
-                        ),
-                      ],
+                          CustomQwertyPad(
+                            textController: _qwertyPadController,
+                            focusNode: activeFocusNode!,
+                            onEnterPressed: (value) {
+                              if (state.isLoading == false &&
+                                  value.isNotEmpty &&
+                                  mounted) {
+                                context
+                                    .read<SearchBloc>()
+                                    .add(TriggerSearchEvent(value));
+                              } else {
+                                Get.snackbar("SEARCH CANNOT BE EMPTY",
+                                    "please enter the product name");
+                              }
+                            },
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -448,7 +451,15 @@ class _SearchProductsViewState extends State<SearchProductsView> {
                         ),
                         SizedBox(width: 5),
                         Text(
-                          getFormattedPrice(searchResult),
+                          searchResult.priceList?.isNotEmpty == true
+                              ? getActualPrice(
+                                  searchResult.priceList?.first.sellingPrice
+                                      ?.centAmount,
+                                  searchResult
+                                      .priceList?.first.sellingPrice?.fraction,
+                                  includeRupee: false,
+                                )
+                              : '',
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           softWrap: true,
