@@ -5,12 +5,14 @@ class ErrorDialogWidget extends StatelessWidget {
   final String errorMessage;
   final Widget iconWidget;
   final VoidCallback onPressed;
+  final double height;
 
   const ErrorDialogWidget({
     super.key,
     required this.errorMessage,
     required this.iconWidget,
     required this.onPressed,
+    this.height = 0.4,
   });
 
   @override
@@ -18,7 +20,7 @@ class ErrorDialogWidget extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(20.0),
       width: MediaQuery.sizeOf(context).width * 0.3,
-      height: MediaQuery.sizeOf(context).height * 0.41,
+      height: MediaQuery.sizeOf(context).height * height,
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

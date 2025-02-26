@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:ebono_pos/api/api_helper.dart';
 import 'package:ebono_pos/constants/shared_preference_constants.dart';
 import 'package:ebono_pos/data_store/hive_storage_helper.dart';
 import 'package:ebono_pos/data_store/shared_preference_helper.dart';
@@ -670,8 +671,9 @@ class HomeController extends GetxController {
 
   Future<void> healthCheckApiCall() async {
     _statusCheckTimer = Timer.periodic(
-      const Duration(seconds: 1),
+      const Duration(seconds: 10),
       (timer) async {
+        print("oops");
         try {
           final loginStatus = await sharedPreferenceHelper.getLoginStatus();
           if (loginStatus != true) {
@@ -688,6 +690,8 @@ class HomeController extends GetxController {
             isOnline.value = false;
             timer.cancel();
             /* show dialog to logout the user */
+            final apiHelper = Get.find<ApiHelper>();
+            apiHelper.cancelAllRequests();
             showDialog();
           }
         } catch (e) {
@@ -695,6 +699,8 @@ class HomeController extends GetxController {
           isOnline.value = false;
           timer.cancel();
           /* show dialog to logout the user */
+          final apiHelper = Get.find<ApiHelper>();
+          apiHelper.cancelAllRequests();
           showDialog();
         }
       },
@@ -708,6 +714,7 @@ class HomeController extends GetxController {
           borderRadius: BorderRadius.circular(8),
         ),
         child: ErrorDialogWidget(
+          height: 0.5,
           onPressed: () {
             clearDataAndLogout();
           },
@@ -1011,6 +1018,8 @@ class HomeController extends GetxController {
   }
 
   void clearDataAndLogout() {
+    final apiHelper = Get.find<ApiHelper>();
+    apiHelper.cancelAllRequests();
     sharedPreferenceHelper.clearAll();
     hiveStorageHelper.clear();
     Get.offAllNamed(PageRoutes.login);
