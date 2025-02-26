@@ -17,6 +17,7 @@ class AuthInterceptor extends Interceptor {
       RequestOptions options, RequestInterceptorHandler handler) async {
     String? token = await _sharedPreferenceHelper.getAuthToken();
     String? appUUID = await _sharedPreferenceHelper.getAppUUID();
+    String pointedTo = await _sharedPreferenceHelper.pointingTo();
 
     if (options.uri.path.contains('/api/3.0/p2p/')) {
       options.baseUrl = EnvironmentConfig.paymentBaseUrl;
@@ -30,6 +31,8 @@ class AuthInterceptor extends Interceptor {
       } else if (options.uri.path.contains('/cancel')) {
         options.path = ApiConstants.paymentApiCancel;
       }
+    } else if (options.uri.path.contains('/health')) {
+      options.connectTimeout = Duration(seconds: 15);
     } else {
       if (token != null && !options.uri.path.contains('/login')) {
         options.headers['Authorization'] = 'Bearer $token';
@@ -38,6 +41,9 @@ class AuthInterceptor extends Interceptor {
         options.headers['x-app-id'] = appUUID;
       }
       options.queryParameters.addAll({'channel': 'STORE'});
+      options.baseUrl = pointedTo == 'LOCAL'
+          ? EnvironmentConfig.baseUrl
+          : 'https://api-staging.ebono.com/s/';
     }
     print('app id : $appUUID');
     print('token $token');

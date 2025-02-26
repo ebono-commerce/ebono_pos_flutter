@@ -33,6 +33,7 @@ import 'package:ebono_pos/ui/login/model/terminal_details_response.dart';
 import 'package:ebono_pos/ui/payment_summary/model/health_check_response.dart';
 import 'package:ebono_pos/widgets/error_dialog_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 
 class HomeController extends GetxController {
@@ -114,7 +115,7 @@ class HomeController extends GetxController {
   var ordersOnHoldResponse = OrdersOnHoldResponse().obs;
 
   final RxString _connectionStatus = 'Unknown'.obs;
-  var isOnline = false.obs;
+  var isOnline = true.obs;
   final Connectivity _connectivity = Connectivity();
   var isQuantityEditEnabled = ''.obs;
   var isLineDeleteEnabled = ''.obs;
@@ -221,7 +222,8 @@ class HomeController extends GetxController {
     ConnectivityResult result;
     try {
       result = await _connectivity.checkConnectivity();
-      _updateConnectionStatus(result);
+      final pointedTo = await sharedPreferenceHelper.pointingTo();
+      if (pointedTo == 'LOCAL') _updateConnectionStatus(result);
     } catch (e) {
       _statusCheckTimer?.cancel();
       isOnline.value = false;
@@ -668,7 +670,7 @@ class HomeController extends GetxController {
 
   Future<void> healthCheckApiCall() async {
     _statusCheckTimer = Timer.periodic(
-      const Duration(seconds: 600),
+      const Duration(seconds: 1),
       (timer) async {
         try {
           final loginStatus = await sharedPreferenceHelper.getLoginStatus();
@@ -685,14 +687,41 @@ class HomeController extends GetxController {
           } else {
             isOnline.value = false;
             timer.cancel();
+            /* show dialog to logout the user */
+            showDialog();
           }
         } catch (e) {
           Get.snackbar('Error while checking health', '$e');
-
           isOnline.value = false;
           timer.cancel();
+          /* show dialog to logout the user */
+          showDialog();
         }
       },
+    );
+  }
+
+  void showDialog() {
+    Get.dialog(
+      Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: ErrorDialogWidget(
+          onPressed: () {
+            clearDataAndLogout();
+          },
+          errorMessage:
+              'Internet connection unstable! POS is switching to Cloud Mode. The current transaction cannot be processed and must be restarted.\n\nPlease login again and retry the transaction',
+          iconWidget: const Icon(
+            Icons.warning_rounded,
+            color: Colors.amber,
+            size: 120,
+          ),
+        ),
+      ),
+      barrierDismissible: false,
+      useSafeArea: false,
     );
   }
 
@@ -889,7 +918,13 @@ class HomeController extends GetxController {
           borderRadius: BorderRadius.circular(8),
         ),
         child: ErrorDialogWidget(
+          onPressed: () => Get.back(),
           errorMessage: errorMessage,
+          iconWidget: SvgPicture.asset(
+            'assets/images/ic_close.svg',
+            width: 80,
+            height: 80,
+          ),
         ),
       ),
       barrierDismissible: true,

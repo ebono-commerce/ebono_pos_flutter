@@ -133,4 +133,14 @@ class SharedPreferenceHelper {
     await prefs.remove(SharedPreferenceConstants.portName);
   }
 
+  Future<void> pointTo({required bool isCloud}) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(
+        SharedPreferenceConstants.pointingTo, isCloud ? 'CLOUD' : 'LOCAL');
+  }
+
+  Future<String> pointingTo() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(SharedPreferenceConstants.pointingTo) ?? 'LOCAL';
+  }
 }
