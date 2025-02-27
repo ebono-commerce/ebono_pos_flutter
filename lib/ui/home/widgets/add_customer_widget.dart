@@ -20,6 +20,7 @@ class AddCustomerWidget extends StatefulWidget {
   final String? customerName;
   final String? customerMobileNumber;
   final Function(bool status)? onOTPVerifiedSuccessfully;
+  final Function()? onClose;
 
   const AddCustomerWidget(
     this.dialogContext, {
@@ -31,6 +32,7 @@ class AddCustomerWidget extends StatefulWidget {
     this.customerName,
     this.onOTPVerifiedSuccessfully,
     this.isDialogForAddCustomerFromReturns = false,
+    this.onClose,
   });
 
   @override
@@ -289,49 +291,29 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
   @override
   Widget build(BuildContext context) {
     theme = Theme.of(context);
-    return Obx(() {
-      return Column(
-        mainAxisSize: MainAxisSize.max,
-        children: [
-          Stack(
-            children: [
-              Positioned(
-                right: 18,
-                top: 18,
-                child: InkWell(
-                  onTap: () {
-                    _controllerCustomerName.clear();
-                    _controllerPhoneNumber.clear();
-                    _qwertyPadController.clear();
-                    homeController.customerName.value = '';
-                    homeController.phoneNumber.value = '';
-                    homeController.getCustomerDetailsResponse.value =
-                        CustomerDetailsResponse();
-                    Navigator.pop(widget.dialogContext);
-                    if (widget.isDialogForReturns == true) {
-                      Get.snackbar(
-                        'No Return',
-                        'Return will not be processed without OTP verification',
-                      );
-                    }
-                  },
-                  child: SvgPicture.asset(
-                    'assets/images/ic_close.svg',
-                    semanticsLabel: 'cash icon,',
-                    width: 30,
-                    height: 30,
-                  ),
-                ),
-              ),
-              Positioned(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
+    return PopScope(
+      onPopInvokedWithResult: (val,result){
+        if(widget.onClose != null){
+          widget.onClose!();
+        }
+      },
+      child: Obx(() {
+        return Column(
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            Flexible(
+              child: SizedBox(
+                width: 900,
+                child: Stack(
                   children: [
-                    SizedBox(height: 20),
-                    SizedBox(
-                      width: 400,
-                      child: homeController.displayOTPScreen.value == true
-                          ? Builder(builder: (context) {
+                    Center(
+                      child: Column(
+                        children: [
+                          SizedBox(height: 20),
+                          SizedBox(
+                            width: 400,
+                            child: homeController.displayOTPScreen.value == true
+                                ? Builder(builder: (context) {
                               otpFocusNode.requestFocus();
                               return Form(
                                 key: _formKey,
@@ -704,47 +686,77 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
                                 ),
                               ],
                             ),
-                    ),
-                    SizedBox(
-                      height: homeController.displayOTPScreen.value ? 10 : 20,
-                    ),
-                    SizedBox(
-                      width: 900,
-                      child: CustomQwertyPad(
-                        textController: _qwertyPadController,
-                        focusNode: activeFocusNode!,
-                        onValueChanged: (value) {
-                          if (activeFocusNode == phoneNumberFocusNode) {
-                            final numericValue =
-                                value.replaceAll(RegExp(r'[^0-9]'), '');
-                            if (numericValue.length > 10) {
-                              homeController.phoneNumber.value =
-                                  numericValue.substring(0, 10);
-                            } else {
-                              homeController.phoneNumber.value = numericValue;
-                            }
-                          } else if (activeFocusNode == customerNameFocusNode) {
-                            homeController.customerName.value = value;
-                          }
-                        },
-                        onEnterPressed: (value) {
-                          if (activeFocusNode == phoneNumberFocusNode) {
-                            customerNameFocusNode.requestFocus();
-                          } else if (activeFocusNode == customerNameFocusNode) {
-                            customerNameFocusNode.unfocus();
-                          }
-                        },
+                          ),
+                          SizedBox(
+                              height: homeController.displayOTPScreen.value ? 10 : 20),
+                        ],
                       ),
                     ),
-                    SizedBox(height: 18),
+                    Positioned(
+                      right: 18,
+                      top: 18,
+                      child: InkWell(
+                        onTap: () {
+                          _controllerCustomerName.clear();
+                          _controllerPhoneNumber.clear();
+                          _qwertyPadController.clear();
+                          homeController.customerName.value = '';
+                          homeController.phoneNumber.value = '';
+                          homeController.getCustomerDetailsResponse.value =
+                              CustomerDetailsResponse();
+                          Navigator.pop(widget.dialogContext);
+                          if (widget.isDialogForReturns == true) {
+                            Get.snackbar(
+                              'No Return',
+                              'Return will not be processed without OTP verification',
+                            );
+                          }
+                        },
+                        child: SvgPicture.asset(
+                          'assets/images/ic_close.svg',
+                          semanticsLabel: 'cash icon,',
+                          width: 30,
+                          height: 30,
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),
-            ],
-          ),
-        ],
-      );
-    });
+            ),
+            SizedBox(
+              width: 900,
+              child: CustomQwertyPad(
+                textController: _qwertyPadController,
+                focusNode: activeFocusNode!,
+                onValueChanged: (value) {
+                  if (activeFocusNode == phoneNumberFocusNode) {
+                    final numericValue =
+                    value.replaceAll(RegExp(r'[^0-9]'), '');
+                    if (numericValue.length > 10) {
+                      homeController.phoneNumber.value =
+                          numericValue.substring(0, 10);
+                    } else {
+                      homeController.phoneNumber.value = numericValue;
+                    }
+                  } else if (activeFocusNode == customerNameFocusNode) {
+                    homeController.customerName.value = value;
+                  }
+                },
+                onEnterPressed: (value) {
+                  if (activeFocusNode == phoneNumberFocusNode) {
+                    customerNameFocusNode.requestFocus();
+                  } else if (activeFocusNode == customerNameFocusNode) {
+                    customerNameFocusNode.unfocus();
+                  }
+                },
+              ),
+            ),
+            SizedBox(height: 18),
+          ],
+        );
+      }),
+    );
   }
 
   Widget _buildTextField({

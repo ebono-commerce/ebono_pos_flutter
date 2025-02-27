@@ -79,56 +79,58 @@ class _CustomNumPadState extends State<CustomNumPad> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              _buildKeyIcon('assets/images/number_7.png', "7"),
-              _buildKeyIcon('assets/images/number_8.png', "8"),
-              _buildKeyIcon('assets/images/number_9.png', "9"),
-              _buildKeyClear('assets/images/number_back.png')
-            ],
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              _buildKeyIcon('assets/images/number_4.png', "4"),
-              _buildKeyIcon('assets/images/number_5.png', "5"),
-              _buildKeyIcon('assets/images/number_6.png', "6"),
-              _buildKeyClearAll('assets/images/number_clear.png')
-            ],
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Column(children: [
-                Row(
-                  children: [
-                    _buildKeyIcon('assets/images/number_1.png', "1"),
-                    _buildKeyIcon('assets/images/number_2.png', "2"),
-                    _buildKeyIcon('assets/images/number_3.png', "3"),
-                  ],
-                ),
-                Row(
-                  children: [
-                    _buildKeyDot('assets/images/number_dot.png'),
-                    _buildKeyIcon('assets/images/number_0.png', "0"),
-                    _buildKeyIcon('assets/images/number_00.png', "00"),
-                  ],
-                ),
-              ]),
-              _buildKeyEnterIcon('assets/images/number_enter.png')
-            ],
-          ),
-        ],
+    return Material(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                _buildKeyIcon('assets/images/number_7.png', "7"),
+                _buildKeyIcon('assets/images/number_8.png', "8"),
+                _buildKeyIcon('assets/images/number_9.png', "9"),
+                _buildKeyClear('assets/images/number_back.png')
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                _buildKeyIcon('assets/images/number_4.png', "4"),
+                _buildKeyIcon('assets/images/number_5.png', "5"),
+                _buildKeyIcon('assets/images/number_6.png', "6"),
+                _buildKeyClearAll('assets/images/number_clear.png')
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Column(children: [
+                  Row(
+                    children: [
+                      _buildKeyIcon('assets/images/number_1.png', "1"),
+                      _buildKeyIcon('assets/images/number_2.png', "2"),
+                      _buildKeyIcon('assets/images/number_3.png', "3"),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      _buildKeyDot('assets/images/number_dot.png'),
+                      _buildKeyIcon('assets/images/number_0.png', "0"),
+                      _buildKeyIcon('assets/images/number_00.png', "00"),
+                    ],
+                  ),
+                ]),
+                _buildKeyEnterIcon('assets/images/number_enter.png')
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

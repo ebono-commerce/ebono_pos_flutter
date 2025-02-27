@@ -12,11 +12,13 @@ import 'package:get/get.dart';
 class CouponCodeWidget extends StatefulWidget {
   final CouponDetails? couponDetails;
   final BuildContext dialogContext;
+  final Function()? onClose;
 
   const CouponCodeWidget(
     this.dialogContext, {
     super.key,
     this.couponDetails = const CouponDetails(),
+    this.onClose,
   });
 
   @override
@@ -131,103 +133,113 @@ class _CouponCodeWidgetState extends State<CouponCodeWidget> {
   @override
   Widget build(BuildContext context) {
     theme = Theme.of(context);
-    return Column(
-      children: [
-        SizedBox(
-          width: 900,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            mainAxisSize: MainAxisSize.max,
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(right: 18.0, top: 18),
-                child: InkWell(
-                  onTap: () {
-                    Navigator.pop(widget.dialogContext);
-                  },
-                  child: SvgPicture.asset(
-                    'assets/images/ic_close.svg',
-                    semanticsLabel: 'cash icon,',
-                    width: 30,
-                    height: 30,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-        SizedBox(
-          width: 400,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const SizedBox(height: 30),
-              Text(
-                "Enter Coupon Code",
-                style: theme.textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: CustomColors.black,
-                ),
-              ),
-              const SizedBox(height: 20),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 5),
-                    child: Form(
-                      key: _formKey,
-                      child: commonTextField(
-                        label: "Coupon Code",
-                        controller: couponCodeController,
-                        focusNode: couponCodeFocusNode,
-                        readOnly: isInvalidCoupon,
-                        helperText: coupon?.message,
-                        helperTextStyle: theme.textTheme.labelMedium
-                            ?.copyWith(color: CustomColors.green),
-                        validator: (value) {
-                          if (coupon?.couponCode != null &&
-                              coupon?.isApplied! == false) {
-                            return coupon?.message;
-                          } else if (value!.isEmpty) {
-                            return "Please Enter Coupon Code";
-                          }
+    return  PopScope(
+      onPopInvokedWithResult: (val,result){
+        if(widget.onClose != null){
+          widget.onClose!();
+        }
+      },
+      child: Column(
+        mainAxisSize: MainAxisSize.max,
+        children: [
+          Flexible(
+              child: SizedBox(
+                width: 900,
+                child: Stack(
+                  children: [
+                    Center(
+                      child: SizedBox(
+                        width: 400,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const SizedBox(height: 30),
+                            Text(
+                              "Enter Coupon Code",
+                              style: theme.textTheme.titleLarge?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: CustomColors.black,
+                              ),
+                            ),
+                            const SizedBox(height: 20),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 5),
+                                  child: Form(
+                                    key: _formKey,
+                                    child: commonTextField(
+                                      label: "Coupon Code",
+                                      controller: couponCodeController,
+                                      focusNode: couponCodeFocusNode,
+                                      readOnly: isInvalidCoupon,
+                                      helperText: coupon?.message,
+                                      helperTextStyle: theme.textTheme.labelMedium
+                                          ?.copyWith(color: CustomColors.green),
+                                      validator: (value) {
+                                        if (coupon?.couponCode != null &&
+                                            coupon?.isApplied! == false) {
+                                          return coupon?.message;
+                                        } else if (value!.isEmpty) {
+                                          return "Please Enter Coupon Code";
+                                        }
 
-                          return null;
-                        },
-                        onValueChanged: (value) {},
+                                        return null;
+                                      },
+                                      onValueChanged: (value) {},
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 20),
+                            Row(
+                              children: [
+                                Expanded(flex: 1, child: applyButton()),
+                                Expanded(flex: 1, child: closeButton())
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-              Row(
-                children: [
-                  Expanded(flex: 1, child: applyButton()),
-                  Expanded(flex: 1, child: closeButton())
-                ],
-              ),
-            ],
+                    Positioned(
+                      right: 18,
+                      top: 18,
+                      child: InkWell(
+                          onTap: () {
+                            Navigator.pop(widget.dialogContext);
+                          },
+                          child: SvgPicture.asset(
+                            'assets/images/ic_close.svg',
+                            semanticsLabel: 'cash icon,',
+                            width: 30,
+                            height: 30,
+                          ),
+                        )),
+                  ],
+                ),
+              ) ),
+          SizedBox(
+            width: 900,
+            child: CustomQwertyPad(
+              textController: _qwertyPadController,
+              focusNode: couponCodeFocusNode,
+              onEnterPressed: (value) {
+                if (!couponCodeFocusNode.hasFocus) {
+                  couponCodeFocusNode.requestFocus();
+                } else {
+                  couponCodeFocusNode.unfocus();
+                }
+              },
+            ),
           ),
-        ),
-        const SizedBox(height: 40),
-        SizedBox(
-          width: 900,
-          child: CustomQwertyPad(
-            textController: _qwertyPadController,
-            focusNode: couponCodeFocusNode,
-            onEnterPressed: (value) {
-              if (!couponCodeFocusNode.hasFocus) {
-                couponCodeFocusNode.requestFocus();
-              } else {
-                couponCodeFocusNode.unfocus();
-              }
-            },
-          ),
-        ),
-      ],
+          SizedBox(height: 18)
+        ],
+      ),
     );
   }
 

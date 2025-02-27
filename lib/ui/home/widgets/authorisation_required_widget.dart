@@ -9,9 +9,14 @@ import 'package:get/get.dart';
 
 class AuthorisationRequiredWidget extends StatefulWidget {
   final BuildContext dialogContext;
+  final Function()? onClose;
 
-
-  const AuthorisationRequiredWidget(this.dialogContext, {super.key});
+  const AuthorisationRequiredWidget(
+      this.dialogContext,
+      {
+        super.key,
+        this.onClose
+      });
 
   @override
   State<AuthorisationRequiredWidget> createState() =>
@@ -72,96 +77,103 @@ class _AuthorisationRequiredWidgetState
   @override
   Widget build(BuildContext context) {
     theme = Theme.of(context);
-    return Column(
-      children: [
-        SizedBox(width: 900,
-          child:  Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            mainAxisSize: MainAxisSize.max,
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(right: 18.0, top: 18),
-                child: InkWell(
-                  onTap: () {
-                    Navigator.pop(widget.dialogContext);
-                  },
-                  child: SvgPicture.asset(
-                    'assets/images/ic_close.svg',
-                    semanticsLabel: 'cash icon,',
-                    width: 30,
-                    height: 30,
-                  ),
-                ),
-              ),
-            ],
-          ),),
-        SizedBox(
-          width: 400,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-                Text(
-                "Authorization required!",
-                style: theme.textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: CustomColors.black,
-                ),
-              ),
-              const SizedBox(height: 10),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(10.0),
-                    child: commonTextField(
-                      label: "Login Id",
-                      controller: loginIdController,
-                      focusNode: loginIdFocusNode,
-                      onValueChanged: (value) =>
-                      value,
+    return  PopScope(
+      onPopInvokedWithResult: (val,result){
+        if(widget.onClose != null){
+          widget.onClose!();
+        }
+      },
+      child: Column(
+        children: [
+          SizedBox(width: 900,
+            child:  Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              mainAxisSize: MainAxisSize.max,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(right: 18.0, top: 18),
+                  child: InkWell(
+                    onTap: () {
+                      Navigator.pop(widget.dialogContext);
+                    },
+                    child: SvgPicture.asset(
+                      'assets/images/ic_close.svg',
+                      semanticsLabel: 'cash icon,',
+                      width: 30,
+                      height: 30,
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.all(10.0),
-                    child: commonTextField(
-                      label: "Password",
-                      controller: passwordController,
-                      focusNode: passwordFocusNode,
-                      obscureText: true,
-                      onValueChanged: (value) =>
-                      value,
-                      //readOnly: homeController.phoneNumber.isEmpty,
-                    ),
+                ),
+              ],
+            ),),
+          SizedBox(
+            width: 400,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                  Text(
+                  "Authorization required!",
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: CustomColors.black,
                   ),
-                ],
-              ),
-              const SizedBox(height: 20),
-              Row(
-                children: [
-                  Expanded(flex: 1, child: authoriseButton()),
-                  Expanded(flex: 1, child: cancelButton())
-                ],
-              ),
-            ],
+                ),
+                const SizedBox(height: 10),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: commonTextField(
+                        label: "Login Id",
+                        controller: loginIdController,
+                        focusNode: loginIdFocusNode,
+                        onValueChanged: (value) =>
+                        value,
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: commonTextField(
+                        label: "Password",
+                        controller: passwordController,
+                        focusNode: passwordFocusNode,
+                        obscureText: true,
+                        onValueChanged: (value) =>
+                        value,
+                        //readOnly: homeController.phoneNumber.isEmpty,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  children: [
+                    Expanded(flex: 1, child: authoriseButton()),
+                    Expanded(flex: 1, child: cancelButton())
+                  ],
+                ),
+              ],
+            ),
           ),
-        ),
-        const SizedBox(height: 40),
-        SizedBox(
-          width: 900,
-          child: CustomQwertyPad(
-            textController: _qwertyPadController,
-            focusNode: activeFocusNode!,
-            onEnterPressed: (value) {
-              if (activeFocusNode == loginIdFocusNode) {
-                passwordFocusNode.requestFocus();
-              } else if (activeFocusNode ==
-                  passwordFocusNode) {
-                passwordFocusNode.unfocus();
-              }
-            },
+          const SizedBox(height: 40),
+          SizedBox(
+            width: 900,
+            child: CustomQwertyPad(
+              textController: _qwertyPadController,
+              focusNode: activeFocusNode!,
+              onEnterPressed: (value) {
+                if (activeFocusNode == loginIdFocusNode) {
+                  passwordFocusNode.requestFocus();
+                } else if (activeFocusNode ==
+                    passwordFocusNode) {
+                  passwordFocusNode.unfocus();
+                }
+              },
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
