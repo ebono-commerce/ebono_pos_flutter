@@ -263,86 +263,54 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       SubmitTerminalDetails event, Emitter<LoginState> emit) async {
     emit(SubmitTerminalDetailsLoading());
     try {
-      /* check for health status api */
-      final status = await healthCheckAPI();
-      final pointingTo = await _sharedPreferenceHelper.pointingTo();
+      var userId = await _sharedPreferenceHelper.getUserID();
+      final TerminalDetailsResponse response =
+          await _loginRepository.getTerminalDetails(GetTerminalDetailsRequest(
+              outletId: selectedOutletId,
+              terminalId: selectedTerminalId,
+              userId: userId ?? '',
+              posMode: selectedPosMode));
+      _sharedPreferenceHelper.storeLoginStatus(true);
+      hiveStorageHelper.save(SharedPreferenceConstants.customerProxyNumber,
+          response.outletDetails?.outletCustomerProxyPhoneNumber);
+      hiveStorageHelper.save(SharedPreferenceConstants.customerProxyName,
+          response.outletDetails?.name ?? "STORE");
+      hiveStorageHelper.save(SharedPreferenceConstants.registerId,
+          response.registerDetails?.registerId ?? "");
+      hiveStorageHelper.save(SharedPreferenceConstants.registerTransactionId,
+          response.registerDetails?.registerTransactionId ?? "");
+      hiveStorageHelper.save(SharedPreferenceConstants.isQuantityEditEnabled,
+          response.outletDetails?.quantityEditMode);
+      hiveStorageHelper.save(SharedPreferenceConstants.isLineDeleteEnabled,
+          response.outletDetails?.lineDeleteMode);
+      hiveStorageHelper.save(SharedPreferenceConstants.isEnableHoldCartEnabled,
+          response.outletDetails?.enableHoldCartMode);
+      hiveStorageHelper.save(SharedPreferenceConstants.isPriceEditEnabled,
+          response.outletDetails?.priceEditMode);
+      hiveStorageHelper.save(
+          SharedPreferenceConstants.isSalesAssociateLinkEnabled,
+          response.outletDetails?.salesAssociateLink);
 
-      /* Health check api fails & it's pointed to local */
-      if (status == false && pointingTo == 'LOCAL') {
-        /* change the base url & update flag */
-        /* saving port and printer data */
-        var printerData = await hiveStorageHelper
-            .read(SharedPreferenceConstants.selectedPrinter);
-        var portData = await _sharedPreferenceHelper.getPortName();
+      List<Map<String, dynamic>> allowedPaymentModeJson = response
+              .outletDetails!.allowedPaymentModes
+              ?.map((mode) => mode.toJson())
+              .toList() ??
+          [];
 
-        /* clearing all the data */
-        _sharedPreferenceHelper.clearAll();
-        hiveStorageHelper.clear();
-        terminalDetails.clear();
+      hiveStorageHelper.save(SharedPreferenceConstants.allowedPaymentModes,
+          allowedPaymentModeJson);
 
-        /* applying exsisting printer data */
-        _sharedPreferenceHelper.storePortName(portData ?? '');
-        hiveStorageHelper.save(
-          SharedPreferenceConstants.selectedPrinter,
-          printerData,
-        );
+      List<Map<String, dynamic>> edcDeviceDetails = response
+              .terminalDetails?.edcDevices
+              ?.map((mode) => mode.toJson())
+              .toList() ??
+          [];
 
-        /* show error message */
-        Get.snackbar("Please login again and retry the transaction",
-            "Internet connection unstable! POS is switching to Cloud Mode");
+      hiveStorageHelper.save(
+          SharedPreferenceConstants.edcDeviceDetails, edcDeviceDetails);
 
-        emit(PrinterSelectionSuccess());
-      } else {
-        var userId = await _sharedPreferenceHelper.getUserID();
-        final TerminalDetailsResponse response =
-            await _loginRepository.getTerminalDetails(GetTerminalDetailsRequest(
-                outletId: selectedOutletId,
-                terminalId: selectedTerminalId,
-                userId: userId ?? '',
-                posMode: selectedPosMode));
-        _sharedPreferenceHelper.storeLoginStatus(true);
-        hiveStorageHelper.save(SharedPreferenceConstants.customerProxyNumber,
-            response.outletDetails?.outletCustomerProxyPhoneNumber);
-        hiveStorageHelper.save(SharedPreferenceConstants.customerProxyName,
-            response.outletDetails?.name ?? "STORE");
-        hiveStorageHelper.save(SharedPreferenceConstants.registerId,
-            response.registerDetails?.registerId ?? "");
-        hiveStorageHelper.save(SharedPreferenceConstants.registerTransactionId,
-            response.registerDetails?.registerTransactionId ?? "");
-        hiveStorageHelper.save(SharedPreferenceConstants.isQuantityEditEnabled,
-            response.outletDetails?.quantityEditMode);
-        hiveStorageHelper.save(SharedPreferenceConstants.isLineDeleteEnabled,
-            response.outletDetails?.lineDeleteMode);
-        hiveStorageHelper.save(
-            SharedPreferenceConstants.isEnableHoldCartEnabled,
-            response.outletDetails?.enableHoldCartMode);
-        hiveStorageHelper.save(SharedPreferenceConstants.isPriceEditEnabled,
-            response.outletDetails?.priceEditMode);
-        hiveStorageHelper.save(
-            SharedPreferenceConstants.isSalesAssociateLinkEnabled,
-            response.outletDetails?.salesAssociateLink);
-
-        List<Map<String, dynamic>> allowedPaymentModeJson = response
-                .outletDetails!.allowedPaymentModes
-                ?.map((mode) => mode.toJson())
-                .toList() ??
-            [];
-
-        hiveStorageHelper.save(SharedPreferenceConstants.allowedPaymentModes,
-            allowedPaymentModeJson);
-
-        List<Map<String, dynamic>> edcDeviceDetails = response
-                .terminalDetails?.edcDevices
-                ?.map((mode) => mode.toJson())
-                .toList() ??
-            [];
-
-        hiveStorageHelper.save(
-            SharedPreferenceConstants.edcDeviceDetails, edcDeviceDetails);
-
-        print('edc details:${edcDeviceDetails.firstOrNull}');
-        emit(SubmitTerminalDetailsSuccess());
-      }
+      print('edc details:${edcDeviceDetails.firstOrNull}');
+      emit(SubmitTerminalDetailsSuccess());
     } catch (error) {
       emit(SubmitTerminalDetailsFailure(error.toString()));
     }
