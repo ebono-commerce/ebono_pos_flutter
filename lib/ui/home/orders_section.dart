@@ -127,12 +127,12 @@ class _OrdersSectionState extends State<OrdersSection>
           });
         }
       });
+      if (homeController.registerId.value.isNotEmpty &&
+          homeController.cartId.value.isNotEmpty) {
+        _requestFocusOnNumpad();
+        setState(() {});
+      }
     });
-    if (homeController.registerId.value.isNotEmpty &&
-         homeController.cartId.value.isNotEmpty) {
-      _requestFocusOnNumpad();
-    }
-
     _dialogSubscription = homeController.logoutDialogStream.listen((dialogClosed) {
       if (dialogClosed &&
           homeController.registerId.value.isNotEmpty &&
@@ -415,6 +415,10 @@ class _OrdersSectionState extends State<OrdersSection>
                     //     );
                     //   },
                     // );
+
+                    ///ToDo: should call _requestFocusOnNumpad after search Dialogue close
+                    _requestFocusOnNumpad();
+                     setState(() {});
                   },
                 ),
               ),
