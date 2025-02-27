@@ -125,7 +125,7 @@ class _LogoutButtonState extends State<LogoutButton> {
         onLogoutPressed();
       },
       style: ElevatedButton.styleFrom(
-        fixedSize: Size(widget.buttonWidth ?? 155, 50),
+        fixedSize: Size(widget.buttonWidth ?? 150, 50),
         elevation: 1,
         padding: EdgeInsets.symmetric(horizontal: 1, vertical: 20),
         shape: RoundedRectangleBorder(

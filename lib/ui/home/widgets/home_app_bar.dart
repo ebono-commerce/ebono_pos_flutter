@@ -119,7 +119,7 @@ class _HomeAppBarState extends State<HomeAppBar> {
         Padding(
           padding: const EdgeInsets.only(right: 10.0),
           child: LogoutButton(
-              buttonWidth: widget.showBackButton ? 143 : null ),
+              buttonWidth: widget.showBackButton ? 140 : null ),
         )
       ],
 
