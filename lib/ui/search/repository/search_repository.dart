@@ -1,6 +1,7 @@
 import 'package:ebono_pos/api/api_constants.dart';
 import 'package:ebono_pos/api/api_helper.dart';
 import 'package:ebono_pos/models/scan_products_response.dart';
+import '../../../api/api_exception.dart';
 
 class SearchRepository {
   final ApiHelper _apiHelper;
@@ -20,7 +21,7 @@ class SearchRepository {
 
       return searchItemsList;
     } catch (e) {
-      throw Exception(e);
+      throw ApiException(e.toString());
     }
   }
 }

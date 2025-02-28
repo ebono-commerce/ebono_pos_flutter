@@ -4,6 +4,8 @@ import 'package:ebono_pos/ui/returns/models/customer_order_model.dart';
 import 'package:ebono_pos/ui/returns/models/order_items_model.dart';
 import 'package:ebono_pos/ui/returns/models/refund_success_model.dart';
 
+import '../../../api/api_exception.dart';
+
 class ReturnsRepository {
   final ApiHelper _apiHelper;
 
@@ -21,7 +23,7 @@ class ReturnsRepository {
 
       return data;
     } catch (e) {
-      throw Exception(e);
+      throw ApiException(e.toString());
     }
   }
 
@@ -37,7 +39,7 @@ class ReturnsRepository {
 
       return data;
     } catch (e) {
-      throw Exception(e);
+      throw ApiException(e.toString());
     }
   }
 
@@ -56,7 +58,7 @@ class ReturnsRepository {
 
       return apiResponse;
     } catch (e) {
-      throw Exception(e);
+      throw ApiException(e.toString());
     }
   }
 }
