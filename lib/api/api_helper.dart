@@ -4,8 +4,6 @@ import 'package:ebono_pos/data_store/hive_storage_helper.dart';
 import 'package:ebono_pos/data_store/shared_preference_helper.dart';
 import 'package:flutter_client_sse/constants/sse_request_type_enum.dart';
 import 'package:flutter_client_sse/flutter_client_sse.dart';
-
-import 'api_exception.dart';
 import 'auth_interceptor.dart';
 
 class ApiHelper {
@@ -159,13 +157,13 @@ class ApiHelper {
     if (error is dio.DioException) {
       switch (error.type) {
         case dio.DioExceptionType.cancel:
-          return ApiException("Request to the server was cancelled.");
+          return Exception("Request to the server was cancelled.");
         case dio.DioExceptionType.connectionTimeout:
-          return ApiException("Connection timeout with server.");
+          return Exception("Connection timeout with server.");
         case dio.DioExceptionType.receiveTimeout:
-          return ApiException("Receive timeout in connection with server.");
+          return Exception("Receive timeout in connection with server.");
         case dio.DioExceptionType.sendTimeout:
-          return ApiException("Send timeout in connection with server.");
+          return Exception("Send timeout in connection with server.");
         case dio.DioExceptionType.badResponse:
           final statusCode = error.response?.statusCode;
           final errorData = error.response?.data;
@@ -183,17 +181,17 @@ class ApiHelper {
             }
           }
 
-          return ApiException("$statusCode | $errorMessage");
+          return Exception("$statusCode | $errorMessage");
 
         case dio.DioExceptionType.connectionError:
-          return ApiException(
+          return Exception(
             "Connection to server failed due to internet connection.",
           );
         default:
-          return ApiException("Unknown Exception.");
+          return Exception("Unknown Exception.");
       }
     }
-    return ApiException("Unexpected error occurred.");
+    return Exception("Unexpected error occurred.");
   }
 }
 
