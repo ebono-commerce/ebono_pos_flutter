@@ -5,6 +5,7 @@ import 'package:ebono_pos/data_store/shared_preference_helper.dart';
 import 'package:flutter_client_sse/constants/sse_request_type_enum.dart';
 import 'package:flutter_client_sse/flutter_client_sse.dart';
 
+import 'api_exception.dart';
 import 'auth_interceptor.dart';
 
 class ApiHelper {
@@ -158,13 +159,13 @@ class ApiHelper {
     if (error is dio.DioException) {
       switch (error.type) {
         case dio.DioExceptionType.cancel:
-          return Exception("Request to the server was cancelled.");
+          return ApiException("Request to the server was cancelled.");
         case dio.DioExceptionType.connectionTimeout:
-          return Exception("Connection timeout with server.");
+          return ApiException("Connection timeout with server.");
         case dio.DioExceptionType.receiveTimeout:
-          return Exception("Receive timeout in connection with server.");
+          return ApiException("Receive timeout in connection with server.");
         case dio.DioExceptionType.sendTimeout:
-          return Exception("Send timeout in connection with server.");
+          return ApiException("Send timeout in connection with server.");
         case dio.DioExceptionType.badResponse:
           final statusCode = error.response?.statusCode;
           final errorData = error.response?.data;
@@ -182,17 +183,17 @@ class ApiHelper {
             }
           }
 
-          return Exception("$statusCode | $errorMessage");
+          return ApiException("$statusCode | $errorMessage");
 
         case dio.DioExceptionType.connectionError:
-          return Exception(
+          return ApiException(
             "Connection to server failed due to internet connection.",
           );
         default:
-          return Exception("Unknown Exception.");
+          return ApiException("Unknown Exception.");
       }
     }
-    return Exception("Unexpected error occurred.");
+    return ApiException("Unexpected error occurred.");
   }
 }
 
