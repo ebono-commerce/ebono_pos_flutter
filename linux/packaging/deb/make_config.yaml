@@ -1,0 +1,38 @@
+display_name: Ebono POS
+package_name: ebonopos
+
+maintainer:
+  name: Jagath Ratchagan
+  email: jagath.ratchagan@ibo.com
+
+priority: optional
+
+section: x11
+
+installed_size: 15700
+
+dependencies:
+  - mpv
+  # - libgstreamer1.0-dev
+  # - libgstreamer-plugins-base1.0-dev
+  # - libvlccore-dev
+  # - libvlc-dev
+
+essential: false
+
+icon: linux/assets/logo.png
+
+postuninstall_scripts:
+  - echo "Sorry to see you go."
+
+keywords:
+  - pos
+  - ebono pos
+
+generic_name: ebono pos
+
+categories:
+  - Shopping
+  - Ecommerce
+
+startup_notify: true
