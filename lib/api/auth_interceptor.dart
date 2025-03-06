@@ -32,7 +32,8 @@ class AuthInterceptor extends Interceptor {
         options.path = ApiConstants.paymentApiCancel;
       }
     } else if (options.uri.path.contains('/health')) {
-      options.connectTimeout = Duration(seconds: 15);
+      /* made duration to 5 sec, in order to reduce time out in login when switching*/
+      options.connectTimeout = Duration(seconds: 5);
     } else {
       if (token != null && !options.uri.path.contains('/login')) {
         options.headers['Authorization'] = 'Bearer $token';

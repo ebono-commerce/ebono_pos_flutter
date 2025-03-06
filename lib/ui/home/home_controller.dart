@@ -671,9 +671,8 @@ class HomeController extends GetxController {
 
   Future<void> healthCheckApiCall() async {
     _statusCheckTimer = Timer.periodic(
-      const Duration(seconds: 10),
+      const Duration(seconds: 5),
       (timer) async {
-        print("oops");
         try {
           final loginStatus = await sharedPreferenceHelper.getLoginStatus();
           if (loginStatus != true) {
@@ -714,12 +713,11 @@ class HomeController extends GetxController {
           borderRadius: BorderRadius.circular(8),
         ),
         child: ErrorDialogWidget(
-          height: 0.5,
+          height: 0.41,
           onPressed: () {
             clearDataAndLogout();
           },
-          errorMessage:
-              'Internet connection unstable! POS is switching to Cloud Mode. The current transaction cannot be processed and must be restarted.\n\nPlease login again and retry the transaction',
+          errorMessage: 'Local service is down please press OK to login again',
           iconWidget: const Icon(
             Icons.warning_rounded,
             color: Colors.amber,
