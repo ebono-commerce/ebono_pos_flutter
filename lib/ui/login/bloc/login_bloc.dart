@@ -1,6 +1,7 @@
 import 'package:ebono_pos/constants/shared_preference_constants.dart';
 import 'package:ebono_pos/data_store/hive_storage_helper.dart';
 import 'package:ebono_pos/data_store/shared_preference_helper.dart';
+import 'package:ebono_pos/ui/home/repository/home_repository.dart';
 import 'package:ebono_pos/ui/login/bloc/login_event.dart';
 import 'package:ebono_pos/ui/login/bloc/login_state.dart';
 import 'package:ebono_pos/ui/login/model/get_terminal_details_request.dart';
@@ -12,6 +13,7 @@ import 'package:ebono_pos/ui/login/model/outlet_details_response.dart';
 import 'package:ebono_pos/ui/login/model/terminal_details_response.dart';
 import 'package:ebono_pos/ui/login/repository/login_repository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get/get.dart';
 import 'package:libserialport/libserialport.dart';
 import 'package:printing/printing.dart';
 import 'package:uuid/uuid.dart';
@@ -106,6 +108,21 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       LoginButtonPressed event, Emitter<LoginState> emit) async {
     emit(LoginLoading());
     try {
+      /* check for health status api */
+      final status = await healthCheckAPI();
+      final pointingTo = await _sharedPreferenceHelper.pointingTo();
+
+      /* Health check api fails & it's pointed to local */
+      if (status == false && pointingTo == 'LOCAL') {
+        /* change the base url & update flag */
+        await _sharedPreferenceHelper.pointTo(isCloud: true);
+      }
+      /* Health check api success & it's pointed to cloud */
+      else if (status == true && pointingTo == 'CLOUD') {
+        /* change the base url & update flag */
+        await _sharedPreferenceHelper.pointTo(isCloud: false);
+      }
+
       String? appUUID = await _sharedPreferenceHelper.getAppUUID();
       if (appUUID == null) {
         var uuid = Uuid();
@@ -133,6 +150,24 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       emit(LoginSuccess());
     } catch (error) {
       emit(LoginFailure(error.toString()));
+    }
+  }
+
+  Future<bool> healthCheckAPI() async {
+    /* Health Check API, if other than 200, clear all exsisting data and navigate to login screen */
+    // Initialize API service
+    final apiService = Get.find<HomeRepository>();
+
+    try {
+      // Make your API call here
+      final response = await apiService.healthCheckApiCall();
+      if (response.statusCode == 200) {
+        return true;
+      } else {
+        return false;
+      }
+    } catch (e) {
+      return false;
     }
   }
 
@@ -228,54 +263,86 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       SubmitTerminalDetails event, Emitter<LoginState> emit) async {
     emit(SubmitTerminalDetailsLoading());
     try {
-      var userId = await _sharedPreferenceHelper.getUserID();
-      final TerminalDetailsResponse response =
-          await _loginRepository.getTerminalDetails(GetTerminalDetailsRequest(
-              outletId: selectedOutletId,
-              terminalId: selectedTerminalId,
-              userId: userId ?? '',
-              posMode: selectedPosMode));
-      _sharedPreferenceHelper.storeLoginStatus(true);
-      hiveStorageHelper.save(SharedPreferenceConstants.customerProxyNumber,
-          response.outletDetails?.outletCustomerProxyPhoneNumber);
-      hiveStorageHelper.save(SharedPreferenceConstants.customerProxyName,
-          response.outletDetails?.name ?? "STORE");
-      hiveStorageHelper.save(SharedPreferenceConstants.registerId,
-          response.registerDetails?.registerId ?? "");
-      hiveStorageHelper.save(SharedPreferenceConstants.registerTransactionId,
-          response.registerDetails?.registerTransactionId ?? "");
-      hiveStorageHelper.save(SharedPreferenceConstants.isQuantityEditEnabled,
-          response.outletDetails?.quantityEditMode);
-      hiveStorageHelper.save(SharedPreferenceConstants.isLineDeleteEnabled,
-          response.outletDetails?.lineDeleteMode);
-      hiveStorageHelper.save(SharedPreferenceConstants.isEnableHoldCartEnabled,
-          response.outletDetails?.enableHoldCartMode);
-      hiveStorageHelper.save(SharedPreferenceConstants.isPriceEditEnabled,
-          response.outletDetails?.priceEditMode);
-      hiveStorageHelper.save(
-          SharedPreferenceConstants.isSalesAssociateLinkEnabled,
-          response.outletDetails?.salesAssociateLink);
+      /* check for health status api */
+      final status = await healthCheckAPI();
+      final pointingTo = await _sharedPreferenceHelper.pointingTo();
 
-      List<Map<String, dynamic>> allowedPaymentModeJson = response
-              .outletDetails!.allowedPaymentModes
-              ?.map((mode) => mode.toJson())
-              .toList() ??
-          [];
+      /* Health check api fails & it's pointed to local */
+      if (status == false && pointingTo == 'LOCAL') {
+        /* change the base url & update flag */
+        /* saving port and printer data */
+        var printerData = await hiveStorageHelper
+            .read(SharedPreferenceConstants.selectedPrinter);
+        var portData = await _sharedPreferenceHelper.getPortName();
 
-      hiveStorageHelper.save(SharedPreferenceConstants.allowedPaymentModes,
-          allowedPaymentModeJson);
+        /* clearing all the data */
+        _sharedPreferenceHelper.clearAll();
+        hiveStorageHelper.clear();
+        terminalDetails.clear();
 
-      List<Map<String, dynamic>> edcDeviceDetails = response
-              .terminalDetails?.edcDevices
-              ?.map((mode) => mode.toJson())
-              .toList() ??
-          [];
+        /* applying exsisting printer data */
+        _sharedPreferenceHelper.storePortName(portData ?? '');
+        hiveStorageHelper.save(
+          SharedPreferenceConstants.selectedPrinter,
+          printerData,
+        );
 
-      hiveStorageHelper.save(
-          SharedPreferenceConstants.edcDeviceDetails, edcDeviceDetails);
+        /* show error message */
+        Get.snackbar("Please login again and retry the transaction",
+            "Internet connection unstable! POS is switching to Cloud Mode");
 
-      print('edc details:${edcDeviceDetails.firstOrNull}');
-      emit(SubmitTerminalDetailsSuccess());
+        emit(PrinterSelectionSuccess());
+      } else {
+        var userId = await _sharedPreferenceHelper.getUserID();
+        final TerminalDetailsResponse response =
+            await _loginRepository.getTerminalDetails(GetTerminalDetailsRequest(
+                outletId: selectedOutletId,
+                terminalId: selectedTerminalId,
+                userId: userId ?? '',
+                posMode: selectedPosMode));
+        _sharedPreferenceHelper.storeLoginStatus(true);
+        hiveStorageHelper.save(SharedPreferenceConstants.customerProxyNumber,
+            response.outletDetails?.outletCustomerProxyPhoneNumber);
+        hiveStorageHelper.save(SharedPreferenceConstants.customerProxyName,
+            response.outletDetails?.name ?? "STORE");
+        hiveStorageHelper.save(SharedPreferenceConstants.registerId,
+            response.registerDetails?.registerId ?? "");
+        hiveStorageHelper.save(SharedPreferenceConstants.registerTransactionId,
+            response.registerDetails?.registerTransactionId ?? "");
+        hiveStorageHelper.save(SharedPreferenceConstants.isQuantityEditEnabled,
+            response.outletDetails?.quantityEditMode);
+        hiveStorageHelper.save(SharedPreferenceConstants.isLineDeleteEnabled,
+            response.outletDetails?.lineDeleteMode);
+        hiveStorageHelper.save(
+            SharedPreferenceConstants.isEnableHoldCartEnabled,
+            response.outletDetails?.enableHoldCartMode);
+        hiveStorageHelper.save(SharedPreferenceConstants.isPriceEditEnabled,
+            response.outletDetails?.priceEditMode);
+        hiveStorageHelper.save(
+            SharedPreferenceConstants.isSalesAssociateLinkEnabled,
+            response.outletDetails?.salesAssociateLink);
+
+        List<Map<String, dynamic>> allowedPaymentModeJson = response
+                .outletDetails!.allowedPaymentModes
+                ?.map((mode) => mode.toJson())
+                .toList() ??
+            [];
+
+        hiveStorageHelper.save(SharedPreferenceConstants.allowedPaymentModes,
+            allowedPaymentModeJson);
+
+        List<Map<String, dynamic>> edcDeviceDetails = response
+                .terminalDetails?.edcDevices
+                ?.map((mode) => mode.toJson())
+                .toList() ??
+            [];
+
+        hiveStorageHelper.save(
+            SharedPreferenceConstants.edcDeviceDetails, edcDeviceDetails);
+
+        print('edc details:${edcDeviceDetails.firstOrNull}');
+        emit(SubmitTerminalDetailsSuccess());
+      }
     } catch (error) {
       emit(SubmitTerminalDetailsFailure(error.toString()));
     }

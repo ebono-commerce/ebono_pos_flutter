@@ -25,4 +25,5 @@ class SharedPreferenceConstants {
   static final selectedPrinter = 'selectedPrinter';
   static final allowedPaymentModes = 'allowedPaymentModes';
   static final edcDeviceDetails = 'edcDeviceDetails';
+  static final pointingTo = 'pointingTo';
 }
