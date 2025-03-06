@@ -223,7 +223,7 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
             return Stack(
               children: [
                 Padding(
-                  padding: const EdgeInsets.all(16.0),
+                  padding: const EdgeInsets.fromLTRB(8, 16,0,16),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.start,

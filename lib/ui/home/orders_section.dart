@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:ebono_pos/constants/custom_colors.dart';
 import 'package:ebono_pos/data_store/shared_preference_helper.dart';
 import 'package:ebono_pos/models/cart_response.dart';
@@ -36,6 +38,7 @@ class _OrdersSectionState extends State<OrdersSection>
   HomeController homeController = Get.find<HomeController>();
   late WeighingScaleService weighingScaleService =
       Get.find<WeighingScaleService>();
+  late StreamSubscription _dialogSubscription;
 
   @override
   void initState() {
@@ -124,72 +127,76 @@ class _OrdersSectionState extends State<OrdersSection>
           });
         }
       });
+      if (homeController.registerId.value.isNotEmpty &&
+          homeController.cartId.value.isNotEmpty) {
+        _requestFocusOnNumpad();
+        setState(() {});
+      }
+    });
+    _dialogSubscription = homeController.logoutDialogStream.listen((dialogClosed) {
+      if (dialogClosed &&
+          homeController.registerId.value.isNotEmpty &&
+          homeController.cartId.value.isNotEmpty) {
+        _requestFocusOnNumpad();
+      }
     });
 
     super.initState();
   }
 
   @override
+  void dispose() {
+    _dialogSubscription.cancel();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Center(
-      child: Row(
-        children: [
-          Expanded(
-            flex: 5, // 0.6 ratio
-            child: Container(
-                color: Colors.white,
-                child: Column(
-                  children: [
-                    Obx(() {
-                      return _buildOrderDetail(context);
-                    }),
-                    Expanded(
-                      child: Obx(() {
-                        if (homeController.registerId.value.isNotEmpty) {
-                          return homeController.cartId.value.isEmpty
-                              ? AddCustomerStaticWidget()
-                              : _buildTableView();
-                        } else {
-                          return _buildRegisterClosed(context,
-                              onPressed: () async {
-                            homeController.selectedTabButton.value = 1;
-                          });
-                        }
-                      }),
-                    )
-                  ],
-                )),
-          ),
-          Expanded(
-            flex: 2, // 0.2 ratio
-            child: Center(child: _buildNumberPadSection(homeController)),
-          ),
-          Expanded(
-            flex: 1,
-            child: Obx(
-              () => AbsorbPointer(
-                absorbing: homeController.registerId.value.isEmpty,
-                child: QuickActionButtons(
+      child: GestureDetector(
+        onTap: _requestFocusOnNumpad,
+        behavior:HitTestBehavior.opaque,
+        child: Row(
+          children: [
+            Expanded(
+              flex: 5, // 0.6 ratio
+              child: Container(
                   color: Colors.white,
-                  onCustomerPressed: () async {
-                    await showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return Dialog(
-                          insetPadding: EdgeInsets.symmetric(vertical: 15.0),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20.0),
-                          ),
-                          child: AddCustomerWidget(context),
-                        );
-                      },
-                    );
-
-                    homeController.displayOTPScreen.value = false;
-                  },
-                  onHoldCartPressed: () {
-                    if (homeController.isContionueWithOutCustomer.value) {
-                      showDialog(
+                  child: Column(
+                    children: [
+                      Obx(() {
+                        return _buildOrderDetail(context);
+                      }),
+                      Expanded(
+                        child: Obx(() {
+                          if (homeController.registerId.value.isNotEmpty) {
+                            return homeController.cartId.value.isEmpty
+                                ? AddCustomerStaticWidget()
+                                : _buildTableView();
+                          } else {
+                            return _buildRegisterClosed(context,
+                                onPressed: () async {
+                              homeController.selectedTabButton.value = 1;
+                            });
+                          }
+                        }),
+                      )
+                    ],
+                  )),
+            ),
+            Expanded(
+              flex: 2, // 0.2 ratio
+              child: Center(child: _buildNumberPadSection(homeController)),
+            ),
+            Expanded(
+              flex: 1,
+              child: Obx(
+                () => AbsorbPointer(
+                  absorbing: homeController.registerId.value.isEmpty,
+                  child: QuickActionButtons(
+                    color: Colors.white,
+                    onCustomerPressed: () async {
+                      await showDialog(
                         context: context,
                         builder: (BuildContext context) {
                           return Dialog(
@@ -197,197 +204,231 @@ class _OrdersSectionState extends State<OrdersSection>
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(20.0),
                             ),
-                            child: AddCustomerWidget(context),
+                            child: AddCustomerWidget(
+                              context,
+                              onClose:_requestFocusOnNumpad
+                            ),
                           );
                         },
                       );
-                    } else {
-                      AuthModes enableHoldCartMode =
-                          AuthModeExtension.fromString(
-                              homeController.isEnableHoldCartEnabled.value);
-                      if (enableHoldCartMode == AuthModes.enabled) {
-                        homeController.holdCartApiCall();
-                      } else if (enableHoldCartMode == AuthModes.authorised) {
+
+                      homeController.displayOTPScreen.value = false;
+                    },
+                    onHoldCartPressed: () {
+                      if (homeController.isContionueWithOutCustomer.value) {
                         showDialog(
                           context: context,
                           builder: (BuildContext context) {
                             return Dialog(
+                              insetPadding: EdgeInsets.symmetric(vertical: 15.0),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(20.0),
                               ),
-                              child: AuthorisationRequiredWidget(context),
+                              child: AddCustomerWidget(
+                                  context,
+                                  onClose:_requestFocusOnNumpad,
+                              ),
                             );
                           },
                         );
                       } else {
-                        Get.snackbar('Action Disabled for this account',
-                            'Please contact support');
+                        AuthModes enableHoldCartMode =
+                            AuthModeExtension.fromString(
+                                homeController.isEnableHoldCartEnabled.value);
+                        if (enableHoldCartMode == AuthModes.enabled) {
+                          homeController.holdCartApiCall();
+                        } else if (enableHoldCartMode == AuthModes.authorised) {
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return Dialog(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20.0),
+                                ),
+                                child: AuthorisationRequiredWidget(context),
+                              );
+                            },
+                          );
+                        } else {
+                          Get.snackbar('Action Disabled for this account',
+                              'Please contact support');
+                        }
                       }
-                    }
-                  },
-                  onSalesAssociatePressed: () {
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return Dialog(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20.0),
-                          ),
-                          child: AuthorisationRequiredWidget(context),
-                        );
-                      },
-                    );
-                  },
-                  onCouponsPressed: () {
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return Dialog(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20.0),
-                          ),
-                          child: CouponCodeWidget(
-                            context,
-                            couponDetails:
-                                homeController.cartResponse.value.couponDetails,
-                          ),
-                        );
-                      },
-                    );
-                  },
-                  onClearCartPressed: () {
-                    Get.defaultDialog(
-                      title: '',
-                      content: Column(
-                        children: [
-                          Container(
-                            padding: EdgeInsets.symmetric(horizontal: 20),
-                            child: Text(
-                              "Are you sure you want to clear cart?",
-                              softWrap: true,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(fontWeight: FontWeight.w600),
+                    },
+                    onSalesAssociatePressed: () {
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return Dialog(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20.0),
                             ),
-                          ),
-                          SizedBox(height: 20),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                              Expanded(
-                                child: Container(
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: 4, vertical: 10),
-                                  child: ElevatedButton(
-                                    onPressed: () {
-                                      AuthModes enableHoldCartMode =
-                                          AuthModeExtension.fromString(
-                                              homeController
-                                                  .isEnableHoldCartEnabled
-                                                  .value);
-                                      if (enableHoldCartMode ==
-                                          AuthModes.enabled) {
-                                        homeController.clearFullCart();
-                                        Get.back();
-                                      } else if (enableHoldCartMode ==
-                                          AuthModes.authorised) {
-                                        Get.back();
-                                        showDialog(
-                                          context: context,
-                                          builder: (BuildContext context) {
-                                            return Dialog(
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(20.0),
-                                              ),
-                                              child:
-                                                  AuthorisationRequiredWidget(
-                                                      context),
-                                            );
-                                          },
-                                        );
-                                      } else {
-                                        Get.snackbar(
-                                            'Action Disabled for this account',
-                                            'Please contact support');
-                                      }
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                      elevation: 1,
-                                      padding:
-                                          EdgeInsets.symmetric(vertical: 20),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(10),
+                            child: AuthorisationRequiredWidget(
+                                context,
+                                onClose: _requestFocusOnNumpad,
+                            ),
+                          );
+                        },
+                      );
+                    },
+                    onCouponsPressed: () {
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return Dialog(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20.0),
+                            ),
+                            child: CouponCodeWidget(
+                              context,
+                              couponDetails:
+                                  homeController.cartResponse.value.couponDetails,
+                              onClose: _requestFocusOnNumpad,
+                            ),
+                          );
+                        },
+                      );
+                    },
+                    onClearCartPressed: () {
+                      Get.defaultDialog(
+                        title: '',
+                        content: Column(
+                          children: [
+                            Container(
+                              padding: EdgeInsets.symmetric(horizontal: 20),
+                              child: Text(
+                                "Are you sure you want to clear cart?",
+                                softWrap: true,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(fontWeight: FontWeight.w600),
+                              ),
+                            ),
+                            SizedBox(height: 20),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children: [
+                                Expanded(
+                                  child: Container(
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: 4, vertical: 10),
+                                    child: ElevatedButton(
+                                      onPressed: () {
+                                        AuthModes enableHoldCartMode =
+                                            AuthModeExtension.fromString(
+                                                homeController
+                                                    .isEnableHoldCartEnabled
+                                                    .value);
+                                        if (enableHoldCartMode ==
+                                            AuthModes.enabled) {
+                                          homeController.clearFullCart();
+                                          Get.back();
+                                        } else if (enableHoldCartMode ==
+                                            AuthModes.authorised) {
+                                          Get.back();
+                                          showDialog(
+                                            context: context,
+                                            builder: (BuildContext context) {
+                                              return Dialog(
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(20.0),
+                                                ),
+                                                child:
+                                                    AuthorisationRequiredWidget(
+                                                        context),
+                                              );
+                                            },
+                                          );
+                                        } else {
+                                          Get.snackbar(
+                                              'Action Disabled for this account',
+                                              'Please contact support');
+                                        }
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        elevation: 1,
+                                        padding:
+                                            EdgeInsets.symmetric(vertical: 20),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(10),
+                                        ),
+                                        backgroundColor:
+                                            CustomColors.secondaryColor,
                                       ),
-                                      backgroundColor:
-                                          CustomColors.secondaryColor,
-                                    ),
-                                    child: Text(
-                                      "Yes, Clear Cart",
-                                      style: TextStyle(
-                                          color: Colors.black,
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.bold),
+                                      child: Text(
+                                        "Yes, Clear Cart",
+                                        style: TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.bold),
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                              Expanded(
-                                child: Container(
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: 4, vertical: 10),
-                                  child: ElevatedButton(
-                                    onPressed: () => Get.back(),
-                                    style: ElevatedButton.styleFrom(
-                                      elevation: 1,
-                                      padding:
-                                          EdgeInsets.symmetric(vertical: 20),
-                                      shape: RoundedRectangleBorder(
-                                        side: BorderSide(
+                                Expanded(
+                                  child: Container(
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: 4, vertical: 10),
+                                    child: ElevatedButton(
+                                      onPressed: () => Get.back(),
+                                      style: ElevatedButton.styleFrom(
+                                        elevation: 1,
+                                        padding:
+                                            EdgeInsets.symmetric(vertical: 20),
+                                        shape: RoundedRectangleBorder(
+                                          side: BorderSide(
+                                              color: CustomColors.primaryColor,
+                                              width: 1.5),
+                                          borderRadius: BorderRadius.circular(10),
+                                        ),
+                                        backgroundColor:
+                                            CustomColors.keyBoardBgColor,
+                                      ),
+                                      child: Text(
+                                        "No, Cancel",
+                                        style: TextStyle(
                                             color: CustomColors.primaryColor,
-                                            width: 1.5),
-                                        borderRadius: BorderRadius.circular(10),
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.bold),
                                       ),
-                                      backgroundColor:
-                                          CustomColors.keyBoardBgColor,
-                                    ),
-                                    child: Text(
-                                      "No, Cancel",
-                                      style: TextStyle(
-                                          color: CustomColors.primaryColor,
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.bold),
                                     ),
                                   ),
                                 ),
-                              ),
-                            ],
-                          )
-                        ],
-                      ),
-                    );
-                  },
-                  onInventoryInquiryPressed: () {
-                    homeController.clearDataAndLogout();
-                  },
-                  /* disabling search items feture as of now */
-                  onSearchItemsPressed: () {
-                    // showDialog(
-                    //   context: context,
-                    //   builder: (BuildContext context) {
-                    //     return Dialog(
-                    //       shape: RoundedRectangleBorder(
-                    //         borderRadius: BorderRadius.circular(20.0),
-                    //       ),
-                    //       child: SearchProductsView(context),
-                    //     );
-                    //   },
-                    // );
-                  },
+                              ],
+                            )
+                          ],
+                        ),
+                      ).then((_){
+                        _requestFocusOnNumpad();
+                      });
+                    },
+                    onInventoryInquiryPressed: () {
+                      homeController.clearDataAndLogout();
+                    },
+                    /* disabling search items feture as of now */
+                    onSearchItemsPressed: () {
+                      // showDialog(
+                      //   context: context,
+                      //   builder: (BuildContext context) {
+                      //     return Dialog(
+                      //       shape: RoundedRectangleBorder(
+                      //         borderRadius: BorderRadius.circular(20.0),
+                      //       ),
+                      //       child: SearchProductsView(context),
+                      //     );
+                      //   },
+                      // );
+
+                      ///ToDo: should call _requestFocusOnNumpad after search Dialogue close
+                      _requestFocusOnNumpad();
+                       setState(() {});
+                    },
+                  ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -1736,6 +1777,12 @@ class _OrdersSectionState extends State<OrdersSection>
         ),
       ],
     );
+  }
+
+  _requestFocusOnNumpad(){
+    if (!numPadFocusNode.hasFocus) {
+      numPadFocusNode.requestFocus();
+    }
   }
 }
 

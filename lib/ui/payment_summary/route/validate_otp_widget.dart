@@ -134,155 +134,166 @@ class _ValidateOtpWidgetState extends State<ValidateOtpWidget> {
         },
         child:
             BlocBuilder<PaymentBloc, PaymentState>(builder: (context, state) {
-          return Stack(
+          return Column(
+            mainAxisSize: MainAxisSize.max,
             children: [
-              Positioned(
-                top: 18,
-                right: 18,
-                child: InkWell(
-                  onTap: () {
-                    Navigator.pop(widget.dialogContext);
-                  },
-                  child: SvgPicture.asset(
-                    'assets/images/ic_close.svg',
-                    semanticsLabel: 'cash icon,',
-                    width: 30,
-                    height: 30,
+              Flexible(
+                child: SizedBox(
+                  width: 900,
+                  child: Stack(
+                    children: [
+                      Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.max,
+                          children: [
+                            SizedBox(height: 10),
+                            SizedBox(
+                              width: 400,
+                              child: Form(
+                                key: _formKey,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    const SizedBox(height: 10),
+                                    Text(
+                                      "Enter Wallet OTP",
+                                      style: theme.textTheme.titleLarge?.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                        color: CustomColors.black,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 10),
+                                    RichText(
+                                      text: TextSpan(children: [
+                                        TextSpan(
+                                          text: "4 digit OTP has been sent to ",
+                                          style: theme.textTheme.titleSmall?.copyWith(
+                                            fontWeight: FontWeight.normal,
+                                            color: CustomColors.greyFont,
+                                          ),
+                                        ),
+                                        TextSpan(
+                                          text: homeController
+                                              .customerResponse.value.phoneNumber!.number,
+                                          style: theme.textTheme.titleMedium?.copyWith(
+                                            fontWeight: FontWeight.bold,
+                                            color: CustomColors.black,
+                                          ),
+                                        ),
+                                      ]),
+                                    ),
+                                    if (resendOTPCount > 2) ...[
+                                      const SizedBox(height: 10),
+                                      Text(
+                                        "Max OTP Limit Reached",
+                                        style: theme.textTheme.titleSmall?.copyWith(
+                                          fontWeight: FontWeight.bold,
+                                          color: CustomColors.red,
+                                        ),
+                                      )
+                                    ],
+                                    SizedBox(height: 15),
+                                    _buildTextField(
+                                      label: "Enter OTP",
+                                      controller: otpController,
+                                      focusNode: couponCodeFocusNode,
+                                      onChanged: (value) => value,
+                                      validator: (value) {
+                                        if (value == null || value.isEmpty) {
+                                          return "Please Enter OTP";
+                                        }
+                                        if (value.length != 4) {
+                                          return "OTP must be 4 digits";
+                                        }
+                                        if (homeController.isOTPError.value) {
+                                          return paymentBloc.state.errorMessage
+                                              ?.split('|')
+                                              .last ??
+                                              "Invalid OTP";
+                                        }
+                                        return null;
+                                      },
+                                    ),
+                                    const SizedBox(height: 20),
+                                    _buildCustomButton(
+                                      onPressed: () {
+                                        homeController.isOTPError.value = false;
+                                        if (_formKey.currentState?.validate() == true) {
+                                          paymentBloc
+                                              .add(WalletChargeEvent(otpController.text));
+                                        }
+                                      },
+                                      isBtnEnabled:
+                                      paymentBloc.state.isVerifyOTPLoading == false,
+                                      buttonText: "Verify",
+                                      isLoading: paymentBloc.state.isVerifyOTPLoading,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                    SizedBox(height: 15),
+                                    _buildCustomButton(
+                                      onPressed: () {
+                                        if (resendOTPCount <= 3) {
+                                          setState(() => resendOTPCount++);
+                                          if (resendOTPCount <= 2) {
+                                            paymentBloc.add(WalletAuthenticationEvent(
+                                              isResendOTP: true,
+                                            ));
+                                            _startTimer();
+                                          }
+                                        }
+                                      },
+                                      isLoading: paymentBloc.state.isResendOTPLoading,
+                                      isBtnEnabled: isResendOTPBtnEnabled &&
+                                          resendOTPCount < 3 &&
+                                          paymentBloc.state.isResendOTPLoading == false,
+                                      buttonText:
+                                      "Resend OTP ${_formatTime(_remainingTime).compareTo("00:00") == 0 ? "" : _formatTime(_remainingTime)}",
+                                      enableBackground: false,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                    SizedBox(height: 10),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      /// close button
+                      Positioned(
+                        top: 18,
+                        right: 18,
+                        child: InkWell(
+                          onTap: () {
+                            Navigator.pop(widget.dialogContext);
+                          },
+                          child: SvgPicture.asset(
+                            'assets/images/ic_close.svg',
+                            semanticsLabel: 'cash icon,',
+                            width: 30,
+                            height: 30,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.start,
-                mainAxisSize: MainAxisSize.max,
-                children: [
-                  SizedBox(height: 10),
-                  SizedBox(
-                    width: 400,
-                    child: Form(
-                      key: _formKey,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          const SizedBox(height: 10),
-                          Text(
-                            "Enter Wallet OTP",
-                            style: theme.textTheme.titleLarge?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: CustomColors.black,
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                          RichText(
-                            text: TextSpan(children: [
-                              TextSpan(
-                                text: "4 digit OTP has been sent to ",
-                                style: theme.textTheme.titleSmall?.copyWith(
-                                  fontWeight: FontWeight.normal,
-                                  color: CustomColors.greyFont,
-                                ),
-                              ),
-                              TextSpan(
-                                text: homeController
-                                    .customerResponse.value.phoneNumber!.number,
-                                style: theme.textTheme.titleMedium?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                  color: CustomColors.black,
-                                ),
-                              ),
-                            ]),
-                          ),
-                          if (resendOTPCount > 2) ...[
-                            const SizedBox(height: 10),
-                            Text(
-                              "Max OTP Limit Reached",
-                              style: theme.textTheme.titleSmall?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: CustomColors.red,
-                              ),
-                            )
-                          ],
-                          SizedBox(height: 15),
-                          _buildTextField(
-                            label: "Enter OTP",
-                            controller: otpController,
-                            focusNode: couponCodeFocusNode,
-                            onChanged: (value) => value,
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return "Please Enter OTP";
-                              }
-                              if (value.length != 4) {
-                                return "OTP must be 4 digits";
-                              }
-                              if (homeController.isOTPError.value) {
-                                return paymentBloc.state.errorMessage
-                                        ?.split('|')
-                                        .last ??
-                                    "Invalid OTP";
-                              }
-                              return null;
-                            },
-                          ),
-                          const SizedBox(height: 20),
-                          _buildCustomButton(
-                            onPressed: () {
-                              homeController.isOTPError.value = false;
-                              if (_formKey.currentState?.validate() == true) {
-                                paymentBloc
-                                    .add(WalletChargeEvent(otpController.text));
-                              }
-                            },
-                            isBtnEnabled:
-                                paymentBloc.state.isVerifyOTPLoading == false,
-                            buttonText: "Verify",
-                            isLoading: paymentBloc.state.isVerifyOTPLoading,
-                            fontWeight: FontWeight.w600,
-                          ),
-                          SizedBox(height: 15),
-                          _buildCustomButton(
-                            onPressed: () {
-                              if (resendOTPCount <= 3) {
-                                setState(() => resendOTPCount++);
-                                if (resendOTPCount <= 2) {
-                                  paymentBloc.add(WalletAuthenticationEvent(
-                                    isResendOTP: true,
-                                  ));
-                                  _startTimer();
-                                }
-                              }
-                            },
-                            isLoading: paymentBloc.state.isResendOTPLoading,
-                            isBtnEnabled: isResendOTPBtnEnabled &&
-                                resendOTPCount < 3 &&
-                                paymentBloc.state.isResendOTPLoading == false,
-                            buttonText:
-                                "Resend OTP ${_formatTime(_remainingTime).compareTo("00:00") == 0 ? "" : _formatTime(_remainingTime)}",
-                            enableBackground: false,
-                            fontWeight: FontWeight.w500,
-                          ),
-                          SizedBox(height: 10),
-                        ],
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    width: 900,
-                    child: CustomQwertyPad(
-                      textController: _numPadController,
-                      focusNode: couponCodeFocusNode,
-                      onEnterPressed: (value) {
-                        if (!couponCodeFocusNode.hasFocus) {
-                          couponCodeFocusNode.requestFocus();
-                        } else {
-                          couponCodeFocusNode.unfocus();
-                        }
-                      },
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 30),
+              SizedBox(
+                width: 900,
+                child: CustomQwertyPad(
+                  textController: _numPadController,
+                  focusNode: couponCodeFocusNode,
+                  onEnterPressed: (value) {
+                    if (!couponCodeFocusNode.hasFocus) {
+                      couponCodeFocusNode.requestFocus();
+                    } else {
+                      couponCodeFocusNode.unfocus();
+                    }
+                  },
+                )),
+              const SizedBox(height: 18),
             ],
           );
         }),

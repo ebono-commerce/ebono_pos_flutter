@@ -134,6 +134,15 @@ class HomeController extends GetxController {
   var couponDetails = ''.obs;
   RxList<AllowedPaymentMode> allowedPaymentModes = [AllowedPaymentMode()].obs;
 
+  final _logoutDialogController = StreamController<bool>.broadcast();
+
+  Stream<bool> get logoutDialogStream => _logoutDialogController.stream;
+
+  void notifyDialogClosed() {
+    _logoutDialogController.add(true);
+  }
+
+
   @override
   void onInit() async {
     _checkConnectivity();
@@ -1011,6 +1020,7 @@ class HomeController extends GetxController {
   @override
   void onClose() {
     _statusCheckTimer?.cancel();
+    _logoutDialogController.close();
     // digitalWeighingScale.dispose();
     super.onClose();
   }
