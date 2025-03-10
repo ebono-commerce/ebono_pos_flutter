@@ -1,6 +1,7 @@
 import 'package:ebono_pos/constants/shared_preference_constants.dart';
 import 'package:ebono_pos/data_store/hive_storage_helper.dart';
 import 'package:ebono_pos/data_store/shared_preference_helper.dart';
+import 'package:ebono_pos/ui/home/repository/home_repository.dart';
 import 'package:ebono_pos/ui/login/bloc/login_event.dart';
 import 'package:ebono_pos/ui/login/bloc/login_state.dart';
 import 'package:ebono_pos/ui/login/model/get_terminal_details_request.dart';
@@ -12,6 +13,7 @@ import 'package:ebono_pos/ui/login/model/outlet_details_response.dart';
 import 'package:ebono_pos/ui/login/model/terminal_details_response.dart';
 import 'package:ebono_pos/ui/login/repository/login_repository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get/get.dart';
 import 'package:libserialport/libserialport.dart';
 import 'package:printing/printing.dart';
 import 'package:uuid/uuid.dart';
@@ -106,6 +108,21 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       LoginButtonPressed event, Emitter<LoginState> emit) async {
     emit(LoginLoading());
     try {
+      /* check for health status api */
+      final status = await healthCheckAPI();
+      final pointingTo = await _sharedPreferenceHelper.pointingTo();
+
+      /* Health check api fails & it's pointed to local */
+      if (status == false && pointingTo == 'LOCAL') {
+        /* change the base url & update flag */
+        await _sharedPreferenceHelper.pointTo(isCloud: true);
+      }
+      /* Health check api success & it's pointed to cloud */
+      else if (status == true && pointingTo == 'CLOUD') {
+        /* change the base url & update flag */
+        await _sharedPreferenceHelper.pointTo(isCloud: false);
+      }
+
       String? appUUID = await _sharedPreferenceHelper.getAppUUID();
       if (appUUID == null) {
         var uuid = Uuid();
@@ -133,6 +150,24 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       emit(LoginSuccess());
     } catch (error) {
       emit(LoginFailure(error.toString()));
+    }
+  }
+
+  Future<bool> healthCheckAPI() async {
+    /* Health Check API, if other than 200, clear all exsisting data and navigate to login screen */
+    // Initialize API service
+    final apiService = Get.find<HomeRepository>();
+
+    try {
+      // Make your API call here
+      final response = await apiService.healthCheckApiCall();
+      if (response.statusCode == 200) {
+        return true;
+      } else {
+        return false;
+      }
+    } catch (e) {
+      return false;
     }
   }
 
