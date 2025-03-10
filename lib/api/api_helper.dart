@@ -4,7 +4,6 @@ import 'package:ebono_pos/data_store/hive_storage_helper.dart';
 import 'package:ebono_pos/data_store/shared_preference_helper.dart';
 import 'package:flutter_client_sse/constants/sse_request_type_enum.dart';
 import 'package:flutter_client_sse/flutter_client_sse.dart';
-
 import 'auth_interceptor.dart';
 
 class ApiHelper {
@@ -227,3 +226,4 @@ class ApiHelper {
     return Exception("Unexpected error occurred.");
   }
 }
+
