@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:ebono_pos/api/api_constants.dart';
+import 'package:ebono_pos/api/api_exception.dart';
 import 'package:ebono_pos/api/api_helper.dart';
 import 'package:ebono_pos/ui/login/model/get_terminal_details_request.dart';
 import 'package:ebono_pos/ui/login/model/login_request.dart';
@@ -28,7 +29,7 @@ class LoginRepository {
       // return data;
       return loginResponse;
     } catch (e) {
-      throw Exception(e);
+      throw ApiException(e.toString());
     }
   }
 
@@ -43,7 +44,7 @@ class LoginRepository {
 
       return logoutResponse;
     } catch (e) {
-      throw Exception(e);
+      throw ApiException(e.toString());
     }
   }
 
@@ -56,7 +57,7 @@ class LoginRepository {
       final outletDetailsResponse = outletDetailsResponseFromJson(jsonEncode(response));
       return outletDetailsResponse;
     } catch (e) {
-      throw Exception(e);
+      throw ApiException(e.toString());
     }
   }
 
@@ -69,7 +70,7 @@ class LoginRepository {
       final terminalDetailsResponse = terminalDetailsResponseFromJson(jsonEncode(response));
       return terminalDetailsResponse;
     } catch (e) {
-      throw Exception(e);
+      throw ApiException(e.toString());
     }
   }
 }
