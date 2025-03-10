@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:ebono_pos/api/api_constants.dart';
+import 'package:ebono_pos/api/api_exception.dart';
 import 'package:ebono_pos/api/api_helper.dart';
 import 'package:ebono_pos/constants/shared_preference_constants.dart';
 import 'package:ebono_pos/data_store/hive_storage_helper.dart';
@@ -44,7 +45,7 @@ class HomeRepository {
           customerDetailsResponseFromJson(jsonEncode(response));
       return customerDetailsResponse;
     } catch (e) {
-      throw Exception('$e');
+      throw ApiException('$e');
     }
   }
 
@@ -57,7 +58,7 @@ class HomeRepository {
       final customerResponse = customerResponseFromJson(jsonEncode(response));
       return customerResponse;
     } catch (e) {
-      throw Exception('$e');
+      throw ApiException('$e');
     }
   }
 
@@ -75,7 +76,7 @@ class HomeRepository {
           scanProductsResponseFromJson(jsonEncode(response));
       return scanProductsResponse;
     } catch (e) {
-      throw Exception('$e');
+      throw ApiException('$e');
     }
   }
 
@@ -88,7 +89,7 @@ class HomeRepository {
       final cartResponse = cartResponseFromJson(jsonEncode(response));
       return cartResponse;
     } catch (e) {
-      throw Exception('$e');
+      throw ApiException('$e');
     }
   }
 
@@ -101,7 +102,7 @@ class HomeRepository {
       final cartResponse = cartResponseFromJson(jsonEncode(response));
       return cartResponse;
     } catch (e) {
-      throw Exception('$e');
+      throw ApiException('$e');
     }
   }
 
@@ -116,7 +117,7 @@ class HomeRepository {
       return cartResponse;
     } catch (e) {
       print("err: $e");
-      throw Exception('$e');
+      throw ApiException('$e');
     }
   }
 
@@ -130,7 +131,7 @@ class HomeRepository {
       final cartResponse = cartResponseFromJson(jsonEncode(response));
       return cartResponse;
     } catch (e) {
-      throw Exception('$e');
+      throw ApiException('$e');
     }
   }
 
@@ -146,7 +147,7 @@ class HomeRepository {
       final cartResponse = cartResponseFromJson(jsonEncode(response));
       return cartResponse;
     } catch (e) {
-      throw Exception('$e');
+      throw ApiException('$e');
     }
   }
 
@@ -160,7 +161,7 @@ class HomeRepository {
           generalSuccessResponseFromJson(jsonEncode(response));
       return generalResponse;
     } catch (e) {
-      throw Exception('$e');
+      throw ApiException('$e');
     }
   }
 
@@ -175,7 +176,7 @@ class HomeRepository {
           generalSuccessResponseFromJson(jsonEncode(response));
       return generalResponse;
     } catch (e) {
-      throw Exception('$e');
+      throw ApiException('$e');
     }
   }
 
@@ -189,7 +190,7 @@ class HomeRepository {
       final cartResponse = cartResponseFromJson(jsonEncode(response));
       return cartResponse;
     } catch (e) {
-      throw Exception('$e');
+      throw ApiException('$e');
     }
   }
 
@@ -200,7 +201,7 @@ class HomeRepository {
           healthCheckResponseFromJson(jsonEncode(response));
       return healthCheckResponse;
     } catch (e) {
-      throw Exception('$e');
+      throw ApiException('$e');
     }
   }
 
@@ -214,7 +215,7 @@ class HomeRepository {
           openRegisterResponseFromJson(jsonEncode(response));
       return openRegisterResponse;
     } catch (e) {
-      throw Exception('$e');
+      throw ApiException('$e');
     }
   }
 
@@ -229,7 +230,7 @@ class HomeRepository {
           generalSuccessResponseFromJson(jsonEncode(response));
       return generalResponse;
     } catch (e) {
-      throw Exception('$e');
+      throw ApiException('$e');
     }
   }
 
@@ -243,7 +244,7 @@ class HomeRepository {
           ordersOnHoldResponseFromJson(jsonEncode(response));
       return ordersOnHoldResponse;
     } catch (e) {
-      throw Exception('$e');
+      throw ApiException('$e');
     }
   }
 
@@ -258,7 +259,7 @@ class HomeRepository {
           getAuthorisationResponseFromJson(jsonEncode(response));
       return getAuthorisationResponse;
     } catch (e) {
-      throw Exception('$e');
+      throw ApiException('$e');
     }
   }
 
@@ -271,7 +272,7 @@ class HomeRepository {
       final cartResponse = cartResponseFromJson(jsonEncode(response));
       return cartResponse;
     } catch (e) {
-      throw Exception('$e');
+      throw ApiException('$e');
     }
   }
 
@@ -293,7 +294,7 @@ class HomeRepository {
       final cartResponse = cartResponseFromJson(jsonEncode(response));
       return cartResponse;
     } catch (e) {
-      throw Exception('$e');
+      throw ApiException('$e');
     }
   }
 
@@ -310,7 +311,7 @@ class HomeRepository {
 
       return true;
     } catch (e) {
-      throw Exception('$e');
+      throw ApiException('$e');
     }
   }
 }
