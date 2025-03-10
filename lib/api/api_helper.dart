@@ -4,7 +4,6 @@ import 'package:ebono_pos/data_store/hive_storage_helper.dart';
 import 'package:ebono_pos/data_store/shared_preference_helper.dart';
 import 'package:flutter_client_sse/constants/sse_request_type_enum.dart';
 import 'package:flutter_client_sse/flutter_client_sse.dart';
-
 import 'auth_interceptor.dart';
 
 class ApiHelper {
@@ -15,6 +14,35 @@ class ApiHelper {
 
   // Singleton instance
   static ApiHelper? _instance;
+
+  // Add token manager
+  final Map<String, dio.CancelToken> _tokenStore = {};
+
+  // Add getter for active tokens count
+  int get activeTokensCount => _tokenStore.length;
+
+  // Add method to cancel all tokens
+  void cancelAllRequests([String? reason]) {
+    _tokenStore.forEach((_, token) {
+      if (!token.isCancelled) {
+        token.cancel(reason ?? 'All requests cancelled');
+      }
+    });
+    _tokenStore.clear();
+  }
+
+  // Add method to create and track token
+  dio.CancelToken _createToken(String endpoint) {
+    final token = dio.CancelToken();
+    _tokenStore[endpoint] = token;
+
+    // Remove from store when cancelled
+    token.whenCancel.then((_) {
+      _tokenStore.remove(endpoint);
+    });
+
+    return token;
+  }
 
   // Private constructor
   ApiHelper._internal(
@@ -77,11 +105,12 @@ class ApiHelper {
     dio.CancelToken? cancelToken,
   }) async {
     try {
+      final token = cancelToken ?? _createToken(endpoint);
       dio.Response response = await _dio.get(
         endpoint,
         queryParameters: queryParameters,
         options: dio.Options(headers: headers),
-        cancelToken: cancelToken,
+        cancelToken: token,
       );
       return _handleResponse(response, parser);
     } catch (e) {
@@ -98,11 +127,12 @@ class ApiHelper {
     dio.CancelToken? cancelToken,
   }) async {
     try {
+      final token = cancelToken ?? _createToken(endpoint);
       dio.Response response = await _dio.post(
         endpoint,
         data: data,
         options: dio.Options(headers: headers),
-        cancelToken: cancelToken,
+        cancelToken: token,
       );
       return _handleResponse(response, parser);
     } catch (e) {
@@ -119,11 +149,12 @@ class ApiHelper {
     dio.CancelToken? cancelToken,
   }) async {
     try {
+      final token = cancelToken ?? _createToken(endpoint);
       dio.Response response = await _dio.delete(
         endpoint,
         data: data,
         options: dio.Options(headers: headers),
-        cancelToken: cancelToken,
+        cancelToken: token,
       );
       return _handleResponse(response, parser);
     } catch (e) {
@@ -195,3 +226,4 @@ class ApiHelper {
     return Exception("Unexpected error occurred.");
   }
 }
+

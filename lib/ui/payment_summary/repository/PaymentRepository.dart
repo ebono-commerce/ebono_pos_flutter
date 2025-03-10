@@ -15,6 +15,7 @@ import 'package:ebono_pos/ui/payment_summary/model/payment_summary_response.dart
 import 'package:ebono_pos/ui/payment_summary/model/place_order_request.dart';
 import 'package:ebono_pos/ui/payment_summary/model/wallet_charge_request.dart';
 import 'package:flutter_client_sse/flutter_client_sse.dart';
+import '../../../api/api_exception.dart';
 
 class PaymentRepository {
   final ApiHelper _apiHelper;
@@ -32,7 +33,7 @@ class PaymentRepository {
           paymentSummaryResponseFromJson(jsonEncode(response));
       return paymentSummaryResponse;
     } catch (e) {
-      throw Exception(e);
+      throw ApiException(e.toString());
     }
   }
 
@@ -92,7 +93,7 @@ class PaymentRepository {
           orderSummaryResponseFromJson(jsonEncode(response));
       return orderSummaryResponse;
     } catch (e) {
-      throw Exception(e);
+      throw ApiException(e.toString());
     }
   }
 
@@ -125,7 +126,7 @@ class PaymentRepository {
           generalSuccessResponseFromJson(jsonEncode(response));
       return walletAuthenticationResponse;
     } catch (e) {
-      throw Exception(e);
+      throw ApiException(e.toString());
     }
   }
 
@@ -140,7 +141,7 @@ class PaymentRepository {
           paymentSummaryResponseFromJson(jsonEncode(response));
       return paymentSummaryResponse;
     } catch (e) {
-      throw Exception(e);
+      throw ApiException(e.toString());
     }
   }
 }
