@@ -1057,9 +1057,9 @@ class _OrdersSectionState extends State<OrdersSection>
                                             true) {
                                       if (double.parse(
                                               numPadTextController.text) >
-                                          300) {
+                                          3000) {
                                         Get.snackbar('Invalid Weight',
-                                            'Weight can\'t be more than 300kgs, Please enter valid weight');
+                                            'Weight can\'t be more than 3000kgs, Please enter valid weight');
                                         return;
                                       } else {
                                         homeController
@@ -1131,9 +1131,9 @@ class _OrdersSectionState extends State<OrdersSection>
                                               true) {
                                         if (double.parse(
                                                 numPadTextController.text) >
-                                            300) {
+                                            3000) {
                                           Get.snackbar('Invalid Weight',
-                                              'Weight can\'t be more than 300kgs, Please enter valid weight');
+                                              'Weight can\'t be more than 3000kgs, Please enter valid weight');
                                           return;
                                         }
                                       } else if (homeController
