@@ -766,6 +766,11 @@ class _ReturnsViewState extends State<ReturnsView> {
                     } else if (activeFocusNode == numPadFocusNode) {
                       if (numPadTextController.text.isEmpty) {
                         return;
+                      } else if (double.tryParse(
+                              numPadTextController.text.toString()) ==
+                          0) {
+                        Get.snackbar("Invalid Quantity",
+                            "Returnable quantity should not be Zero");
                       } else
                       /* checking whether user is entering or updating quantity for weigh items or non weigh items */
                       if (returnsBloc.state.lastSelectedItem.returnableQuantity
