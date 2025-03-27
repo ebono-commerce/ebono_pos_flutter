@@ -33,6 +33,7 @@ import 'package:ebono_pos/ui/login/model/login_response.dart';
 import 'package:ebono_pos/ui/login/model/terminal_details_response.dart';
 import 'package:ebono_pos/ui/payment_summary/model/health_check_response.dart';
 import 'package:ebono_pos/widgets/error_dialog_widget.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
@@ -141,7 +142,6 @@ class HomeController extends GetxController {
   void notifyDialogClosed() {
     _logoutDialogController.add(true);
   }
-
 
   @override
   void onInit() async {
@@ -689,7 +689,7 @@ class HomeController extends GetxController {
             timer.cancel();
             return;
           }
-          final response = await _homeRepository.healthCheckApiCall();
+          final response = await compute(_fetchHealthStatus, _homeRepository);
           healthCheckResponse.value = response;
 
           if (response.statusCode == 200) {
@@ -713,6 +713,10 @@ class HomeController extends GetxController {
         }
       },
     );
+  }
+
+  Future<HealthCheckResponse> _fetchHealthStatus(HomeRepository repo) async {
+    return await repo.healthCheckApiCall();
   }
 
   void showDialog() {
