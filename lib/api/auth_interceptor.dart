@@ -1,3 +1,4 @@
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:ebono_pos/api/api_constants.dart';
 import 'package:ebono_pos/api/environment_config.dart';
@@ -18,6 +19,12 @@ class AuthInterceptor extends Interceptor {
     String? token = await _sharedPreferenceHelper.getAuthToken();
     String? appUUID = await _sharedPreferenceHelper.getAppUUID();
     String pointedTo = await _sharedPreferenceHelper.pointingTo();
+
+    final connectivityResult = await Connectivity().checkConnectivity();
+
+    if (connectivityResult == ConnectivityResult.none) {
+      Get.snackbar('NO INTERNET', 'please check internet connection');
+    }
 
     if (options.uri.path.contains('/api/3.0/p2p/')) {
       options.baseUrl = EnvironmentConfig.paymentBaseUrl;
