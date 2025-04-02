@@ -1095,6 +1095,7 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
 
   void _showPaymentDialog() {
     if (!Get.isDialogOpen!) {
+      Logger.logView(view: 'Online payment process Dialog');
       Get.dialog(
         barrierDismissible: true,
         Dialog(
@@ -1155,6 +1156,7 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                                   ),
                                   onPressed: () {
                                     paymentBloc.add(PaymentCancelEvent());
+                                    Logger.logButtonPress(button: 'Cancel Payment');
                                   },
                                   child: Padding(
                                     padding: const EdgeInsets.all(20.0),
@@ -1184,6 +1186,7 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                                   ),
                                   onPressed: () {
                                     paymentBloc.add(PaymentStatusEvent());
+                                    Logger.logButtonPress(button: 'Check Payment Status');
                                   },
                                   child: Padding(
                                     padding: const EdgeInsets.all(20.0),
