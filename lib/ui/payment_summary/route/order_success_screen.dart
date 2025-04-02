@@ -10,6 +10,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
 import 'package:printing/printing.dart';
+import 'package:ebono_pos/utils/logger.dart';
 
 class OrderSuccessScreen extends StatefulWidget {
   const OrderSuccessScreen({super.key});
@@ -26,6 +27,7 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
   @override
   void initState() {
     homeController.lastRoute.value = '/order_success';
+    Logger.logView(view: 'order_success');
     super.initState();
   }
 
@@ -88,6 +90,7 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                             padding: EdgeInsets.all(12)),
                         onPressed: !state.isLoading
                             ? () async {
+                                Logger.logButtonPress(button: "Print Order Summary");
                                 try {
                                   Printer? selectedPrinter;
 
@@ -141,6 +144,7 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                       child: ElevatedButton(
                         onPressed: !state.isLoading && state.allowPrintInvoice
                             ? () async {
+                               Logger.logButtonPress(button: "Print Invoice");
                                 try {
                                   Printer? selectedPrinter;
 

@@ -21,6 +21,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
+import 'package:ebono_pos/utils/logger.dart';
 
 class PaymentSummaryScreen extends StatefulWidget {
   const PaymentSummaryScreen({super.key});
@@ -114,6 +115,7 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
       });
     });
     homeController.lastRoute.value = PageRoutes.paymentSummary;
+    Logger.logView(view: 'Payment Summery screen');
     super.initState();
   }
 
@@ -680,6 +682,7 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                                 padding: EdgeInsets.all(12)),
                             onPressed: paymentBloc.totalPayable == 0 ? null : () {
                               cashPaymentFocusNode.requestFocus();
+                              Logger.logButtonPress(button: 'Cash payment');
                             },
                             child: Row(
                               children: [
@@ -817,6 +820,7 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                                       paymentBloc.onlinePayment = balance;
                                       onlinePaymentTextController.text =
                                           balance;
+                                      Logger.logButtonPress(button: 'Online payment');
                                     }
                                   : null,
                               child: Row(
@@ -879,6 +883,7 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                                           .value.text.isNotEmpty
                                       ? () {
                                           paymentBloc.add(PaymentStartEvent());
+                                          Logger.logButtonPress(button: 'Generate link');
                                         }
                                       : null,
                                   child: Text(
@@ -996,6 +1001,7 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                             0)
                         ? () {
                             paymentBloc.add(WalletAuthenticationEvent());
+                            Logger.logButtonPress(button: 'Redeem Wallet');
                           }
                         : null,
                     validator: null),
@@ -1072,6 +1078,7 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                   onPressed: (paymentBloc.allowPlaceOrder)
                       ? () {
                           paymentBloc.add(PlaceOrderEvent());
+                          Logger.logButtonPress(button: 'Place Order');
                         }
                       : null,
                   child: Text(

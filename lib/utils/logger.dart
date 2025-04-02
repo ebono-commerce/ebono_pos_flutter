@@ -1,11 +1,7 @@
 import 'dart:io';
-import 'dart:convert';
-
 import 'package:ebono_pos/data_store/shared_preference_helper.dart';
 import 'package:ebono_pos/ui/home/home_controller.dart';
 import 'package:get/get.dart';
-
-import '../api/environment_config.dart';
 
 class Logger {
   static File? _logFile;
@@ -36,7 +32,7 @@ class Logger {
     String? button,
   }) async {
     if (_logFile == null) await init(); // Ensure file is initialized
-
+    final timestamp = DateTime.now().toIso8601String();
     final logEntry = <String, dynamic>{
       "app_id": '',
       "event_type": '',
@@ -51,14 +47,14 @@ class Logger {
     logEntry['store_id'] = homeController.selectedTerminalId;
     logEntry['store_name'] = homeController.selectedOutletId;
     if (button != null) logEntry['button'] = button;
-    await _logFile!.writeAsString('$logEntry\n', mode: FileMode.append);
+    await _logFile!.writeAsString('$timestamp : $logEntry\n', mode: FileMode.append);
   }
 
   static Future<void> logView({
     String? view,
   }) async {
     if (_logFile == null) await init(); // Ensure file is initialized
-
+    final timestamp = DateTime.now().toIso8601String();
     final logEntry = <String, dynamic>{
       "app_id": '',
       "event_type": 'VIEW',
@@ -72,7 +68,7 @@ class Logger {
     logEntry['store_id'] = homeController.selectedTerminalId;
     logEntry['store_name'] = homeController.selectedOutletId;
     if (view != null) logEntry['view'] = view;
-    await _logFile!.writeAsString('$logEntry\n', mode: FileMode.append);
+    await _logFile!.writeAsString('$timestamp : $logEntry\n', mode: FileMode.append);
   }
 
   static Future<void> logApi({
@@ -81,7 +77,7 @@ class Logger {
     Map<String, dynamic>? response,
   }) async {
     if (_logFile == null) await init(); // Ensure file is initialized
-
+    final timestamp = DateTime.now().toIso8601String();
     final logEntry = <String, dynamic>{
       "app_id": '',
       "event_type": 'API',
@@ -102,6 +98,6 @@ class Logger {
     if (request != null) logEntry['request'] = request;
     if (response != null) logEntry['response'] = response;
 
-    await _logFile!.writeAsString('$logEntry\n', mode: FileMode.append);
+    await _logFile!.writeAsString('$timestamp : $logEntry\n', mode: FileMode.append);
   }
 }
