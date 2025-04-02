@@ -1,4 +1,5 @@
 import 'package:ebono_pos/constants/custom_colors.dart';
+import 'package:ebono_pos/cubit/connectivity_cubit.dart';
 import 'package:ebono_pos/data_store/hive_storage_helper.dart';
 import 'package:ebono_pos/navigation/page_routes.dart';
 import 'package:ebono_pos/ui/Common_button.dart';
@@ -16,6 +17,7 @@ import 'package:ebono_pos/ui/payment_summary/repository/PaymentRepository.dart';
 import 'package:ebono_pos/ui/payment_summary/route/order_success_screen.dart';
 import 'package:ebono_pos/ui/payment_summary/route/validate_otp_widget.dart';
 import 'package:ebono_pos/utils/dash_line.dart';
+import 'package:ebono_pos/utils/enums.dart';
 import 'package:ebono_pos/utils/price.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -139,136 +141,162 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
   Widget build(BuildContext context) {
     theme = Theme.of(context);
 
-    return Scaffold(
-      backgroundColor: Colors.grey.shade100,
-      appBar: PreferredSize(
-          preferredSize: Size.fromHeight(kToolbarHeight),
-          child: HomeAppBar(
-            showBackButton: true,
-            titleWidget: Text(
-              'Payment summary',
-              style: theme.textTheme.titleMedium,
-            ),
-          )),
-      body: BlocProvider(
-        create: (context) => paymentBloc,
-        child: BlocListener<PaymentBloc, PaymentState>(
-          listener: (BuildContext context, PaymentState state) async {
-            if (state.showPaymentPopup && state.isPaymentStartSuccess) {
-              _showPaymentDialog();
-            }
-            if (state.isPaymentSummarySuccess) {
-              var applicableBalance = paymentBloc
-                      .paymentSummaryResponse
-                      .redeemablePaymentOptions
-                      ?.firstOrNull
-                      ?.applicableBalance ??
-                  '';
-              if (applicableBalance.isNotEmpty &&
-                  double.parse(applicableBalance) > 0 &&
-                  (getPrice(
-                          paymentBloc.paymentSummaryResponse
-                              .redeemedWalletAmount?.centAmount,
-                          paymentBloc.paymentSummaryResponse
-                              .redeemedWalletAmount?.fraction) <=
-                      0)) {
-                walletTextController.text = paymentBloc
-                        .paymentSummaryResponse
-                        .redeemablePaymentOptions
-                        ?.firstOrNull
-                        ?.applicableBalance ??
-                    '';
-              } else {
-                walletTextController.text = '';
-              }
-            }
-            if (state.isPlaceOrderSuccess) {
-              paymentBloc.add(PaymentIdealEvent());
-              _showOrderSuccessDialog();
-            }
-            if (state.isPlaceOrderError) {
-              cashPaymentTextController.text = '';
-              onlinePaymentTextController.text = '';
-              paymentBloc.add(PaymentIdealEvent());
-              Get.snackbar("Place Order Error", state.errorMessage ?? "");
-            }
-
-            if (state.isWalletAuthenticationSuccess &&
-                isVerifyDialogOpen == false) {
-              print(
-                  'wallet authentication state is ${state.isWalletAuthenticationSuccess}');
-              paymentBloc.add(WalletIdealEvent());
-              print(
-                  'wallet authentication state is ${state.isWalletAuthenticationSuccess}');
-
-              showOTPDialog();
-
-              setState(() => isVerifyDialogOpen = true);
-            }
-
-            if (state.isWalletChargeSuccess) {
-              cashPaymentTextController.clear();
-              onlinePaymentTextController.clear();
-              paymentBloc.onlinePayment = '';
-              paymentBloc.cashPayment = '';
-            }
-
-            if (state.isWalletAuthenticationError) {
-              Get.snackbar(
-                  "Wallet Authentication Error", state.errorMessage ?? "");
-            }
-          },
-          child:
-              BlocBuilder<PaymentBloc, PaymentState>(builder: (context, state) {
-            return Stack(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(8, 16,0,16),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Expanded(
-                        flex: 3,
-                        child: state.isPaymentSummarySuccess
-                            ? billSummaryWidget(
-                                paymentBloc.paymentSummaryResponse)
-                            : SizedBox(),
-                      ),
-                      Expanded(
-                        flex: 7,
-                        child: state.isPaymentSummarySuccess
-                            ? paymentModeSection(
-                                paymentBloc.paymentSummaryResponse, state)
-                            : SizedBox(),
-                      ),
-                      Expanded(
-                        flex: 5,
-                        child: state.isPaymentSummarySuccess
-                            ? numpadSection(state)
-                            : SizedBox(),
-                      ),
-                      Expanded(
-                        flex: 2,
-                        child: QuickActionButtons(
-                          color: Colors.grey.shade100,
-                        ),
-                      ),
-                    ],
+    return BlocBuilder<NetworkCubit, InternetStatus>(
+      builder: (context, state) {
+        return Scaffold(
+          backgroundColor: Colors.grey.shade100,
+          appBar: PreferredSize(
+              preferredSize: Size.fromHeight(
+                  state.status == ConnectivityStatus.connected
+                      ? kToolbarHeight
+                      : kToolbarHeight + 30),
+              child: Column(
+                children: [
+                  HomeAppBar(
+                    showBackButton: true,
+                    titleWidget: Text(
+                      'Payment summary',
+                      style: theme.textTheme.titleMedium,
+                    ),
                   ),
-                ),
-                state.isLoading
-                    ? Center(child: CircularProgressIndicator())
-                    : SizedBox(
-                        width: 1,
-                        height: 1,
+                  Visibility(
+                    visible: state.status == ConnectivityStatus.disconnected,
+                    child: Container(
+                      height: 30,
+                      padding: EdgeInsets.all(2),
+                      width: MediaQuery.sizeOf(context).width,
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade600,
                       ),
-              ],
-            );
-          }),
-        ),
-      ),
+                      child: Center(
+                          child: Text('No Internet Connection',
+                              style: TextStyle(
+                                  color: Colors.grey.shade200, fontSize: 14))),
+                    ),
+                  )
+                ],
+              )),
+          body: BlocProvider(
+            create: (context) => paymentBloc,
+            child: BlocListener<PaymentBloc, PaymentState>(
+              listener: (BuildContext context, PaymentState state) async {
+                if (state.showPaymentPopup && state.isPaymentStartSuccess) {
+                  _showPaymentDialog();
+                }
+                if (state.isPaymentSummarySuccess) {
+                  var applicableBalance = paymentBloc
+                          .paymentSummaryResponse
+                          .redeemablePaymentOptions
+                          ?.firstOrNull
+                          ?.applicableBalance ??
+                      '';
+                  if (applicableBalance.isNotEmpty &&
+                      double.parse(applicableBalance) > 0 &&
+                      (getPrice(
+                              paymentBloc.paymentSummaryResponse
+                                  .redeemedWalletAmount?.centAmount,
+                              paymentBloc.paymentSummaryResponse
+                                  .redeemedWalletAmount?.fraction) <=
+                          0)) {
+                    walletTextController.text = paymentBloc
+                            .paymentSummaryResponse
+                            .redeemablePaymentOptions
+                            ?.firstOrNull
+                            ?.applicableBalance ??
+                        '';
+                  } else {
+                    walletTextController.text = '';
+                  }
+                }
+                if (state.isPlaceOrderSuccess) {
+                  paymentBloc.add(PaymentIdealEvent());
+                  _showOrderSuccessDialog();
+                }
+                if (state.isPlaceOrderError) {
+                  cashPaymentTextController.text = '';
+                  onlinePaymentTextController.text = '';
+                  paymentBloc.add(PaymentIdealEvent());
+                  Get.snackbar("Place Order Error", state.errorMessage ?? "");
+                }
+
+                if (state.isWalletAuthenticationSuccess &&
+                    isVerifyDialogOpen == false) {
+                  print(
+                      'wallet authentication state is ${state.isWalletAuthenticationSuccess}');
+                  paymentBloc.add(WalletIdealEvent());
+                  print(
+                      'wallet authentication state is ${state.isWalletAuthenticationSuccess}');
+
+                  showOTPDialog();
+
+                  setState(() => isVerifyDialogOpen = true);
+                }
+
+                if (state.isWalletChargeSuccess) {
+                  cashPaymentTextController.clear();
+                  onlinePaymentTextController.clear();
+                  paymentBloc.onlinePayment = '';
+                  paymentBloc.cashPayment = '';
+                }
+
+                if (state.isWalletAuthenticationError) {
+                  Get.snackbar(
+                      "Wallet Authentication Error", state.errorMessage ?? "");
+                }
+              },
+              child: BlocBuilder<PaymentBloc, PaymentState>(
+                  builder: (context, state) {
+                return Stack(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(8, 16, 0, 16),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Expanded(
+                            flex: 3,
+                            child: state.isPaymentSummarySuccess
+                                ? billSummaryWidget(
+                                    paymentBloc.paymentSummaryResponse)
+                                : SizedBox(),
+                          ),
+                          Expanded(
+                            flex: 7,
+                            child: state.isPaymentSummarySuccess
+                                ? paymentModeSection(
+                                    paymentBloc.paymentSummaryResponse, state)
+                                : SizedBox(),
+                          ),
+                          Expanded(
+                            flex: 5,
+                            child: state.isPaymentSummarySuccess
+                                ? numpadSection(state)
+                                : SizedBox(),
+                          ),
+                          Expanded(
+                            flex: 2,
+                            child: QuickActionButtons(
+                              color: Colors.grey.shade100,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    state.isLoading
+                        ? Center(child: CircularProgressIndicator())
+                        : SizedBox(
+                            width: 1,
+                            height: 1,
+                          ),
+                  ],
+                );
+              }),
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -374,12 +402,14 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                   ),
                   SizedBox(height: 12),
                   tenderDetailRow(
-                      label: 'Cash',
-                      value: getTenderAmountString(cashPaymentTextController.text),
+                    label: 'Cash',
+                    value:
+                        getTenderAmountString(cashPaymentTextController.text),
                   ),
                   tenderDetailRow(
-                      label: 'Online',
-                      value: getTenderAmountString(onlinePaymentTextController.text),
+                    label: 'Online',
+                    value:
+                        getTenderAmountString(onlinePaymentTextController.text),
                   ),
                   Visibility(
                     visible: data?.redeemedWalletAmount?.centAmount != 0,
@@ -678,9 +708,11 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                                 theme: theme,
                                 textStyle: theme.textTheme.bodyMedium,
                                 padding: EdgeInsets.all(12)),
-                            onPressed: paymentBloc.totalPayable == 0 ? null : () {
-                              cashPaymentFocusNode.requestFocus();
-                            },
+                            onPressed: paymentBloc.totalPayable == 0
+                                ? null
+                                : () {
+                                    cashPaymentFocusNode.requestFocus();
+                                  },
                             child: Row(
                               children: [
                                 SvgPicture.asset(

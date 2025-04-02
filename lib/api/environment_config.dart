@@ -7,9 +7,9 @@ class EnvironmentConfig {
       case 'prod':
         return "http://api-local.ebono.com/store/";
       case 'stage':
-        return "http://api-local.ebono.com/store/";
+        return bffUrl;
       case 'dev':
-        return "https://services-staging.ebono.com/store/";
+        return bffUrl;
       case 'uat':
         return "https://services-uat.ebono.com/store/";
       default:
