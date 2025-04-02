@@ -19,6 +19,7 @@ import 'package:ebono_pos/ui/payment_summary/weighing_scale_service.dart';
 import 'package:ebono_pos/utils/auth_modes.dart';
 import 'package:ebono_pos/utils/common_methods.dart';
 import 'package:ebono_pos/utils/dash_line.dart';
+import 'package:ebono_pos/utils/logger.dart';
 import 'package:ebono_pos/utils/price.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -1292,6 +1293,9 @@ class _OrdersSectionState extends State<OrdersSection>
                                           customer: null,
                                           cartType: homeController
                                               .selectedPosMode.value);
+                                  Logger.logButtonPress(
+                                    button: 'Proceed To Pay',
+                                  );
                                   Get.toNamed(PageRoutes.paymentSummary,
                                       arguments: request);
                                 },

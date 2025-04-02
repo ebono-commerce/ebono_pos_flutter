@@ -1,15 +1,15 @@
 class EnvironmentConfig {
   static const String environment =
-      String.fromEnvironment('ENV', defaultValue: 'prod');
+      String.fromEnvironment('ENV', defaultValue: 'stage');
 
   static String get baseUrl {
     switch (environment) {
       case 'prod':
         return "http://api-local.ebono.com/store/";
       case 'stage':
-        return "http://api-local.ebono.com/store/";
+        return bffUrl;
       case 'dev':
-        return "https://services-staging.ebono.com/store/";
+        return "https://api-staging.ebono.com/s/";
       case 'uat':
         return "https://services-uat.ebono.com/store/";
       default:
