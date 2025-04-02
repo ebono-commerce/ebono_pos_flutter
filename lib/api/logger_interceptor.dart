@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:dio/dio.dart';
 import 'package:ebono_pos/api/api_constants.dart';
 import 'package:ebono_pos/utils/logger.dart';
@@ -27,11 +25,7 @@ class CustomLogInterceptor extends Interceptor {
         'method': response.requestOptions.method,
         'uri': response.requestOptions.uri.toString(),
         'headers': response.requestOptions.headers.toString(),
-        'data': {
-          jsonDecode(
-            response.requestOptions.data.toString(),
-          )
-        },
+        'data': response.requestOptions.data.toString(),
         'responseType': response.requestOptions.responseType.toString(),
         'followRedirects': response.requestOptions.followRedirects,
         'persistentConnection': response.requestOptions.persistentConnection,
@@ -73,7 +67,7 @@ class CustomLogInterceptor extends Interceptor {
         'method': err.requestOptions.method,
         'uri': err.requestOptions.uri.toString(),
         'headers': err.requestOptions.headers.toString(),
-        'data': {jsonEncode(err.requestOptions.data)},
+        'data': err.requestOptions.data.toString(),
         'responseType': err.requestOptions.responseType.toString(),
         'followRedirects': err.requestOptions.followRedirects,
         'persistentConnection': err.requestOptions.persistentConnection,

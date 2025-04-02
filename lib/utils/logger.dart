@@ -49,8 +49,7 @@ class Logger {
     logEntry['store_id'] = homeController.selectedTerminalId;
     logEntry['store_name'] = homeController.selectedOutletId;
     if (button != null) logEntry['click'] = button;
-    await _logFile!
-        .writeAsString('${jsonEncode(logEntry)},', mode: FileMode.append);
+    await saveLogs(logEntry);
   }
 
   static Future<void> logView({
@@ -75,8 +74,7 @@ class Logger {
 
     if (view != null) logEntry['screen'] = view;
 
-    await _logFile!
-        .writeAsString('${jsonEncode(logEntry)},', mode: FileMode.append);
+    await saveLogs(logEntry);
   }
 
   static Future<void> logApi({
@@ -110,7 +108,15 @@ class Logger {
     if (response != null) logEntry['response'] = response;
     if (error != null) logEntry['error'] = error;
 
-    await _logFile!
-        .writeAsString('${jsonEncode(logEntry)},', mode: FileMode.append);
+    await saveLogs(logEntry);
+  }
+
+  static Future<void> saveLogs(Map<String, dynamic> logEntry) async {
+    try {
+      await _logFile!
+          .writeAsString('${jsonEncode(logEntry)},', mode: FileMode.append);
+    } catch (e) {
+      print('err: $e');
+    }
   }
 }
