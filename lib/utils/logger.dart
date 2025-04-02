@@ -12,52 +12,20 @@ class Logger {
 
   /// Initialize the log file with a custom path
   static Future<void> init() async {
-    // logs/ in home directory
-    String logDirPath = '${Platform.environment['HOME']}/logs';
+    String logDirPath =
+        '${Platform.environment['HOME']}/logs'; // logs/ in home directory
 
     // Ensure the logs directory exists
     final logDir = Directory(logDirPath);
-
     if (!await logDir.exists()) {
       await logDir.create(recursive: true);
     }
 
     // Define the log file path
-    // Create log file if it doesn't exist
     _logFile = File('$logDirPath/ebono_pos_logs.txt');
     print('PATH=>${_logFile?.path}');
     if (!await _logFile!.exists()) {
       await _logFile!.create();
-    }
-  }
-
-  /// Helper function to read the existing log data
-  static Future<List<dynamic>> _readLogData() async {
-    if (_logFile == null || !await _logFile!.exists()) {
-      return [];
-    }
-
-    String fileContent = await _logFile!.readAsString();
-
-    if (fileContent.isEmpty) {
-      return [];
-    }
-
-    try {
-      return jsonDecode(fileContent) as List<dynamic>;
-    } catch (e) {
-      print('Error parsing log file: $e');
-      return [];
-    }
-  }
-
-  /// Helper function to save the log data back to the file
-  static Future<void> _saveLogData(List<dynamic> logData) async {
-    try {
-      String jsonContent = jsonEncode(logData);
-      await _logFile!.writeAsString('$jsonContent\n', mode: FileMode.writeOnly);
-    } catch (e) {
-      Get.snackbar('Unable To Write Log', 'not able to log a file');
     }
   }
 
@@ -80,12 +48,9 @@ class Logger {
     logEntry['cashier'] = homeController.userDetails.value.fullName;
     logEntry['store_id'] = homeController.selectedTerminalId;
     logEntry['store_name'] = homeController.selectedOutletId;
-
-    if (button != null) logEntry['button'] = button;
-
-    List<dynamic> logData = await _readLogData();
-    logData.add(logEntry); // Append new log entry
-    await _saveLogData(logData); // Save back the updated data
+    if (button != null) logEntry['click'] = button;
+    await _logFile!
+        .writeAsString('${jsonEncode(logEntry)},', mode: FileMode.append);
   }
 
   static Future<void> logView({
@@ -100,7 +65,7 @@ class Logger {
       "cashier": "",
       "store_id": '',
       "store_name": "",
-      "view": ""
+      "screen": ""
     };
 
     logEntry['app_id'] = await sharedPrefsHelper.getAppUUID();
@@ -108,11 +73,10 @@ class Logger {
     logEntry['store_id'] = homeController.selectedTerminalId;
     logEntry['store_name'] = homeController.selectedOutletId;
 
-    if (view != null) logEntry['view'] = view;
+    if (view != null) logEntry['screen'] = view;
 
-    List<dynamic> logData = await _readLogData();
-    logData.add(logEntry); // Append new log entry
-    await _saveLogData(logData); // Save back the updated data
+    await _logFile!
+        .writeAsString('${jsonEncode(logEntry)},', mode: FileMode.append);
   }
 
   static Future<void> logApi({
@@ -146,8 +110,7 @@ class Logger {
     if (response != null) logEntry['response'] = response;
     if (error != null) logEntry['error'] = error;
 
-    List<dynamic> logData = await _readLogData();
-    logData.add(logEntry); // Append new log entry
-    await _saveLogData(logData); // Save back the updated data
+    await _logFile!
+        .writeAsString('${jsonEncode(logEntry)},', mode: FileMode.append);
   }
 }
