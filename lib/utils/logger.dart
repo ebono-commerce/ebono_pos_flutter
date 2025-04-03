@@ -31,33 +31,13 @@ class Logger {
     }
   }
 
-  /// Helper function to read the existing log data
-  static Future<List<dynamic>> _readLogData() async {
-    if (_logFile == null || !await _logFile!.exists()) {
-      return [];
-    }
-
-    String fileContent = await _logFile!.readAsString();
-
-    if (fileContent.isEmpty) {
-      return [];
-    }
-
-    try {
-      return jsonDecode(fileContent) as List<dynamic>;
-    } catch (e) {
-      print('Error parsing log file: $e');
-      return [];
-    }
-  }
-
   /// Helper function to save the log data back to the file
-  static Future<void> _saveLogData(List<dynamic> logData) async {
+  static Future<void> _saveLogEntry(Map<String, dynamic> logEntry) async {
     try {
-      String jsonContent = jsonEncode(logData);
-      await _logFile!.writeAsString('$jsonContent\n', mode: FileMode.writeOnly);
+      String jsonContent = jsonEncode(logEntry);
+      await _logFile!.writeAsString('$jsonContent\n,', mode: FileMode.append);
     } catch (e) {
-      Get.snackbar('Unable To Write Log', 'not able to log a file');
+      Get.snackbar('Unable To Write Log', 'Not able to log to a file');
     }
   }
 
@@ -83,9 +63,7 @@ class Logger {
 
     if (button != null) logEntry['button'] = button;
 
-    List<dynamic> logData = await _readLogData();
-    logData.add(logEntry); // Append new log entry
-    await _saveLogData(logData); // Save back the updated data
+    await _saveLogEntry(logEntry); // Directly append the log entry to the file
   }
 
   static Future<void> logView({
@@ -110,9 +88,7 @@ class Logger {
 
     if (view != null) logEntry['view'] = view;
 
-    List<dynamic> logData = await _readLogData();
-    logData.add(logEntry); // Append new log entry
-    await _saveLogData(logData); // Save back the updated data
+    await _saveLogEntry(logEntry); // Directly append the log entry to the file
   }
 
   static Future<void> logApi({
@@ -146,8 +122,6 @@ class Logger {
     if (response != null) logEntry['response'] = response;
     if (error != null) logEntry['error'] = error;
 
-    List<dynamic> logData = await _readLogData();
-    logData.add(logEntry); // Append new log entry
-    await _saveLogData(logData); // Save back the updated data
+    await _saveLogEntry(logEntry); // Directly append the log entry to the file
   }
 }
