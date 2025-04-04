@@ -16,6 +16,8 @@ Widget commonTextField({
   String? helperText,
   TextStyle? helperTextStyle,
   int? acceptableLength,
+  bool enabled = true,
+  bool filled = true,
 }) {
   return TextFormField(
     focusNode: focusNode,
@@ -25,6 +27,8 @@ Widget commonTextField({
     readOnly: readOnly,
     maxLength: acceptableLength,
     decoration: textFieldDecoration(
+      filled: filled,
+      enabled: enabled,
       isFocused: focusNode.hasFocus,
       label: label,
       helperText: helperText,
@@ -45,7 +49,8 @@ Widget commonTextField({
 InputDecoration textFieldDecoration({
   required bool isFocused,
   required String label,
-  filled = true,
+  bool filled = true,
+  bool enabled = true,
   String? suffixLabel,
   Widget? prefixIcon,
   Widget? suffixWidget,
@@ -55,7 +60,11 @@ InputDecoration textFieldDecoration({
   return InputDecoration(
     filled: filled,
     prefixIcon: prefixIcon,
-    fillColor: isFocused ? CustomColors.accentColor : Colors.white,
+    fillColor: enabled
+        ? isFocused
+            ? CustomColors.accentColor
+            : Colors.white
+        : CustomColors.grey,
     labelText: label,
     labelStyle: TextStyle(color: CustomColors.enabledLabelColor),
     enabledBorder: enabledBorder(),

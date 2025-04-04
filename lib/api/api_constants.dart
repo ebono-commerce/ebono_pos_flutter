@@ -32,6 +32,8 @@ class ApiConstants {
   static final paymentApiCancel = '/api/3.0/p2p/cancel';
   static final openRegister = 'account/api/v1/pos/register-open';
   static final closeRegister = 'account/api/v1/pos/register-close';
+  static final getTerminalTransactions =
+      'account/api/v1/pos/terminal-transactions/fetch';
   static final ordersOnHold = 'checkout/api/v1/pos/cart/hold/fetch';
   static final placeOrder = 'checkout/api/v1/pos/place-order';
   static final orderInvoiceSSE = 'account/api/v1/pos/sse';
