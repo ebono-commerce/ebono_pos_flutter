@@ -1046,8 +1046,7 @@ class HomeController extends GetxController {
       ));
 
       return transactionSummaryList;
-    } catch (error, stack) {
-      print("paylaod: err: $error, $stack");
+    } catch (error) {
       Get.snackbar('Error while fetching terminal transactions', '$error');
       return [];
     }

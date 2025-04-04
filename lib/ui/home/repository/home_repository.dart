@@ -320,13 +320,14 @@ class HomeRepository {
   Future<List<TransactionSummary>> fetchTerminalTransactions(
       {required TerminalTransactionRequest payload}) async {
     try {
-      print("paylaod: 2: ${payload.toJson()}");
       final response = await _apiHelper.post(
         ApiConstants.getTerminalTransactions,
         data: payload.toJson(),
       );
 
-      List<TransactionSummary> transactionSummaryList = response
+      List<dynamic> jsonData = response['terminal_transactions'];
+
+      List<TransactionSummary> transactionSummaryList = jsonData
           .map((transaction) => TransactionSummary.fromJson(transaction))
           .toList();
 
