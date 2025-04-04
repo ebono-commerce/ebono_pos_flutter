@@ -26,6 +26,7 @@ import 'package:ebono_pos/ui/home/model/phone_number_request.dart';
 import 'package:ebono_pos/ui/home/model/register_close_request.dart';
 import 'package:ebono_pos/ui/home/model/register_open_request.dart';
 import 'package:ebono_pos/ui/home/model/resume_hold_cart_request.dart';
+import 'package:ebono_pos/ui/home/model/terminam_transaction_request.dart';
 import 'package:ebono_pos/ui/home/model/update_cart.dart';
 import 'package:ebono_pos/ui/home/repository/home_repository.dart';
 import 'package:ebono_pos/ui/login/model/login_request.dart';
@@ -56,6 +57,7 @@ class HomeController extends GetxController {
   var scanCode = ''.obs;
   var cartId = ''.obs;
   var registerId = ''.obs;
+  var registerTransactionId = ''.obs;
   var clearWeightOnSuccess = false.obs;
 
   // for register section
@@ -132,6 +134,7 @@ class HomeController extends GetxController {
   var isQuantitySelected = false.obs;
   var overideApproverUserId = ''.obs;
   var couponDetails = ''.obs;
+  var pointedTo = 'LOCAL'.obs;
   RxList<AllowedPaymentMode> allowedPaymentModes = [AllowedPaymentMode()].obs;
 
   final _logoutDialogController = StreamController<bool>.broadcast();
@@ -141,7 +144,6 @@ class HomeController extends GetxController {
   void notifyDialogClosed() {
     _logoutDialogController.add(true);
   }
-
 
   @override
   void onInit() async {
@@ -173,6 +175,8 @@ class HomeController extends GetxController {
 
     registerId.value =
         hiveStorageHelper.read(SharedPreferenceConstants.registerId);
+    registerTransactionId.value =
+        hiveStorageHelper.read(SharedPreferenceConstants.registerTransactionId);
 
     isQuantityEditEnabled.value =
         hiveStorageHelper.read(SharedPreferenceConstants.isQuantityEditEnabled);
@@ -232,8 +236,9 @@ class HomeController extends GetxController {
     ConnectivityResult result;
     try {
       result = await _connectivity.checkConnectivity();
-      final pointedTo = await sharedPreferenceHelper.pointingTo();
-      if (pointedTo == 'LOCAL') _updateConnectionStatus(result);
+      pointedTo.value = await sharedPreferenceHelper.pointingTo();
+
+      if (pointedTo.value == 'LOCAL') _updateConnectionStatus(result);
     } catch (e) {
       _statusCheckTimer?.cancel();
       isOnline.value = false;
@@ -751,12 +756,15 @@ class HomeController extends GetxController {
               "${hiveStorageHelper.read(SharedPreferenceConstants.selectedTerminalId)}",
           userId: userId,
           floatCash: int.tryParse(openFloatPayment.value)));
+      print("openRegisterResponse: ${response.toJson()}");
       openRegisterResponse.value = response;
       hiveStorageHelper.save(SharedPreferenceConstants.registerId,
           openRegisterResponse.value.registerId ?? "");
       hiveStorageHelper.save(SharedPreferenceConstants.registerTransactionId,
           openRegisterResponse.value.registerTransactionId ?? "");
       registerId.value = openRegisterResponse.value.registerId ?? "";
+      registerTransactionId.value =
+          openRegisterResponse.value.registerTransactionId ?? "";
       openFloatPayment.value = '';
       selectedTabButton.value = 2;
       isLoading.value = false;
@@ -833,7 +841,10 @@ class HomeController extends GetxController {
       closeRegisterResponse.value = response;
       if (closeRegisterResponse.value.success == true) {
         hiveStorageHelper.save(SharedPreferenceConstants.registerId, "");
+        hiveStorageHelper.save(
+            SharedPreferenceConstants.registerTransactionId, "");
         registerId.value = "";
+        registerTransactionId.value = "";
         upiPayment.value = '';
         upiPaymentCount.value = '';
         cardPayment.value = '';
@@ -1014,6 +1025,31 @@ class HomeController extends GetxController {
       isOTPResendingOrVerifying.value = false;
       isOTPTriggering.value = false;
       isOTPVerified.value = false;
+    }
+  }
+
+  Future<List<TransactionSummary>> getTerminalTransactions() async {
+    try {
+      AllowedPaymentMode staticQrPaymentMode = allowedPaymentModes.firstWhere(
+        (mode) => mode.paymentOptionCode == 'STATIC_QR_CODE',
+        orElse: () => AllowedPaymentMode(),
+      );
+
+      final transactionSummaryList =
+          await _homeRepository.fetchTerminalTransactions(
+              payload: TerminalTransactionRequest(
+        outletId: selectedOutletId,
+        paymentMethods: [staticQrPaymentMode.paymentOptionId.toString()],
+        registerId: registerId.value,
+        registerTransactionId: registerTransactionId.value,
+        terminalId: selectedTerminalId,
+      ));
+
+      return transactionSummaryList;
+    } catch (error, stack) {
+      print("paylaod: err: $error, $stack");
+      Get.snackbar('Error while fetching terminal transactions', '$error');
+      return [];
     }
   }
 
