@@ -102,6 +102,7 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
         if (activeFocusNode == cashPaymentFocusNode) {
           _formKey.currentState?.validate();
           cashPaymentTextController.text = numPadTextController.text;
+          paymentBloc.isOfflinePaymentVerified = false;
         } else if (activeFocusNode == onlinePaymentFocusNode) {
           _formKey.currentState?.validate();
           paymentBloc.onlinePayment = numPadTextController.text;
@@ -172,12 +173,14 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                           paymentBloc.paymentSummaryResponse
                               .redeemedWalletAmount?.fraction) <=
                       0)) {
-                walletTextController.text = paymentBloc
-                        .paymentSummaryResponse
-                        .redeemablePaymentOptions
-                        ?.firstOrNull
-                        ?.applicableBalance ??
-                    '';
+                if(!paymentBloc.isOfflineMode){
+                  walletTextController.text = paymentBloc
+                      .paymentSummaryResponse
+                      .redeemablePaymentOptions
+                      ?.firstOrNull
+                      ?.applicableBalance ??
+                      '';
+                }
               } else {
                 walletTextController.text = '';
               }
@@ -211,6 +214,7 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
               onlinePaymentTextController.clear();
               paymentBloc.onlinePayment = '';
               paymentBloc.cashPayment = '';
+              paymentBloc.offlinePayment = '';
             }
 
             if (state.isWalletAuthenticationError) {
@@ -377,6 +381,8 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                       label: 'Cash',
                       value: getTenderAmountString(cashPaymentTextController.text),
                   ),
+                  if((paymentBloc.paymentSummaryResponse.paymentOptions?.any((option) =>
+                  (option.code == "CARD" || option.code == "UPI")) ?? false))
                   tenderDetailRow(
                       label: 'Online',
                       value: getTenderAmountString(onlinePaymentTextController.text),
@@ -388,6 +394,13 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                         value: getActualPriceWithoutSymbol(
                             data?.redeemedWalletAmount?.centAmount,
                             data?.redeemedWalletAmount?.fraction)),
+                  ),
+                  Visibility(
+                    visible: paymentBloc.offlinePayment.isNotEmpty,
+                    child: tenderDetailRow(
+                        label: 'Static QR',
+                        value: getTenderAmountString(paymentBloc.offlinePayment)
+                    ),
                   ),
                 ],
               ),
@@ -489,6 +502,7 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                       } else {
                         onlinePaymentTextController.text = '';
                         paymentBloc.onlinePayment = '';
+                        paymentBloc.offlinePayment = '';
                       }
                     } else if (activeFocusNode == onlinePaymentFocusNode) {
                       paymentBloc.onlinePayment = value;
@@ -671,7 +685,7 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       SizedBox(
-                          width: 160,
+                          width: 165,
                           height: 50,
                           child: ElevatedButton(
                             style: commonElevatedButtonStyle(
@@ -726,12 +740,12 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                   SizedBox(height: 16),
 
                   /// if payment amount is zero disable the state of buttons
-                  if ((paymentBloc.totalPayable) <= 0.0) ...[
+                  if ((paymentBloc.totalPayable) <= 0.0 ) ...[
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         SizedBox(
-                            width: 160,
+                            width: 165,
                             height: 50,
                             child: ElevatedButton(
                               style: commonElevatedButtonStyle(
@@ -795,106 +809,199 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                       ],
                     )
                   ] else ...[
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        SizedBox(
-                            width: 160,
-                            height: 50,
-                            child: ElevatedButton(
-                              style: commonElevatedButtonStyle(
-                                  theme: theme,
-                                  textStyle: theme.textTheme.bodyMedium,
-                                  padding: EdgeInsets.all(12)),
-                              onPressed: paymentBloc.cashPayment.isEmpty ||
-                                      double.parse(paymentBloc.cashPayment) <
-                                          paymentBloc.totalPayable
-                                  ? () {
-                                      var balance = (paymentBloc.totalPayable -
-                                              (paymentBloc.cashAmount))
-                                          .abs()
-                                          .toString();
-                                      paymentBloc.onlinePayment = balance;
-                                      onlinePaymentTextController.text =
-                                          balance;
-                                    }
-                                  : null,
-                              child: Row(
-                                children: [
-                                  SvgPicture.asset(
-                                    'assets/images/ic_cash.svg',
-                                    semanticsLabel: 'cash icon,',
-                                    width: 20,
-                                    height: 20,
-                                  ),
-                                  SizedBox(width: 8),
-                                  Text(
-                                    'Online payment',
-                                    style: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                ],
-                              ),
-                            )),
-                        Row(
-                          children: [
-                            IgnorePointer(
-                              ignoring: true,
-                              child: SizedBox(
-                                width: 140,
-                                child: commonTextField(
-                                    label: 'Enter Amount',
-                                    focusNode: onlinePaymentFocusNode,
-                                    controller: onlinePaymentTextController,
-                                    readOnly: true,
-                                    onValueChanged: (value) {
-                                      print('commonTextField $value');
-                                    },
-                                    validator: (value) {
-                                      if (paymentBloc.onlineAmount >= 0 &&
-                                          paymentBloc.onlineAmount <=
-                                              (paymentBloc.totalPayable)) {
-                                        return null;
-                                      } else {
-                                        Get.snackbar(
-                                            'Amount can\'t be more than total payable',
-                                            'please enter valid amount');
-                                        return 'Invalid Amount';
-                                      }
-                                    }),
-                              ),
-                            ),
-                            SizedBox(width: 14),
-                            SizedBox(
-                                width: 140,
-                                height: 50,
-                                child: ElevatedButton(
-                                  style: commonElevatedButtonStyle(
-                                      theme: theme,
-                                      textStyle: theme.textTheme.bodyMedium,
-                                      padding: EdgeInsets.all(12)),
-                                  onPressed: onlinePaymentTextController
-                                          .value.text.isNotEmpty
+                    Visibility(
+                      visible: (paymentBloc.paymentSummaryResponse.paymentOptions?.any((option) =>
+                      (option.code == "CARD" || option.code == "UPI")) ?? false),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          SizedBox(
+                              width: 165,
+                              height: 50,
+                              child: ElevatedButton(
+                                style: commonElevatedButtonStyle(
+                                    theme: theme,
+                                    textStyle: theme.textTheme.bodyMedium,
+                                    padding: EdgeInsets.all(12)),
+                                onPressed:paymentBloc.cashPayment.isEmpty ||
+                                        double.parse(paymentBloc.cashPayment) <
+                                            paymentBloc.totalPayable
                                       ? () {
-                                          paymentBloc.add(PaymentStartEvent());
+                                        var balance = (paymentBloc.totalPayable -
+                                                (paymentBloc.cashAmount))
+                                            .abs()
+                                            .toString();
+                                        paymentBloc.onlinePayment = balance;
+                                        onlinePaymentTextController.text =
+                                            balance;
+                                      }
+                                    : null,
+                                child: Row(
+                                  children: [
+                                    SvgPicture.asset(
+                                      'assets/images/ic_cash.svg',
+                                      semanticsLabel: 'cash icon,',
+                                      width: 20,
+                                      height: 20,
+                                    ),
+                                    SizedBox(width: 8),
+                                    Text(
+                                      'Online payment',
+                                      style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                  ],
+                                ),
+                              )),
+                          Row(
+                            children: [
+                              IgnorePointer(
+                                ignoring: true,
+                                child: SizedBox(
+                                  width: 140,
+                                  child: commonTextField(
+                                      label: 'Enter Amount',
+                                      focusNode: onlinePaymentFocusNode,
+                                      controller: onlinePaymentTextController,
+                                      readOnly: true,
+                                      onValueChanged: (value) {
+                                        print('commonTextField $value');
+                                      },
+                                      validator: (value) {
+                                        if (paymentBloc.onlineAmount >= 0 &&
+                                            paymentBloc.onlineAmount <=
+                                                (paymentBloc.totalPayable)) {
+                                          return null;
+                                        } else {
+                                          Get.snackbar(
+                                              'Amount can\'t be more than total payable',
+                                              'please enter valid amount');
+                                          return 'Invalid Amount';
                                         }
-                                      : null,
-                                  child: Text(
-                                    'Generate link',
-                                    style: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                )),
-                          ],
-                        ),
-                      ],
+                                      }),
+                                ),
+                              ),
+                              SizedBox(width: 14),
+                              SizedBox(
+                                  width: 140,
+                                  height: 50,
+                                  child: ElevatedButton(
+                                    style: commonElevatedButtonStyle(
+                                        theme: theme,
+                                        textStyle: theme.textTheme.bodyMedium,
+                                        padding: EdgeInsets.all(12)),
+                                    onPressed: onlinePaymentTextController
+                                            .value.text.isNotEmpty
+                                        ? () {
+                                            paymentBloc.add(PaymentStartEvent());
+                                          }
+                                        : null,
+                                    child: Text(
+                                      'Generate link',
+                                      style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                  )),
+                            ],
+                          ),
+                        ],
+                      ),
                     )
                   ],
                   SizedBox(height: 16),
+
+                  ///offline payment
+                 if(paymentBloc.paymentSummaryResponse.paymentOptions?.any((option) => option.code == "STATIC_QR_CODE") ?? false) Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      SizedBox(
+                          width: 165,
+                          height: 50,
+                          child: ElevatedButton(
+                            style: commonElevatedButtonStyle(
+                                theme: theme,
+                                textStyle: theme.textTheme.bodyMedium,
+                                padding: EdgeInsets.all(12)),
+                            onPressed:  (paymentBloc.totalPayable) <= 0.0 ? null :
+                            paymentBloc.cashPayment.isEmpty ||
+                                double.parse(paymentBloc.cashPayment) <
+                                    paymentBloc.totalPayable
+                                ? () {
+                              var balance = (paymentBloc.totalPayable -
+                                  (paymentBloc.cashAmount))
+                                  .abs()
+                                  .toString();
+                              onlinePaymentTextController.text =
+                                  balance;
+                            }
+                                : null,
+                            child: Row(
+                              children: [
+                                SvgPicture.asset(
+                                  'assets/images/ic_cash.svg',
+                                  semanticsLabel: 'cash icon,',
+                                  width: 20,
+                                  height: 20,
+                                ),
+                                SizedBox(width: 8),
+                                Text(
+                                  'Offline payment',
+                                  style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ],
+                            ),
+                          )),
+                      Row(
+                        children: [
+                          IgnorePointer(
+                            ignoring: true,
+                            child: SizedBox(
+                              width: 140,
+                              child: commonTextField(
+                                  label: 'Enter Amount',
+                                  focusNode: onlinePaymentFocusNode,
+                                  controller: TextEditingController(text: paymentBloc.offlinePayment),
+                                  readOnly: true,
+                                  onValueChanged: (value) {
+                                  },
+                                  validator: (value) {
+
+                                  }),
+                            ),
+                          ),
+                          SizedBox(width: 14),
+                          SizedBox(
+                              width: 140,
+                              height: 50,
+                              child: ElevatedButton(
+                                style: commonElevatedButtonStyle(
+                                    theme: theme,
+                                    textStyle: theme.textTheme.bodyMedium,
+                                    padding: EdgeInsets.all(12)),
+                                onPressed: paymentBloc.isOfflinePaymentVerified || (double.tryParse(paymentBloc.offlinePayment) ?? 0.0) <= 0?
+                                    null
+                                    :() {
+                                  paymentBloc.isOfflinePaymentVerified = true;
+                                },
+                                child: Text(
+                                  'Received',
+                                  style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              )),
+                        ],
+                      ),
+                    ],
+                  )
 
                   /* paymentModeOption(
                       label: 'Cash payment  ',
@@ -987,7 +1094,7 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                     controller: walletTextController,
                     focusNode: walletPaymentFocusNode,
                     readOnly: true,
-                    onPressed: (double.parse(paymentBloc
+                    onPressed: (!paymentBloc.isOfflineMode)  &&  (double.parse(paymentBloc
                                     .paymentSummaryResponse
                                     .redeemablePaymentOptions
                                     ?.firstOrNull
@@ -1223,7 +1330,7 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                     decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(20)),
-                    child: OrderSuccessScreen()),
+                    child: OrderSuccessScreen(isOfflineMode: paymentBloc.isOfflineMode,)),
             // ),
           ));
     }
