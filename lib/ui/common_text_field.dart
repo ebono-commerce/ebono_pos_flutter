@@ -67,7 +67,7 @@ InputDecoration textFieldDecoration({
         : CustomColors.disabledTextFormFieldBackground,
     labelText: label,
     labelStyle: TextStyle(color: CustomColors.enabledLabelColor),
-    floatingLabelStyle: TextStyle(backgroundColor: Colors.white),
+    floatingLabelStyle: enabled == false ? TextStyle(backgroundColor: Colors.white) : null,
     enabledBorder: enabledBorder(),
     focusedBorder: focusedBorder(),
     errorBorder: errorBorder(),

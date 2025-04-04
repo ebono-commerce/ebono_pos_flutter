@@ -83,7 +83,7 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  if(widget.isOfflineMode == false)Container(
+                  Container(
                     //  width: 180,
                     height: 74,
                     padding:
@@ -137,7 +137,7 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                       ),
                     ),
                   ),
-                  Container(
+                  if(widget.isOfflineMode == false)Container(
                     width: 180,
                     height: 74,
                     padding:
