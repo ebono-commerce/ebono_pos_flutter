@@ -1,5 +1,6 @@
 import 'package:ebono_pos/constants/custom_colors.dart';
 import 'package:ebono_pos/ui/home/home_controller.dart';
+import 'package:ebono_pos/utils/logger.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -33,6 +34,7 @@ class _HomeAppBarState extends State<HomeAppBar> {
               ? IconButton(
                   onPressed: () {
                     Get.back();
+                    Logger.logButtonPress(button: 'Closed Payment Summery');
                   },
                   icon: ImageIcon(
                       size: 16, AssetImage('assets/images/ic_cancel.png')))

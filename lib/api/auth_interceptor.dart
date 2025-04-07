@@ -44,7 +44,7 @@ class AuthInterceptor extends Interceptor {
       options.queryParameters.addAll({'channel': 'STORE'});
       options.baseUrl = pointedTo == 'LOCAL'
           ? EnvironmentConfig.baseUrl
-          : 'https://api-staging.ebono.com/s/';
+          : EnvironmentConfig.bffUrl;
     }
     print('app id : $appUUID');
     print('token $token');

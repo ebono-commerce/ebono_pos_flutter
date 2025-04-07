@@ -28,6 +28,8 @@ import 'package:ebono_pos/ui/home/model/update_cart.dart';
 import 'package:ebono_pos/ui/login/model/login_request.dart';
 import 'package:ebono_pos/ui/payment_summary/model/health_check_response.dart';
 
+import '../model/terminam_transaction_request.dart';
+
 class HomeRepository {
   final ApiHelper _apiHelper;
 
@@ -310,6 +312,26 @@ class HomeRepository {
       );
 
       return true;
+    } catch (e) {
+      throw ApiException('$e');
+    }
+  }
+
+  Future<List<TransactionSummary>> fetchTerminalTransactions(
+      {required TerminalTransactionRequest payload}) async {
+    try {
+      final response = await _apiHelper.post(
+        ApiConstants.getTerminalTransactions,
+        data: payload.toJson(),
+      );
+
+      List<dynamic> jsonData = response['terminal_transactions'];
+
+      List<TransactionSummary> transactionSummaryList = jsonData
+          .map((transaction) => TransactionSummary.fromJson(transaction))
+          .toList();
+
+      return transactionSummaryList;
     } catch (e) {
       throw ApiException('$e');
     }

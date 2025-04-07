@@ -222,7 +222,8 @@ class _ReturnsViewState extends State<ReturnsView> {
                 returnsBloc.add(
                   UpdateOrderItemsInternalState(
                     customerName: homeController
-                        .getCustomerDetailsResponse.value.customerName,
+                            .getCustomerDetailsResponse.value.customerName ??
+                        '',
                     customerNumber: homeController.phoneNumber.value,
                   ),
                 );

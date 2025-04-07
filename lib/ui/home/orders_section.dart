@@ -20,6 +20,7 @@ import 'package:ebono_pos/ui/search/search_products_view.dart';
 import 'package:ebono_pos/utils/auth_modes.dart';
 import 'package:ebono_pos/utils/common_methods.dart';
 import 'package:ebono_pos/utils/dash_line.dart';
+import 'package:ebono_pos/utils/logger.dart';
 import 'package:ebono_pos/utils/price.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -134,7 +135,8 @@ class _OrdersSectionState extends State<OrdersSection>
         setState(() {});
       }
     });
-    _dialogSubscription = homeController.logoutDialogStream.listen((dialogClosed) {
+    _dialogSubscription =
+        homeController.logoutDialogStream.listen((dialogClosed) {
       if (dialogClosed &&
           homeController.registerId.value.isNotEmpty &&
           homeController.cartId.value.isNotEmpty) {
@@ -156,7 +158,7 @@ class _OrdersSectionState extends State<OrdersSection>
     return Center(
       child: GestureDetector(
         onTap: _requestFocusOnNumpad,
-        behavior:HitTestBehavior.opaque,
+        behavior: HitTestBehavior.opaque,
         child: Row(
           children: [
             Expanded(
@@ -205,10 +207,8 @@ class _OrdersSectionState extends State<OrdersSection>
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(20.0),
                             ),
-                            child: AddCustomerWidget(
-                              context,
-                              onClose:_requestFocusOnNumpad
-                            ),
+                            child: AddCustomerWidget(context,
+                                onClose: _requestFocusOnNumpad),
                           );
                         },
                       );
@@ -221,13 +221,14 @@ class _OrdersSectionState extends State<OrdersSection>
                           context: context,
                           builder: (BuildContext context) {
                             return Dialog(
-                              insetPadding: EdgeInsets.symmetric(vertical: 15.0),
+                              insetPadding:
+                                  EdgeInsets.symmetric(vertical: 15.0),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(20.0),
                               ),
                               child: AddCustomerWidget(
-                                  context,
-                                  onClose:_requestFocusOnNumpad,
+                                context,
+                                onClose: _requestFocusOnNumpad,
                               ),
                             );
                           },
@@ -265,8 +266,8 @@ class _OrdersSectionState extends State<OrdersSection>
                               borderRadius: BorderRadius.circular(20.0),
                             ),
                             child: AuthorisationRequiredWidget(
-                                context,
-                                onClose: _requestFocusOnNumpad,
+                              context,
+                              onClose: _requestFocusOnNumpad,
                             ),
                           );
                         },
@@ -282,8 +283,8 @@ class _OrdersSectionState extends State<OrdersSection>
                             ),
                             child: CouponCodeWidget(
                               context,
-                              couponDetails:
-                                  homeController.cartResponse.value.couponDetails,
+                              couponDetails: homeController
+                                  .cartResponse.value.couponDetails,
                               onClose: _requestFocusOnNumpad,
                             ),
                           );
@@ -332,7 +333,8 @@ class _OrdersSectionState extends State<OrdersSection>
                                               return Dialog(
                                                 shape: RoundedRectangleBorder(
                                                   borderRadius:
-                                                      BorderRadius.circular(20.0),
+                                                      BorderRadius.circular(
+                                                          20.0),
                                                 ),
                                                 child:
                                                     AuthorisationRequiredWidget(
@@ -351,7 +353,8 @@ class _OrdersSectionState extends State<OrdersSection>
                                         padding:
                                             EdgeInsets.symmetric(vertical: 20),
                                         shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(10),
+                                          borderRadius:
+                                              BorderRadius.circular(10),
                                         ),
                                         backgroundColor:
                                             CustomColors.secondaryColor,
@@ -380,7 +383,8 @@ class _OrdersSectionState extends State<OrdersSection>
                                           side: BorderSide(
                                               color: CustomColors.primaryColor,
                                               width: 1.5),
-                                          borderRadius: BorderRadius.circular(10),
+                                          borderRadius:
+                                              BorderRadius.circular(10),
                                         ),
                                         backgroundColor:
                                             CustomColors.keyBoardBgColor,
@@ -399,7 +403,7 @@ class _OrdersSectionState extends State<OrdersSection>
                             )
                           ],
                         ),
-                      ).then((_){
+                      ).then((_) {
                         _requestFocusOnNumpad();
                       });
                     },
@@ -421,6 +425,9 @@ class _OrdersSectionState extends State<OrdersSection>
                                 );
                               },
                             );
+
+                            _requestFocusOnNumpad();
+                            setState(() {});
                           },
                   ),
                 ),
@@ -1056,9 +1063,9 @@ class _OrdersSectionState extends State<OrdersSection>
                                             true) {
                                       if (double.parse(
                                               numPadTextController.text) >
-                                          300) {
+                                          3000) {
                                         Get.snackbar('Invalid Weight',
-                                            'Weight can\'t be more than 300kgs, Please enter valid weight');
+                                            'Weight can\'t be more than 3000kgs, Please enter valid weight');
                                         return;
                                       } else {
                                         homeController
@@ -1130,9 +1137,9 @@ class _OrdersSectionState extends State<OrdersSection>
                                               true) {
                                         if (double.parse(
                                                 numPadTextController.text) >
-                                            300) {
+                                            3000) {
                                           Get.snackbar('Invalid Weight',
-                                              'Weight can\'t be more than 300kgs, Please enter valid weight');
+                                              'Weight can\'t be more than 3000kgs, Please enter valid weight');
                                           return;
                                         }
                                       } else if (homeController
@@ -1279,7 +1286,11 @@ class _OrdersSectionState extends State<OrdersSection>
                                           ?.isEmpty ==
                                       true
                               ? null
-                              : () {
+                              : () async {
+                                  await Logger.logButtonPress(
+                                    button: 'Proceed To Pay',
+                                  );
+
                                   PaymentSummaryRequest request =
                                       PaymentSummaryRequest(
                                           phoneNumber: homeController
@@ -1291,6 +1302,7 @@ class _OrdersSectionState extends State<OrdersSection>
                                           customer: null,
                                           cartType: homeController
                                               .selectedPosMode.value);
+
                                   Get.toNamed(PageRoutes.paymentSummary,
                                       arguments: request);
                                 },
