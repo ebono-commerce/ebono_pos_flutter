@@ -3,6 +3,7 @@ import 'package:ebono_pos/data_store/hive_storage_helper.dart';
 import 'package:ebono_pos/navigation/navigation.dart';
 import 'package:ebono_pos/theme/theme_data.dart';
 import 'package:ebono_pos/utils/SDP.dart';
+import 'package:ebono_pos/utils/logger.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
@@ -25,7 +26,7 @@ void main() async {
   });
 
   await HiveStorageHelper.init();
-
+  await Logger.init(); // Initialize logger before running the app
   runApp(BlocProvider(
       create: (context) => Get.find<NetworkCubit>(), child: const MyApp()));
 }

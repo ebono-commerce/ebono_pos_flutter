@@ -17,4 +17,5 @@ class CustomColors {
   static final keyBoardBgColor = const Color(0xFFF0F4F4);
   static final cardBackground = const Color(0xFFF5F5F5);
   static final dialogGreyBackground = const Color(0xFFF8F8F8);
+  static final disabledTextFormFieldBackground = const Color(0xFFF1F1F1);
 }
