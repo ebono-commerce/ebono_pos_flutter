@@ -138,10 +138,11 @@ class HomeController extends GetxController {
 
   Stream<bool> get logoutDialogStream => _logoutDialogController.stream;
 
+  var pointingTo = 'LOCAl'.obs;
+
   void notifyDialogClosed() {
     _logoutDialogController.add(true);
   }
-
 
   @override
   void onInit() async {
@@ -184,6 +185,7 @@ class HomeController extends GetxController {
         hiveStorageHelper.read(SharedPreferenceConstants.isPriceEditEnabled);
     isSalesAssociateLinkEnabled.value = hiveStorageHelper
         .read(SharedPreferenceConstants.isSalesAssociateLinkEnabled);
+    pointingTo.value = await sharedPreferenceHelper.pointingTo();
 
     final userData =
         hiveStorageHelper.read(SharedPreferenceConstants.userDetails);

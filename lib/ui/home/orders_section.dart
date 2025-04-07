@@ -406,21 +406,23 @@ class _OrdersSectionState extends State<OrdersSection>
                     onInventoryInquiryPressed: () {
                       homeController.clearDataAndLogout();
                     },
-                  onSearchItemsPressed: homeController.cartId.value.isEmpty
-                      ? null
-                      : () {
-                          showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return Dialog(
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(20.0),
-                                ),
-                                child: SearchProductsView(context),
-                              );
-                            },
-                          );
-                        },
+                    onSearchItemsPressed: homeController.pointingTo.value ==
+                            'CLOUD'
+                        ? null
+                        : () {
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return Dialog(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(20.0),
+                                  ),
+                                  child: SearchProductsView(context),
+                                );
+                              },
+                            );
+                          },
+                  ),
                 ),
               ),
             ),
@@ -1776,7 +1778,7 @@ class _OrdersSectionState extends State<OrdersSection>
     );
   }
 
-  _requestFocusOnNumpad(){
+  _requestFocusOnNumpad() {
     if (!numPadFocusNode.hasFocus) {
       numPadFocusNode.requestFocus();
     }
