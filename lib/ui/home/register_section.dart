@@ -3,8 +3,10 @@ import 'package:ebono_pos/ui/Common_button.dart';
 import 'package:ebono_pos/ui/common_text_field.dart';
 import 'package:ebono_pos/ui/custom_keyboard/custom_num_pad.dart';
 import 'package:ebono_pos/ui/home/home_controller.dart';
+import 'package:ebono_pos/ui/home/model/register_close_request.dart';
 import 'package:ebono_pos/ui/home/widgets/quick_action_buttons.dart';
 import 'package:ebono_pos/utils/dash_line.dart';
+import 'package:ebono_pos/utils/price.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
@@ -31,6 +33,8 @@ class _RegisterSectionState extends State<RegisterSection>
   final FocusNode openCommentFocusNode = FocusNode();
   final FocusNode closeCommentFocusNode = FocusNode();
 
+  List<TransactionSummary> transactionSummaryList = [];
+
   FocusNode? activeFocusNode;
 
   final TextEditingController numPadTextController = TextEditingController();
@@ -40,11 +44,15 @@ class _RegisterSectionState extends State<RegisterSection>
       TextEditingController();
   final TextEditingController cardsPaymentTextController =
       TextEditingController();
+  final TextEditingController offlinePaymentTextController =
+      TextEditingController();
   final TextEditingController upiPaymentTextController =
       TextEditingController();
   final TextEditingController upiSlipCountTextController =
       TextEditingController();
   final TextEditingController cardSlipCountTextController =
+      TextEditingController();
+  final TextEditingController offlineSlipCountTextController =
       TextEditingController();
 
   final TextEditingController closeCommentTextController =
@@ -79,7 +87,7 @@ class _RegisterSectionState extends State<RegisterSection>
             .hasMatch(openingFloatPaymentTextController.text)) {
           if (openingFloatPaymentTextController.text.contains('.')) {
             openingFloatPaymentTextController.text =
-            openingFloatPaymentTextController.text.split('.')[0];
+                openingFloatPaymentTextController.text.split('.')[0];
           }
         }
 
@@ -125,14 +133,12 @@ class _RegisterSectionState extends State<RegisterSection>
         if (upiSlipCountFocusNode.hasFocus) {
           activeFocusNode = upiSlipCountFocusNode;
         }
-        if (RegExp(r'^\d*\.?\d*$')
-            .hasMatch(upiSlipCountTextController.text)) {
+        if (RegExp(r'^\d*\.?\d*$').hasMatch(upiSlipCountTextController.text)) {
           // If it contains a decimal point, set the text to an empty string or handle accordingly
           if (upiSlipCountTextController.text.contains('.')) {
-
             upiSlipCountTextController.text =
-              upiSlipCountTextController.text.split('.')[0];
-        }
+                upiSlipCountTextController.text.split('.')[0];
+          }
         }
         numPadTextController.text = upiSlipCountTextController.text;
       });
@@ -142,14 +148,12 @@ class _RegisterSectionState extends State<RegisterSection>
         if (cardSlipCountFocusNode.hasFocus) {
           activeFocusNode = cardSlipCountFocusNode;
         }
-        if (RegExp(r'^\d*\.?\d*$')
-            .hasMatch(cardSlipCountTextController.text)) {
+        if (RegExp(r'^\d*\.?\d*$').hasMatch(cardSlipCountTextController.text)) {
           // If it contains a decimal point, set the text to an empty string or handle accordingly
           if (cardSlipCountTextController.text.contains('.')) {
-
             cardSlipCountTextController.text =
-              cardSlipCountTextController.text.split('.')[0];
-        }
+                cardSlipCountTextController.text.split('.')[0];
+          }
         }
         numPadTextController.text = cardSlipCountTextController.text;
       });
@@ -176,6 +180,23 @@ class _RegisterSectionState extends State<RegisterSection>
         }
       });
     });
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (mounted &&
+          homeController.registerId.value.isNotEmpty &&
+          homeController.pointedTo.value == 'LOCAL') {
+        transactionSummaryList = await homeController.getTerminalTransactions();
+
+        setState(() {
+          offlinePaymentTextController.text = getActualPrice(
+            transactionSummaryList.first.totalTransactionAmount?.centAmount,
+            transactionSummaryList.first.totalTransactionAmount?.fraction,
+          );
+          offlineSlipCountTextController.text =
+              transactionSummaryList.first.chargeSlipCount.toString();
+        });
+      }
+    });
     super.initState();
   }
 
@@ -185,23 +206,27 @@ class _RegisterSectionState extends State<RegisterSection>
       return openingFloatPaymentTextController.text.isNotEmpty;
     } else {
       // CLOSE case: dynamically check modes and their respective controllers
-      bool isCashValid = homeController.allowedPaymentModes.any((mode) => mode.paymentOptionCode == 'Cash')
+      bool isCashValid = homeController.allowedPaymentModes
+              .any((mode) => mode.paymentOptionCode == 'Cash')
           ? cashPaymentTextController.text.isNotEmpty
           : true;
 
-      bool isUpiValid = homeController.allowedPaymentModes.any((mode) => mode.paymentOptionCode == 'UPI')
-          ? upiPaymentTextController.text.isNotEmpty && upiSlipCountTextController.text.isNotEmpty
+      bool isUpiValid = homeController.allowedPaymentModes
+              .any((mode) => mode.paymentOptionCode == 'UPI')
+          ? upiPaymentTextController.text.isNotEmpty &&
+              upiSlipCountTextController.text.isNotEmpty
           : true;
 
-      bool isCardValid = homeController.allowedPaymentModes.any((mode) => mode.paymentOptionCode == 'Card')
-          ? cardsPaymentTextController.text.isNotEmpty && cardSlipCountTextController.text.isNotEmpty
+      bool isCardValid = homeController.allowedPaymentModes
+              .any((mode) => mode.paymentOptionCode == 'Card')
+          ? cardsPaymentTextController.text.isNotEmpty &&
+              cardSlipCountTextController.text.isNotEmpty
           : true;
 
       // The button is enabled if all relevant conditions are satisfied
       return isCashValid && isUpiValid && isCardValid;
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -865,131 +890,187 @@ class _RegisterSectionState extends State<RegisterSection>
                 SizedBox(
                   height: 10,
                 ),
-                if ( homeController.allowedPaymentModes.any((mode) => mode.paymentOptionCode == 'CASH'))
+                if (homeController.allowedPaymentModes
+                    .any((mode) => mode.paymentOptionCode == 'CASH'))
                   Container(
-                  // color: Colors.amberAccent,
-                  padding: const EdgeInsets.symmetric(
-                      vertical: 10.0, horizontal: 10),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      SizedBox(
-                        width: 140,
-                        child: Text(
-                          "Cash payments",
-                          style: theme.textTheme.bodyMedium
-                              ?.copyWith(fontWeight: FontWeight.w500),
+                    // color: Colors.amberAccent,
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 10.0, horizontal: 10),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        SizedBox(
+                          width: 140,
+                          child: Text(
+                            "Cash payments",
+                            style: theme.textTheme.bodyMedium
+                                ?.copyWith(fontWeight: FontWeight.w500),
+                          ),
                         ),
-                      ),
-                      Spacer(),
-                      SizedBox(
-                        width: 140,
-                        child: commonTextField(
-                            label: "Enter Amount",
-                            readOnly: false,
-                            focusNode: cashPaymentFocusNode,
-                            controller: cashPaymentTextController,
-                            onValueChanged: (value) {
-                              print('commonTextField $value');
-                            }),
-                      ),
-                      Spacer(),
-                      SizedBox(width: 140, child: Container()),
-                      Spacer()
-                    ],
+                        Spacer(),
+                        SizedBox(
+                          width: 140,
+                          child: commonTextField(
+                              label: "Enter Amount",
+                              readOnly: false,
+                              focusNode: cashPaymentFocusNode,
+                              controller: cashPaymentTextController,
+                              onValueChanged: (value) {
+                                print('commonTextField $value');
+                              }),
+                        ),
+                        Spacer(),
+                        SizedBox(width: 140, child: Container()),
+                        Spacer()
+                      ],
+                    ),
                   ),
-                ),
-                if ( homeController.allowedPaymentModes.any((mode) => mode.paymentOptionCode == 'CARD'))
+                if (homeController.allowedPaymentModes
+                    .any((mode) => mode.paymentOptionCode == 'CARD'))
                   Container(
-                  // color: Colors.amberAccent,
-                  padding: const EdgeInsets.symmetric(
-                      vertical: 10.0, horizontal: 10),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      SizedBox(
-                        width: 140,
-                        child: Text(
-                          "Card",
-                          style: theme.textTheme.bodyMedium
-                              ?.copyWith(fontWeight: FontWeight.w500),
+                    // color: Colors.amberAccent,
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 10.0, horizontal: 10),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        SizedBox(
+                          width: 140,
+                          child: Text(
+                            "Card",
+                            style: theme.textTheme.bodyMedium
+                                ?.copyWith(fontWeight: FontWeight.w500),
+                          ),
                         ),
-                      ),
-                      Spacer(),
-                      SizedBox(
-                        width: 140,
-                        child: commonTextField(
-                            label: "Enter Amount",
-                            readOnly: false,
-                            focusNode: cardsPaymentFocusNode,
-                            controller: cardsPaymentTextController,
-                            onValueChanged: (value) {
-                              print('commonTextField $value');
-                            }),
-                      ),
-                      Spacer(),
-                      SizedBox(
-                        width: 140,
-                        child: commonTextField(
-                            label: "Enter Count",
-                            readOnly: false,
-                            focusNode: cardSlipCountFocusNode,
-                            controller: cardSlipCountTextController,
-                            onValueChanged: (value) {
-                              print('commonTextField $value');
-                            }),
-                      ),
-                      Spacer()
-                    ],
+                        Spacer(),
+                        SizedBox(
+                          width: 140,
+                          child: commonTextField(
+                              label: "Enter Amount",
+                              readOnly: false,
+                              focusNode: cardsPaymentFocusNode,
+                              controller: cardsPaymentTextController,
+                              onValueChanged: (value) {
+                                print('commonTextField $value');
+                              }),
+                        ),
+                        Spacer(),
+                        SizedBox(
+                          width: 140,
+                          child: commonTextField(
+                              label: "Enter Count",
+                              readOnly: false,
+                              focusNode: cardSlipCountFocusNode,
+                              controller: cardSlipCountTextController,
+                              onValueChanged: (value) {
+                                print('commonTextField $value');
+                              }),
+                        ),
+                        Spacer()
+                      ],
+                    ),
                   ),
-                ),
-                if ( homeController.allowedPaymentModes.any((mode) => mode.paymentOptionCode == 'UPI'))
+                if (homeController.allowedPaymentModes
+                    .any((mode) => mode.paymentOptionCode == 'UPI'))
                   Container(
-                  // color: Colors.amberAccent,
-                  padding: const EdgeInsets.symmetric(
-                      vertical: 10.0, horizontal: 10),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      SizedBox(
-                        width: 140,
-                        child: Text(
-                          "UPI payments",
-                          style: theme.textTheme.bodyMedium
-                              ?.copyWith(fontWeight: FontWeight.w500),
+                    // color: Colors.amberAccent,
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 10.0, horizontal: 10),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        SizedBox(
+                          width: 140,
+                          child: Text(
+                            "UPI payments",
+                            style: theme.textTheme.bodyMedium
+                                ?.copyWith(fontWeight: FontWeight.w500),
+                          ),
                         ),
-                      ),
-                      Spacer(),
-                      SizedBox(
-                        width: 140,
-                        child: commonTextField(
-                            label: "Enter Amount",
-                            readOnly: false,
-                            focusNode: upiPaymentFocusNode,
-                            controller: upiPaymentTextController,
-                            onValueChanged: (value) {
-                              print('commonTextField $value');
-                            }),
-                      ),
-                      Spacer(),
-                      SizedBox(
-                        width: 140,
-                        child: commonTextField(
-                            label: "Enter Count",
-                            readOnly: false,
-                            focusNode: upiSlipCountFocusNode,
-                            controller: upiSlipCountTextController,
-                            onValueChanged: (value) {
-                              print('commonTextField $value');
-                            }),
-                      ),
-                      Spacer()
-                    ],
+                        Spacer(),
+                        SizedBox(
+                          width: 140,
+                          child: commonTextField(
+                              label: "Enter Amount",
+                              readOnly: false,
+                              focusNode: upiPaymentFocusNode,
+                              controller: upiPaymentTextController,
+                              onValueChanged: (value) {
+                                print('commonTextField $value');
+                              }),
+                        ),
+                        Spacer(),
+                        SizedBox(
+                          width: 140,
+                          child: commonTextField(
+                              label: "Enter Count",
+                              readOnly: false,
+                              focusNode: upiSlipCountFocusNode,
+                              controller: upiSlipCountTextController,
+                              onValueChanged: (value) {
+                                print('commonTextField $value');
+                              }),
+                        ),
+                        Spacer()
+                      ],
+                    ),
                   ),
-                ),
+                if (transactionSummaryList.isNotEmpty)
+                  Container(
+                    // color: Colors.amberAccent,
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 10.0, horizontal: 10),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        SizedBox(
+                          width: 140,
+                          child: Text(
+                            "Offline Payments",
+                            style: theme.textTheme.bodyMedium
+                                ?.copyWith(fontWeight: FontWeight.w500),
+                          ),
+                        ),
+                        Spacer(),
+                        AbsorbPointer(
+                          absorbing: true,
+                          child: SizedBox(
+                            width: 140,
+                            child: commonTextField(
+                                label: "Enter Amount",
+                                readOnly: true,
+                                enabled: false,
+                                focusNode: FocusNode(canRequestFocus: false),
+                                controller: offlinePaymentTextController,
+                                onValueChanged: (value) {
+                                  print('commonTextField $value');
+                                }),
+                          ),
+                        ),
+                        Spacer(),
+                        AbsorbPointer(
+                          absorbing: true,
+                          child: SizedBox(
+                            width: 140,
+                            child: commonTextField(
+                                label: "Enter Count",
+                                readOnly: true,
+                                enabled: false,
+                                focusNode: FocusNode(canRequestFocus: false),
+                                controller: offlineSlipCountTextController,
+                                onValueChanged: (value) {
+                                  print('commonTextField $value');
+                                }),
+                          ),
+                        ),
+                        Spacer()
+                      ],
+                    ),
+                  ),
                 SizedBox(
                   height: 10,
                 ),
