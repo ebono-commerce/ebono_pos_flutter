@@ -27,8 +27,12 @@ void main() async {
 
   await HiveStorageHelper.init();
   await Logger.init(); // Initialize logger before running the app
-  runApp(BlocProvider(
-      create: (context) => Get.find<NetworkCubit>(), child: const MyApp()));
+  runApp(
+    BlocProvider(
+      create: (context) => Get.find<NetworkCubit>(),
+      child: const MyApp(),
+    ),
+  );
 }
 
 /*void getHiveDirectory() async {
