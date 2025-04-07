@@ -137,6 +137,9 @@ class HomeController extends GetxController {
   var pointedTo = 'LOCAL'.obs;
   RxList<AllowedPaymentMode> allowedPaymentModes = [AllowedPaymentMode()].obs;
 
+  // payment
+  var orderNumber = ''.obs;
+
   final _logoutDialogController = StreamController<bool>.broadcast();
 
   Stream<bool> get logoutDialogStream => _logoutDialogController.stream;

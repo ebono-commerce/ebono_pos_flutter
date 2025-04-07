@@ -10,6 +10,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
 import 'package:printing/printing.dart';
+import 'package:ebono_pos/utils/logger.dart';
 
 class OrderSuccessScreen extends StatefulWidget {
   final bool isOfflineMode;
@@ -27,6 +28,7 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
   @override
   void initState() {
     homeController.lastRoute.value = '/order_success';
+    Logger.logView(view: 'order_success');
     super.initState();
   }
 
