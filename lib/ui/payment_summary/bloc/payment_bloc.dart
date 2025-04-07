@@ -230,6 +230,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
           break;
         case "P2P_DEVICE_TXN_DONE":
           if (paymentStatusResponse.abstractPaymentStatus == "SUCCESS") {
+            Get.back();
             emit(state.copyWith(
               stopTimer: true,
               showPaymentPopup: false,
@@ -237,13 +238,13 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
               isPaymentStatusSuccess: true,
             ));
           } else {
+            Get.back();
             emit(state.copyWith(
                 stopTimer: true,
                 showPaymentPopup: false,
                 isOnlinePaymentSuccess: false,
                 isPaymentCancelSuccess: true));
           }
-          Get.back();
           Get.snackbar('Payment status ${paymentStatusResponse.status}',
               '${paymentStatusResponse.message}');
 
@@ -253,12 +254,12 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
           break;
         case "P2P_DEVICE_CANCELED":
           p2pRequestId = '';
+          Get.back();
           emit(state.copyWith(
               stopTimer: true,
               showPaymentPopup: false,
               isOnlinePaymentSuccess: false,
               isPaymentCancelSuccess: true));
-          Get.back();
           Get.snackbar('Payment status', '${paymentStatusResponse.message}');
           break;
         case "P2P_STATUS_IN_CANCELED_FROM_EXTERNAL_SYSTEM":
@@ -280,12 +281,12 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
         case "P2P_DUPLICATE_CANCEL_REQUEST" ||
               "P2P_ORIGINAL_P2P_REQUEST_IS_MISSING":
           p2pRequestId = '';
+          Get.back();
           emit(state.copyWith(
               stopTimer: true,
               showPaymentPopup: false,
               isOnlinePaymentSuccess: false,
               isPaymentCancelSuccess: true));
-          Get.back();
           Get.snackbar('Payment status', '${paymentStatusResponse.message}');
           break;
         default:
