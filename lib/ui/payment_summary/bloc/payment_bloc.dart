@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:ebono_pos/constants/shared_preference_constants.dart';
 import 'package:ebono_pos/data_store/hive_storage_helper.dart';
+import 'package:ebono_pos/ui/home/home_controller.dart';
 import 'package:ebono_pos/ui/home/model/phone_number_request.dart';
 import 'package:ebono_pos/ui/login/model/terminal_details_response.dart';
 import 'package:ebono_pos/ui/payment_summary/bloc/payment_event.dart';
@@ -25,6 +26,7 @@ import 'package:get/get.dart';
 class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
   final PaymentRepository _paymentRepository;
   final HiveStorageHelper hiveStorageHelper;
+  final HomeController _homeController;
 
   Timer? _timer;
   late PaymentSummaryRequest paymentSummaryRequest;
@@ -59,7 +61,8 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
   Timer? _sseFallbackTimer;
   bool isOfflineMode = false;
   bool isOfflinePaymentVerified = false;
-  PaymentBloc(this._paymentRepository, this.hiveStorageHelper)
+  PaymentBloc(
+      this._paymentRepository, this.hiveStorageHelper, this._homeController)
       : super(PaymentState()) {
     on<PaymentInitialEvent>(_onInitial);
     on<FetchPaymentSummary>(_fetchPaymentSummary);
@@ -127,12 +130,16 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
       paymentSummaryResponse =
           await _paymentRepository.fetchPaymentSummary(paymentSummaryRequest);
 
+      _homeController.orderNumber.value =
+          paymentSummaryResponse.orderNumber ?? '';
+
       emit(state.copyWith(isLoading: false, isPaymentSummarySuccess: true));
 
-      isOfflineMode = paymentSummaryResponse
-          .paymentOptions?.any((option) => option.code == "STATIC_QR_CODE") ?? false;
-
+      isOfflineMode = paymentSummaryResponse.paymentOptions
+              ?.any((option) => option.code == "STATIC_QR_CODE") ??
+          false;
     } catch (error) {
+      _homeController.orderNumber.value = '';
       emit(state.copyWith(
           isLoading: false,
           isPaymentSummaryError: true,
@@ -270,7 +277,8 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
           Get.snackbar('Payment status', '${paymentStatusResponse.message}');
 
           break;
-        case "P2P_DUPLICATE_CANCEL_REQUEST" || "P2P_ORIGINAL_P2P_REQUEST_IS_MISSING":
+        case "P2P_DUPLICATE_CANCEL_REQUEST" ||
+              "P2P_ORIGINAL_P2P_REQUEST_IS_MISSING":
           p2pRequestId = '';
           emit(state.copyWith(
               stopTimer: true,
@@ -343,7 +351,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
     walletAmount = double.parse(event.wallet);
 
     var offlineAmount = 0.0;
-    if(isOfflineMode){
+    if (isOfflineMode) {
       offlinePayment = event.online;
       offlineAmount = double.tryParse(event.online) ?? 0.0;
     }
@@ -358,26 +366,30 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
       if (onlinePayment.isNotEmpty && onlinePayment != '0') {
         if (state.isPaymentStatusSuccess) {
           allowPlaceOrder = true;
-        }else if(totalPayable == 0){
+        } else if (totalPayable == 0) {
           allowPlaceOrder = true;
         } else {
           allowPlaceOrder = false;
         }
-        if(isOfflineMode && isOfflinePaymentVerified && (totalPayable-cashAmount-offlineAmount) == 0){
+        if (isOfflineMode &&
+            isOfflinePaymentVerified &&
+            (totalPayable - cashAmount - offlineAmount) == 0) {
           allowPlaceOrder = true;
         }
       } else {
-       // print('STEP:3 $totalPayable - $onlineAmount +$offlineAmount');
-        if(isOfflineMode && isOfflinePaymentVerified && (totalPayable-cashAmount-offlineAmount) == 0){
+        // print('STEP:3 $totalPayable - $onlineAmount +$offlineAmount');
+        if (isOfflineMode &&
+            isOfflinePaymentVerified &&
+            (totalPayable - cashAmount - offlineAmount) == 0) {
           allowPlaceOrder = true;
-        }else if(isOfflineMode && !isOfflinePaymentVerified && offlineAmount <= 0){
+        } else if (isOfflineMode &&
+            !isOfflinePaymentVerified &&
+            offlineAmount <= 0) {
           allowPlaceOrder = true;
-        }
-        else if(!isOfflineMode){
+        } else if (!isOfflineMode) {
           allowPlaceOrder = true;
         }
       }
-
     } else {
       allowPlaceOrder = false;
     }
@@ -389,7 +401,8 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
   Future<void> _placeOrder(
       PlaceOrderEvent event, Emitter<PaymentState> emit) async {
     emit(state.copyWith(isLoading: true));
-    print('Cash => $cashPayment   online=>$onlinePayment  offline=>$offlinePayment');
+    print(
+        'Cash => $cashPayment   online=>$onlinePayment  offline=>$offlinePayment');
     try {
       if (cashPayment.isNotEmpty) {
         cashPaymentOption = paymentSummaryResponse.paymentOptions?.firstWhere(
@@ -424,9 +437,11 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
                   key: "METHOD", value: paymentStatusResponse.paymentMode),
             ]));
       }
-      if(offlinePayment.isNotEmpty && (double.tryParse(offlinePayment) ?? 0.0) > 0){
-        final offlinePaymentOption = paymentSummaryResponse.paymentOptions?.firstWhere(
-              (option) => option.code == 'STATIC_QR_CODE',
+      if (offlinePayment.isNotEmpty &&
+          (double.tryParse(offlinePayment) ?? 0.0) > 0) {
+        final offlinePaymentOption =
+            paymentSummaryResponse.paymentOptions?.firstWhere(
+          (option) => option.code == 'STATIC_QR_CODE',
         );
         paymentMethods?.add(PaymentMethod(
             paymentOptionId: offlinePaymentOption?.paymentOptionId,
@@ -482,7 +497,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
           isLoading: true,
           allowPrintInvoice: false,
         ));
-        if(!isOfflineMode){
+        if (!isOfflineMode) {
           listenToOrderInvoiceSSE(orderSummaryResponse.orderNumber!);
         }
       }

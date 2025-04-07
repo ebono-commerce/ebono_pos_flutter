@@ -49,6 +49,9 @@ class Logger {
     final logEntry = <String, dynamic>{
       "time_stamp": DateTime.now().toIso8601String(),
       "app_id": '',
+      "order_number": '',
+      "customer_number": '',
+      "cart_id": '',
       "event_type": '',
       "cashier": "",
       "store_id": '',
@@ -60,6 +63,10 @@ class Logger {
     logEntry['cashier'] = homeController.userDetails.value.fullName;
     logEntry['store_id'] = homeController.selectedTerminalId;
     logEntry['store_name'] = homeController.selectedOutletId;
+    logEntry['order_number'] = homeController.orderNumber.value;
+    logEntry['cart_id'] = homeController.cartId.value;
+    logEntry['customer_number'] =
+        homeController.customerResponse.value.phoneNumber?.number.toString();
 
     if (button != null) logEntry['button'] = button;
 
@@ -74,6 +81,9 @@ class Logger {
     final logEntry = <String, dynamic>{
       "time_stamp": DateTime.now().toIso8601String(),
       "app_id": '',
+      "order_number": '',
+      "customer_number": '',
+      "cart_id": '',
       "event_type": 'VIEW',
       "cashier": "",
       "store_id": '',
@@ -85,6 +95,10 @@ class Logger {
     logEntry['cashier'] = homeController.userDetails.value.fullName;
     logEntry['store_id'] = homeController.selectedTerminalId;
     logEntry['store_name'] = homeController.selectedOutletId;
+    logEntry['order_number'] = homeController.orderNumber.value;
+    logEntry['cart_id'] = homeController.cartId.value;
+    logEntry['customer_number'] =
+        homeController.customerResponse.value.phoneNumber?.number.toString();
 
     if (view != null) logEntry['view'] = view;
 
@@ -102,6 +116,9 @@ class Logger {
     final logEntry = <String, dynamic>{
       "time_stamp": DateTime.now().toIso8601String(),
       "app_id": '',
+      "order_number": '',
+      "customer_number": '',
+      "cart_id": '',
       "event_type": 'API',
       "cashier": "",
       "store_id": '',
@@ -116,6 +133,10 @@ class Logger {
     logEntry['cashier'] = homeController.userDetails.value.fullName;
     logEntry['store_id'] = homeController.selectedTerminalId;
     logEntry['store_name'] = homeController.selectedOutletId;
+    logEntry['order_number'] = homeController.orderNumber.value;
+    logEntry['cart_id'] = homeController.cartId.value;
+    logEntry['customer_number'] =
+        homeController.customerResponse.value.phoneNumber?.number.toString();
 
     if (url != null) logEntry['url'] = url;
     if (request != null) logEntry['request'] = request;
