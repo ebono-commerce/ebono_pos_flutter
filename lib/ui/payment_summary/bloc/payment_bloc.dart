@@ -61,6 +61,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
   Timer? _sseFallbackTimer;
   bool isOfflineMode = false;
   bool isOfflinePaymentVerified = false;
+  bool isGenerateLinkEnabled = true;
   PaymentBloc(
       this._paymentRepository, this.hiveStorageHelper, this._homeController)
       : super(PaymentState()) {
@@ -149,6 +150,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
 
   Future<void> _paymentInitiateApi(
       PaymentStartEvent event, Emitter<PaymentState> emit) async {
+    isGenerateLinkEnabled = false;
     emit(state.copyWith(isLoading: true, initialState: false));
 
     final reqBody = {
@@ -179,6 +181,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
       if (paymentInitiateResponse.success == true) {
         print(
             "Success p2pRequestId --> : ${paymentInitiateResponse.p2PRequestId}");
+        isGenerateLinkEnabled = false;
         emit(state.copyWith(
             isLoading: false,
             showPaymentPopup: paymentInitiateResponse.success,
@@ -191,12 +194,14 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
         }
       } else {
         Get.snackbar('Error', '${paymentInitiateResponse.message}');
+        isGenerateLinkEnabled = true;
         emit(state.copyWith(
             isLoading: false,
             showPaymentPopup: false,
             isPaymentStartSuccess: false));
       }
     } catch (error) {
+      isGenerateLinkEnabled = true;
       emit(state.copyWith(
           isLoading: false,
           isPaymentSummaryError: true,
@@ -227,101 +232,78 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
         case "P2P_STATUS_QUEUED":
           break;
         case "P2P_STATUS_IN_EXPIRED":
-          Get.snackbar(
-            'P2P_STATUS_IN_EXPIRED ${paymentStatusResponse.status}',
-            '${paymentStatusResponse.message}',
-          );
           break;
         case "P2P_DEVICE_TXN_DONE":
-          Get.back();
           if (paymentStatusResponse.abstractPaymentStatus == "SUCCESS") {
+            isGenerateLinkEnabled = false;
             emit(state.copyWith(
               stopTimer: true,
               showPaymentPopup: false,
               isOnlinePaymentSuccess: true,
               isPaymentStatusSuccess: true,
             ));
-            Get.snackbar(
-              'P2P_DEVICE_TXN_DONE SUCCESS ${paymentStatusResponse.status}',
-              '${paymentStatusResponse.message}',
-            );
           } else {
+            isGenerateLinkEnabled = true;
             emit(state.copyWith(
                 stopTimer: true,
                 showPaymentPopup: false,
                 isOnlinePaymentSuccess: false,
                 isPaymentCancelSuccess: true));
-            Get.snackbar(
-              'P2P_DEVICE_TXN_DONE FallBack ${paymentStatusResponse.status}',
-              '${paymentStatusResponse.message}',
-            );
           }
+          Get.back();
+          Get.snackbar('Payment status ${paymentStatusResponse.status}',
+              '${paymentStatusResponse.message}');
+
           break;
 
         case "P2P_STATUS_UNKNOWN":
-          Get.back();
-          Get.snackbar(
-            'P2P_STATUS_UNKNOWN',
-            '${paymentStatusResponse.message}',
-          );
           break;
         case "P2P_DEVICE_CANCELED":
-          Get.back();
           p2pRequestId = '';
+          isGenerateLinkEnabled = true;
           emit(state.copyWith(
               stopTimer: true,
               showPaymentPopup: false,
               isOnlinePaymentSuccess: false,
               isPaymentCancelSuccess: true));
-          Get.snackbar(
-            'P2P_DEVICE_CANCELED',
-            '${paymentStatusResponse.message}',
-          );
+          Get.back();
+          Get.snackbar('Payment status', '${paymentStatusResponse.message}');
           break;
         case "P2P_STATUS_IN_CANCELED_FROM_EXTERNAL_SYSTEM":
-          Get.back();
           p2pRequestId = '';
+          isGenerateLinkEnabled = true;
           emit(state.copyWith(
               stopTimer: true,
               showPaymentPopup: false,
               isOnlinePaymentSuccess: false,
               isPaymentCancelSuccess: true));
-          Get.snackbar(
-            'Payment Status CANCELED_FROM_EXTERNAL_SYSTEM',
-            '${paymentStatusResponse.message}',
-          );
+          Get.snackbar('Payment status', '${paymentStatusResponse.message}');
           break;
         case "P2P_ORIGINAL_P2P_REQUEST_IS_MISSING":
-          Get.back();
           p2pRequestId = '';
           emit(state.copyWith(stopTimer: true, showPaymentPopup: false));
-          Get.snackbar(
-            'P2P_ORIGINAL_P2P_REQUEST_IS_MISSING',
-            '${paymentStatusResponse.message}',
-          );
+          Get.back();
+          Get.snackbar('Payment status', '${paymentStatusResponse.message}');
+
           break;
         case "P2P_DUPLICATE_CANCEL_REQUEST" ||
         "P2P_ORIGINAL_P2P_REQUEST_IS_MISSING":
-          Get.back();
           p2pRequestId = '';
+          isGenerateLinkEnabled = true;
           emit(state.copyWith(
               stopTimer: true,
               showPaymentPopup: false,
               isOnlinePaymentSuccess: false,
               isPaymentCancelSuccess: true));
-          Get.snackbar(
-            'Payment status : DUPLICATE_CANCEL_REQUEST | ORIGINAL_P2P_REQUEST_IS_MISSING',
-            '${paymentStatusResponse.message}',
-          );
+          Get.back();
+          Get.snackbar('Payment status', '${paymentStatusResponse.message}');
           break;
         default:
           Get.back();
           emit(state.copyWith(stopTimer: true, showPaymentPopup: false));
-          Get.snackbar('Payment status', 'Default payment Error.');
           break;
       }
     } catch (error) {
-      Get.back();
       emit(state.copyWith(
           isLoading: false,
           isPaymentSummaryError: true,
@@ -329,7 +311,6 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
           errorMessage: error.toString(),
           stopTimer: true));
       _timer?.cancel();
-      Get.snackbar('Payment status', 'Catch Block payment error.');
     }
   }
 

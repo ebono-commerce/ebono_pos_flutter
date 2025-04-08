@@ -920,8 +920,8 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                                         theme: theme,
                                         textStyle: theme.textTheme.bodyMedium,
                                         padding: EdgeInsets.all(12)),
-                                    onPressed: onlinePaymentTextController
-                                            .value.text.isNotEmpty
+                                    onPressed: (paymentBloc.isGenerateLinkEnabled && onlinePaymentTextController
+                                            .value.text.isNotEmpty)
                                         ? () {
                                             paymentBloc
                                                 .add(PaymentStartEvent());
