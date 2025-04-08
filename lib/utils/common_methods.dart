@@ -14,7 +14,9 @@ bool isValidOfferId(String offerId) {
       offerId.length == 9 ||
       offerId.length == 10 ||
       offerId.length == 12 ||
-      offerId.length == 13;
+      offerId.length == 13 ||
+      offerId.length == 14 ||
+      offerId.length == 15;
 }
 
 showCloseAlert(BuildContext context, {bool isAlertShowing = false}) {
