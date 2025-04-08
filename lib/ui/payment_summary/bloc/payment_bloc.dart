@@ -61,6 +61,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
   Timer? _sseFallbackTimer;
   bool isOfflineMode = false;
   bool isOfflinePaymentVerified = false;
+  bool isGenerateLinkEnabled = true;
   PaymentBloc(
       this._paymentRepository, this.hiveStorageHelper, this._homeController)
       : super(PaymentState()) {
@@ -149,6 +150,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
 
   Future<void> _paymentInitiateApi(
       PaymentStartEvent event, Emitter<PaymentState> emit) async {
+    isGenerateLinkEnabled = false;
     emit(state.copyWith(isLoading: true, initialState: false));
 
     final reqBody = {
@@ -179,6 +181,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
       if (paymentInitiateResponse.success == true) {
         print(
             "Success p2pRequestId --> : ${paymentInitiateResponse.p2PRequestId}");
+        isGenerateLinkEnabled = false;
         emit(state.copyWith(
             isLoading: false,
             showPaymentPopup: paymentInitiateResponse.success,
@@ -191,12 +194,14 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
         }
       } else {
         Get.snackbar('Error', '${paymentInitiateResponse.message}');
+        isGenerateLinkEnabled = true;
         emit(state.copyWith(
             isLoading: false,
             showPaymentPopup: false,
             isPaymentStartSuccess: false));
       }
     } catch (error) {
+      isGenerateLinkEnabled = true;
       emit(state.copyWith(
           isLoading: false,
           isPaymentSummaryError: true,
@@ -217,7 +222,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
 
     try {
       paymentStatusResponse =
-          await _paymentRepository.paymentStatusApiCall(paymentStatusRequest);
+      await _paymentRepository.paymentStatusApiCall(paymentStatusRequest);
 
       print(
           "Success payment status --> : ${paymentStatusResponse.abstractPaymentStatus}");
@@ -230,6 +235,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
           break;
         case "P2P_DEVICE_TXN_DONE":
           if (paymentStatusResponse.abstractPaymentStatus == "SUCCESS") {
+            isGenerateLinkEnabled = false;
             emit(state.copyWith(
               stopTimer: true,
               showPaymentPopup: false,
@@ -237,6 +243,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
               isPaymentStatusSuccess: true,
             ));
           } else {
+            isGenerateLinkEnabled = true;
             emit(state.copyWith(
                 stopTimer: true,
                 showPaymentPopup: false,
@@ -253,6 +260,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
           break;
         case "P2P_DEVICE_CANCELED":
           p2pRequestId = '';
+          isGenerateLinkEnabled = true;
           emit(state.copyWith(
               stopTimer: true,
               showPaymentPopup: false,
@@ -263,6 +271,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
           break;
         case "P2P_STATUS_IN_CANCELED_FROM_EXTERNAL_SYSTEM":
           p2pRequestId = '';
+          isGenerateLinkEnabled = true;
           emit(state.copyWith(
               stopTimer: true,
               showPaymentPopup: false,
@@ -278,8 +287,9 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
 
           break;
         case "P2P_DUPLICATE_CANCEL_REQUEST" ||
-              "P2P_ORIGINAL_P2P_REQUEST_IS_MISSING":
+        "P2P_ORIGINAL_P2P_REQUEST_IS_MISSING":
           p2pRequestId = '';
+          isGenerateLinkEnabled = true;
           emit(state.copyWith(
               stopTimer: true,
               showPaymentPopup: false,
@@ -321,7 +331,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
     try {
       paymentStatusResponse =
           await _paymentRepository.paymentCancelApiCall(paymentCancelRequest);
-
+      isGenerateLinkEnabled = true;
       if (paymentStatusResponse.success == true) {
         emit(state.copyWith(
             isPaymentCancelSuccess: paymentStatusResponse.success,
@@ -337,6 +347,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
         Get.snackbar('Error', '${paymentInitiateResponse.message}');
       }
     } catch (error) {
+      isGenerateLinkEnabled = true;
       emit(state.copyWith(
           isLoading: false,
           isPaymentSummaryError: true,

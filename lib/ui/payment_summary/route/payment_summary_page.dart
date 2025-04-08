@@ -764,7 +764,7 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                   SizedBox(height: 16),
 
                   /// if payment amount is zero disable the state of buttons
-                  if ((paymentBloc.totalPayable) <= 0.0) ...[
+                  if ((paymentBloc.totalPayable) <= 0.0 || paymentBloc.isGenerateLinkEnabled == false) ...[
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -920,8 +920,8 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                                         theme: theme,
                                         textStyle: theme.textTheme.bodyMedium,
                                         padding: EdgeInsets.all(12)),
-                                    onPressed: onlinePaymentTextController
-                                            .value.text.isNotEmpty
+                                    onPressed: (paymentBloc.isGenerateLinkEnabled && onlinePaymentTextController
+                                            .value.text.isNotEmpty)
                                         ? () {
                                             paymentBloc
                                                 .add(PaymentStartEvent());
