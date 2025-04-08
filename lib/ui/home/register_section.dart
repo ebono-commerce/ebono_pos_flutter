@@ -181,20 +181,34 @@ class _RegisterSectionState extends State<RegisterSection>
       });
     });
 
+    ever(homeController.registerId, (callback) {
+      /* clearing the transaction list when register closed */
+      if (homeController.registerId.value.isEmpty) {
+        transactionSummaryList.clear();
+        homeController.transactionSummaryList.clear();
+        setState(() {});
+      }
+    });
+
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (mounted &&
           homeController.registerId.value.isNotEmpty &&
           homeController.pointedTo.value == 'LOCAL') {
-        transactionSummaryList = await homeController.getTerminalTransactions();
+        var result = await homeController.getTerminalTransactions();
 
-        setState(() {
-          offlinePaymentTextController.text = getActualPrice(
-            transactionSummaryList.first.totalTransactionAmount?.centAmount,
-            transactionSummaryList.first.totalTransactionAmount?.fraction,
-          );
-          offlineSlipCountTextController.text =
-              transactionSummaryList.first.chargeSlipCount.toString();
-        });
+        transactionSummaryList = result;
+
+        if (result.first.pspId != null && result.isNotEmpty) {
+          setState(() {
+            transactionSummaryList = result;
+            offlinePaymentTextController.text = getActualPrice(
+              result.first.totalTransactionAmount?.centAmount,
+              result.first.totalTransactionAmount?.fraction,
+            );
+            offlineSlipCountTextController.text =
+                result.first.chargeSlipCount.toString();
+          });
+        }
       }
     });
     super.initState();
@@ -1018,7 +1032,8 @@ class _RegisterSectionState extends State<RegisterSection>
                       ],
                     ),
                   ),
-                if (transactionSummaryList.isNotEmpty)
+                if (transactionSummaryList.isNotEmpty &&
+                    transactionSummaryList.first.pspId != null)
                   Container(
                     // color: Colors.amberAccent,
                     padding: const EdgeInsets.symmetric(
@@ -1041,7 +1056,7 @@ class _RegisterSectionState extends State<RegisterSection>
                           child: SizedBox(
                             width: 140,
                             child: commonTextField(
-                                label: "Enter Amount",
+                                label: "Amount",
                                 readOnly: true,
                                 enabled: false,
                                 focusNode: FocusNode(canRequestFocus: false),
@@ -1057,7 +1072,7 @@ class _RegisterSectionState extends State<RegisterSection>
                           child: SizedBox(
                             width: 140,
                             child: commonTextField(
-                                label: "Enter Count",
+                                label: "Count",
                                 readOnly: true,
                                 enabled: false,
                                 focusNode: FocusNode(canRequestFocus: false),

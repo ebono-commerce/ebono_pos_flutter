@@ -136,6 +136,7 @@ class HomeController extends GetxController {
   var couponDetails = ''.obs;
   var pointedTo = 'LOCAL'.obs;
   RxList<AllowedPaymentMode> allowedPaymentModes = [AllowedPaymentMode()].obs;
+  List<TransactionSummary> transactionSummaryList = [];
 
   // payment
   var orderNumber = ''.obs;
@@ -654,7 +655,11 @@ class HomeController extends GetxController {
   Future<void> holdCartApiCall() async {
     try {
       var response = await _homeRepository.holdCart(
-          cartId.value, PhoneNumberRequest(phoneNumber: phoneNumber.value));
+        cartId.value,
+        PhoneNumberRequest(
+          phoneNumber: customerResponse.value.phoneNumber!.number,
+        ),
+      );
       generalSuccessResponse.value = response;
       cartId.value = '';
       getCustomerDetailsResponse.value = CustomerDetailsResponse();
@@ -674,15 +679,15 @@ class HomeController extends GetxController {
   Future<void> resumeHoldCartApiCall(String? id) async {
     try {
       var response = await _homeRepository.resumeHoldCart(
-          cartId.value,
+          id!,
           ResumeHoldCartRequest(
               terminalId:
                   "${hiveStorageHelper.read(SharedPreferenceConstants.selectedTerminalId)}",
               holdCartId: id));
-      cartResponse.value = response;
-      /* resetting the exsisting state */
-      isCustomerProxySelected.value = true;
+      /* resetting the existing state */
+      cartId.value = response.cartId ?? '';
       clearHoldCartOrders();
+      fetchCartDetails();
       selectedTabButton.value = 2;
     } catch (e) {
       Get.snackbar('Error while resuming cart', '$e');
@@ -836,6 +841,29 @@ class HomeController extends GetxController {
                       currency: "INR",
                     ),
                   );
+                case 'STATIC_QR_CODE':
+                  if (transactionSummaryList.isNotEmpty &&
+                      transactionSummaryList.first.pspId != null) {
+                    return TransactionSummary(
+                      paymentOptionId: mode.paymentOptionId,
+                      paymentOptionCode: mode.paymentOptionCode,
+                      pspId: mode.pspId,
+                      pspName: mode.pspName,
+                      chargeSlipCount: int.tryParse(transactionSummaryList
+                              .first.totalTransactionAmount
+                              .toString()) ??
+                          0,
+                      totalTransactionAmount: TotalTransactionAmount(
+                        centAmount: int.tryParse(transactionSummaryList
+                                .first.chargeSlipCount
+                                .toString()) ??
+                            0,
+                        fraction: 1,
+                        currency: "INR",
+                      ),
+                    );
+                  }
+                  return null;
                 default:
                   return null; // Ignore unsupported payment modes
               }
@@ -857,6 +885,7 @@ class HomeController extends GetxController {
         cardPaymentCount.value = '';
         cashPayment.value = '';
         selectedTabButton.value = 2;
+        transactionSummaryList.clear();
       }
       isLoading.value = false;
     } catch (e) {
@@ -1041,9 +1070,8 @@ class HomeController extends GetxController {
         orElse: () => AllowedPaymentMode(),
       );
 
-      final transactionSummaryList =
-          await _homeRepository.fetchTerminalTransactions(
-              payload: TerminalTransactionRequest(
+      final result = await _homeRepository.fetchTerminalTransactions(
+          payload: TerminalTransactionRequest(
         outletId: selectedOutletId,
         paymentMethods: [staticQrPaymentMode.paymentOptionId.toString()],
         registerId: registerId.value,
@@ -1051,7 +1079,9 @@ class HomeController extends GetxController {
         terminalId: selectedTerminalId,
       ));
 
-      return transactionSummaryList;
+      transactionSummaryList = result;
+
+      return result;
     } catch (error) {
       Get.snackbar('Error while fetching terminal transactions', '$error');
       return [];
