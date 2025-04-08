@@ -331,7 +331,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
     try {
       paymentStatusResponse =
           await _paymentRepository.paymentCancelApiCall(paymentCancelRequest);
-
+      isGenerateLinkEnabled = true;
       if (paymentStatusResponse.success == true) {
         emit(state.copyWith(
             isPaymentCancelSuccess: paymentStatusResponse.success,
@@ -347,6 +347,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
         Get.snackbar('Error', '${paymentInitiateResponse.message}');
       }
     } catch (error) {
+      isGenerateLinkEnabled = true;
       emit(state.copyWith(
           isLoading: false,
           isPaymentSummaryError: true,
