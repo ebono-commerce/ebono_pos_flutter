@@ -1,11 +1,17 @@
-String getActualPrice(int? centAmount, int? fraction) {
+String getActualPrice(
+  int? centAmount,
+  int? fraction, {
+  bool includeRupee = true,
+}) {
   if (centAmount == null) {
     return '₹0.00';
   }
 
   double amount = (centAmount / fraction!);
 
-  return '₹${amount.toStringAsFixed(2)}';
+  return includeRupee
+      ? '₹${amount.toStringAsFixed(2)}'
+      : amount.toStringAsFixed(2);
 }
 
 double getPrice(int? centAmount, int? fraction) {
@@ -28,10 +34,10 @@ String getActualPriceWithoutSymbol(int? centAmount, int? fraction) {
   return amount.toStringAsFixed(2);
 }
 
-String getTenderAmountString(String value){
-  if(value.isEmpty){
+String getTenderAmountString(String value) {
+  if (value.isEmpty) {
     return "";
   }
 
- return  (double.tryParse(value) ?? 0.00).toStringAsFixed(2);
+  return (double.tryParse(value) ?? 0.00).toStringAsFixed(2);
 }
