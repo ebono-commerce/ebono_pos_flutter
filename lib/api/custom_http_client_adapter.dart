@@ -33,8 +33,11 @@ class CustomHttpClientAdapter extends IOHttpClientAdapter {
         // For local HTTP requests with socket exceptions,
         // we can create a custom response indicating local server is not running
         return ResponseBody(
-          Stream.value(Uint8List.fromList(
-              '{"message": "Local server unavailable"}'.codeUnits)),
+          Stream.value(
+            Uint8List.fromList(
+              '{"message": "Local server unavailable"}'.codeUnits,
+            ),
+          ),
           503, // Service Unavailable
           headers: {
             HttpHeaders.contentTypeHeader: ['application/json'],

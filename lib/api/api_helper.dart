@@ -64,7 +64,7 @@ class ApiHelper {
     _dio.httpClientAdapter = CustomHttpClientAdapter();
 
     // Add our custom connection interceptor first
-    _dio.interceptors.add(CustomConnectionInterceptor());
+    _dio.interceptors.add(CustomConnectionInterceptor(_sharedPreferenceHelper));
 
     // Then add auth interceptor
     _dio.interceptors
@@ -206,7 +206,8 @@ class ApiHelper {
         // For local HTTP requests with connection errors, we'll create a better message
         // but still throw the error so it can be handled properly by the app
         return Exception(
-            "Local API not available. Ensure your local server is running.");
+          "Local API not available. Ensure your local server is running.",
+        );
       }
 
       switch (error.type) {
