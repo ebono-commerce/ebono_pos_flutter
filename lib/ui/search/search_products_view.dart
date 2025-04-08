@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:ebono_pos/constants/custom_colors.dart';
 import 'package:ebono_pos/models/scan_products_response.dart';
 import 'package:ebono_pos/ui/custom_keyboard/custom_querty_pad.dart';
@@ -369,15 +370,44 @@ class _SearchProductsViewState extends State<SearchProductsView> {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
+              // ClipRRect(
+              //   borderRadius: BorderRadius.circular(10),
+              //   child: (searchResult.mediaUrl != null &&
+              //           searchResult.mediaUrl?.isNotEmpty == true)
+              //       ? Image.network(
+              //           searchResult.mediaUrl!,
+              //           width: 50,
+              //           height: 50,
+              //           fit: BoxFit.cover,
+              //         )
+              //       : SvgPicture.asset(
+              //           'assets/images/pos_logo.svg',
+              //           width: 50,
+              //           height: 50,
+              //           fit: BoxFit.cover,
+              //         ),
+              // ),
               ClipRRect(
                 borderRadius: BorderRadius.circular(10),
                 child: (searchResult.mediaUrl != null &&
                         searchResult.mediaUrl?.isNotEmpty == true)
-                    ? Image.network(
-                        searchResult.mediaUrl!,
+                    ? CachedNetworkImage(
+                        imageUrl: searchResult.mediaUrl!,
                         width: 50,
                         height: 50,
                         fit: BoxFit.cover,
+                        placeholder: (context, url) => SvgPicture.asset(
+                          'assets/images/pos_logo.svg',
+                          width: 50,
+                          height: 50,
+                          fit: BoxFit.cover,
+                        ),
+                        errorWidget: (context, url, error) => SvgPicture.asset(
+                          'assets/images/pos_logo.svg',
+                          width: 50,
+                          height: 50,
+                          fit: BoxFit.cover,
+                        ),
                       )
                     : SvgPicture.asset(
                         'assets/images/pos_logo.svg',
