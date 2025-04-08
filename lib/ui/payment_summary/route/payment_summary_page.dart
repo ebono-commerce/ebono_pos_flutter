@@ -764,7 +764,7 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                   SizedBox(height: 16),
 
                   /// if payment amount is zero disable the state of buttons
-                  if ((paymentBloc.totalPayable) <= 0.0) ...[
+                  if ((paymentBloc.totalPayable) <= 0.0 || paymentBloc.isGenerateLinkEnabled == false) ...[
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
