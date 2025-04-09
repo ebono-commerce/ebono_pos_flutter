@@ -764,7 +764,8 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                   SizedBox(height: 16),
 
                   /// if payment amount is zero disable the state of buttons
-                  if ((paymentBloc.totalPayable) <= 0.0 || paymentBloc.isGenerateLinkEnabled == false) ...[
+                  if ((paymentBloc.totalPayable) <= 0.0 ||
+                      paymentBloc.isGenerateLinkEnabled == false) ...[
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -920,13 +921,15 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                                         theme: theme,
                                         textStyle: theme.textTheme.bodyMedium,
                                         padding: EdgeInsets.all(12)),
-                                    onPressed: (paymentBloc.isGenerateLinkEnabled && onlinePaymentTextController
-                                            .value.text.isNotEmpty)
-                                        ? () {
-                                            paymentBloc
-                                                .add(PaymentStartEvent());
-                                          }
-                                        : null,
+                                    onPressed:
+                                        (paymentBloc.isGenerateLinkEnabled &&
+                                                onlinePaymentTextController
+                                                    .value.text.isNotEmpty)
+                                            ? () {
+                                                paymentBloc
+                                                    .add(PaymentStartEvent());
+                                              }
+                                            : null,
                                     child: Text(
                                       'Generate link',
                                       style: TextStyle(
@@ -1219,8 +1222,8 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                       padding: EdgeInsets.all(12)),
                   onPressed: (paymentBloc.allowPlaceOrder)
                       ? () {
-                          paymentBloc.add(PlaceOrderEvent());
                           Logger.logButtonPress(button: 'Place Order');
+                          paymentBloc.add(PlaceOrderEvent());
                         }
                       : null,
                   child: Text(

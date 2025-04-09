@@ -163,6 +163,14 @@ Future<Uint8List> generatePdf(OrderSummaryResponse data) async {
                             font: font,
                           ),
                         ),
+                      if (data.orderDate?.isNotEmpty == true)
+                        pw.Text(
+                          'Order Date: ${data.orderDate}',
+                          style: pw.TextStyle(
+                            fontSize: 8,
+                            font: font,
+                          ),
+                        ),
                       if (data.orderNumber?.isNotEmpty == true)
                         pw.Text(
                           'Order No: ${data.orderNumber}',
@@ -171,13 +179,6 @@ Future<Uint8List> generatePdf(OrderSummaryResponse data) async {
                             font: font,
                           ),
                         ),
-                      /*pw.Text(
-                        'Order Date: ${data.orderDate}',
-                        style: pw.TextStyle(
-                          fontSize: 8,
-                          font: font,
-                        ),
-                      ),*/
                       pw.Text(
                         'Payment Method: ${data.paymentMethods.toString()}',
                         style: pw.TextStyle(
