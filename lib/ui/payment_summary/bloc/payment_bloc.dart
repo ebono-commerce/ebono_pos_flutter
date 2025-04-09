@@ -61,8 +61,6 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
   Timer? _sseFallbackTimer;
   bool isOfflineMode = false;
   bool isOfflinePaymentVerified = false;
-  bool isDialogShowing = false;
-
   PaymentBloc(
       this._paymentRepository, this.hiveStorageHelper, this._homeController)
       : super(PaymentState()) {
@@ -251,11 +249,13 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
                 isOnlinePaymentSuccess: false,
                 isPaymentCancelSuccess: true));
           }
-          closeDialog();
+          closeSnackBar();
+          Get.back();
+
           Get.snackbar(
-               duration: Duration(seconds: 2),
               'Payment status ${paymentStatusResponse.status}',
               '${paymentStatusResponse.message}');
+
           break;
 
         case "P2P_STATUS_UNKNOWN":
@@ -267,6 +267,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
               showPaymentPopup: false,
               isOnlinePaymentSuccess: false,
               isPaymentCancelSuccess: true));
+          closeSnackBar();
           Get.back();
           Get.snackbar('Payment status', '${paymentStatusResponse.message}');
           break;
@@ -282,6 +283,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
         case "P2P_ORIGINAL_P2P_REQUEST_IS_MISSING":
           p2pRequestId = '';
           emit(state.copyWith(stopTimer: true, showPaymentPopup: false,isOnlinePaymentSuccess: false));
+          closeSnackBar();
           Get.back();
           Get.snackbar('Payment status', '${paymentStatusResponse.message}');
 
@@ -294,10 +296,12 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
               showPaymentPopup: false,
               isOnlinePaymentSuccess: false,
               isPaymentCancelSuccess: true));
+          closeSnackBar();
           Get.back();
           Get.snackbar('Payment status', '${paymentStatusResponse.message}');
           break;
         default:
+          closeSnackBar();
           Get.back();
           emit(state.copyWith(stopTimer: true, showPaymentPopup: false,isOnlinePaymentSuccess: false));
           break;
@@ -656,12 +660,13 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
       isWalletChargeError: false,
     ));
   }
-   void closeDialog() {
-    if (isDialogShowing) {
-      Get.back();
-      isDialogShowing = false;
+
+  closeSnackBar(){
+    if(Get.isSnackbarOpen){
+      Get.closeAllSnackbars();
     }
   }
+
 
   @override
   Future<void> close() {
