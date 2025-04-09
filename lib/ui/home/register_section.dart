@@ -186,7 +186,6 @@ class _RegisterSectionState extends State<RegisterSection>
       if (homeController.registerId.value.isEmpty) {
         transactionSummaryList.clear();
         homeController.transactionSummaryList.clear();
-        setState(() {});
       }
     });
 
