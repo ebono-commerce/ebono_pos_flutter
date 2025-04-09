@@ -778,9 +778,10 @@ class HomeController extends GetxController {
           openRegisterResponse.value.registerTransactionId ?? "";
       openFloatPayment.value = '';
       selectedTabButton.value = 2;
-      isLoading.value = false;
-    } catch (e) {
+    } catch (e, stack) {
+      print("error: $e $stack");
       Get.snackbar('Error while opening register', '$e');
+    } finally {
       isLoading.value = false;
     }
   }
@@ -843,7 +844,8 @@ class HomeController extends GetxController {
                   );
                 case 'STATIC_QR_CODE':
                   if (transactionSummaryList.isNotEmpty &&
-                      transactionSummaryList.first.pspId != null) {
+                      transactionSummaryList.first.pspId != null &&
+                      pointedTo.value == 'LOCAL') {
                     return TransactionSummary(
                       paymentOptionId: mode.paymentOptionId,
                       paymentOptionCode: mode.paymentOptionCode,
@@ -881,10 +883,11 @@ class HomeController extends GetxController {
         selectedTabButton.value = 2;
         transactionSummaryList.clear();
       }
-      isLoading.value = false;
-    } catch (e) {
-      isLoading.value = false;
+    } catch (e, stack) {
+      print("error: $e $stack");
       Get.snackbar('Error while closing register', '$e');
+    } finally {
+      isLoading.value = false;
     }
   }
 

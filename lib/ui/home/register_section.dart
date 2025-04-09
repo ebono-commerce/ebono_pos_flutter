@@ -3,7 +3,6 @@ import 'package:ebono_pos/ui/Common_button.dart';
 import 'package:ebono_pos/ui/common_text_field.dart';
 import 'package:ebono_pos/ui/custom_keyboard/custom_num_pad.dart';
 import 'package:ebono_pos/ui/home/home_controller.dart';
-import 'package:ebono_pos/ui/home/model/register_close_request.dart';
 import 'package:ebono_pos/ui/home/widgets/quick_action_buttons.dart';
 import 'package:ebono_pos/utils/dash_line.dart';
 import 'package:ebono_pos/utils/price.dart';
@@ -32,8 +31,6 @@ class _RegisterSectionState extends State<RegisterSection>
 
   final FocusNode openCommentFocusNode = FocusNode();
   final FocusNode closeCommentFocusNode = FocusNode();
-
-  List<TransactionSummary> transactionSummaryList = [];
 
   FocusNode? activeFocusNode;
 
@@ -184,7 +181,6 @@ class _RegisterSectionState extends State<RegisterSection>
     ever(homeController.registerId, (callback) {
       /* clearing the transaction list when register closed */
       if (homeController.registerId.value.isEmpty) {
-        transactionSummaryList.clear();
         homeController.transactionSummaryList.clear();
       }
     });
@@ -195,11 +191,8 @@ class _RegisterSectionState extends State<RegisterSection>
           homeController.pointedTo.value == 'LOCAL') {
         var result = await homeController.getTerminalTransactions();
 
-        transactionSummaryList = result;
-
         if (result.first.pspId != null && result.isNotEmpty) {
           setState(() {
-            transactionSummaryList = result;
             offlinePaymentTextController.text = getActualPrice(
               result.first.totalTransactionAmount?.centAmount,
               result.first.totalTransactionAmount?.fraction,
@@ -1031,8 +1024,9 @@ class _RegisterSectionState extends State<RegisterSection>
                       ],
                     ),
                   ),
-                if (transactionSummaryList.isNotEmpty &&
-                    transactionSummaryList.first.pspId != null)
+                if (homeController.transactionSummaryList.isNotEmpty &&
+                    homeController.transactionSummaryList.first.pspId != null &&
+                    homeController.pointedTo.value == 'LOCAL') ...[
                   Container(
                     // color: Colors.amberAccent,
                     padding: const EdgeInsets.symmetric(
