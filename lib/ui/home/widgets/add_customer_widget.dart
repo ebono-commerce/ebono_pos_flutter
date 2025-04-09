@@ -637,10 +637,20 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
                                             homeController
                                                 .isContionueWithOutCustomer
                                                 .value = true;
-                                            homeController.fetchCustomer();
+                                            homeController.fetchCustomer(
+                                              isContinueWithOutCustomer: true,
+                                            );
                                           },
-                                          isBtnEnabled:
-                                              !widget.isDialogForHoldCart,
+                                          isLoading: homeController
+                                                  .isContinueWithOutCustomerBtnLoading
+                                                  .value ==
+                                              true,
+                                          isBtnEnabled: !widget
+                                                  .isDialogForHoldCart ||
+                                              homeController
+                                                      .isContinueWithOutCustomerBtnLoading
+                                                      .value ==
+                                                  true,
                                         ),
                                       ),
                                       Visibility(
@@ -840,13 +850,15 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
       padding: EdgeInsets.symmetric(horizontal: 5, vertical: 1),
       width: 100,
       child: ElevatedButton(
-        onPressed: isDisabled
+        onPressed: (isDisabled ||
+                homeController.isSearchCustomerBtnLoading.value == true)
             ? null
             : homeController.phoneNumber.value.isNotEmpty
                 ? () {
                     _controllerCustomerName.clear();
                     if (isValidPhoneNumber(homeController.phoneNumber.value)) {
-                      homeController.getCustomerDetails();
+                      homeController.getCustomerDetails(
+                          isFromCustomerScreen: true);
                     } else {
                       Get.snackbar('Invalid Phone Number',
                           'Please enter valid 10 digit phone number');
@@ -858,7 +870,8 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
           padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
           shape: RoundedRectangleBorder(
             side: BorderSide(
-              color: homeController.phoneNumber.isNotEmpty && !isDisabled
+              color: ((homeController.phoneNumber.isNotEmpty && !isDisabled) ||
+                      homeController.isSearchCustomerBtnLoading.value == true)
                   ? CustomColors.secondaryColor
                   : CustomColors.cardBackground,
             ),
@@ -868,11 +881,17 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
               ? CustomColors.secondaryColor
               : CustomColors.cardBackground,
         ),
-        child: Text(
-          "Search",
-          style: theme.textTheme.titleSmall?.copyWith(
-              fontWeight: FontWeight.bold, color: CustomColors.black),
-        ),
+        child: homeController.isSearchCustomerBtnLoading.value == true
+            ? SizedBox(
+                height: 25,
+                width: 25,
+                child: CircularProgressIndicator(),
+              )
+            : Text(
+                "Search",
+                style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.bold, color: CustomColors.black),
+              ),
       ),
     );
   }
@@ -884,7 +903,8 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
       padding: EdgeInsets.symmetric(horizontal: 5, vertical: 1),
       width: 100,
       child: ElevatedButton(
-        onPressed: isDisabled
+        onPressed: (isDisabled ||
+                homeController.isSelectOrAddCustomerBtnLoading.value == true)
             ? null
             : homeController.customerName.isNotEmpty
                 ? () {
@@ -897,6 +917,7 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
                           ? true
                           : false,
                       isFromReturns: widget.isDialogForReturns,
+                      isSelectOrAddCustomer: true,
                     );
                   }
                 : null,
@@ -905,10 +926,12 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
           padding: const EdgeInsets.symmetric(horizontal: 1, vertical: 1),
           shape: RoundedRectangleBorder(
             side: BorderSide(
-              color:
-                  homeController.customerName.isNotEmpty && isDisabled == false
-                      ? CustomColors.secondaryColor
-                      : CustomColors.cardBackground,
+              color: ((homeController.customerName.isNotEmpty &&
+                          isDisabled == false) ||
+                      homeController.isSelectOrAddCustomerBtnLoading.value ==
+                          true)
+                  ? CustomColors.secondaryColor
+                  : CustomColors.cardBackground,
             ),
             borderRadius: BorderRadius.circular(10),
           ),
@@ -917,14 +940,21 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
               : CustomColors.cardBackground,
         ),
         child: Center(
-          child: Text(
-            homeController.getCustomerDetailsResponse.value.existingCustomer ==
-                    true
-                ? 'Select'
-                : 'Add',
-            style: theme.textTheme.titleSmall?.copyWith(
-                fontWeight: FontWeight.bold, color: CustomColors.black),
-          ),
+          child: homeController.isSelectOrAddCustomerBtnLoading.value == true
+              ? SizedBox(
+                  height: 25,
+                  width: 25,
+                  child: CircularProgressIndicator(),
+                )
+              : Text(
+                  homeController.getCustomerDetailsResponse.value
+                              .existingCustomer ==
+                          true
+                      ? 'Select'
+                      : 'Add',
+                  style: theme.textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.bold, color: CustomColors.black),
+                ),
         ),
       ),
     );

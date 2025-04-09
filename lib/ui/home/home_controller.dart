@@ -135,6 +135,13 @@ class HomeController extends GetxController {
   var overideApproverUserId = ''.obs;
   var couponDetails = ''.obs;
   var pointedTo = 'LOCAL'.obs;
+
+  /* Loaders */
+  var isRegisterApiLoading = false.obs;
+  var isContinueWithOutCustomerBtnLoading = false.obs;
+  var isSearchCustomerBtnLoading = false.obs;
+  var isSelectOrAddCustomerBtnLoading = false.obs;
+
   RxList<AllowedPaymentMode> allowedPaymentModes = [AllowedPaymentMode()].obs;
   List<TransactionSummary> transactionSummaryList = [];
 
@@ -409,8 +416,13 @@ class HomeController extends GetxController {
     }
   }
 
-  Future getCustomerDetails() async {
+  Future getCustomerDetails({
+    bool isFromCustomerScreen = false,
+  }) async {
     try {
+      /* handling loader in customer dialog */
+      isSearchCustomerBtnLoading.value = isFromCustomerScreen == true;
+
       var response =
           await _homeRepository.getCustomerDetails(phoneNumber.value);
       getCustomerDetailsResponse.value = response;
@@ -422,14 +434,23 @@ class HomeController extends GetxController {
       // fetchCartDetails();
     } catch (e) {
       Get.snackbar('Error while fetching customer details', '$e');
+    } finally {
+      isSearchCustomerBtnLoading.value = false;
     }
   }
 
   fetchCustomer({
     bool showOTPScreen = false,
     bool isFromReturns = false,
+    bool isContinueWithOutCustomer = false,
+    bool isSelectOrAddCustomer = false,
   }) async {
     try {
+      /* adding loader if cashier clicks on continue with out customer btn*/
+      isContinueWithOutCustomerBtnLoading.value =
+          isContinueWithOutCustomer == true;
+      isSelectOrAddCustomerBtnLoading.value = isSelectOrAddCustomer == true;
+
       final skipMergeCart =
           customerResponse.value.phoneNumber?.number == phoneNumber.value;
       var response = await _homeRepository.fetchCustomer(CustomerRequest(
@@ -465,6 +486,9 @@ class HomeController extends GetxController {
       }
     } catch (e) {
       Get.snackbar('Error while fetching customer data', '$e');
+    } finally {
+      isContinueWithOutCustomerBtnLoading.value = false;
+      isSelectOrAddCustomerBtnLoading.value = false;
     }
   }
 
@@ -758,7 +782,7 @@ class HomeController extends GetxController {
   Future<void> openRegisterApiCall() async {
     var userId = await sharedPreferenceHelper.getUserID();
 
-    isLoading.value = true;
+    isRegisterApiLoading.value = true;
     try {
       var response = await _homeRepository.openRegister(RegisterOpenRequest(
           outletId:
@@ -782,13 +806,13 @@ class HomeController extends GetxController {
       print("error: $e $stack");
       Get.snackbar('Error while opening register', '$e');
     } finally {
-      isLoading.value = false;
+      isRegisterApiLoading.value = false;
     }
   }
 
   Future<void> closeRegisterApiCall() async {
     var userId = await sharedPreferenceHelper.getUserID();
-    isLoading.value = true;
+    isRegisterApiLoading.value = true;
     try {
       var response = await _homeRepository.closeRegister(RegisterCloseRequest(
         outletId:
@@ -887,7 +911,7 @@ class HomeController extends GetxController {
       print("error: $e $stack");
       Get.snackbar('Error while closing register', '$e');
     } finally {
-      isLoading.value = false;
+      isRegisterApiLoading.value = false;
     }
   }
 

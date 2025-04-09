@@ -60,7 +60,7 @@ class OrderSummaryResponse {
             ? null
             : OutletAddress.fromJson(json["outlet_address"]),
         invoiceNumber: json["invoice_number"],
-        invoiceDate: json["invoice_date"],
+        invoiceDate: json["invoice_date"] ?? json['order_date'],
         orderNumber: json["order_number"],
         additionalDiscountDescription: json['additional_discount_description'],
         orderDate: json["order_date"],

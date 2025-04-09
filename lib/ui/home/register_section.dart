@@ -240,43 +240,45 @@ class _RegisterSectionState extends State<RegisterSection>
     return Scaffold(
       // backgroundColor: Colors.grey.shade100,
       backgroundColor: Colors.white,
-      body: Stack(
-        children: [
-          Obx(() => Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Expanded(
-                    flex: 5,
-                    child: Column(
-                      children: [
-                        _buildRegisterInfo(
-                            homeController.registerId.value, context),
-                        (homeController.registerId.value != "" &&
-                                homeController.registerId.value != null)
-                            ? _buildCloseRegister()
-                            : _buildOpenRegister(),
-                      ],
-                    ),
+      body: Obx(
+        () => Stack(
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Expanded(
+                  flex: 5,
+                  child: Column(
+                    children: [
+                      _buildRegisterInfo(
+                          homeController.registerId.value, context),
+                      (homeController.registerId.value != "" &&
+                              homeController.registerId.value.isNotEmpty)
+                          ? _buildCloseRegister()
+                          : _buildOpenRegister(),
+                    ],
                   ),
-                  Expanded(
-                    flex: 2,
-                    child: numpadSection(),
+                ),
+                Expanded(
+                  flex: 2,
+                  child: numpadSection(),
+                ),
+                Expanded(
+                  flex: 1,
+                  child: QuickActionButtons(
+                    // color: Colors.grey.shade100,
+                    color: Colors.white,
                   ),
-                  Expanded(
-                    flex: 1,
-                    child: QuickActionButtons(
-                      // color: Colors.grey.shade100,
-                      color: Colors.white,
-                    ),
-                  ),
-                ],
-              )),
-          homeController.isLoading.value
-              ? Center(child: CircularProgressIndicator())
-              : SizedBox(),
-        ],
+                ),
+              ],
+            ),
+            homeController.isRegisterApiLoading.value
+                ? Center(child: CircularProgressIndicator())
+                : SizedBox(),
+          ],
+        ),
       ),
     );
   }
@@ -491,26 +493,28 @@ class _RegisterSectionState extends State<RegisterSection>
                       textStyle: theme.textTheme.bodyMedium,
                       padding: EdgeInsets.all(12)),
                   onPressed: isButtonEnabled()
-                      ? () {
-                          if (homeController.registerId.value == "") {
-                            // OPEN
-                            double floatVal = double.tryParse(
-                                    homeController.openFloatPayment.value) ??
-                                0;
-                            if (!(floatVal >= 5000)) {
-                              homeController.openRegisterApiCall();
-                            } else {
-                              Get.snackbar(
-                                "Error",
-                                "The amount should not be more than 5000.",
-                                snackPosition: SnackPosition.TOP,
-                              );
+                      ? homeController.isRegisterApiLoading.value
+                          ? null
+                          : () {
+                              if (homeController.registerId.value == "") {
+                                // OPEN
+                                double floatVal = double.tryParse(homeController
+                                        .openFloatPayment.value) ??
+                                    0;
+                                if (!(floatVal >= 5000)) {
+                                  homeController.openRegisterApiCall();
+                                } else {
+                                  Get.snackbar(
+                                    "Error",
+                                    "The amount should not be more than 5000.",
+                                    snackPosition: SnackPosition.TOP,
+                                  );
+                                }
+                              } else {
+                                // CLOSE
+                                homeController.closeRegisterApiCall();
+                              }
                             }
-                          } else {
-                            // CLOSE
-                            homeController.closeRegisterApiCall();
-                          }
-                        }
                       : null,
                   child: Text(
                     homeController.registerId.value != ""
