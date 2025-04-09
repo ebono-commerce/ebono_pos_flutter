@@ -920,7 +920,7 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                                         theme: theme,
                                         textStyle: theme.textTheme.bodyMedium,
                                         padding: EdgeInsets.all(12)),
-                                    onPressed: ( !state.isOnlinePaymentSuccess && onlinePaymentTextController
+                                    onPressed: (!state.isOnlinePaymentSuccess && onlinePaymentTextController
                                             .value.text.isNotEmpty)
                                         ? () {
                                             paymentBloc
@@ -1219,8 +1219,8 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                       padding: EdgeInsets.all(12)),
                   onPressed: (paymentBloc.allowPlaceOrder)
                       ? () {
-                          paymentBloc.add(PlaceOrderEvent());
                           Logger.logButtonPress(button: 'Place Order');
+                          paymentBloc.add(PlaceOrderEvent());
                         }
                       : null,
                   child: Text(
