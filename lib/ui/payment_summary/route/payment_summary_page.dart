@@ -1238,7 +1238,6 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
   void _showPaymentDialog() {
     if (!Get.isDialogOpen!) {
       Logger.logView(view: 'Online payment process Dialog');
-      paymentBloc.isDialogShowing = true;
       Get.dialog(
         barrierDismissible: true,
         Dialog(
@@ -1393,9 +1392,7 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
           }
           )
         ),
-      ).then((_) => paymentBloc.isDialogShowing = false);
-    }else{
-      paymentBloc.isDialogShowing = false;
+      );
     }
   }
 
