@@ -19,6 +19,9 @@ class AuthInterceptor extends Interceptor {
     String? appUUID = await _sharedPreferenceHelper.getAppUUID();
     String pointedTo = await _sharedPreferenceHelper.pointingTo();
 
+    // Check if it's a local HTTP request (marked by the CustomConnectionInterceptor)
+    final bool isLocalHttpRequest = options.extra['isLocalHttpRequest'] == true;
+
     if (options.uri.path.contains('/api/3.0/p2p/')) {
       options.baseUrl = EnvironmentConfig.paymentBaseUrl;
       options.headers['Content-Type'] = 'application/json';
@@ -48,6 +51,7 @@ class AuthInterceptor extends Interceptor {
     }
     print('app id : $appUUID');
     print('token $token');
+    print('isLocalHttpRequest: $isLocalHttpRequest');
     // Continue with the request
     return handler.next(options);
   }

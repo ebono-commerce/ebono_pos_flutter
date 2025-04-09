@@ -586,18 +586,9 @@ class _OrderOnHoldState extends State<OrderOnHold> with WidgetsBindingObserver {
                           child: ElevatedButton(
                             onPressed: itemData.holdCartId != ""
                                 ? () {
-                                    homeController
-                                        .isCustomerProxySelected.value = false;
-                                    homeController.phoneNumber.value =
-                                        itemData.phoneNumber!.number ?? '';
-                                    homeController.customerName.value =
-                                        itemData.customer!.customerName ?? '';
-                                    homeController.fetchCustomer();
-                                    if (itemData.holdCartId != "") {
-                                      homeController.resumeHoldCartApiCall(
-                                        itemData.holdCartId,
-                                      );
-                                    }
+                                    homeController.resumeHoldCartApiCall(
+                                      itemData.holdCartId,
+                                    );
                                   }
                                 : null,
                             style: ElevatedButton.styleFrom(

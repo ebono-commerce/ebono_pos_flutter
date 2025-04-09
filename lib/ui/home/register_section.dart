@@ -3,7 +3,6 @@ import 'package:ebono_pos/ui/Common_button.dart';
 import 'package:ebono_pos/ui/common_text_field.dart';
 import 'package:ebono_pos/ui/custom_keyboard/custom_num_pad.dart';
 import 'package:ebono_pos/ui/home/home_controller.dart';
-import 'package:ebono_pos/ui/home/model/register_close_request.dart';
 import 'package:ebono_pos/ui/home/widgets/quick_action_buttons.dart';
 import 'package:ebono_pos/utils/dash_line.dart';
 import 'package:ebono_pos/utils/price.dart';
@@ -32,8 +31,6 @@ class _RegisterSectionState extends State<RegisterSection>
 
   final FocusNode openCommentFocusNode = FocusNode();
   final FocusNode closeCommentFocusNode = FocusNode();
-
-  List<TransactionSummary> transactionSummaryList = [];
 
   FocusNode? activeFocusNode;
 
@@ -181,20 +178,29 @@ class _RegisterSectionState extends State<RegisterSection>
       });
     });
 
+    ever(homeController.registerId, (callback) {
+      /* clearing the transaction list when register closed */
+      if (homeController.registerId.value.isEmpty) {
+        homeController.transactionSummaryList.clear();
+      }
+    });
+
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (mounted &&
           homeController.registerId.value.isNotEmpty &&
           homeController.pointedTo.value == 'LOCAL') {
-        transactionSummaryList = await homeController.getTerminalTransactions();
+        var result = await homeController.getTerminalTransactions();
 
-        setState(() {
-          offlinePaymentTextController.text = getActualPrice(
-            transactionSummaryList.first.totalTransactionAmount?.centAmount,
-            transactionSummaryList.first.totalTransactionAmount?.fraction,
-          );
-          offlineSlipCountTextController.text =
-              transactionSummaryList.first.chargeSlipCount.toString();
-        });
+        if (result.first.pspId != null && result.isNotEmpty) {
+          setState(() {
+            offlinePaymentTextController.text = getActualPrice(
+              result.first.totalTransactionAmount?.centAmount,
+              result.first.totalTransactionAmount?.fraction,
+            );
+            offlineSlipCountTextController.text =
+                result.first.chargeSlipCount.toString();
+          });
+        }
       }
     });
     super.initState();
@@ -1018,7 +1024,9 @@ class _RegisterSectionState extends State<RegisterSection>
                       ],
                     ),
                   ),
-                if (transactionSummaryList.isNotEmpty)
+                if (homeController.transactionSummaryList.isNotEmpty &&
+                    homeController.transactionSummaryList.first.pspId != null &&
+                    homeController.pointedTo.value == 'LOCAL') ...[
                   Container(
                     // color: Colors.amberAccent,
                     padding: const EdgeInsets.symmetric(
@@ -1041,7 +1049,7 @@ class _RegisterSectionState extends State<RegisterSection>
                           child: SizedBox(
                             width: 140,
                             child: commonTextField(
-                                label: "Enter Amount",
+                                label: "Amount",
                                 readOnly: true,
                                 enabled: false,
                                 focusNode: FocusNode(canRequestFocus: false),
@@ -1057,7 +1065,7 @@ class _RegisterSectionState extends State<RegisterSection>
                           child: SizedBox(
                             width: 140,
                             child: commonTextField(
-                                label: "Enter Count",
+                                label: "Count",
                                 readOnly: true,
                                 enabled: false,
                                 focusNode: FocusNode(canRequestFocus: false),
@@ -1071,6 +1079,7 @@ class _RegisterSectionState extends State<RegisterSection>
                       ],
                     ),
                   ),
+                ],
                 SizedBox(
                   height: 10,
                 ),
