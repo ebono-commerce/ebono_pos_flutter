@@ -221,7 +221,10 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
     print('Payment Status Request: ${paymentStatusRequest.origP2PRequestId}');
 
     try {
-      if(event.isFromDialogue) emit(state.copyWith(isLoading: true));
+      if(event.isFromDialogue){
+        closeSnackBar();
+        emit(state.copyWith(isLoading: true));
+      }
       paymentStatusResponse =
       await _paymentRepository.paymentStatusApiCall(paymentStatusRequest);
       if(event.isFromDialogue) emit(state.copyWith(isLoading: false));
