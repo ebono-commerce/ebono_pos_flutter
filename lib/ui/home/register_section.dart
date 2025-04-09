@@ -1079,6 +1079,7 @@ class _RegisterSectionState extends State<RegisterSection>
                       ],
                     ),
                   ),
+                ],
                 SizedBox(
                   height: 10,
                 ),
