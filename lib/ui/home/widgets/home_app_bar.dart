@@ -43,29 +43,7 @@ class _HomeAppBarState extends State<HomeAppBar> {
           Spacer(),
           Flexible(
             child: Center(
-              child:
-                  // Column(
-                  //   children: [
-                  //     Obx(
-                  //       () => Text(
-                  //         '${homeController.userDetails.value.fullName} | ${homeController.selectedOutlet.value}',
-                  //         style: Theme.of(context)
-                  //             .textTheme
-                  //             .labelMedium
-                  //             ?.copyWith(color: CustomColors.black),
-                  //         // style: TextStyle(color: Colors.black, fontSize: 13),
-                  //       ),
-                  //     ),
-                  //     SizedBox(height: 5),
-                  //     Obx(
-                  //       () => Text(
-                  //         '${homeController.pointedTo.value} | ${homeController.selectedTerminal.value}',
-                  //         style: Theme.of(context).textTheme.labelMedium,
-                  //       ),
-                  //     ),
-                  //   ],
-                  // ),
-                  Column(
+              child: Column(
                 children: [
                   Obx(
                     () => Row(
@@ -121,7 +99,9 @@ class _HomeAppBarState extends State<HomeAppBar> {
                                         'assets/images/ic_offline.png'),
                               ),
                               Text(
-                                homeController.pointedTo.value,
+                                homeController.pointedTo.value == 'LOCAL'
+                                    ? 'LOCAL SERVER'
+                                    : 'CLOUD SERVER',
                                 style: Theme.of(context).textTheme.labelMedium,
                                 overflow: TextOverflow.ellipsis,
                                 textAlign: TextAlign.end,
