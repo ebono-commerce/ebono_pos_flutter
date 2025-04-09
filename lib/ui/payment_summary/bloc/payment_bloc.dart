@@ -61,7 +61,6 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
   Timer? _sseFallbackTimer;
   bool isOfflineMode = false;
   bool isOfflinePaymentVerified = false;
-  bool isGenerateLinkEnabled = true;
   PaymentBloc(
       this._paymentRepository, this.hiveStorageHelper, this._homeController)
       : super(PaymentState()) {
@@ -82,7 +81,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
   void _startPeriodicPaymentStatusCheck() {
     _timer = Timer.periodic(Duration(seconds: 3), (timer) {
       if (!state.stopTimer) {
-        add(PaymentStatusEvent());
+        add(PaymentStatusEvent(isFromDialogue: false));
       } else {
         _timer?.cancel();
       }
@@ -150,8 +149,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
 
   Future<void> _paymentInitiateApi(
       PaymentStartEvent event, Emitter<PaymentState> emit) async {
-    isGenerateLinkEnabled = false;
-    emit(state.copyWith(isLoading: true, initialState: false));
+    emit(state.copyWith(isLoading: true, initialState: false,isOnlinePaymentSuccess: true));
 
     final reqBody = {
       "amount": onlinePayment,
@@ -181,11 +179,12 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
       if (paymentInitiateResponse.success == true) {
         print(
             "Success p2pRequestId --> : ${paymentInitiateResponse.p2PRequestId}");
-        isGenerateLinkEnabled = false;
         emit(state.copyWith(
             isLoading: false,
             showPaymentPopup: paymentInitiateResponse.success,
-            isPaymentStartSuccess: paymentInitiateResponse.success));
+            isPaymentStartSuccess: paymentInitiateResponse.success,
+            isOnlinePaymentSuccess: true,
+        ));
         if (paymentInitiateResponse.p2PRequestId != "") {
           _startPeriodicPaymentStatusCheck();
           p2pRequestId = paymentInitiateResponse.p2PRequestId!;
@@ -194,17 +193,18 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
         }
       } else {
         Get.snackbar('Error', '${paymentInitiateResponse.message}');
-        isGenerateLinkEnabled = true;
         emit(state.copyWith(
             isLoading: false,
             showPaymentPopup: false,
-            isPaymentStartSuccess: false));
+            isPaymentStartSuccess: false,
+            isOnlinePaymentSuccess: false,
+        ));
       }
     } catch (error) {
-      isGenerateLinkEnabled = true;
       emit(state.copyWith(
           isLoading: false,
           isPaymentSummaryError: true,
+          isOnlinePaymentSuccess: false,
           errorMessage: error.toString()));
     }
   }
@@ -221,9 +221,13 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
     print('Payment Status Request: ${paymentStatusRequest.origP2PRequestId}');
 
     try {
+      if(event.isFromDialogue){
+        emit(state.copyWith(isLoading: true));
+        closeSnackBar();
+      }
       paymentStatusResponse =
       await _paymentRepository.paymentStatusApiCall(paymentStatusRequest);
-
+      if(event.isFromDialogue) emit(state.copyWith(isLoading: false));
       print(
           "Success payment status --> : ${paymentStatusResponse.abstractPaymentStatus}");
       switch (paymentStatusResponse.messageCode) {
@@ -235,7 +239,6 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
           break;
         case "P2P_DEVICE_TXN_DONE":
           if (paymentStatusResponse.abstractPaymentStatus == "SUCCESS") {
-            isGenerateLinkEnabled = false;
             emit(state.copyWith(
               stopTimer: true,
               showPaymentPopup: false,
@@ -243,15 +246,17 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
               isPaymentStatusSuccess: true,
             ));
           } else {
-            isGenerateLinkEnabled = true;
             emit(state.copyWith(
                 stopTimer: true,
                 showPaymentPopup: false,
                 isOnlinePaymentSuccess: false,
                 isPaymentCancelSuccess: true));
           }
+          closeSnackBar();
           Get.back();
-          Get.snackbar('Payment status ${paymentStatusResponse.status}',
+
+          Get.snackbar(
+              'Payment status ${paymentStatusResponse.status}',
               '${paymentStatusResponse.message}');
 
           break;
@@ -260,18 +265,17 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
           break;
         case "P2P_DEVICE_CANCELED":
           p2pRequestId = '';
-          isGenerateLinkEnabled = true;
           emit(state.copyWith(
               stopTimer: true,
               showPaymentPopup: false,
               isOnlinePaymentSuccess: false,
               isPaymentCancelSuccess: true));
+          closeSnackBar();
           Get.back();
           Get.snackbar('Payment status', '${paymentStatusResponse.message}');
           break;
         case "P2P_STATUS_IN_CANCELED_FROM_EXTERNAL_SYSTEM":
           p2pRequestId = '';
-          isGenerateLinkEnabled = true;
           emit(state.copyWith(
               stopTimer: true,
               showPaymentPopup: false,
@@ -281,7 +285,8 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
           break;
         case "P2P_ORIGINAL_P2P_REQUEST_IS_MISSING":
           p2pRequestId = '';
-          emit(state.copyWith(stopTimer: true, showPaymentPopup: false));
+          emit(state.copyWith(stopTimer: true, showPaymentPopup: false,isOnlinePaymentSuccess: false));
+          closeSnackBar();
           Get.back();
           Get.snackbar('Payment status', '${paymentStatusResponse.message}');
 
@@ -289,18 +294,19 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
         case "P2P_DUPLICATE_CANCEL_REQUEST" ||
         "P2P_ORIGINAL_P2P_REQUEST_IS_MISSING":
           p2pRequestId = '';
-          isGenerateLinkEnabled = true;
           emit(state.copyWith(
               stopTimer: true,
               showPaymentPopup: false,
               isOnlinePaymentSuccess: false,
               isPaymentCancelSuccess: true));
+          closeSnackBar();
           Get.back();
           Get.snackbar('Payment status', '${paymentStatusResponse.message}');
           break;
         default:
+          closeSnackBar();
           Get.back();
-          emit(state.copyWith(stopTimer: true, showPaymentPopup: false));
+          emit(state.copyWith(stopTimer: true, showPaymentPopup: false,isOnlinePaymentSuccess: false));
           break;
       }
     } catch (error) {
@@ -309,14 +315,16 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
           isPaymentSummaryError: true,
           showPaymentPopup: false,
           errorMessage: error.toString(),
-          stopTimer: true));
+          stopTimer: true,
+          isOnlinePaymentSuccess: false,
+      ));
       _timer?.cancel();
     }
   }
 
   Future<void> _paymentCancelApi(
       PaymentCancelEvent event, Emitter<PaymentState> emit) async {
-    emit(state.copyWith(isLoading: false, initialState: false));
+    emit(state.copyWith(isLoading: true, initialState: false));
     final reqBody = {
       "username": edcDetails.firstOrNull?.username,
       "appKey": edcDetails.firstOrNull?.appKey,
@@ -331,10 +339,11 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
     try {
       paymentStatusResponse =
           await _paymentRepository.paymentCancelApiCall(paymentCancelRequest);
-      isGenerateLinkEnabled = true;
       if (paymentStatusResponse.success == true) {
         emit(state.copyWith(
+            isLoading: false,
             isPaymentCancelSuccess: paymentStatusResponse.success,
+            isOnlinePaymentSuccess: false,
             showPaymentPopup: false));
         Get.back();
       } else {
@@ -344,13 +353,17 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
                 "P2P_ORIGINAL_P2P_REQUEST_IS_MISSING") {
           Get.back();
         }
+        emit(state.copyWith(
+            isLoading: false,
+            isOnlinePaymentSuccess: false,
+        ));
         Get.snackbar('Error', '${paymentInitiateResponse.message}');
       }
     } catch (error) {
-      isGenerateLinkEnabled = true;
       emit(state.copyWith(
           isLoading: false,
           isPaymentSummaryError: true,
+          isOnlinePaymentSuccess: false,
           errorMessage: error.toString()));
     }
   }
@@ -369,9 +382,6 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
     var givenAmount = cashAmount + onlineAmount /*+ walletAmount*/;
     totalPayable = (paymentSummaryResponse.amountPayable?.centAmount ?? 0) /
         (paymentSummaryResponse.amountPayable?.fraction ?? 1);
-    if (event.online != '0') {
-      emit(state.copyWith(isOnlinePaymentSuccess: true));
-    }
     balancePayable = totalPayable - givenAmount;
     if (balancePayable <= 0) {
       if (onlinePayment.isNotEmpty && onlinePayment != '0') {
@@ -412,8 +422,6 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
   Future<void> _placeOrder(
       PlaceOrderEvent event, Emitter<PaymentState> emit) async {
     emit(state.copyWith(isLoading: true));
-    print(
-        'Cash => $cashPayment   online=>$onlinePayment  offline=>$offlinePayment');
     try {
       if (cashPayment.isNotEmpty) {
         cashPaymentOption = paymentSummaryResponse.paymentOptions?.firstWhere(
@@ -655,6 +663,13 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
       isWalletChargeError: false,
     ));
   }
+
+  closeSnackBar(){
+    if(Get.isSnackbarOpen){
+      Get.closeAllSnackbars();
+    }
+  }
+
 
   @override
   Future<void> close() {
