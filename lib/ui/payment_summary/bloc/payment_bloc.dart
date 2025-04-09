@@ -222,8 +222,8 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
 
     try {
       if(event.isFromDialogue){
-        closeSnackBar();
         emit(state.copyWith(isLoading: true));
+        closeSnackBar();
       }
       paymentStatusResponse =
       await _paymentRepository.paymentStatusApiCall(paymentStatusRequest);
