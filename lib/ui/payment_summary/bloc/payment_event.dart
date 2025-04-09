@@ -12,7 +12,10 @@ class FetchPaymentSummary extends PaymentEvent {}
 // For Payment EDC api
 class PaymentStartEvent extends PaymentEvent {}
 
-class PaymentStatusEvent extends PaymentEvent {}
+class PaymentStatusEvent extends PaymentEvent {
+  final bool isFromDialogue;
+  PaymentStatusEvent({required this.isFromDialogue});
+}
 
 class PaymentCancelEvent extends PaymentEvent {}
 
