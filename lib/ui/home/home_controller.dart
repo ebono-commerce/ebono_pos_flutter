@@ -850,17 +850,11 @@ class HomeController extends GetxController {
                       pspId: mode.pspId,
                       pspName: mode.pspName,
                       chargeSlipCount: int.tryParse(transactionSummaryList
-                              .first.totalTransactionAmount
+                              .first.chargeSlipCount
                               .toString()) ??
                           0,
-                      totalTransactionAmount: TotalTransactionAmount(
-                        centAmount: int.tryParse(transactionSummaryList
-                                .first.chargeSlipCount
-                                .toString()) ??
-                            0,
-                        fraction: 1,
-                        currency: "INR",
-                      ),
+                      totalTransactionAmount:
+                          transactionSummaryList.first.totalTransactionAmount,
                     );
                   }
                   return null;
