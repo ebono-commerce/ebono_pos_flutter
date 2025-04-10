@@ -633,59 +633,67 @@ class _ReturnsViewState extends State<ReturnsView> {
                       GestureDetector(
                         behavior: HitTestBehavior.translucent,
                         onTap: () => returnsBloc.add(UpdateOrderType(true)),
-                        child: Row(
-                          children: [
-                            Radio<String>(
-                              value: 'Store Order',
-                              splashRadius: 0,
-                              groupValue:
-                                  isStoreOrderNumber ? 'Store Order' : 'Order',
-                              onChanged: (_) =>
-                                  returnsBloc.add(UpdateOrderType(true)),
-                            ),
-                            Text(
-                              'Store Order Number',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleSmall
-                                  ?.copyWith(
-                                    fontWeight: FontWeight.w500,
-                                    color: CustomColors.black,
-                                  ),
-                            ),
-                          ],
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Row(
+                            children: [
+                              Radio<String>(
+                                value: 'Store Order',
+                                splashRadius: 0,
+                                groupValue: isStoreOrderNumber
+                                    ? 'Store Order'
+                                    : 'Order',
+                                onChanged: (_) =>
+                                    returnsBloc.add(UpdateOrderType(true)),
+                              ),
+                              Text(
+                                'Store Order No',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleSmall
+                                    ?.copyWith(
+                                      fontWeight: FontWeight.w500,
+                                      color: CustomColors.black,
+                                    ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                       GestureDetector(
                         behavior: HitTestBehavior.translucent,
                         onTap: () => returnsBloc.add(UpdateOrderType(false)),
-                        child: Row(
-                          children: [
-                            Radio<String>(
-                              value: 'Order',
-                              splashRadius: 0,
-                              groupValue:
-                                  isStoreOrderNumber ? 'Store Order' : 'Order',
-                              onChanged: (_) =>
-                                  returnsBloc.add(UpdateOrderType(false)),
-                            ),
-                            Text(
-                              'Order Number',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleSmall
-                                  ?.copyWith(
-                                    fontWeight: FontWeight.w500,
-                                    color: CustomColors.black,
-                                  ),
-                            ),
-                          ],
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Row(
+                            children: [
+                              Radio<String>(
+                                value: 'Order',
+                                splashRadius: 0,
+                                groupValue: isStoreOrderNumber
+                                    ? 'Store Order'
+                                    : 'Order',
+                                onChanged: (_) =>
+                                    returnsBloc.add(UpdateOrderType(false)),
+                              ),
+                              Text(
+                                'Order No',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleSmall
+                                    ?.copyWith(
+                                      fontWeight: FontWeight.w500,
+                                      color: CustomColors.black,
+                                    ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ],
                   ),
                   Container(
-                    margin: const EdgeInsets.only(top: 30),
+                    margin: const EdgeInsets.only(top: 40),
                     child: SizedBox(
                       height: 50,
                       child: ElevatedButton(

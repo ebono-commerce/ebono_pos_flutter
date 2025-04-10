@@ -146,14 +146,6 @@ Future<Uint8List> generatePdf(OrderSummaryResponse data) async {
                 child: pw.Column(
                     crossAxisAlignment: pw.CrossAxisAlignment.start,
                     children: [
-                      if (data.outletId?.isNotEmpty == true)
-                        pw.Text(
-                          'Outlet Id: ${data.outletId}',
-                          style: pw.TextStyle(
-                            fontSize: 8,
-                            font: font,
-                          ),
-                        ),
                       if (data.invoiceNumber?.isNotEmpty == true)
                         pw.Text(
                           'Invoice No: ${data.invoiceNumber}',
@@ -172,21 +164,46 @@ Future<Uint8List> generatePdf(OrderSummaryResponse data) async {
                           ),
                         ),
                       if (data.orderNumber?.isNotEmpty == true)
-                        pw.Text(
-                          'Order No: ${data.orderNumber}',
-                          style: pw.TextStyle(
-                            fontSize: 8,
-                            font: font,
-                          ),
-                        ),
+                        pw.Row(
+                            mainAxisAlignment:
+                                pw.MainAxisAlignment.spaceBetween,
+                            children: [
+                              pw.Text(
+                                'Order No: ${data.orderNumber}',
+                                style: pw.TextStyle(
+                                  fontSize: 8,
+                                  font: font,
+                                ),
+                              ),
+                              pw.SizedBox(width: 5),
+                              pw.Text(
+                                'Outlet: ${data.outletId}',
+                                style: pw.TextStyle(
+                                  fontSize: 8,
+                                  font: font,
+                                ),
+                              ),
+                            ]),
                       if (data.storeOrderNumber?.isNotEmpty == true)
-                        pw.Text(
-                          'Store Order No: ${data.storeOrderNumber}',
-                          style: pw.TextStyle(
-                            fontSize: 8,
-                            font: font,
-                          ),
-                        ),
+                        pw.Row(
+                            mainAxisAlignment:
+                                pw.MainAxisAlignment.spaceBetween,
+                            children: [
+                              pw.Text(
+                                'Store Order No: ${data.storeOrderNumber}',
+                                style: pw.TextStyle(
+                                  fontSize: 8,
+                                  font: font,
+                                ),
+                              ),
+                              pw.Text(
+                                'Outlet: ${data.outletId}',
+                                style: pw.TextStyle(
+                                  fontSize: 8,
+                                  font: font,
+                                ),
+                              ),
+                            ]),
                       if (data.orderDate?.isNotEmpty == true)
                         pw.Text(
                           'Order Date: ${data.orderDate}',
