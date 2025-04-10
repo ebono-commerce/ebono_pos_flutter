@@ -14,29 +14,36 @@ import 'package:get/get.dart';
 class InitialBinding extends Bindings {
   @override
   void dependencies() {
-    // Register SharedPreferenceHelper as a singleton
+    // Core singletons
     Get.put<SharedPreferenceHelper>(SharedPreferenceHelper());
     Get.put<HiveStorageHelper>(HiveStorageHelper());
 
-    // Register ApiHelper as a singleton
-    Get.put<ApiHelper>(ApiHelper(EnvironmentConfig.baseUrl,
-        Get.find<SharedPreferenceHelper>(), Get.find<HiveStorageHelper>()));
+    Get.put<ApiHelper>(ApiHelper(
+      EnvironmentConfig.baseUrl,
+      Get.find<SharedPreferenceHelper>(),
+      Get.find<HiveStorageHelper>(),
+    ));
 
-    //repo
-    Get.put<LoginRepository>(LoginRepository(Get.find<ApiHelper>()));
-    Get.put<ReturnsRepository>(ReturnsRepository(Get.find<ApiHelper>()));
+    // Repositories first
     Get.put<HomeRepository>(HomeRepository(Get.find<ApiHelper>()));
+    Get.put<LoginRepository>(LoginRepository(Get.find<ApiHelper>()));
     Get.put<PaymentRepository>(PaymentRepository(Get.find<ApiHelper>()));
     Get.put<SearchRepository>(SearchRepository(Get.find<ApiHelper>()));
 
-    /*// Register LoginBloc as a singleton
-    Get.put<LoginBloc>(LoginBloc(
-        Get.find<LoginRepository>(), Get.find<SharedPreferenceHelper>()));*/
-    // Register HomeController as a singleton
+    // Then controller that depends on them
+    Get.put<HomeController>(HomeController(
+      Get.find<HomeRepository>(),
+      Get.find<SharedPreferenceHelper>(),
+      Get.find<HiveStorageHelper>(),
+    ));
 
-    Get.lazyPut<HomeController>(() => HomeController(Get.find<HomeRepository>(),
-        Get.find<SharedPreferenceHelper>(), Get.find<HiveStorageHelper>()));
+    // Now that HomeController is available, register the repo that uses it
+    Get.put<ReturnsRepository>(ReturnsRepository(
+      Get.find<ApiHelper>(),
+      Get.find<HomeController>(),
+    ));
 
+    // Bloc last
     Get.put<ReturnsBloc>(ReturnsBloc(Get.find<ReturnsRepository>()));
   }
 }
