@@ -21,6 +21,7 @@ class ReturnsState {
   final bool? resetAllValues;
   final bool? displayAddNewUserDialog;
   final bool? displayVerifyUserDialog;
+  final bool isStoreOrderNumber;
 
   const ReturnsState({
     this.isLoading = false,
@@ -42,6 +43,7 @@ class ReturnsState {
     this.resetAllValues = false,
     this.displayAddNewUserDialog = false,
     this.displayVerifyUserDialog = false,
+    this.isStoreOrderNumber = false,
   });
 
   /* it updates current provided value and does not distrub other variables */
@@ -65,6 +67,7 @@ class ReturnsState {
     bool? resetAllValues,
     bool? displayAddNewUserDialog,
     bool? displayVerifyUserDialog,
+    bool? isStoreOrderNumber,
   }) {
     return ReturnsState(
       isLoading: isLoading ?? this.isLoading,
@@ -92,6 +95,7 @@ class ReturnsState {
           displayAddNewUserDialog ?? this.displayAddNewUserDialog,
       displayVerifyUserDialog:
           displayVerifyUserDialog ?? this.displayVerifyUserDialog,
+      isStoreOrderNumber: isStoreOrderNumber ?? this.isStoreOrderNumber,
     );
   }
 
@@ -116,6 +120,7 @@ class ReturnsState {
     bool? resetAllValues,
     bool? displayAddNewUserDialog,
     bool? displayVerifyUserDialog,
+    bool? isStoreOrderNumber,
   }) {
     return ReturnsState(
       isLoading: isLoading ?? false,
@@ -136,6 +141,7 @@ class ReturnsState {
       resetAllValues: resetAllValues ?? false,
       displayAddNewUserDialog: displayAddNewUserDialog ?? false,
       displayVerifyUserDialog: displayVerifyUserDialog ?? false,
+      isStoreOrderNumber: isStoreOrderNumber ?? false,
     );
   }
 }

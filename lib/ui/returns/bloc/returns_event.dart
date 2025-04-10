@@ -74,3 +74,9 @@ class UpdateOrderItemsInternalState extends ReturnsEvent {
   final String customerName;
   final String customerNumber;
 }
+
+class UpdateOrderType extends ReturnsEvent {
+  final bool isStoreOrder;
+
+  UpdateOrderType(this.isStoreOrder);
+}

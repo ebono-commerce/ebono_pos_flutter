@@ -509,7 +509,10 @@ class _ReturnsViewState extends State<ReturnsView> {
                             ),
                           if (displayFormField &&
                               homeController.registerId.value.isNotEmpty) ...[
-                            _buildFormUI(state.isLoading)
+                            _buildFormUI(
+                              isLoading: state.isLoading,
+                              isStoreOrderNumber: state.isStoreOrderNumber,
+                            )
                           ],
                           if (homeController.registerId.value.isEmpty) ...[
                             Expanded(
@@ -532,7 +535,7 @@ class _ReturnsViewState extends State<ReturnsView> {
                   Expanded(flex: 2, child: numpadSection(state)),
 
                   /* SECTION - 3 */
-                  Expanded(
+                  const Expanded(
                     flex: 1,
                     child: QuickActionButtons(
                       color: Colors.white,
@@ -547,7 +550,10 @@ class _ReturnsViewState extends State<ReturnsView> {
     );
   }
 
-  Widget _buildFormUI(bool isLoading) {
+  Widget _buildFormUI({
+    required bool isLoading,
+    required bool isStoreOrderNumber,
+  }) {
     return Expanded(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -605,7 +611,7 @@ class _ReturnsViewState extends State<ReturnsView> {
                   commonTextField(
                       focusNode: orderNumberFocusNode,
                       controller: orderNumberTextController,
-                      label: "Enter Order Number",
+                      label: "Enter Store Order / Order Number",
                       validator: (value) {
                         if ((value == null || value.isEmpty) &&
                             customerNumberTextController.text.isEmpty) {
@@ -620,8 +626,74 @@ class _ReturnsViewState extends State<ReturnsView> {
                       onTap: () {
                         customerNumberTextController.clear();
                       }),
+                  SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      GestureDetector(
+                        behavior: HitTestBehavior.translucent,
+                        onTap: () => returnsBloc.add(UpdateOrderType(true)),
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Row(
+                            children: [
+                              Radio<String>(
+                                value: 'Store Order',
+                                splashRadius: 0,
+                                groupValue: isStoreOrderNumber
+                                    ? 'Store Order'
+                                    : 'Order',
+                                onChanged: (_) =>
+                                    returnsBloc.add(UpdateOrderType(true)),
+                              ),
+                              Text(
+                                'Store Order No',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleSmall
+                                    ?.copyWith(
+                                      fontWeight: FontWeight.w500,
+                                      color: CustomColors.black,
+                                    ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      GestureDetector(
+                        behavior: HitTestBehavior.translucent,
+                        onTap: () => returnsBloc.add(UpdateOrderType(false)),
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Row(
+                            children: [
+                              Radio<String>(
+                                value: 'Order',
+                                splashRadius: 0,
+                                groupValue: isStoreOrderNumber
+                                    ? 'Store Order'
+                                    : 'Order',
+                                onChanged: (_) =>
+                                    returnsBloc.add(UpdateOrderType(false)),
+                              ),
+                              Text(
+                                'Order No',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleSmall
+                                    ?.copyWith(
+                                      fontWeight: FontWeight.w500,
+                                      color: CustomColors.black,
+                                    ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                   Container(
-                    margin: const EdgeInsets.only(top: 30),
+                    margin: const EdgeInsets.only(top: 40),
                     child: SizedBox(
                       height: 50,
                       child: ElevatedButton(
@@ -657,6 +729,7 @@ class _ReturnsViewState extends State<ReturnsView> {
               ),
             ),
           ),
+          SizedBox(height: 50),
         ],
       ),
     );

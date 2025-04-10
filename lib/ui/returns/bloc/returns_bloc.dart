@@ -23,11 +23,23 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
     on<ResetValuesOnDialogCloseEvent>(_resetValuesOnDialogClose);
     on<UpdateOrderLineQuantity>(_onUpdateOrderLineQuantity);
     on<UpdateOrderItemsInternalState>(_onUpdateOrderItemsInternalState);
+    on<UpdateOrderType>(_updateOrderType);
   }
 
   void _onReturnsEvent(ReturnsEvent event, Emitter<ReturnsState> emit) {
     /* always triggers loading event when ever event is added */
     emit(state.copyWith(isLoading: true));
+  }
+
+  void _updateOrderType(UpdateOrderType event, Emitter<ReturnsState> emit) {
+    emit(state.copyWith(
+      isOrderItemsFetched: false,
+      isFetchingOrderItems: false,
+      isCustomerOrdersDataFetched: false,
+      isError: false,
+      isLoading: false,
+      isStoreOrderNumber: event.isStoreOrder,
+    ));
   }
 
   Future<void> _resetReturns(
@@ -131,6 +143,7 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
       OrderItemsModel orderItemsData =
           await returnsRepository.fetchOrderItemBasedOnOrderId(
         orderId: event.orderId,
+        isStoreOrder: state.isStoreOrderNumber,
       );
 
       emit(state.updateInputValuesAndResetRemaining(
@@ -145,6 +158,7 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
             ? state.customerOrders
             : const CustomerOrders(),
         errorMessage: e.toString(),
+        isStoreOrderNumber: state.isStoreOrderNumber,
       ));
     } finally {
       emit(state.copyWith(

@@ -100,8 +100,8 @@ class _HomeAppBarState extends State<HomeAppBar> {
                               ),
                               Text(
                                 homeController.pointedTo.value == 'LOCAL'
-                                    ? 'LOCAL SERVER'
-                                    : 'CLOUD SERVER',
+                                    ? 'LOCAL'
+                                    : 'CLOUD',
                                 style: Theme.of(context).textTheme.labelMedium,
                                 overflow: TextOverflow.ellipsis,
                                 textAlign: TextAlign.end,

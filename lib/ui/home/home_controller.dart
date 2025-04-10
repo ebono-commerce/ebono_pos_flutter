@@ -700,7 +700,7 @@ class HomeController extends GetxController {
     }
   }
 
-  Future<void> resumeHoldCartApiCall(String? id) async {
+  Future<void> resumeHoldCartApiCall({String? id, String? mobileNumber}) async {
     try {
       var response = await _homeRepository.resumeHoldCart(
           id!,
@@ -710,9 +710,12 @@ class HomeController extends GetxController {
               holdCartId: id));
       /* resetting the existing state */
       cartId.value = response.cartId ?? '';
-      clearHoldCartOrders();
-      fetchCartDetails();
+      phoneNumber.value = mobileNumber ?? '';
       selectedTabButton.value = 2;
+      getCustomerDetails();
+      fetchCartDetails();
+      fetchCustomer();
+      clearHoldCartOrders();
     } catch (e) {
       Get.snackbar('Error while resuming cart', '$e');
     }

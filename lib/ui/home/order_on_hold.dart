@@ -587,7 +587,9 @@ class _OrderOnHoldState extends State<OrderOnHold> with WidgetsBindingObserver {
                             onPressed: itemData.holdCartId != ""
                                 ? () {
                                     homeController.resumeHoldCartApiCall(
-                                      itemData.holdCartId,
+                                      id: itemData.holdCartId,
+                                      mobileNumber:
+                                          itemData.phoneNumber?.number,
                                     );
                                   }
                                 : null,
