@@ -12,6 +12,9 @@ class Logger {
   static bool isLoggerEnabled = true;
   /// Initialize the log file with a custom path
   static Future<void> init() async {
+
+    if(!isLoggerEnabled) return;
+
     // logs/ in home directory
     String logDirPath = '${Platform.environment['HOME']}/logs';
 
