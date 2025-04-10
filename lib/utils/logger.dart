@@ -59,6 +59,7 @@ class Logger {
       "button": ""
     };
 
+    logEntry['event_type'] = "BUTTON";
     logEntry['app_id'] = await sharedPrefsHelper.getAppUUID();
     logEntry['cashier'] = homeController.userDetails.value.fullName;
     logEntry['store_id'] = homeController.selectedTerminalId;
