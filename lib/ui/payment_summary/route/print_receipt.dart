@@ -171,6 +171,22 @@ Future<Uint8List> generatePdf(OrderSummaryResponse data) async {
                             font: font,
                           ),
                         ),
+                      if (data.outletId?.isNotEmpty == true)
+                        pw.Text(
+                          'Outlet Id: ${data.outletId}',
+                          style: pw.TextStyle(
+                            fontSize: 8,
+                            font: font,
+                          ),
+                        ),
+                      if (data.storeOrderNumber?.isNotEmpty == true)
+                        pw.Text(
+                          'Store Order No: ${data.storeOrderNumber}',
+                          style: pw.TextStyle(
+                            fontSize: 8,
+                            font: font,
+                          ),
+                        ),
                       if (data.orderDate?.isNotEmpty == true)
                         pw.Text(
                           'Order Date: ${data.orderDate}',

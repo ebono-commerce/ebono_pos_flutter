@@ -12,6 +12,8 @@ class OrderSummaryResponse {
   String? invoiceNumber;
   String? invoiceDate;
   String? orderNumber;
+  String? outletId;
+  String? storeOrderNumber;
   String? orderDate;
   String? paymentMethods;
   Customer? customer;
@@ -35,6 +37,8 @@ class OrderSummaryResponse {
     this.invoiceNumber,
     this.invoiceDate,
     this.orderNumber,
+    this.outletId,
+    this.storeOrderNumber,
     this.orderDate,
     this.paymentMethods,
     this.customer,
@@ -62,6 +66,8 @@ class OrderSummaryResponse {
         invoiceNumber: json["invoice_number"],
         invoiceDate: json["invoice_date"],
         orderNumber: json["order_number"],
+        outletId: json["outlet_id"],
+        storeOrderNumber: json["store_order_number"],
         additionalDiscountDescription: json['additional_discount_description'],
         orderDate: json["order_date"],
         paymentMethods: json["payment_methods"],
