@@ -146,6 +146,14 @@ Future<Uint8List> generatePdf(OrderSummaryResponse data) async {
                 child: pw.Column(
                     crossAxisAlignment: pw.CrossAxisAlignment.start,
                     children: [
+                      if (data.outletId?.isNotEmpty == true)
+                        pw.Text(
+                          'Outlet Id: ${data.outletId}',
+                          style: pw.TextStyle(
+                            fontSize: 8,
+                            font: font,
+                          ),
+                        ),
                       if (data.invoiceNumber?.isNotEmpty == true)
                         pw.Text(
                           'Invoice No: ${data.invoiceNumber}',
@@ -166,14 +174,6 @@ Future<Uint8List> generatePdf(OrderSummaryResponse data) async {
                       if (data.orderNumber?.isNotEmpty == true)
                         pw.Text(
                           'Order No: ${data.orderNumber}',
-                          style: pw.TextStyle(
-                            fontSize: 8,
-                            font: font,
-                          ),
-                        ),
-                      if (data.outletId?.isNotEmpty == true)
-                        pw.Text(
-                          'Outlet Id: ${data.outletId}',
                           style: pw.TextStyle(
                             fontSize: 8,
                             font: font,
