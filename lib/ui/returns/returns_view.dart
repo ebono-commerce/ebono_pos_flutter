@@ -535,7 +535,7 @@ class _ReturnsViewState extends State<ReturnsView> {
                   Expanded(flex: 2, child: numpadSection(state)),
 
                   /* SECTION - 3 */
-                  Expanded(
+                  const Expanded(
                     flex: 1,
                     child: QuickActionButtons(
                       color: Colors.white,
