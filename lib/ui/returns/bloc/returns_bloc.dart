@@ -1,9 +1,13 @@
+import 'package:audioplayers/audioplayers.dart';
 import 'package:ebono_pos/ui/returns/models/customer_order_model.dart';
 import 'package:ebono_pos/ui/returns/models/order_items_model.dart';
 import 'package:ebono_pos/ui/returns/models/refund_success_model.dart';
 import 'package:ebono_pos/ui/returns/repository/returns_repository.dart';
+import 'package:ebono_pos/widgets/error_dialog_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get/get.dart';
 
 part 'returns_event.dart';
 part 'returns_state.dart';
@@ -100,6 +104,13 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
         customerOrders: customerOrders,
       ));
     } catch (e) {
+      if (e.toString().contains("SHOW_STOPPER")) {
+        await showStopperError(
+          errorMessage: e.toString().split('::').last,
+          isScanApiError: true,
+        );
+      }
+
       emit(state.copyWith(
         isError: true,
         isCustomerOrdersDataFetched: false,
@@ -153,6 +164,13 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
         orderItemsData: orderItemsData,
       ));
     } catch (e) {
+      if (e.toString().contains("SHOW_STOPPER")) {
+        await showStopperError(
+          errorMessage: e.toString().split('::').last,
+          isScanApiError: true,
+        );
+      }
+
       emit(state.updateInputValuesAndResetRemaining(
         isError: true,
         customerOrders: event.isRetrivingOrderItems
@@ -459,5 +477,34 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
         isError: false,
       ));
     }
+  }
+
+  Future<void> showStopperError({
+    required String errorMessage,
+    bool isScanApiError = false,
+  }) async {
+    // Add the sound playing logic before showing dialog
+    final player = AudioPlayer();
+    await player.play(AssetSource(
+        isScanApiError ? 'audio/error.mp3' : 'audio/add_to_cart.mp3'));
+
+    Get.dialog(
+      Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: ErrorDialogWidget(
+          onPressed: () => Get.back(),
+          errorMessage: errorMessage,
+          iconWidget: SvgPicture.asset(
+            'assets/images/ic_close.svg',
+            width: 80,
+            height: 80,
+          ),
+        ),
+      ),
+      barrierDismissible: true,
+      useSafeArea: false,
+    );
   }
 }
