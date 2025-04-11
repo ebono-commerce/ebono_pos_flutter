@@ -315,24 +315,28 @@ class _AddCustomerStaticWidgetState extends State<AddCustomerStaticWidget>
                         ),
                       ),
                     )),
-                Visibility(
-                  visible: homeController
-                          .getCustomerDetailsResponse.value.existingCustomer !=
-                      null,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                    child: Text(
-                      homeController.getCustomerDetailsResponse.value
-                                  .existingCustomer ==
-                              true
-                          ? 'Existing Customer'
-                          : 'New Customer',
-                      textAlign: TextAlign.center,
-                      style: theme.textTheme.labelMedium
-                          ?.copyWith(color: CustomColors.green),
-                    ),
-                  ),
-                ),
+                // Visibility(
+                //   visible: (homeController
+                //           .getCustomerDetailsResponse.value.existingCustomer !=
+                //       null ),
+                //   child: Padding(
+                //     padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                //     child: Text(
+                //       homeController.getCustomerDetailsResponse.value
+                //                   .existingCustomer ==
+                //               null
+                //           ? ""
+                //           : homeController.getCustomerDetailsResponse.value
+                //                       .existingCustomer ==
+                //                   true
+                //               ? 'Existing Customer'
+                //               : 'New Customer',
+                //       textAlign: TextAlign.center,
+                //       style: theme.textTheme.labelMedium
+                //           ?.copyWith(color: CustomColors.green),
+                //     ),
+                //   ),
+                // ),
               ],
             ),
             SizedBox(

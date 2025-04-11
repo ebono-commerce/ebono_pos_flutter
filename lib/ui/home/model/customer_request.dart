@@ -35,7 +35,7 @@ class CustomerRequest {
 
   Map<String, dynamic> toJson() => {
         "phone_number": phoneNumber,
-        "customer_name": customerName,
+        if(customerName != null && customerName!.isNotEmpty) "customer_name": customerName,
         "cart_type": cartType,
         "outlet_id": outletId,
         "terminal_id": terminalId,

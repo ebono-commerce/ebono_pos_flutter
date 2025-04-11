@@ -144,6 +144,9 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
           isLoading: false,
           isPaymentSummaryError: true,
           errorMessage: error.toString()));
+      Get.snackbar(
+          'Error',
+          error.toString());
     }
   }
 
