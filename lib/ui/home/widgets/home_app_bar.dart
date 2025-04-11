@@ -45,12 +45,12 @@ class _HomeAppBarState extends State<HomeAppBar> {
             child: Center(
               child: Column(
                 children: [
-                  Obx(
-                    () => Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: Text(
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Obx(
+                          () => Text(
                             homeController.userDetails.value.fullName,
                             style: Theme.of(context)
                                 .textTheme
@@ -60,12 +60,14 @@ class _HomeAppBarState extends State<HomeAppBar> {
                             textAlign: TextAlign.end,
                           ),
                         ),
-                        Text(
-                          ' | ',
-                          style: Theme.of(context).textTheme.labelMedium,
-                        ),
-                        Expanded(
-                          child: Text(
+                      ),
+                      Text(
+                        ' | ',
+                        style: Theme.of(context).textTheme.labelMedium,
+                      ),
+                      Expanded(
+                        child: Obx(
+                          () => Text(
                             homeController.selectedOutlet.value,
                             style: Theme.of(context)
                                 .textTheme
@@ -75,20 +77,20 @@ class _HomeAppBarState extends State<HomeAppBar> {
                             textAlign: TextAlign.start,
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                   SizedBox(height: 5),
-                  Obx(
-                    () => Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Expanded(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            spacing: 10,
-                            children: [
-                              ImageIcon(
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Expanded(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          spacing: 10,
+                          children: [
+                            Obx(
+                              () => ImageIcon(
                                 size: 20,
                                 color: homeController.pointedTo.value == 'CLOUD'
                                     ? CustomColors.green
@@ -98,7 +100,9 @@ class _HomeAppBarState extends State<HomeAppBar> {
                                     : AssetImage(
                                         'assets/images/ic_offline.png'),
                               ),
-                              Text(
+                            ),
+                            Obx(
+                              () => Text(
                                 homeController.pointedTo.value == 'LOCAL'
                                     ? 'LOCAL'
                                     : 'CLOUD',
@@ -106,23 +110,25 @@ class _HomeAppBarState extends State<HomeAppBar> {
                                 overflow: TextOverflow.ellipsis,
                                 textAlign: TextAlign.end,
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
-                        Text(
-                          ' | ',
-                          style: Theme.of(context).textTheme.labelMedium,
-                        ),
-                        Expanded(
-                          child: Text(
+                      ),
+                      Text(
+                        ' | ',
+                        style: Theme.of(context).textTheme.labelMedium,
+                      ),
+                      Expanded(
+                        child: Obx(
+                          () => Text(
                             homeController.selectedTerminal.value,
                             style: Theme.of(context).textTheme.labelMedium,
                             overflow: TextOverflow.ellipsis,
                             textAlign: TextAlign.start,
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ],
               ),
