@@ -12,7 +12,7 @@ class CustomLogInterceptor extends Interceptor {
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) async {
     // Create a map for response data
-    if (_isPaymentRequest(response.requestOptions.uri.path)) {
+    if (_isRequestAllowed(response.requestOptions.uri.path)) {
       Map<String, dynamic> requestData = {
         'method': response.requestOptions.method,
         'uri': response.requestOptions.uri.toString(),
@@ -55,7 +55,7 @@ class CustomLogInterceptor extends Interceptor {
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) async {
-    if (_isPaymentRequest(err.requestOptions.uri.path)) {
+    if (_isRequestAllowed(err.requestOptions.uri.path)) {
       Map<String, dynamic> requestData = {
         'method': err.requestOptions.method,
         'uri': err.requestOptions.uri.toString(),
@@ -96,9 +96,10 @@ class CustomLogInterceptor extends Interceptor {
   }
 
   /// Helper method to check if the request is related to payment
-  bool _isPaymentRequest(String path) {
+  bool _isRequestAllowed(String path) {
     return path.contains('/api/3.0/p2p/') ||
         path.contains(ApiConstants.fetchPaymentSummary) ||
+        path.contains(ApiConstants.terminalDetails) ||
         path.contains(ApiConstants.placeOrder) ||
         path.contains(ApiConstants.orderInvoiceSSE) ||
         path.contains(ApiConstants.walletAuthentication) ||
