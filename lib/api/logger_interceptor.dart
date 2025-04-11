@@ -99,6 +99,7 @@ class CustomLogInterceptor extends Interceptor {
   bool _isRequestAllowed(String path) {
     return path.contains('/api/3.0/p2p/') ||
         path.contains(ApiConstants.fetchPaymentSummary) ||
+        path.contains(ApiConstants.healthCheck) ||
         path.contains(ApiConstants.terminalDetails) ||
         path.contains(ApiConstants.outletDetails) ||
         path.contains(ApiConstants.placeOrder) ||
