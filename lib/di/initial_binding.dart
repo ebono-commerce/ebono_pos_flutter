@@ -14,36 +14,30 @@ import 'package:get/get.dart';
 class InitialBinding extends Bindings {
   @override
   void dependencies() {
-    // Core singletons
+    // Register SharedPreferenceHelper as a singleton
     Get.put<SharedPreferenceHelper>(SharedPreferenceHelper());
     Get.put<HiveStorageHelper>(HiveStorageHelper());
 
-    Get.put<ApiHelper>(ApiHelper(
-      EnvironmentConfig.baseUrl,
-      Get.find<SharedPreferenceHelper>(),
-      Get.find<HiveStorageHelper>(),
-    ));
+    // Register ApiHelper as a singleton
+    Get.put<ApiHelper>(ApiHelper(EnvironmentConfig.baseUrl,
+        Get.find<SharedPreferenceHelper>(), Get.find<HiveStorageHelper>()));
 
-    // Repositories first
-    Get.put<HomeRepository>(HomeRepository(Get.find<ApiHelper>()));
+    // Register HomeController as a singleton
+    Get.lazyPut<HomeController>(() => HomeController(Get.find<HomeRepository>(),
+        Get.find<SharedPreferenceHelper>(), Get.find<HiveStorageHelper>()));
+
+    //repo
     Get.put<LoginRepository>(LoginRepository(Get.find<ApiHelper>()));
+    Get.put<ReturnsRepository>(
+        ReturnsRepository(Get.find<ApiHelper>(), Get.find<HomeController>()));
+    Get.put<HomeRepository>(HomeRepository(Get.find<ApiHelper>()));
     Get.put<PaymentRepository>(PaymentRepository(Get.find<ApiHelper>()));
     Get.put<SearchRepository>(SearchRepository(Get.find<ApiHelper>()));
 
-    // Then controller that depends on them
-    Get.put<HomeController>(HomeController(
-      Get.find<HomeRepository>(),
-      Get.find<SharedPreferenceHelper>(),
-      Get.find<HiveStorageHelper>(),
-    ));
+    /*// Register LoginBloc as a singleton
+    Get.put<LoginBloc>(LoginBloc(
+        Get.find<LoginRepository>(), Get.find<SharedPreferenceHelper>()));*/
 
-    // Now that HomeController is available, register the repo that uses it
-    Get.put<ReturnsRepository>(ReturnsRepository(
-      Get.find<ApiHelper>(),
-      Get.find<HomeController>(),
-    ));
-
-    // Bloc last
     Get.put<ReturnsBloc>(ReturnsBloc(Get.find<ReturnsRepository>()));
   }
 }
