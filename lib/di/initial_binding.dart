@@ -28,8 +28,7 @@ class InitialBinding extends Bindings {
 
     //repo
     Get.put<LoginRepository>(LoginRepository(Get.find<ApiHelper>()));
-    Get.put<ReturnsRepository>(
-        ReturnsRepository(Get.find<ApiHelper>(), Get.find<HomeController>()));
+    Get.put<ReturnsRepository>(ReturnsRepository(Get.find<ApiHelper>()));
     Get.put<HomeRepository>(HomeRepository(Get.find<ApiHelper>()));
     Get.put<PaymentRepository>(PaymentRepository(Get.find<ApiHelper>()));
     Get.put<SearchRepository>(SearchRepository(Get.find<ApiHelper>()));

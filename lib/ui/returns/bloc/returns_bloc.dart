@@ -144,6 +144,7 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
           await returnsRepository.fetchOrderItemBasedOnOrderId(
         orderId: event.orderId,
         isStoreOrder: state.isStoreOrderNumber,
+        outletId: event.outletId,
       );
 
       emit(state.updateInputValuesAndResetRemaining(
