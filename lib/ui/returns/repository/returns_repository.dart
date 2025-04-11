@@ -1,6 +1,5 @@
 import 'package:ebono_pos/api/api_constants.dart';
 import 'package:ebono_pos/api/api_helper.dart';
-import 'package:ebono_pos/ui/home/home_controller.dart';
 import 'package:ebono_pos/ui/returns/models/customer_order_model.dart';
 import 'package:ebono_pos/ui/returns/models/order_items_model.dart';
 import 'package:ebono_pos/ui/returns/models/refund_success_model.dart';
@@ -9,9 +8,8 @@ import '../../../api/api_exception.dart';
 
 class ReturnsRepository {
   final ApiHelper _apiHelper;
-  final HomeController _homeController;
 
-  ReturnsRepository(this._apiHelper, this._homeController);
+  ReturnsRepository(this._apiHelper);
 
   Future<CustomerOrders> fetchCustomerOrderDetails({
     required String phoneNumber,
@@ -32,11 +30,11 @@ class ReturnsRepository {
   Future<OrderItemsModel> fetchOrderItemBasedOnOrderId({
     required String orderId,
     required bool isStoreOrder,
+    required String outletId,
   }) async {
     try {
-      final queryParams = isStoreOrder
-          ? '?is_store_order=true&outlet_id=${_homeController.selectedOutletId}'
-          : '';
+      final queryParams =
+          isStoreOrder ? '?is_store_order=true&outlet_id=$outletId' : '';
 
       final response = await _apiHelper.get(
         "${ApiConstants.orders}/$orderId$queryParams",

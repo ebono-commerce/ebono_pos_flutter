@@ -160,7 +160,10 @@ class _ReturnsViewState extends State<ReturnsView> {
       } else {
         setState(() => storeTempOrderId = orderNumberTextController.text);
         returnsBloc.add(
-          FetchOrderDataBasedOnOrderId(orderId: orderNumberTextController.text),
+          FetchOrderDataBasedOnOrderId(
+            orderId: orderNumberTextController.text,
+            outletId: homeController.selectedOutletId,
+          ),
         );
       }
     }
@@ -214,7 +217,10 @@ class _ReturnsViewState extends State<ReturnsView> {
                   });
 
                   returnsBloc.add(
-                    FetchOrderDataBasedOnOrderId(orderId: storeTempOrderId!),
+                    FetchOrderDataBasedOnOrderId(
+                      orderId: storeTempOrderId!,
+                      outletId: homeController.selectedOutletId,
+                    ),
                   );
                 }
               } else if (status == true && isDialogForAddCustomer == true) {
@@ -435,6 +441,8 @@ class _ReturnsViewState extends State<ReturnsView> {
                                       FetchOrderDataBasedOnOrderId(
                                         orderId: orderId!,
                                         isRetrivingOrderItems: true,
+                                        outletId:
+                                            homeController.selectedOutletId,
                                       ),
                                     );
                                   },
