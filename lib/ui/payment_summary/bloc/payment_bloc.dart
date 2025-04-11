@@ -226,7 +226,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
     try {
       if(event.isFromDialogue){
         emit(state.copyWith(isLoading: true));
-        closeSnackBar();
+       // closeSnackBar();
       }
       paymentStatusResponse =
       await _paymentRepository.paymentStatusApiCall(paymentStatusRequest);
@@ -255,7 +255,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
                 isOnlinePaymentSuccess: false,
                 isPaymentCancelSuccess: true));
           }
-          closeSnackBar();
+         // closeSnackBar();
           Get.back();
 
           Get.snackbar(
@@ -273,7 +273,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
               showPaymentPopup: false,
               isOnlinePaymentSuccess: false,
               isPaymentCancelSuccess: true));
-          closeSnackBar();
+          //closeSnackBar();
           Get.back();
           Get.snackbar('Payment status', '${paymentStatusResponse.message}');
           break;
@@ -289,7 +289,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
         case "P2P_ORIGINAL_P2P_REQUEST_IS_MISSING":
           p2pRequestId = '';
           emit(state.copyWith(stopTimer: true, showPaymentPopup: false,isOnlinePaymentSuccess: false));
-          closeSnackBar();
+         // closeSnackBar();
           Get.back();
           Get.snackbar('Payment status', '${paymentStatusResponse.message}');
 
@@ -302,12 +302,12 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
               showPaymentPopup: false,
               isOnlinePaymentSuccess: false,
               isPaymentCancelSuccess: true));
-          closeSnackBar();
+         // closeSnackBar();
           Get.back();
           Get.snackbar('Payment status', '${paymentStatusResponse.message}');
           break;
         default:
-          closeSnackBar();
+          //closeSnackBar();
           Get.back();
           emit(state.copyWith(stopTimer: true, showPaymentPopup: false,isOnlinePaymentSuccess: false));
           break;

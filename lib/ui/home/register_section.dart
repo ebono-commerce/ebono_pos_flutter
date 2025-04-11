@@ -570,7 +570,10 @@ class _RegisterSectionState extends State<RegisterSection>
                             .textTheme
                             .titleLarge
                             ?.copyWith(fontWeight: FontWeight.bold)),
-                    Text("Set an opening float to start the sale",
+                    Text(
+                        label == ""
+                            ? "Set an opening float to start the sale"
+                            : "Close your register to finalize payments and sales for the day",
                         maxLines: 1,
                         textAlign: TextAlign.center,
                         style: Theme.of(context)
