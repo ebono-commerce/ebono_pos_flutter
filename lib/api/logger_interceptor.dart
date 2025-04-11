@@ -100,6 +100,7 @@ class CustomLogInterceptor extends Interceptor {
     return path.contains('/api/3.0/p2p/') ||
         path.contains(ApiConstants.fetchPaymentSummary) ||
         path.contains(ApiConstants.terminalDetails) ||
+        path.contains(ApiConstants.outletDetails) ||
         path.contains(ApiConstants.placeOrder) ||
         path.contains(ApiConstants.orderInvoiceSSE) ||
         path.contains(ApiConstants.walletAuthentication) ||
