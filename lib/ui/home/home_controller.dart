@@ -444,6 +444,7 @@ class HomeController extends GetxController {
     bool isFromReturns = false,
     bool isContinueWithOutCustomer = false,
     bool isSelectOrAddCustomer = false,
+    bool isFromResumeHoldCart = false,
   }) async {
     try {
       /* adding loader if cashier clicks on continue with out customer btn*/
@@ -455,7 +456,7 @@ class HomeController extends GetxController {
           customerResponse.value.phoneNumber?.number == phoneNumber.value;
       var response = await _homeRepository.fetchCustomer(CustomerRequest(
           phoneNumber: phoneNumber.value,
-          customerName: customerName.value,
+          customerName: isFromResumeHoldCart ? null : customerName.value,
           cartType: selectedPosMode.value.isNotEmpty == true
               ? selectedPosMode.value
               : 'POS',
@@ -714,7 +715,7 @@ class HomeController extends GetxController {
       selectedTabButton.value = 2;
       getCustomerDetails();
       fetchCartDetails();
-      fetchCustomer();
+      fetchCustomer(isFromResumeHoldCart: true);
       clearHoldCartOrders();
     } catch (e) {
       Get.snackbar('Error while resuming cart', '$e');
