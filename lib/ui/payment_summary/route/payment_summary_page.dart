@@ -106,18 +106,23 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
 
     numPadTextController.addListener(() {
       setState(() {
-        if (activeFocusNode == cashPaymentFocusNode) {
-          _formKey.currentState?.validate();
-          cashPaymentTextController.text = numPadTextController.text;
-          paymentBloc.isOfflinePaymentVerified = false;
-        } else if (activeFocusNode == onlinePaymentFocusNode) {
-          _formKey.currentState?.validate();
-          paymentBloc.onlinePayment = numPadTextController.text;
-          //  onlinePaymentTextController.text = numPadTextController.text;
-        } else if (activeFocusNode == loyaltyPaymentFocusNode) {
-          loyaltyTextController.text = numPadTextController.text;
-        } else if (activeFocusNode == walletPaymentFocusNode) {
-          walletTextController.text = numPadTextController.text;
+        if(paymentBloc.totalPayable == 0 && paymentBloc.state.isWalletChargeSuccess){
+          activeFocusNode = FocusNode();
+        }else{
+          if (activeFocusNode == cashPaymentFocusNode) {
+
+            _formKey.currentState?.validate();
+            cashPaymentTextController.text = numPadTextController.text;
+            paymentBloc.isOfflinePaymentVerified = false;
+          } else if (activeFocusNode == onlinePaymentFocusNode) {
+            _formKey.currentState?.validate();
+            paymentBloc.onlinePayment = numPadTextController.text;
+            //  onlinePaymentTextController.text = numPadTextController.text;
+          } else if (activeFocusNode == loyaltyPaymentFocusNode) {
+            loyaltyTextController.text = numPadTextController.text;
+          } else if (activeFocusNode == walletPaymentFocusNode) {
+            walletTextController.text = numPadTextController.text;
+          }
         }
       });
     });
@@ -231,6 +236,7 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
               paymentBloc.onlinePayment = '';
               paymentBloc.cashPayment = '';
               paymentBloc.offlinePayment = '';
+              activeFocusNode = FocusNode();
             }
 
             if (state.isWalletAuthenticationError) {
