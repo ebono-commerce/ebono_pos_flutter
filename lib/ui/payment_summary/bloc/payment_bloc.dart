@@ -20,6 +20,7 @@ import 'package:ebono_pos/ui/payment_summary/model/wallet_charge_request.dart';
 import 'package:ebono_pos/ui/payment_summary/repository/PaymentRepository.dart';
 import 'package:ebono_pos/utils/common_methods.dart';
 import 'package:ebono_pos/utils/price.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 
@@ -261,7 +262,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
           Get.snackbar(
               'Payment status ${paymentStatusResponse.status}',
               '${paymentStatusResponse.message}');
-
+          _timer?.cancel();
           break;
 
         case "P2P_STATUS_UNKNOWN":
@@ -276,6 +277,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
           //closeSnackBar();
           Get.back();
           Get.snackbar('Payment status', '${paymentStatusResponse.message}');
+          _timer?.cancel();
           break;
         case "P2P_STATUS_IN_CANCELED_FROM_EXTERNAL_SYSTEM":
           p2pRequestId = '';
@@ -292,7 +294,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
          // closeSnackBar();
           Get.back();
           Get.snackbar('Payment status', '${paymentStatusResponse.message}');
-
+          _timer?.cancel();
           break;
         case "P2P_DUPLICATE_CANCEL_REQUEST" ||
         "P2P_ORIGINAL_P2P_REQUEST_IS_MISSING":
@@ -305,6 +307,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
          // closeSnackBar();
           Get.back();
           Get.snackbar('Payment status', '${paymentStatusResponse.message}');
+          _timer?.cancel();
           break;
         default:
           //closeSnackBar();
@@ -322,6 +325,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
           isOnlinePaymentSuccess: false,
       ));
       _timer?.cancel();
+      Get.snackbar('Error', error.toString(),overlayColor: Colors.red);
     }
   }
 
@@ -349,12 +353,15 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
             isOnlinePaymentSuccess: false,
             showPaymentPopup: false));
         Get.back();
+        _timer?.cancel();
       } else {
         if (paymentInitiateResponse.realCode ==
                 "P2P_DUPLICATE_CANCEL_REQUEST" ||
             paymentInitiateResponse.realCode ==
                 "P2P_ORIGINAL_P2P_REQUEST_IS_MISSING") {
-          Get.back();
+          if(Get.isDialogOpen!){
+            Get.back();
+          }
         }
         emit(state.copyWith(
             isLoading: false,

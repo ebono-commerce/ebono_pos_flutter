@@ -1239,7 +1239,7 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
     if (!Get.isDialogOpen!) {
       Logger.logView(view: 'Online payment process Dialog');
       Get.dialog(
-        barrierDismissible: true,
+        barrierDismissible: false,
         Dialog(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
