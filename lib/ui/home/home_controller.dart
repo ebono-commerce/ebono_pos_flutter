@@ -715,7 +715,6 @@ class HomeController extends GetxController {
       phoneNumber.value = mobileNumber ?? '';
       selectedTabButton.value = 2;
       getCustomerDetails();
-      fetchCartDetails();
       fetchCustomer(isFromResumeHoldCart: true);
       clearHoldCartOrders();
     } catch (e) {

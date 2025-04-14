@@ -50,9 +50,17 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
     ReturnsResetEvent event,
     Emitter<ReturnsState> emit,
   ) async {
-    emit(state.updateInputValuesAndResetRemaining(
-      resetAllValues: true,
-    ));
+    try {
+      emit(state.updateInputValuesAndResetRemaining(
+        resetAllValues: true,
+      ));
+    } catch (e) {
+      emit(state.updateInputValuesAndResetRemaining());
+    } finally {
+      /* resetting resetAllValues to false to avoid re-rendering condition
+      in case of any other field changes */
+      emit(state.copyWith(resetAllValues: false));
+    }
   }
 
   Future<void> _proccedToReturnItems(
@@ -83,9 +91,12 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
     } catch (e) {
       emit(state.updateInputValuesAndResetRemaining(
         isError: true,
+        isLoading: false,
         errorMessage: e.toString(),
         orderItemsData: state.orderItemsData,
       ));
+    } finally {
+      emit(state.copyWith(isLoading: false));
     }
   }
 
@@ -109,21 +120,24 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
           errorMessage: e.toString().split('::').last,
           isScanApiError: true,
         );
-      }
 
-      emit(state.copyWith(
-        isError: true,
-        isCustomerOrdersDataFetched: false,
-        isLoading: false,
-        errorMessage: e.toString().contains('::')
-            ? e.toString().split('::').last
-            : e.toString(),
-      ));
+        emit(state.updateInputValuesAndResetRemaining());
+      } else {
+        emit(state.copyWith(
+          isError: true,
+          isCustomerOrdersDataFetched: false,
+          isLoading: false,
+          errorMessage: e.toString().contains('::')
+              ? e.toString().split('::').last
+              : e.toString(),
+        ));
+      }
     } finally {
       emit(state.copyWith(
         isCustomerOrdersDataFetched: false,
         isOrderItemsFetched: false,
         isError: false,
+        isLoading: false,
       ));
     }
   }
@@ -171,24 +185,29 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
           errorMessage: e.toString().split('::').last,
           isScanApiError: true,
         );
-      }
 
-      emit(state.updateInputValuesAndResetRemaining(
-        isError: true,
-        customerOrders: event.isRetrivingOrderItems
-            ? state.customerOrders
-            : const CustomerOrders(),
-        errorMessage: e.toString().contains('::')
-            ? e.toString().split('::').last
-            : e.toString(),
-        isStoreOrderNumber: state.isStoreOrderNumber,
-      ));
+        emit(state.updateInputValuesAndResetRemaining(
+          isStoreOrderNumber: state.isStoreOrderNumber,
+        ));
+      } else {
+        emit(state.updateInputValuesAndResetRemaining(
+          isError: true,
+          customerOrders: event.isRetrivingOrderItems
+              ? state.customerOrders
+              : const CustomerOrders(),
+          errorMessage: e.toString().contains('::')
+              ? e.toString().split('::').last
+              : e.toString(),
+          isStoreOrderNumber: state.isStoreOrderNumber,
+        ));
+      }
     } finally {
       emit(state.copyWith(
         isOrderItemsFetched: false,
         isFetchingOrderItems: false,
         isCustomerOrdersDataFetched: false,
         isError: false,
+        isLoading: false,
       ));
     }
   }
@@ -265,6 +284,10 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
           errorMessage: e.toString(),
         ),
       );
+    } finally {
+      emit(state.copyWith(
+        isLoading: false,
+      ));
     }
   }
 
@@ -320,6 +343,8 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
           lastSelectedItem: OrderLine(),
         ),
       );
+    } finally {
+      state.copyWith(isLoading: false);
     }
   }
 
@@ -359,6 +384,8 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
           errorMessage: e.toString(),
         ),
       );
+    } finally {
+      emit(state.copyWith(isLoading: false));
     }
   }
 
@@ -441,8 +468,11 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
     } catch (e) {
       emit(state.copyWith(
         isError: true,
+        isLoading: false,
         errorMessage: e.toString(),
       ));
+    } finally {
+      emit(state.copyWith(isLoading: false));
     }
   }
 
@@ -472,6 +502,7 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
     } catch (e) {
       emit(state.copyWith(
         isError: true,
+        isLoading: false,
         errorMessage: e.toString(),
       ));
     } finally {
@@ -479,6 +510,7 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
         isOrderItemsFetched: false,
         isCustomerOrdersDataFetched: false,
         isError: false,
+        isLoading: false,
       ));
     }
   }

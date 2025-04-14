@@ -352,8 +352,8 @@ class _ReturnsViewState extends State<ReturnsView> {
                 isOrderItemsFetched = true;
 
                 /* clearing the un-used values */
-                orderNumberTextController.clear();
-                numPadTextController.clear();
+                // orderNumberTextController.clear();
+                // numPadTextController.clear();
               }
               setState(() => isCustomerDialogOpened = true);
             } else
