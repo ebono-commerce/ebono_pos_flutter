@@ -1627,8 +1627,11 @@ class _OrdersSectionState extends State<OrdersSection>
                                   fontWeight: FontWeight.normal),
                             ),
                             TextSpan(
-                              text: homeController.customerName.value.isNotEmpty
-                                  ? homeController.customerName.value
+                              text: homeController.customerResponse.value
+                                          .customerName?.isNotEmpty ==
+                                      true
+                                  ? homeController
+                                      .customerResponse.value.customerName
                                       .toString()
                                   : " - ",
                               style: TextStyle(

@@ -468,6 +468,7 @@ class HomeController extends GetxController {
           "${customerResponse.value.phoneNumber?.countryCode}${customerResponse.value.phoneNumber?.number}");
       hiveStorageHelper.save(SharedPreferenceConstants.sessionCustomerName,
           customerResponse.value.customerName);
+      customerName.value = customerResponse.value.customerName ?? '';
 
       if (showOTPScreen) {
         displayOTPScreen.value = true;

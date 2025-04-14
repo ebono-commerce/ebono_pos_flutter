@@ -115,7 +115,9 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
         isError: true,
         isCustomerOrdersDataFetched: false,
         isLoading: false,
-        errorMessage: e.toString(),
+        errorMessage: e.toString().contains('::')
+            ? e.toString().split('::').last
+            : e.toString(),
       ));
     } finally {
       emit(state.copyWith(
@@ -176,7 +178,9 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
         customerOrders: event.isRetrivingOrderItems
             ? state.customerOrders
             : const CustomerOrders(),
-        errorMessage: e.toString(),
+        errorMessage: e.toString().contains('::')
+            ? e.toString().split('::').last
+            : e.toString(),
         isStoreOrderNumber: state.isStoreOrderNumber,
       ));
     } finally {

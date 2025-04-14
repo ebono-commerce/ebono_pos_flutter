@@ -67,7 +67,7 @@ class SearchProductsTableData {
         ),
         TableCellWidget(
           text: scanProductsResponse.skuTitle.toString(),
-          width: 560,
+          width: 520,
         ),
         TableCellWidget(
           text: scanProductsResponse.productType.toString(),
