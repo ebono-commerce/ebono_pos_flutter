@@ -60,7 +60,7 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
       TextEditingController();
   final TextEditingController loyaltyTextController = TextEditingController();
   final TextEditingController walletTextController = TextEditingController();
-  final Debouncer debouncer = Debouncer(delay: Duration(milliseconds: 200) );
+  final Debouncer debouncer = Debouncer(delay: Duration(milliseconds: 200));
   @override
   void initState() {
     PaymentSummaryRequest paymentSummaryRequest = Get.arguments;
@@ -107,11 +107,11 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
 
     numPadTextController.addListener(() {
       setState(() {
-        if(paymentBloc.totalPayable == 0 && paymentBloc.state.isWalletChargeSuccess){
+        if (paymentBloc.totalPayable == 0 &&
+            paymentBloc.state.isWalletChargeSuccess) {
           activeFocusNode = FocusNode();
-        }else{
+        } else {
           if (activeFocusNode == cashPaymentFocusNode) {
-
             _formKey.currentState?.validate();
             cashPaymentTextController.text = numPadTextController.text;
             paymentBloc.isOfflinePaymentVerified = false;
@@ -771,7 +771,8 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                   SizedBox(height: 16),
 
                   /// if payment amount is zero disable or OnlinePaymentSuccess the state of buttons
-                  if ((paymentBloc.totalPayable) <= 0.0 || state.isOnlinePaymentSuccess) ...[
+                  if ((paymentBloc.totalPayable) <= 0.0 ||
+                      state.isOnlinePaymentSuccess) ...[
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -927,8 +928,9 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                                         theme: theme,
                                         textStyle: theme.textTheme.bodyMedium,
                                         padding: EdgeInsets.all(12)),
-                                    onPressed: (!state.isOnlinePaymentSuccess && onlinePaymentTextController
-                                            .value.text.isNotEmpty)
+                                    onPressed: (!state.isOnlinePaymentSuccess &&
+                                            onlinePaymentTextController
+                                                .value.text.isNotEmpty)
                                         ? () {
                                             paymentBloc
                                                 .add(PaymentStartEvent());
@@ -1224,19 +1226,22 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                       theme: theme,
                       textStyle: theme.textTheme.bodyMedium,
                       padding: EdgeInsets.all(12)),
-                  onPressed: (paymentBloc.allowPlaceOrder)
-                      ? () {
-                          debouncer.call((){
-                            Logger.logButtonPress(button: 'Place Order');
-                            paymentBloc.add(PlaceOrderEvent());
-                          });
-                        }
-                      : null,
-                  child: Text(
-                    "Place Order",
-                    style: theme.textTheme.titleMedium?.copyWith(
-                        color: Colors.black, fontWeight: FontWeight.bold),
-                  ),
+                  onPressed:
+                      (paymentBloc.allowPlaceOrder && state.isLoading == false)
+                          ? () {
+                              debouncer.call(() {
+                                Logger.logButtonPress(button: 'Place Order');
+                                paymentBloc.add(PlaceOrderEvent());
+                              });
+                            }
+                          : null,
+                  child: state.isLoading
+                      ? CircularProgressIndicator()
+                      : Text(
+                          "Place Order",
+                          style: theme.textTheme.titleMedium?.copyWith(
+                              color: Colors.black, fontWeight: FontWeight.bold),
+                        ),
                 ),
               ),
             ],
@@ -1250,157 +1255,168 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
       Get.dialog(
         barrierDismissible: true,
         Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          insetPadding: EdgeInsets.all(100),
-          backgroundColor: Colors.transparent,
-          child: BlocBuilder<PaymentBloc, PaymentState>(
-            bloc: paymentBloc,
-            builder: (context, state) {
-            return Wrap(
-              children: [
-                Center(
-                  child: Stack(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            insetPadding: EdgeInsets.all(100),
+            backgroundColor: Colors.transparent,
+            child: BlocBuilder<PaymentBloc, PaymentState>(
+                bloc: paymentBloc,
+                builder: (context, state) {
+                  return Wrap(
                     children: [
-                      Container(
-                          width: 600,
-                          padding: EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(20)),
-                          child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                SizedBox(
-                                  height: 10,
-                                ),
-                                Text(
-                                  'Please wait....',
-                                  style: Theme
-                                      .of(context)
-                                      .textTheme
-                                      .titleLarge
-                                      ?.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                      color: CustomColors.black),
-                                ),
-                                SizedBox(
-                                  height: 20,
-                                ),
-                                Text(
-                                  'Online payment is in processing',
-                                  style: theme.textTheme.titleSmall?.copyWith(
-                                      fontWeight: FontWeight.normal,
-                                      color: Colors.black87),
-                                ),
-                                SizedBox(
-                                  height: 30,
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 8.0, vertical: 5),
-                                  child: Row(
+                      Center(
+                        child: Stack(
+                          children: [
+                            Container(
+                                width: 600,
+                                padding: EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(20)),
+                                child: Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
-                                    crossAxisAlignment: CrossAxisAlignment
-                                        .center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
                                     children: [
-                                      TextButton(
-                                        style: TextButton.styleFrom(
-                                          backgroundColor: CustomColors.red,
-                                          side: BorderSide(
-                                              color: CustomColors.red,
-                                              width: 1),
-                                        ),
-                                        onPressed: () {
-                                            paymentBloc.add(
-                                                PaymentCancelEvent());
-                                            Logger.logButtonPress(
-                                                button: 'Cancel Payment');
-                                        },
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(20.0),
-                                          child: Text(
-                                            'Cancel Payment',
-                                            style: theme.textTheme.titleSmall
-                                                ?.copyWith(
+                                      SizedBox(
+                                        height: 10,
+                                      ),
+                                      Text(
+                                        'Please wait....',
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .titleLarge
+                                            ?.copyWith(
+                                                fontWeight: FontWeight.bold,
+                                                color: CustomColors.black),
+                                      ),
+                                      SizedBox(
+                                        height: 20,
+                                      ),
+                                      Text(
+                                        'Online payment is in processing',
+                                        style: theme.textTheme.titleSmall
+                                            ?.copyWith(
                                                 fontWeight: FontWeight.normal,
-                                                color: Colors.white),
-                                          ),
+                                                color: Colors.black87),
+                                      ),
+                                      SizedBox(
+                                        height: 30,
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 8.0, vertical: 5),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          children: [
+                                            TextButton(
+                                              style: TextButton.styleFrom(
+                                                backgroundColor:
+                                                    CustomColors.red,
+                                                side: BorderSide(
+                                                    color: CustomColors.red,
+                                                    width: 1),
+                                              ),
+                                              onPressed: () {
+                                                paymentBloc
+                                                    .add(PaymentCancelEvent());
+                                                Logger.logButtonPress(
+                                                    button: 'Cancel Payment');
+                                              },
+                                              child: Padding(
+                                                padding:
+                                                    const EdgeInsets.all(20.0),
+                                                child: Text(
+                                                  'Cancel Payment',
+                                                  style: theme
+                                                      .textTheme.titleSmall
+                                                      ?.copyWith(
+                                                          fontWeight:
+                                                              FontWeight.normal,
+                                                          color: Colors.white),
+                                                ),
+                                              ),
+                                            ),
+                                            SizedBox(
+                                              width: 20,
+                                            ),
+                                            TextButton(
+                                              style: TextButton.styleFrom(
+                                                backgroundColor:
+                                                    CustomColors.secondaryColor,
+                                                disabledBackgroundColor:
+                                                    CustomColors
+                                                        .enabledBorderColor,
+                                                disabledForegroundColor:
+                                                    CustomColors
+                                                        .enabledBorderColor,
+                                                side: BorderSide(
+                                                    color: CustomColors
+                                                        .secondaryColor,
+                                                    width: 1),
+                                              ),
+                                              onPressed: () {
+                                                paymentBloc.add(
+                                                    PaymentStatusEvent(
+                                                        isFromDialogue: true));
+                                                Logger.logButtonPress(
+                                                    button:
+                                                        'Check Payment Status');
+                                              },
+                                              child: Padding(
+                                                padding:
+                                                    const EdgeInsets.all(20.0),
+                                                child: Text(
+                                                  'Check Payment Status',
+                                                  style: theme
+                                                      .textTheme.titleSmall
+                                                      ?.copyWith(
+                                                          fontWeight:
+                                                              FontWeight.normal,
+                                                          color:
+                                                              Colors.black87),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       ),
                                       SizedBox(
-                                        width: 20,
+                                        height: 10,
                                       ),
-                                      TextButton(
-                                        style: TextButton.styleFrom(
-                                          backgroundColor:
-                                          CustomColors.secondaryColor,
-                                          disabledBackgroundColor:
-                                          CustomColors.enabledBorderColor,
-                                          disabledForegroundColor:
-                                          CustomColors.enabledBorderColor,
-                                          side: BorderSide(
-                                              color: CustomColors
-                                                  .secondaryColor,
-                                              width: 1),
-                                        ),
-                                        onPressed: () {
-                                            paymentBloc.add(PaymentStatusEvent(
-                                                isFromDialogue: true
-                                            ));
-                                            Logger.logButtonPress(
-                                                button: 'Check Payment Status');
-                                        },
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(20.0),
-                                          child: Text(
-                                            'Check Payment Status',
-                                            style: theme.textTheme.titleSmall
-                                                ?.copyWith(
-                                                fontWeight: FontWeight.normal,
-                                                color: Colors.black87),
-                                          ),
-                                        ),
+                                    ])),
+                            if (state.isLoading)
+                              Container(
+                                width: 600,
+                                height: 205,
+                                padding: EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(20)),
+                                child: Stack(
+                                  children: [
+                                    Opacity(
+                                      opacity: 0.4,
+                                      child: ModalBarrier(
+                                        dismissible: false,
+                                        color: Colors.white,
                                       ),
-                                    ],
-                                  ),
+                                    ),
+                                    Center(
+                                      child: CircularProgressIndicator(),
+                                    ),
+                                  ],
                                 ),
-                                SizedBox(
-                                  height: 10,
-                                ),
-                              ])),
-                      if (state.isLoading)
-                        Container(
-                          width: 600,
-                          height: 205,
-                          padding: EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(20)),
-                          child: Stack(
-                            children: [
-                              Opacity(
-                                opacity: 0.4,
-                                child: ModalBarrier(
-                                  dismissible: false,
-                                  color: Colors.white,
-                                ),
-                              ),
-                              Center(
-                                child: CircularProgressIndicator(),
-                              ),
-                            ],
-                          ),
-                        )
+                              )
+                          ],
+                        ),
+                      ),
                     ],
-                  ),
-                ),
-              ],
-            );
-          }
-          )
-        ),
+                  );
+                })),
       );
     }
   }
