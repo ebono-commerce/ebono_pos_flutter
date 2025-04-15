@@ -79,13 +79,22 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
   }
 
   void _startPeriodicPaymentStatusCheck() {
-    _timer = Timer.periodic(Duration(seconds: 3), (timer) {
-      if (!state.stopTimer) {
-        add(PaymentStatusEvent(isFromDialogue: false));
-      } else {
-        _timer?.cancel();
-      }
-    });
+    print('STEP:startPeriodicPaymentStatusCheck');
+    emit(state.copyWith(stopTimer: false));
+    // Reinitialize only if timer is not active or has been cancelled
+    
+    if (_timer == null || !_timer!.isActive) {
+      _timer = Timer.periodic(Duration(seconds: 3), (timer) {
+        if (!state.stopTimer) {
+          add(PaymentStatusEvent(isFromDialogue: false));
+        } else {
+          _timer?.cancel();
+          print('STEP:Timer closed');
+        }
+      });
+    } else {
+      print('STEP:Timer is already running');
+    }
   }
 
   Future<void> _onIdeal(
@@ -322,6 +331,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
           isOnlinePaymentSuccess: false,
       ));
       _timer?.cancel();
+      print('STEP:Timer closed');
     }
   }
 
@@ -677,6 +687,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
   @override
   Future<void> close() {
     _timer?.cancel();
+    print('STEP:Timer closed');
     return super.close();
   }
 }
