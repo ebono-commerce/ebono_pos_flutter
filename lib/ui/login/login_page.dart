@@ -90,7 +90,14 @@ class _LoginPageState extends State<LoginPage> {
       setState(() {
         //if (_qwertyPadController.text.isNotEmpty) {
         if (activeFocusNode == loginIdFocusNode) {
-          loginIdController.text = _qwertyPadController.text;
+          if (_qwertyPadController.text.length <= 10) {
+            loginIdController.text =
+                _qwertyPadController.text.trim().replaceAll(RegExp(r'[^0-9]'), '');
+          } else {
+            loginIdController.text = _qwertyPadController.text.trim()
+                .substring(0, 10)
+                .replaceAll(RegExp(r'[^0-9]'), '');
+          }
         } else if (activeFocusNode == passwordFocusNode) {
           passwordController.text = _qwertyPadController.text;
         }
@@ -231,18 +238,13 @@ class _LoginPageState extends State<LoginPage> {
 
   Widget welcomeWidget(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
-      child: Center(
+      padding: EdgeInsets.symmetric(vertical: 40, horizontal: 20),
+      child: const Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SvgPicture.asset(
-              'assets/images/pos_logo.svg',
-              semanticsLabel: 'logo,',
-              width: 175,
-              height: 175,
-            ),
+            LogoWidget(),
             SizedBox(
               height: 20,
             ),
@@ -250,18 +252,9 @@ class _LoginPageState extends State<LoginPage> {
               fontSize: 16,
             ),
             SizedBox(height: 30),
-            Text(
-              'Welcome Back',
-              style: theme.textTheme.headlineLarge?.copyWith(
-                fontWeight: FontWeight.w500,
-              ),
-            ),
+            WelcomeBackText(),
             SizedBox(height: 10),
-            Text(
-              'Please enter your details to sign in',
-              style: theme.textTheme.headlineSmall
-                  ?.copyWith(color: Colors.black45),
-            ),
+            EnterDetailsText()
           ],
         ),
       ),
@@ -288,16 +281,17 @@ class _LoginPageState extends State<LoginPage> {
                 label: 'Login Id',
                 focusNode: loginIdFocusNode,
                 controller: loginIdController,
+                acceptableLength: 10,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter login id';
-                  } else if (value.length < 4) {
-                    return 'login id must be at least 4 characters';
+                  } else if (value.length < 10) {
+                    return 'login id must be at least 10 characters';
                   }
                   return null;
                 },
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
 
               // Password input
               commonTextField(
@@ -315,7 +309,7 @@ class _LoginPageState extends State<LoginPage> {
                 },
               ),
 
-              SizedBox(height: 30),
+              const SizedBox(height: 30),
 
               // Sign in button
               SizedBox(
@@ -347,34 +341,14 @@ class _LoginPageState extends State<LoginPage> {
                           "Invalid Data", "Please enter all mandatory fields");
                     }
                   },
-                  child: Text(
+                  child: const Text(
                     'Sign In',
                   ),
                 ),
               ),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
 
-              // Unable to log in text
-              Center(
-                child: Wrap(
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  children: [
-                    Text(
-                      'Unable to log in?',
-                      style: theme.textTheme.bodyLarge
-                          ?.copyWith(color: Colors.black45),
-                    ),
-                    TextButton(
-                      onPressed: () {},
-                      child: Text(
-                        'Contact operations',
-                        style: theme.textTheme.bodyLarge
-                            ?.copyWith(color: theme.colorScheme.primary),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              const UnableToLoginWidget(),
 
               // Unable to log in text
               Center(
@@ -385,11 +359,7 @@ class _LoginPageState extends State<LoginPage> {
                       onPressed: () {
                         loginBloc.add(LoginInitialEvent());
                       },
-                      child: Text(
-                        'Back to Port selection',
-                        style: theme.textTheme.labelSmall
-                            ?.copyWith(color: CustomColors.grey),
-                      ),
+                      child: const BackToPortSelection()
                     ),
                   ],
                 ),
@@ -838,6 +808,97 @@ class _LoginPageState extends State<LoginPage> {
           ),
         ),
       ),
+    );
+  }
+}
+
+class LogoWidget extends StatelessWidget {
+  const LogoWidget({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return SvgPicture.asset(
+      'assets/images/pos_logo.svg',
+      semanticsLabel: 'logo,',
+      width: 175,
+      height: 175,
+    );
+  }
+}
+
+class WelcomeBackText extends StatelessWidget {
+  const WelcomeBackText({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      'Welcome Back',
+      style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+            fontWeight: FontWeight.w500,
+          ),
+    );
+  }
+}
+
+class EnterDetailsText extends StatelessWidget {
+  const EnterDetailsText({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      'Please enter your details to sign in',
+      style: Theme.of(context)
+          .textTheme
+          .headlineSmall
+          ?.copyWith(color: Colors.black45),
+    );
+  }
+}
+
+class UnableToLoginWidget extends StatelessWidget {
+  const UnableToLoginWidget({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Wrap(
+        crossAxisAlignment: WrapCrossAlignment.center,
+        children: [
+          Text(
+            'Unable to log in?',
+            style: Theme.of(context)
+                .textTheme
+                .bodyLarge
+                ?.copyWith(color: Colors.black45),
+          ),
+          TextButton(
+            onPressed: () {},
+            child: Text(
+              'Contact operations',
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyLarge
+                  ?.copyWith(color: Theme.of(context).colorScheme.primary),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class BackToPortSelection extends StatelessWidget {
+  const BackToPortSelection({
+    super.key,
+  });
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      'Back to Port selection',
+      style: Theme.of(context)
+          .textTheme
+          .labelSmall
+          ?.copyWith(color: CustomColors.grey),
     );
   }
 }
