@@ -428,7 +428,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
 
   Future<void> _placeOrder(
       PlaceOrderEvent event, Emitter<PaymentState> emit) async {
-    emit(state.copyWith(isLoading: true));
+    emit(state.copyWith(isLoading: true,isPlaceOrderLoading:true));
     try {
       if (cashPayment.isNotEmpty) {
         cashPaymentOption = paymentSummaryResponse.paymentOptions?.firstWhere(
@@ -513,6 +513,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
 
       emit(state.copyWith(
           isLoading: false,
+          isPlaceOrderLoading: false,
           isPlaceOrderSuccess: true,
           isPaymentStatusSuccess: false,
           showPaymentPopup: false,
@@ -530,6 +531,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
     } catch (error) {
       emit(state.copyWith(
           isLoading: false,
+          isPlaceOrderLoading:false,
           isPlaceOrderError: true,
           errorMessage: error.toString()));
     }

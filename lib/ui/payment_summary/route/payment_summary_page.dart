@@ -1226,13 +1226,13 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                       textStyle: theme.textTheme.bodyMedium,
                       padding: EdgeInsets.all(12)),
                   onPressed:
-                      (paymentBloc.allowPlaceOrder && state.isLoading == false)
+                      (paymentBloc.allowPlaceOrder && state.isPlaceOrderLoading == false)
                           ? () {
                                 Logger.logButtonPress(button: 'Place Order');
                                 paymentBloc.add(PlaceOrderEvent());
                             }
                           : null,
-                  child: state.isLoading
+                  child: state.isPlaceOrderLoading
                       ? CircularProgressIndicator()
                       : Text(
                           "Place Order",
