@@ -186,12 +186,12 @@ class _RegisterSectionState extends State<RegisterSection>
     });
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      if (mounted &&
-          homeController.registerId.value.isNotEmpty &&
-          homeController.pointedTo.value == 'LOCAL') {
+      if (mounted && homeController.registerId.value.isNotEmpty) {
         var result = await homeController.getTerminalTransactions();
 
-        if (result.first.pspId != null && result.isNotEmpty) {
+        if (result.isNotEmpty &&
+            result.first.pspId != null &&
+            result.isNotEmpty) {
           setState(() {
             offlinePaymentTextController.text = getActualPrice(
               result.first.totalTransactionAmount?.centAmount,

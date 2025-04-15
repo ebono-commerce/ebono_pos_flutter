@@ -47,3 +47,5 @@ class WalletChargeEvent extends PaymentEvent {
 class WalletIdealEvent extends PaymentEvent {}
 
 class PaymentIdealEvent extends PaymentEvent {}
+
+class CancelSSEEvent extends PaymentEvent {}
