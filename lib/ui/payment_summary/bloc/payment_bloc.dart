@@ -79,22 +79,16 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
   }
 
   void _startPeriodicPaymentStatusCheck() {
-    print('STEP:startPeriodicPaymentStatusCheck');
     emit(state.copyWith(stopTimer: false));
-    // Reinitialize only if timer is not active or has been cancelled
-    
-    if (_timer == null || !_timer!.isActive) {
-      _timer = Timer.periodic(Duration(seconds: 3), (timer) {
+    _timer?.cancel();
+    _timer = Timer.periodic(Duration(seconds: 3), (timer) {
         if (!state.stopTimer) {
           add(PaymentStatusEvent(isFromDialogue: false));
         } else {
           _timer?.cancel();
-          print('STEP:Timer closed');
         }
       });
-    } else {
-      print('STEP:Timer is already running');
-    }
+
   }
 
   Future<void> _onIdeal(
