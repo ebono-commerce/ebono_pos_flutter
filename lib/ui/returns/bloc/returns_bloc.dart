@@ -1,13 +1,10 @@
-import 'package:audioplayers/audioplayers.dart';
+import 'package:ebono_pos/ui/common_widgets/show_stopper_widget.dart';
 import 'package:ebono_pos/ui/returns/models/customer_order_model.dart';
 import 'package:ebono_pos/ui/returns/models/order_items_model.dart';
 import 'package:ebono_pos/ui/returns/models/refund_success_model.dart';
 import 'package:ebono_pos/ui/returns/repository/returns_repository.dart';
-import 'package:ebono_pos/widgets/error_dialog_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:get/get.dart';
 
 part 'returns_event.dart';
 part 'returns_state.dart';
@@ -89,12 +86,17 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
         refundSuccessModel: response,
       ));
     } catch (e) {
-      emit(state.updateInputValuesAndResetRemaining(
-        isError: true,
-        isLoading: false,
-        errorMessage: e.toString(),
-        orderItemsData: state.orderItemsData,
-      ));
+      if (e.toString().contains('SHOW_STOPPER')) {
+        await showStopperError(errorMessage: e.toString().split('::').last);
+        emit(state.copyWith(isLoading: false));
+      } else {
+        emit(state.updateInputValuesAndResetRemaining(
+          isError: true,
+          isLoading: false,
+          errorMessage: e.toString(),
+          orderItemsData: state.orderItemsData,
+        ));
+      }
     } finally {
       emit(state.copyWith(isLoading: false));
     }
@@ -116,10 +118,7 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
       ));
     } catch (e) {
       if (e.toString().contains("SHOW_STOPPER")) {
-        await showStopperError(
-          errorMessage: e.toString().split('::').last,
-          isScanApiError: true,
-        );
+        await showStopperError(errorMessage: e.toString().split('::').last);
 
         emit(state.updateInputValuesAndResetRemaining());
       } else {
@@ -181,10 +180,7 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
       ));
     } catch (e) {
       if (e.toString().contains("SHOW_STOPPER")) {
-        await showStopperError(
-          errorMessage: e.toString().split('::').last,
-          isScanApiError: true,
-        );
+        await showStopperError(errorMessage: e.toString().split('::').last);
 
         emit(state.updateInputValuesAndResetRemaining(
           isStoreOrderNumber: state.isStoreOrderNumber,
@@ -513,34 +509,5 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
         isLoading: false,
       ));
     }
-  }
-
-  Future<void> showStopperError({
-    required String errorMessage,
-    bool isScanApiError = false,
-  }) async {
-    // Add the sound playing logic before showing dialog
-    final player = AudioPlayer();
-    await player.play(AssetSource(
-        isScanApiError ? 'audio/error.mp3' : 'audio/add_to_cart.mp3'));
-
-    Get.dialog(
-      Dialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: ErrorDialogWidget(
-          onPressed: () => Get.back(),
-          errorMessage: errorMessage,
-          iconWidget: SvgPicture.asset(
-            'assets/images/ic_close.svg',
-            width: 80,
-            height: 80,
-          ),
-        ),
-      ),
-      barrierDismissible: true,
-      useSafeArea: false,
-    );
   }
 }

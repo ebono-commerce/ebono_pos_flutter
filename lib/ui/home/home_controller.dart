@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:audioplayers/audioplayers.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:ebono_pos/api/api_helper.dart';
 import 'package:ebono_pos/constants/shared_preference_constants.dart';
@@ -12,6 +11,7 @@ import 'package:ebono_pos/models/coupon_details.dart';
 import 'package:ebono_pos/models/customer_response.dart';
 import 'package:ebono_pos/models/scan_products_response.dart';
 import 'package:ebono_pos/navigation/page_routes.dart';
+import 'package:ebono_pos/ui/common_widgets/show_stopper_widget.dart';
 import 'package:ebono_pos/ui/home/model/add_to_cart.dart';
 import 'package:ebono_pos/ui/home/model/cart_request.dart';
 import 'package:ebono_pos/ui/home/model/customer_details_response.dart';
@@ -22,7 +22,6 @@ import 'package:ebono_pos/ui/home/model/open_register_response.dart';
 import 'package:ebono_pos/ui/home/model/orders_on_hold.dart';
 import 'package:ebono_pos/ui/home/model/orders_onhold_request.dart';
 import 'package:ebono_pos/ui/home/model/overide_price_request.dart';
-import 'package:ebono_pos/ui/home/model/phone_number_request.dart';
 import 'package:ebono_pos/ui/home/model/register_close_request.dart';
 import 'package:ebono_pos/ui/home/model/register_open_request.dart';
 import 'package:ebono_pos/ui/home/model/resume_hold_cart_request.dart';
@@ -35,7 +34,6 @@ import 'package:ebono_pos/ui/login/model/terminal_details_response.dart';
 import 'package:ebono_pos/ui/payment_summary/model/health_check_response.dart';
 import 'package:ebono_pos/widgets/error_dialog_widget.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 
 class HomeController extends GetxController {
@@ -404,10 +402,7 @@ class HomeController extends GetxController {
       );
       selectedItemData.value = CartLine();
       if (error.toString().contains("SHOW_STOPPER")) {
-        await _showStopperError(
-          errorMessage: error.toString().split('::').last,
-          isScanApiError: true,
-        );
+        await showStopperError(errorMessage: error.toString().split('::').last);
       } else {
         Get.snackbar("Error While Scanning", '$error');
       }
@@ -596,8 +591,9 @@ class HomeController extends GetxController {
       /* checking for cart line errors */
       if (response.cartAlerts.isNotEmpty &&
           response.cartAlerts.first.errorCode == "SHOW_STOPPER") {
-        await _showStopperError(
+        await showStopperError(
           errorMessage: response.cartAlerts.first.message,
+          isScanApiError: false,
         );
 
         return;
@@ -642,8 +638,9 @@ class HomeController extends GetxController {
       /* checking for cart line errors */
       if (response.cartAlerts.isNotEmpty &&
           response.cartAlerts.first.errorCode == "SHOW_STOPPER") {
-        await _showStopperError(
+        await showStopperError(
           errorMessage: response.cartAlerts.first.message,
+          isScanApiError: false,
         );
 
         return;
@@ -681,8 +678,9 @@ class HomeController extends GetxController {
   Future<void> holdCartApiCall() async {
     try {
       var response = await _homeRepository.holdCart(
-        cartId.value,
-        PhoneNumberRequest(
+        cartId: cartId.value,
+        customerRequest: CustomerRequest(
+          customerName: customerResponse.value.customerName,
           phoneNumber: customerResponse.value.phoneNumber!.number,
         ),
       );
@@ -988,35 +986,6 @@ class HomeController extends GetxController {
     return response;
   }
 
-  Future<void> _showStopperError({
-    required String errorMessage,
-    bool isScanApiError = false,
-  }) async {
-    // Add the sound playing logic before showing dialog
-    final player = AudioPlayer();
-    await player.play(AssetSource(
-        isScanApiError ? 'audio/error.mp3' : 'audio/add_to_cart.mp3'));
-
-    Get.dialog(
-      Dialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: ErrorDialogWidget(
-          onPressed: () => Get.back(),
-          errorMessage: errorMessage,
-          iconWidget: SvgPicture.asset(
-            'assets/images/ic_close.svg',
-            width: 80,
-            height: 80,
-          ),
-        ),
-      ),
-      barrierDismissible: true,
-      useSafeArea: false,
-    );
-  }
-
   Future<CartResponse?> addOrRemoveCoupon({
     required String coupon,
     required bool isRemoveCoupon,
@@ -1034,10 +1003,14 @@ class HomeController extends GetxController {
     } catch (e) {
       response = null;
       print("error: $e");
-      Get.snackbar(
-        'Error while ${isRemoveCoupon ? 'removing' : 'applying'} coupon',
-        '$e',
-      );
+      if (e.toString().contains('SHOW_STOPPER')) {
+        await showStopperError(errorMessage: e.toString().split('::').last);
+      } else {
+        Get.snackbar(
+          'Error while ${isRemoveCoupon ? 'removing' : 'applying'} coupon',
+          '$e',
+        );
+      }
     }
     return response;
   }

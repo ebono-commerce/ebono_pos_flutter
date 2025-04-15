@@ -17,12 +17,13 @@ class CustomerRequest {
   String? outletId;
   String? terminalId;
 
-  CustomerRequest(
-      {this.phoneNumber,
-      this.customerName,
-      this.cartType,
-      this.outletId,
-      this.terminalId});
+  CustomerRequest({
+    this.phoneNumber,
+    this.customerName,
+    this.cartType,
+    this.outletId,
+    this.terminalId,
+  });
 
   factory CustomerRequest.fromJson(Map<String, dynamic> json) =>
       CustomerRequest(
@@ -35,9 +36,15 @@ class CustomerRequest {
 
   Map<String, dynamic> toJson() => {
         "phone_number": phoneNumber,
-        if(customerName != null && customerName!.isNotEmpty) "customer_name": customerName,
+        if (customerName != null && customerName!.isNotEmpty)
+          "customer_name": customerName,
         "cart_type": cartType,
         "outlet_id": outletId,
         "terminal_id": terminalId,
+      };
+
+  Map<String, dynamic> toHoldCartJson() => {
+        "phone_number": phoneNumber,
+        "customer_name": customerName,
       };
 }
