@@ -721,6 +721,7 @@ class HomeController extends GetxController {
   }
 
   Future<void> healthCheckApiCall() async {
+    final apiHelper = Get.find<ApiHelper>();
     _statusCheckTimer = Timer.periodic(
       const Duration(seconds: 5),
       (timer) async {
@@ -737,20 +738,20 @@ class HomeController extends GetxController {
           if (response.statusCode == 200) {
             isOnline.value = true;
           } else {
-            isOnline.value = false;
-            timer.cancel();
-            /* show dialog to logout the user */
-            final apiHelper = Get.find<ApiHelper>();
             apiHelper.cancelAllRequests();
+            _statusCheckTimer?.cancel();
+            timer.cancel();
+            isOnline.value = false;
+            /* show dialog to logout the user */
             showDialog();
           }
         } catch (e) {
-          Get.snackbar('Error while checking health', '$e');
-          isOnline.value = false;
-          timer.cancel();
-          /* show dialog to logout the user */
-          final apiHelper = Get.find<ApiHelper>();
           apiHelper.cancelAllRequests();
+          _statusCheckTimer?.cancel();
+          timer.cancel();
+          isOnline.value = false;
+          Get.snackbar('Error while checking health', '$e');
+          /* show dialog to logout the user */
           showDialog();
         }
       },
@@ -758,27 +759,30 @@ class HomeController extends GetxController {
   }
 
   void showDialog() {
-    Get.dialog(
-      Dialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: ErrorDialogWidget(
-          height: 0.41,
-          onPressed: () {
-            clearDataAndLogout();
-          },
-          errorMessage: 'Local service is down please press OK to login again',
-          iconWidget: const Icon(
-            Icons.warning_rounded,
-            color: Colors.amber,
-            size: 120,
+    if (!Get.isDialogOpen! && Get.currentRoute == '/home') {
+      Get.dialog(
+        Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: ErrorDialogWidget(
+            height: 0.41,
+            onPressed: () {
+              clearDataAndLogout();
+            },
+            errorMessage:
+                'Local service is down please press OK to login again',
+            iconWidget: const Icon(
+              Icons.warning_rounded,
+              color: Colors.amber,
+              size: 120,
+            ),
           ),
         ),
-      ),
-      barrierDismissible: false,
-      useSafeArea: false,
-    );
+        barrierDismissible: false,
+        useSafeArea: false,
+      );
+    }
   }
 
   Future<void> openRegisterApiCall() async {
@@ -1096,9 +1100,17 @@ class HomeController extends GetxController {
 
   void clearDataAndLogout() {
     final apiHelper = Get.find<ApiHelper>();
+    _statusCheckTimer?.cancel();
     apiHelper.cancelAllRequests();
     sharedPreferenceHelper.clearAll();
     hiveStorageHelper.clear();
     Get.offAllNamed(PageRoutes.login);
+  }
+
+  @override
+  void dispose() {
+    _statusCheckTimer?.cancel();
+    clearDataAndLogout();
+    super.dispose();
   }
 }

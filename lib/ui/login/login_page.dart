@@ -91,10 +91,12 @@ class _LoginPageState extends State<LoginPage> {
         //if (_qwertyPadController.text.isNotEmpty) {
         if (activeFocusNode == loginIdFocusNode) {
           if (_qwertyPadController.text.length <= 10) {
-            loginIdController.text =
-                _qwertyPadController.text.trim().replaceAll(RegExp(r'[^0-9]'), '');
+            loginIdController.text = _qwertyPadController.text
+                .trim()
+                .replaceAll(RegExp(r'[^0-9]'), '');
           } else {
-            loginIdController.text = _qwertyPadController.text.trim()
+            loginIdController.text = _qwertyPadController.text
+                .trim()
                 .substring(0, 10)
                 .replaceAll(RegExp(r'[^0-9]'), '');
           }
@@ -239,22 +241,18 @@ class _LoginPageState extends State<LoginPage> {
   Widget welcomeWidget(BuildContext context) {
     return Container(
       padding: EdgeInsets.symmetric(vertical: 40, horizontal: 20),
-      child: const Center(
+      child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            LogoWidget(),
-            SizedBox(
-              height: 20,
-            ),
-            VersionWidget(
-              fontSize: 16,
-            ),
-            SizedBox(height: 30),
-            WelcomeBackText(),
-            SizedBox(height: 10),
-            EnterDetailsText()
+            const LogoWidget(),
+            const SizedBox(height: 20),
+            VersionWidget(fontSize: 16),
+            const SizedBox(height: 30),
+            const WelcomeBackText(),
+            const SizedBox(height: 10),
+            const EnterDetailsText()
           ],
         ),
       ),
@@ -356,11 +354,10 @@ class _LoginPageState extends State<LoginPage> {
                   crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
                     TextButton(
-                      onPressed: () {
-                        loginBloc.add(LoginInitialEvent());
-                      },
-                      child: const BackToPortSelection()
-                    ),
+                        onPressed: () {
+                          loginBloc.add(LoginInitialEvent());
+                        },
+                        child: const BackToPortSelection()),
                   ],
                 ),
               ),

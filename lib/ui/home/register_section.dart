@@ -1032,8 +1032,8 @@ class _RegisterSectionState extends State<RegisterSection>
                     ),
                   ),
                 if (homeController.transactionSummaryList.isNotEmpty &&
-                    homeController.transactionSummaryList.first.pspId != null &&
-                    homeController.pointedTo.value == 'LOCAL') ...[
+                    homeController.transactionSummaryList.first.pspId !=
+                        null) ...[
                   Container(
                     // color: Colors.amberAccent,
                     padding: const EdgeInsets.symmetric(
