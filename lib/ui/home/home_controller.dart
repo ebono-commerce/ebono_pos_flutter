@@ -874,8 +874,7 @@ class HomeController extends GetxController {
                   );
                 case 'STATIC_QR_CODE':
                   if (transactionSummaryList.isNotEmpty &&
-                      transactionSummaryList.first.pspId != null &&
-                      pointedTo.value == 'LOCAL') {
+                      transactionSummaryList.first.pspId != null) {
                     return TransactionSummary(
                       paymentOptionId: mode.paymentOptionId,
                       paymentOptionCode: mode.paymentOptionCode,
