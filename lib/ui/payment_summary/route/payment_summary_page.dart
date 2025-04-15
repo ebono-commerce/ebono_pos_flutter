@@ -1251,6 +1251,7 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
       Logger.logView(view: 'Online payment process Dialog');
       Get.dialog(
         barrierDismissible: true,
+        routeSettings: RouteSettings(name: '/paymentStatusDialogue'),
         Dialog(
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(20),
