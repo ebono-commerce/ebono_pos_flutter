@@ -60,7 +60,6 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
       TextEditingController();
   final TextEditingController loyaltyTextController = TextEditingController();
   final TextEditingController walletTextController = TextEditingController();
-  final Debouncer debouncer = Debouncer(delay: Duration(milliseconds: 200));
   @override
   void initState() {
     PaymentSummaryRequest paymentSummaryRequest = Get.arguments;
@@ -1229,10 +1228,8 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                   onPressed:
                       (paymentBloc.allowPlaceOrder && state.isLoading == false)
                           ? () {
-                              debouncer.call(() {
                                 Logger.logButtonPress(button: 'Place Order');
                                 paymentBloc.add(PlaceOrderEvent());
-                              });
                             }
                           : null,
                   child: state.isLoading
