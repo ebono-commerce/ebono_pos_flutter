@@ -1,6 +1,7 @@
 class PaymentState {
   final bool initialState;
   final bool isLoading;
+  final bool isPlaceOrderLoading;
   final bool showPaymentPopup;
   final bool stopTimer;
   final bool isPaymentStartSuccess;
@@ -26,6 +27,7 @@ class PaymentState {
   const PaymentState({
     this.initialState = false,
     this.isLoading = false,
+    this.isPlaceOrderLoading = false,
     this.showPaymentPopup = false,
     this.stopTimer = false,
     this.isPaymentStatusSuccess = false,
@@ -52,6 +54,7 @@ class PaymentState {
   PaymentState copyWith({
     bool? initialState,
     bool? isLoading,
+    bool? isPlaceOrderLoading,
     bool? showPaymentPopup,
     bool? stopTimer,
     bool? isPaymentStatusSuccess,
@@ -77,6 +80,7 @@ class PaymentState {
     return PaymentState(
       initialState: initialState ?? this.initialState,
       isLoading: isLoading ?? this.isLoading,
+      isPlaceOrderLoading: isPlaceOrderLoading ?? this.isPlaceOrderLoading,
       showPaymentPopup: showPaymentPopup ?? this.showPaymentPopup,
       stopTimer: stopTimer ?? this.stopTimer,
       isPaymentStatusSuccess:
