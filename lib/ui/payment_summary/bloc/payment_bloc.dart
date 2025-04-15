@@ -258,9 +258,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
                 isOnlinePaymentSuccess: false,
                 isPaymentCancelSuccess: true));
           }
-         // closeSnackBar();
-          Get.back();
-
+          Get.until((route) => route.settings.name != '/paymentStatusDialogue');
           Get.snackbar(
               'Payment status ${paymentStatusResponse.status}',
               '${paymentStatusResponse.message}');
@@ -276,8 +274,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
               showPaymentPopup: false,
               isOnlinePaymentSuccess: false,
               isPaymentCancelSuccess: true));
-          //closeSnackBar();
-          Get.back();
+          Get.until((route) => route.settings.name != '/paymentStatusDialogue');
           Get.snackbar('Payment status', '${paymentStatusResponse.message}');
           break;
         case "P2P_STATUS_IN_CANCELED_FROM_EXTERNAL_SYSTEM":
@@ -292,8 +289,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
         case "P2P_ORIGINAL_P2P_REQUEST_IS_MISSING":
           p2pRequestId = '';
           emit(state.copyWith(stopTimer: true, showPaymentPopup: false,isOnlinePaymentSuccess: false));
-         // closeSnackBar();
-          Get.back();
+          Get.until((route) => route.settings.name != '/paymentStatusDialogue');
           Get.snackbar('Payment status', '${paymentStatusResponse.message}');
 
           break;
@@ -305,13 +301,11 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
               showPaymentPopup: false,
               isOnlinePaymentSuccess: false,
               isPaymentCancelSuccess: true));
-         // closeSnackBar();
-          Get.back();
+          Get.until((route) => route.settings.name != '/paymentStatusDialogue');
           Get.snackbar('Payment status', '${paymentStatusResponse.message}');
           break;
         default:
-          //closeSnackBar();
-          Get.back();
+          Get.until((route) => route.settings.name != '/paymentStatusDialogue');
           emit(state.copyWith(stopTimer: true, showPaymentPopup: false,isOnlinePaymentSuccess: false));
           break;
       }
@@ -325,7 +319,6 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
           isOnlinePaymentSuccess: false,
       ));
       _timer?.cancel();
-      print('STEP:Timer closed');
     }
   }
 
@@ -352,13 +345,13 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
             isPaymentCancelSuccess: paymentStatusResponse.success,
             isOnlinePaymentSuccess: false,
             showPaymentPopup: false));
-        Get.back();
+        Get.until((route) => route.settings.name != '/paymentStatusDialogue');
       } else {
         if (paymentInitiateResponse.realCode ==
                 "P2P_DUPLICATE_CANCEL_REQUEST" ||
             paymentInitiateResponse.realCode ==
                 "P2P_ORIGINAL_P2P_REQUEST_IS_MISSING") {
-          Get.back();
+          Get.until((route) => route.settings.name != '/paymentStatusDialogue');
         }
         emit(state.copyWith(
             isLoading: false,
