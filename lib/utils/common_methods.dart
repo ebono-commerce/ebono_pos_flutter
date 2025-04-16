@@ -1,9 +1,7 @@
 import 'dart:math';
 
 import 'package:ebono_pos/constants/custom_colors.dart';
-import 'package:ebono_pos/models/scan_products_response.dart';
 import 'package:ebono_pos/ui/Common_button.dart';
-import 'package:ebono_pos/utils/price.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_window_close/flutter_window_close.dart';
 import 'package:get/get.dart';
@@ -84,30 +82,4 @@ String generateRandom8DigitNumber() {
 
   // Convert the number to a string
   return randomNumber.toString();
-}
-
-String getFormattedPrice(
-  ScanProductsResponse searchResult, {
-  bool showMultiple = false,
-}) {
-  if (searchResult.priceList == null || searchResult.priceList!.isEmpty) {
-    return '';
-  }
-
-  String firstPrice = getActualPrice(
-    searchResult.priceList![0].sellingPrice?.centAmount,
-    searchResult.priceList![0].sellingPrice?.fraction,
-  ).toString().replaceAll(RegExp('[()]'), '');
-
-  if (!showMultiple || searchResult.priceList!.length == 1) {
-    return firstPrice;
-  }
-
-  // Join all prices with " | " separator
-  return searchResult.priceList!.map((price) {
-    return getActualPrice(
-      price.sellingPrice?.centAmount,
-      price.sellingPrice?.fraction,
-    ).toString().replaceAll(RegExp('[()]'), '');
-  }).join(' | ');
 }

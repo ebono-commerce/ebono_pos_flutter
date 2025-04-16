@@ -29,10 +29,15 @@ class ReturnsRepository {
 
   Future<OrderItemsModel> fetchOrderItemBasedOnOrderId({
     required String orderId,
+    required bool isStoreOrder,
+    required String outletId,
   }) async {
     try {
+      final queryParams =
+          isStoreOrder ? '?is_store_order=true&outlet_id=$outletId' : '';
+
       final response = await _apiHelper.get(
-        "${ApiConstants.orders}/$orderId",
+        "${ApiConstants.orders}/$orderId$queryParams",
       );
 
       OrderItemsModel data = OrderItemsModel.fromJSON(response);

@@ -15,6 +15,7 @@ import 'package:ebono_pos/widgets/custom_table/custom_table_widget.dart';
 import 'package:ebono_pos/widgets/order_details_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 
 class ReturnsView extends StatefulWidget {
@@ -132,10 +133,6 @@ class _ReturnsViewState extends State<ReturnsView> {
   }
 
   void _resetAllValues() {
-    isCustomerOrdersFetched = false;
-    isOrderItemsFetched = false;
-    numPadTextController.clear();
-    _customerDetails = const Customer();
     returnsBloc.add(ReturnsResetEvent());
     homeController.isReturnViewReset.value = false;
     setState(() {});
@@ -160,7 +157,10 @@ class _ReturnsViewState extends State<ReturnsView> {
       } else {
         setState(() => storeTempOrderId = orderNumberTextController.text);
         returnsBloc.add(
-          FetchOrderDataBasedOnOrderId(orderId: orderNumberTextController.text),
+          FetchOrderDataBasedOnOrderId(
+            orderId: orderNumberTextController.text,
+            outletId: homeController.selectedOutletId,
+          ),
         );
       }
     }
@@ -214,7 +214,10 @@ class _ReturnsViewState extends State<ReturnsView> {
                   });
 
                   returnsBloc.add(
-                    FetchOrderDataBasedOnOrderId(orderId: storeTempOrderId!),
+                    FetchOrderDataBasedOnOrderId(
+                      orderId: storeTempOrderId!,
+                      outletId: homeController.selectedOutletId,
+                    ),
                   );
                 }
               } else if (status == true && isDialogForAddCustomer == true) {
@@ -259,7 +262,7 @@ class _ReturnsViewState extends State<ReturnsView> {
           bloc: returnsBloc,
           listener: (context, state) {
             if (state.isCustomerOrdersDataFetched == true) {
-              /* check whether customer needs veritication or not*/
+              /* check whether customer needs verification or not*/
               if (state.customerOrders.isCustomerVerificationRequired == true &&
                   state.customerOrders.customerOrderList.isNotEmpty &&
                   isCustomerDialogOpened == false) {
@@ -295,7 +298,7 @@ class _ReturnsViewState extends State<ReturnsView> {
               }
               setState(() => isCustomerDialogOpened = true);
             } else if (state.isOrderItemsFetched == true) {
-              /* check whether customer needs veritication or not*/
+              /* check whether customer needs verification or not*/
               if (state.orderItemsData.isCustomerVerificationRequired == true &&
                   state.orderItemsData.orderLines?.isNotEmpty == true &&
                   state.orderItemsData.customer?.isProxyNumber == false &&
@@ -345,13 +348,14 @@ class _ReturnsViewState extends State<ReturnsView> {
                 isOrderItemsFetched = true;
 
                 /* clearing the un-used values */
-                orderNumberTextController.clear();
-                numPadTextController.clear();
+                // orderNumberTextController.clear();
+                // numPadTextController.clear();
+                activeFocusNode = numPadFocusNode;
               }
               setState(() => isCustomerDialogOpened = true);
-            } else
+            }
             /* resetting all values */
-            if (state.resetAllValues == true) {
+            else if (state.resetAllValues == true) {
               displayCustomerOrdersTableData = false;
               displayCustomerOrdersTableData = false;
               displayInitialEmptyTable = true;
@@ -363,6 +367,7 @@ class _ReturnsViewState extends State<ReturnsView> {
               isCustomerOrdersFetched = false;
               isOrderItemsFetched = false;
               displayOrderItemsTableData = false;
+              numPadTextController.clear();
               _customerDetails = state.orderItemsData.customer ?? Customer();
               setState(() {});
             }
@@ -435,6 +440,8 @@ class _ReturnsViewState extends State<ReturnsView> {
                                       FetchOrderDataBasedOnOrderId(
                                         orderId: orderId!,
                                         isRetrivingOrderItems: true,
+                                        outletId:
+                                            homeController.selectedOutletId,
                                       ),
                                     );
                                   },
@@ -509,7 +516,10 @@ class _ReturnsViewState extends State<ReturnsView> {
                             ),
                           if (displayFormField &&
                               homeController.registerId.value.isNotEmpty) ...[
-                            _buildFormUI(state.isLoading)
+                            _buildFormUI(
+                              isLoading: state.isLoading,
+                              isStoreOrderNumber: state.isStoreOrderNumber,
+                            )
                           ],
                           if (homeController.registerId.value.isEmpty) ...[
                             Expanded(
@@ -532,7 +542,7 @@ class _ReturnsViewState extends State<ReturnsView> {
                   Expanded(flex: 2, child: numpadSection(state)),
 
                   /* SECTION - 3 */
-                  Expanded(
+                  const Expanded(
                     flex: 1,
                     child: QuickActionButtons(
                       color: Colors.white,
@@ -547,115 +557,200 @@ class _ReturnsViewState extends State<ReturnsView> {
     );
   }
 
-  Widget _buildFormUI(bool isLoading) {
+  Widget _buildFormUI({
+    required bool isLoading,
+    required bool isStoreOrderNumber,
+  }) {
     return Expanded(
-      child: Column(
+      child: Row(
+        spacing: 50,
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          const Text(
-            "Returns",
-            style: TextStyle(fontSize: 20),
-          ),
-          const SizedBox(height: 5),
-          Text(
-            "Enter the details to retrieve order & start returns.",
-            style: TextStyle(
-              color: Colors.black.withAlpha(153),
-              fontSize: 16,
-            ),
-          ),
-          const SizedBox(height: 30),
-          SizedBox(
-            width: 350,
-            child: Form(
-              key: _formKey,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  commonTextField(
-                      focusNode: customerNumberFocusNode,
-                      controller: customerNumberTextController,
-                      label: "Enter Customer Mobile Number",
-                      acceptableLength: 10,
-                      validator: (value) {
-                        if ((value == null || value.isEmpty) &&
-                            orderNumberTextController.text.isEmpty) {
-                          return 'Please enter a phone number';
-                        } else if (value!.length != 10 &&
-                            customerNumberTextController.text.trim().isEmpty &&
-                            orderNumberTextController.text.isEmpty) {
-                          return 'Phone number must be 10 digits';
-                        } else if (displayProxyNumberError) {
-                          return "Please search with customer number";
-                        } else if (customerNumberTextController
-                                .text.isNotEmpty &&
-                            value.trim().length != 10) {
-                          return 'Phone number must be 10 digits';
-                        }
-                        return null;
-                      },
-                      onTap: () {
-                        orderNumberTextController.clear();
-                      }),
-                  const SizedBox(height: 20),
-                  const ORWidget(),
-                  const SizedBox(height: 20),
-                  commonTextField(
-                      focusNode: orderNumberFocusNode,
-                      controller: orderNumberTextController,
-                      label: "Enter Order Number",
-                      validator: (value) {
-                        if ((value == null || value.isEmpty) &&
-                            customerNumberTextController.text.isEmpty) {
-                          return 'Please enter order number';
-                        } else if (orderNumberTextController.text.isNotEmpty &&
-                            value != null &&
-                            value.length < 8) {
-                          return "Please enter valid order number";
-                        }
-                        return null;
-                      },
-                      onTap: () {
-                        customerNumberTextController.clear();
-                      }),
-                  Container(
-                    margin: const EdgeInsets.only(top: 30),
-                    child: SizedBox(
-                      height: 50,
-                      child: ElevatedButton(
-                        onPressed: isLoading ? null : onClickSearchOrders,
-                        style: ElevatedButton.styleFrom(
-                          elevation: 1,
-                          padding: const EdgeInsets.symmetric(horizontal: 1),
-                          minimumSize: const Size(double.infinity, 5),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          backgroundColor: CustomColors.secondaryColor,
-                        ),
-                        child: isLoading
-                            ? const SizedBox(
-                                height: 24,
-                                width: 24,
-                                child:
-                                    CircularProgressIndicator(strokeWidth: 3))
-                            : Text(
-                                "Search orders",
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodyLarge
-                                    ?.copyWith(
-                                      color: Colors.black,
-                                    ),
-                              ),
-                      ),
-                    ),
-                  ),
-                ],
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const Text(
+                "Returns",
+                style: TextStyle(fontSize: 20),
               ),
-            ),
+              const SizedBox(height: 5),
+              Text(
+                "Enter the details to retrieve order & start returns.",
+                style: TextStyle(
+                  color: Colors.black.withAlpha(153),
+                  fontSize: 16,
+                ),
+              ),
+              const SizedBox(height: 30),
+              SizedBox(
+                width: 350,
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      commonTextField(
+                          focusNode: customerNumberFocusNode,
+                          controller: customerNumberTextController,
+                          label: "Enter Customer Mobile Number",
+                          acceptableLength: 10,
+                          validator: (value) {
+                            if ((value == null || value.isEmpty) &&
+                                orderNumberTextController.text.isEmpty) {
+                              return 'Please enter a phone number';
+                            } else if (value!.length != 10 &&
+                                customerNumberTextController.text
+                                    .trim()
+                                    .isEmpty &&
+                                orderNumberTextController.text.isEmpty) {
+                              return 'Phone number must be 10 digits';
+                            } else if (displayProxyNumberError) {
+                              return "Please search with customer number";
+                            } else if (customerNumberTextController
+                                    .text.isNotEmpty &&
+                                value.trim().length != 10) {
+                              return 'Phone number must be 10 digits';
+                            }
+                            return null;
+                          },
+                          onTap: () {
+                            orderNumberTextController.clear();
+                          }),
+                      const SizedBox(height: 20),
+                      const ORWidget(),
+                      const SizedBox(height: 20),
+                      commonTextField(
+                          focusNode: orderNumberFocusNode,
+                          controller: orderNumberTextController,
+                          label: "Enter Store Order / Order Number",
+                          validator: (value) {
+                            if ((value == null || value.isEmpty) &&
+                                customerNumberTextController.text.isEmpty) {
+                              return 'Please enter order number';
+                            } else if (orderNumberTextController
+                                    .text.isNotEmpty &&
+                                value != null &&
+                                value.length < 8) {
+                              return "Please enter valid order number";
+                            }
+                            return null;
+                          },
+                          onTap: () {
+                            customerNumberTextController.clear();
+                          }),
+                      SizedBox(height: 20),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          GestureDetector(
+                            behavior: HitTestBehavior.translucent,
+                            onTap: () => returnsBloc.add(UpdateOrderType(true)),
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Row(
+                                children: [
+                                  Radio<String>(
+                                    value: 'Store Order',
+                                    splashRadius: 0,
+                                    groupValue: isStoreOrderNumber
+                                        ? 'Store Order'
+                                        : 'Order',
+                                    onChanged: (_) =>
+                                        returnsBloc.add(UpdateOrderType(true)),
+                                  ),
+                                  Text(
+                                    'Store Order No',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleSmall
+                                        ?.copyWith(
+                                          fontWeight: FontWeight.w500,
+                                          color: CustomColors.black,
+                                        ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          GestureDetector(
+                            behavior: HitTestBehavior.translucent,
+                            onTap: () =>
+                                returnsBloc.add(UpdateOrderType(false)),
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Row(
+                                children: [
+                                  Radio<String>(
+                                    value: 'Order',
+                                    splashRadius: 0,
+                                    groupValue: isStoreOrderNumber
+                                        ? 'Store Order'
+                                        : 'Order',
+                                    onChanged: (_) =>
+                                        returnsBloc.add(UpdateOrderType(false)),
+                                  ),
+                                  Text(
+                                    'Order No',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleSmall
+                                        ?.copyWith(
+                                          fontWeight: FontWeight.w500,
+                                          color: CustomColors.black,
+                                        ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      Container(
+                        margin: const EdgeInsets.only(top: 40),
+                        child: SizedBox(
+                          height: 50,
+                          child: ElevatedButton(
+                            onPressed: isLoading ? null : onClickSearchOrders,
+                            style: ElevatedButton.styleFrom(
+                              elevation: 1,
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 1),
+                              minimumSize: const Size(double.infinity, 5),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              backgroundColor: CustomColors.secondaryColor,
+                            ),
+                            child: isLoading
+                                ? const SizedBox(
+                                    height: 24,
+                                    width: 24,
+                                    child: CircularProgressIndicator(
+                                        strokeWidth: 3))
+                                : Text(
+                                    "Search orders",
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyLarge
+                                        ?.copyWith(
+                                          color: Colors.black,
+                                        ),
+                                  ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+          SvgPicture.asset(
+            'assets/images/cashier_instructions.svg',
+            height: 450,
           ),
         ],
       ),
@@ -910,8 +1005,8 @@ class _ReturnsViewState extends State<ReturnsView> {
                                 returnsConfirmationTableData:
                                     _returnsConfirmationTableData,
                                 onTapClose: () {
+                                  returnsBloc.add(ReturnsResetEvent());
                                   Get.back();
-                                  _resetAllValues();
                                 },
                                 onPaymentModeSelected: (String mode) {
                                   // Handle payment mode selection

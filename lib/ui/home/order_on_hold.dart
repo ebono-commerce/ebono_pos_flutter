@@ -26,6 +26,7 @@ class _OrderOnHoldState extends State<OrderOnHold> with WidgetsBindingObserver {
     if (mounted == true) {
       _numPadFocusNode.requestFocus();
     }
+    homeController.clearHoldCartOrders();
     homeController.ordersOnHoldApiCall();
 
     //WidgetsBinding.instance.addPostFrameCallback((_) {});
@@ -586,18 +587,11 @@ class _OrderOnHoldState extends State<OrderOnHold> with WidgetsBindingObserver {
                           child: ElevatedButton(
                             onPressed: itemData.holdCartId != ""
                                 ? () {
-                                    homeController
-                                        .isCustomerProxySelected.value = false;
-                                    homeController.phoneNumber.value =
-                                        itemData.phoneNumber!.number ?? '';
-                                    homeController.customerName.value =
-                                        itemData.customer!.customerName ?? '';
-                                    homeController.fetchCustomer();
-                                    if (itemData.holdCartId != "") {
-                                      homeController.resumeHoldCartApiCall(
-                                        itemData.holdCartId,
-                                      );
-                                    }
+                                    homeController.resumeHoldCartApiCall(
+                                      id: itemData.holdCartId,
+                                      mobileNumber:
+                                          itemData.phoneNumber?.number,
+                                    );
                                   }
                                 : null,
                             style: ElevatedButton.styleFrom(

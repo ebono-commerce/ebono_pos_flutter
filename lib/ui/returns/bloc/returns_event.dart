@@ -14,11 +14,13 @@ final class FetchCustomerOrdersData extends ReturnsEvent {
 final class FetchOrderDataBasedOnOrderId extends ReturnsEvent {
   FetchOrderDataBasedOnOrderId({
     required this.orderId,
+    required this.outletId,
     this.isRetrivingOrderItems = false,
   });
 
   final String orderId;
   final bool isRetrivingOrderItems;
+  final String outletId;
 }
 
 final class UpdateSelectedItem extends ReturnsEvent {
@@ -73,4 +75,10 @@ class UpdateOrderItemsInternalState extends ReturnsEvent {
 
   final String customerName;
   final String customerNumber;
+}
+
+class UpdateOrderType extends ReturnsEvent {
+  final bool isStoreOrder;
+
+  UpdateOrderType(this.isStoreOrder);
 }

@@ -20,10 +20,10 @@ import 'package:ebono_pos/ui/home/model/open_register_response.dart';
 import 'package:ebono_pos/ui/home/model/orders_on_hold.dart';
 import 'package:ebono_pos/ui/home/model/orders_onhold_request.dart';
 import 'package:ebono_pos/ui/home/model/overide_price_request.dart';
-import 'package:ebono_pos/ui/home/model/phone_number_request.dart';
 import 'package:ebono_pos/ui/home/model/register_close_request.dart';
 import 'package:ebono_pos/ui/home/model/register_open_request.dart';
 import 'package:ebono_pos/ui/home/model/resume_hold_cart_request.dart';
+import 'package:ebono_pos/ui/home/model/terminal_transaction_request.dart';
 import 'package:ebono_pos/ui/home/model/update_cart.dart';
 import 'package:ebono_pos/ui/login/model/login_request.dart';
 import 'package:ebono_pos/ui/payment_summary/model/health_check_response.dart';
@@ -166,11 +166,12 @@ class HomeRepository {
   }
 
   Future<GeneralSuccessResponse> holdCart(
-      String cartId, PhoneNumberRequest phoneNumber) async {
+      {required String cartId,
+      required CustomerRequest customerRequest}) async {
     try {
       final response = await _apiHelper.post(
         '${ApiConstants.holdCart}$cartId/hold',
-        data: phoneNumber.toJson(),
+        data: customerRequest.toHoldCartJson(),
       );
       final generalResponse =
           generalSuccessResponseFromJson(jsonEncode(response));
@@ -310,6 +311,26 @@ class HomeRepository {
       );
 
       return true;
+    } catch (e) {
+      throw ApiException('$e');
+    }
+  }
+
+  Future<List<TransactionSummary>> fetchTerminalTransactions(
+      {required TerminalTransactionRequest payload}) async {
+    try {
+      final response = await _apiHelper.post(
+        ApiConstants.getTerminalTransactions,
+        data: payload.toJson(),
+      );
+
+      List<dynamic> jsonData = response['terminal_transactions'];
+
+      List<TransactionSummary> transactionSummaryList = jsonData
+          .map((transaction) => TransactionSummary.fromJson(transaction))
+          .toList();
+
+      return transactionSummaryList;
     } catch (e) {
       throw ApiException('$e');
     }

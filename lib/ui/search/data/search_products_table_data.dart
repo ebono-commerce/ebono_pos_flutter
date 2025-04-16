@@ -1,6 +1,6 @@
 import 'package:ebono_pos/constants/custom_colors.dart';
 import 'package:ebono_pos/models/scan_products_response.dart';
-import 'package:ebono_pos/utils/common_methods.dart';
+import 'package:ebono_pos/utils/price.dart';
 import 'package:ebono_pos/widgets/custom_table/table_cell_widget.dart';
 import 'package:flutter/material.dart';
 
@@ -67,14 +67,21 @@ class SearchProductsTableData {
         ),
         TableCellWidget(
           text: scanProductsResponse.skuTitle.toString(),
-          width: 560,
+          width: 460,
         ),
         TableCellWidget(
           text: scanProductsResponse.productType.toString(),
-          width: 220,
+          width: 240,
         ),
         TableCellWidget(
-          text: getFormattedPrice(scanProductsResponse),
+          text: scanProductsResponse.priceList?.isEmpty == true
+              ? ''
+              : getActualPrice(
+                  scanProductsResponse
+                      .priceList?.first.sellingPrice?.centAmount,
+                  scanProductsResponse.priceList?.first.sellingPrice?.fraction,
+                  includeRupee: false,
+                ),
           width: 120,
           maxLines: 2,
         ),

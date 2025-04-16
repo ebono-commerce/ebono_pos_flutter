@@ -4,7 +4,11 @@ import 'package:ebono_pos/data_store/hive_storage_helper.dart';
 import 'package:ebono_pos/data_store/shared_preference_helper.dart';
 import 'package:flutter_client_sse/constants/sse_request_type_enum.dart';
 import 'package:flutter_client_sse/flutter_client_sse.dart';
+
 import 'auth_interceptor.dart';
+import 'custom_connection_interceptor.dart';
+import 'custom_http_client_adapter.dart';
+import 'logger_interceptor.dart';
 
 class ApiHelper {
   late dio.Dio _dio;
@@ -56,10 +60,18 @@ class ApiHelper {
           'x-channel-id': 'STORE',
         }));
 
+    // Set our custom HTTP client adapter
+    _dio.httpClientAdapter = CustomHttpClientAdapter();
+
+    // Add our custom connection interceptor first
+    _dio.interceptors.add(CustomConnectionInterceptor(_sharedPreferenceHelper));
+
+    // Then add auth interceptor
     _dio.interceptors
         .add(AuthInterceptor(_sharedPreferenceHelper, hiveStorageHelper));
 
     _dio.interceptors.addAll([
+      CustomLogInterceptor(),
       dio.LogInterceptor(
         request: true,
         requestBody: true,
@@ -114,7 +126,7 @@ class ApiHelper {
       );
       return _handleResponse(response, parser);
     } catch (e) {
-      throw _handleError(e);
+      throw _handleError(e, endpoint);
     }
   }
 
@@ -136,7 +148,7 @@ class ApiHelper {
       );
       return _handleResponse(response, parser);
     } catch (e) {
-      throw _handleError(e);
+      throw _handleError(e, endpoint);
     }
   }
 
@@ -158,7 +170,7 @@ class ApiHelper {
       );
       return _handleResponse(response, parser);
     } catch (e) {
-      throw _handleError(e);
+      throw _handleError(e, endpoint);
     }
   }
 
@@ -185,8 +197,19 @@ class ApiHelper {
     }
   }
 
-  Exception _handleError(dynamic error) {
+  Exception _handleError(dynamic error, String endpoint) {
     if (error is dio.DioException) {
+      // Special handling for connectionError when it's a local HTTP request
+      if (error.type == dio.DioExceptionType.connectionError &&
+          error.requestOptions.extra.containsKey('isLocalHttpRequest') &&
+          error.requestOptions.extra['isLocalHttpRequest'] == true) {
+        // For local HTTP requests with connection errors, we'll create a better message
+        // but still throw the error so it can be handled properly by the app
+        return Exception(
+          "Local API not available. Ensure your local server is running.",
+        );
+      }
+
       switch (error.type) {
         case dio.DioExceptionType.cancel:
           return Exception("Request to the server was cancelled.");
@@ -226,4 +249,3 @@ class ApiHelper {
     return Exception("Unexpected error occurred.");
   }
 }
-

@@ -1,3 +1,4 @@
+import 'package:ebono_pos/ui/common_widgets/show_stopper_widget.dart';
 import 'package:ebono_pos/ui/returns/models/customer_order_model.dart';
 import 'package:ebono_pos/ui/returns/models/order_items_model.dart';
 import 'package:ebono_pos/ui/returns/models/refund_success_model.dart';
@@ -23,6 +24,7 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
     on<ResetValuesOnDialogCloseEvent>(_resetValuesOnDialogClose);
     on<UpdateOrderLineQuantity>(_onUpdateOrderLineQuantity);
     on<UpdateOrderItemsInternalState>(_onUpdateOrderItemsInternalState);
+    on<UpdateOrderType>(_updateOrderType);
   }
 
   void _onReturnsEvent(ReturnsEvent event, Emitter<ReturnsState> emit) {
@@ -30,13 +32,32 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
     emit(state.copyWith(isLoading: true));
   }
 
+  void _updateOrderType(UpdateOrderType event, Emitter<ReturnsState> emit) {
+    emit(state.copyWith(
+      isOrderItemsFetched: false,
+      isFetchingOrderItems: false,
+      isCustomerOrdersDataFetched: false,
+      isError: false,
+      isLoading: false,
+      isStoreOrderNumber: event.isStoreOrder,
+    ));
+  }
+
   Future<void> _resetReturns(
     ReturnsResetEvent event,
     Emitter<ReturnsState> emit,
   ) async {
-    emit(state.updateInputValuesAndResetRemaining(
-      resetAllValues: true,
-    ));
+    try {
+      emit(state.updateInputValuesAndResetRemaining(
+        resetAllValues: true,
+      ));
+    } catch (e) {
+      emit(state.updateInputValuesAndResetRemaining());
+    } finally {
+      /* resetting resetAllValues to false to avoid re-rendering condition
+      in case of any other field changes */
+      emit(state.copyWith(resetAllValues: false));
+    }
   }
 
   Future<void> _proccedToReturnItems(
@@ -65,11 +86,19 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
         refundSuccessModel: response,
       ));
     } catch (e) {
-      emit(state.updateInputValuesAndResetRemaining(
-        isError: true,
-        errorMessage: e.toString(),
-        orderItemsData: state.orderItemsData,
-      ));
+      if (e.toString().contains('SHOW_STOPPER')) {
+        await showStopperError(errorMessage: e.toString().split('::').last);
+        emit(state.copyWith(isLoading: false));
+      } else {
+        emit(state.updateInputValuesAndResetRemaining(
+          isError: true,
+          isLoading: false,
+          errorMessage: e.toString(),
+          orderItemsData: state.orderItemsData,
+        ));
+      }
+    } finally {
+      emit(state.copyWith(isLoading: false));
     }
   }
 
@@ -88,17 +117,26 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
         customerOrders: customerOrders,
       ));
     } catch (e) {
-      emit(state.copyWith(
-        isError: true,
-        isCustomerOrdersDataFetched: false,
-        isLoading: false,
-        errorMessage: e.toString(),
-      ));
+      if (e.toString().contains("SHOW_STOPPER")) {
+        await showStopperError(errorMessage: e.toString().split('::').last);
+
+        emit(state.updateInputValuesAndResetRemaining());
+      } else {
+        emit(state.copyWith(
+          isError: true,
+          isCustomerOrdersDataFetched: false,
+          isLoading: false,
+          errorMessage: e.toString().contains('::')
+              ? e.toString().split('::').last
+              : e.toString(),
+        ));
+      }
     } finally {
       emit(state.copyWith(
         isCustomerOrdersDataFetched: false,
         isOrderItemsFetched: false,
         isError: false,
+        isLoading: false,
       ));
     }
   }
@@ -131,6 +169,8 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
       OrderItemsModel orderItemsData =
           await returnsRepository.fetchOrderItemBasedOnOrderId(
         orderId: event.orderId,
+        isStoreOrder: state.isStoreOrderNumber,
+        outletId: event.outletId,
       );
 
       emit(state.updateInputValuesAndResetRemaining(
@@ -139,19 +179,31 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
         orderItemsData: orderItemsData,
       ));
     } catch (e) {
-      emit(state.updateInputValuesAndResetRemaining(
-        isError: true,
-        customerOrders: event.isRetrivingOrderItems
-            ? state.customerOrders
-            : const CustomerOrders(),
-        errorMessage: e.toString(),
-      ));
+      if (e.toString().contains("SHOW_STOPPER")) {
+        await showStopperError(errorMessage: e.toString().split('::').last);
+
+        emit(state.updateInputValuesAndResetRemaining(
+          isStoreOrderNumber: state.isStoreOrderNumber,
+        ));
+      } else {
+        emit(state.updateInputValuesAndResetRemaining(
+          isError: true,
+          customerOrders: event.isRetrivingOrderItems
+              ? state.customerOrders
+              : const CustomerOrders(),
+          errorMessage: e.toString().contains('::')
+              ? e.toString().split('::').last
+              : e.toString(),
+          isStoreOrderNumber: state.isStoreOrderNumber,
+        ));
+      }
     } finally {
       emit(state.copyWith(
         isOrderItemsFetched: false,
         isFetchingOrderItems: false,
         isCustomerOrdersDataFetched: false,
         isError: false,
+        isLoading: false,
       ));
     }
   }
@@ -228,6 +280,10 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
           errorMessage: e.toString(),
         ),
       );
+    } finally {
+      emit(state.copyWith(
+        isLoading: false,
+      ));
     }
   }
 
@@ -283,6 +339,8 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
           lastSelectedItem: OrderLine(),
         ),
       );
+    } finally {
+      state.copyWith(isLoading: false);
     }
   }
 
@@ -322,6 +380,8 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
           errorMessage: e.toString(),
         ),
       );
+    } finally {
+      emit(state.copyWith(isLoading: false));
     }
   }
 
@@ -404,8 +464,11 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
     } catch (e) {
       emit(state.copyWith(
         isError: true,
+        isLoading: false,
         errorMessage: e.toString(),
       ));
+    } finally {
+      emit(state.copyWith(isLoading: false));
     }
   }
 
@@ -435,6 +498,7 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
     } catch (e) {
       emit(state.copyWith(
         isError: true,
+        isLoading: false,
         errorMessage: e.toString(),
       ));
     } finally {
@@ -442,6 +506,7 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
         isOrderItemsFetched: false,
         isCustomerOrdersDataFetched: false,
         isError: false,
+        isLoading: false,
       ));
     }
   }

@@ -9,11 +9,9 @@ class EnvironmentConfig {
       case 'stage':
         return "http://api-local.ebono.com/store/";
       case 'dev':
-        return "https://services-staging.ebono.com/store/";
       case 'uat':
-        return "https://services-uat.ebono.com/store/";
       default:
-        return "https://services-staging.ebono.com/store/";
+        return bffUrl;
     }
   }
 

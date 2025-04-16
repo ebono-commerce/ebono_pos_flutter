@@ -110,18 +110,8 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     try {
       /* check for health status api */
       final status = await healthCheckAPI();
-      final pointingTo = await _sharedPreferenceHelper.pointingTo();
 
-      /* Health check api fails & it's pointed to local */
-      if (status == false && pointingTo == 'LOCAL') {
-        /* change the base url & update flag */
-        await _sharedPreferenceHelper.pointTo(isCloud: true);
-      }
-      /* Health check api success & it's pointed to cloud */
-      else if (status == true && pointingTo == 'CLOUD') {
-        /* change the base url & update flag */
-        await _sharedPreferenceHelper.pointTo(isCloud: false);
-      }
+      await _sharedPreferenceHelper.pointTo(isCloud: status == false);
 
       String? appUUID = await _sharedPreferenceHelper.getAppUUID();
       if (appUUID == null) {

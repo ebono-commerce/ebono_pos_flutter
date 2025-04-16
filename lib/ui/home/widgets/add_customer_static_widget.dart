@@ -315,24 +315,28 @@ class _AddCustomerStaticWidgetState extends State<AddCustomerStaticWidget>
                         ),
                       ),
                     )),
-                Visibility(
-                  visible: homeController
-                          .getCustomerDetailsResponse.value.existingCustomer !=
-                      null,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                    child: Text(
-                      homeController.getCustomerDetailsResponse.value
-                                  .existingCustomer ==
-                              true
-                          ? 'Existing Customer'
-                          : 'New Customer',
-                      textAlign: TextAlign.center,
-                      style: theme.textTheme.labelMedium
-                          ?.copyWith(color: CustomColors.green),
-                    ),
-                  ),
-                ),
+                // Visibility(
+                //   visible: (homeController
+                //           .getCustomerDetailsResponse.value.existingCustomer !=
+                //       null ),
+                //   child: Padding(
+                //     padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                //     child: Text(
+                //       homeController.getCustomerDetailsResponse.value
+                //                   .existingCustomer ==
+                //               null
+                //           ? ""
+                //           : homeController.getCustomerDetailsResponse.value
+                //                       .existingCustomer ==
+                //                   true
+                //               ? 'Existing Customer'
+                //               : 'New Customer',
+                //       textAlign: TextAlign.center,
+                //       style: theme.textTheme.labelMedium
+                //           ?.copyWith(color: CustomColors.green),
+                //     ),
+                //   ),
+                // ),
               ],
             ),
             SizedBox(
@@ -343,15 +347,20 @@ class _AddCustomerStaticWidgetState extends State<AddCustomerStaticWidget>
               height: 60,
               padding: EdgeInsets.symmetric(horizontal: 5.0, vertical: 5),
               child: ElevatedButton(
-                onPressed: () {
-                  homeController.phoneNumber.value =
-                      homeController.customerProxyNumber.value;
-                  homeController.customerName.value =
-                      homeController.customerProxyName.value;
-                  homeController.isCustomerProxySelected.value = true;
-                  homeController.isContionueWithOutCustomer.value = true;
-                  homeController.fetchCustomer();
-                },
+                onPressed: homeController
+                        .isContinueWithOutCustomerBtnLoading.value
+                    ? null
+                    : () {
+                        homeController.phoneNumber.value =
+                            homeController.customerProxyNumber.value;
+                        homeController.customerName.value =
+                            homeController.customerProxyName.value;
+                        homeController.isCustomerProxySelected.value = true;
+                        homeController.isContionueWithOutCustomer.value = true;
+                        homeController.fetchCustomer(
+                          isContinueWithOutCustomer: true,
+                        );
+                      },
                 style: ElevatedButton.styleFrom(
                   elevation: 1,
                   padding: EdgeInsets.symmetric(horizontal: 1, vertical: 20),
@@ -362,13 +371,20 @@ class _AddCustomerStaticWidgetState extends State<AddCustomerStaticWidget>
                   backgroundColor: CustomColors.keyBoardBgColor,
                 ),
                 child: Center(
-                  child: Text(
-                    "Continue Without Customer Number",
-                    style: TextStyle(
-                        color: CustomColors.primaryColor,
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold),
-                  ),
+                  child:
+                      homeController.isContinueWithOutCustomerBtnLoading.value
+                          ? SizedBox(
+                              height: 25,
+                              width: 25,
+                              child: CircularProgressIndicator(),
+                            )
+                          : Text(
+                              "Continue Without Customer Number",
+                              style: TextStyle(
+                                  color: CustomColors.primaryColor,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold),
+                            ),
                 ),
               ),
             ),
