@@ -133,6 +133,7 @@ class HomeController extends GetxController {
   var overideApproverUserId = ''.obs;
   var couponDetails = ''.obs;
   var pointedTo = 'LOCAL'.obs;
+  var isHealthChkDialogOpen = false.obs;
 
   /* Loaders */
   var isRegisterApiLoading = false.obs;
@@ -721,7 +722,6 @@ class HomeController extends GetxController {
   }
 
   Future<void> healthCheckApiCall() async {
-    final apiHelper = Get.find<ApiHelper>();
     _statusCheckTimer = Timer.periodic(
       const Duration(seconds: 5),
       (timer) async {
@@ -738,17 +738,11 @@ class HomeController extends GetxController {
           if (response.statusCode == 200) {
             isOnline.value = true;
           } else {
-            apiHelper.cancelAllRequests();
-            _statusCheckTimer?.cancel();
-            timer.cancel();
             isOnline.value = false;
             /* show dialog to logout the user */
             showDialog();
           }
         } catch (e) {
-          apiHelper.cancelAllRequests();
-          _statusCheckTimer?.cancel();
-          timer.cancel();
           isOnline.value = false;
           Get.snackbar('Error while checking health', '$e');
           /* show dialog to logout the user */
@@ -759,7 +753,9 @@ class HomeController extends GetxController {
   }
 
   void showDialog() {
-    if (!Get.isDialogOpen! && Get.currentRoute == '/home') {
+    if (isHealthChkDialogOpen.value == false) {
+      if (Get.isDialogOpen ?? false) Get.back();
+      isHealthChkDialogOpen.value = true;
       Get.dialog(
         Dialog(
           shape: RoundedRectangleBorder(
@@ -768,6 +764,10 @@ class HomeController extends GetxController {
           child: ErrorDialogWidget(
             height: 0.41,
             onPressed: () {
+              isHealthChkDialogOpen.value == false;
+              final apiHelper = Get.find<ApiHelper>();
+              apiHelper.cancelAllRequests();
+              _statusCheckTimer?.cancel();
               clearDataAndLogout();
             },
             errorMessage:
