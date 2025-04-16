@@ -20,7 +20,6 @@ import 'package:ebono_pos/ui/search/search_products_view.dart';
 import 'package:ebono_pos/utils/auth_modes.dart';
 import 'package:ebono_pos/utils/common_methods.dart';
 import 'package:ebono_pos/utils/dash_line.dart';
-import 'package:ebono_pos/utils/debouncer.dart';
 import 'package:ebono_pos/utils/logger.dart';
 import 'package:ebono_pos/utils/price.dart';
 import 'package:flutter/material.dart';

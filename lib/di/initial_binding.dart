@@ -22,10 +22,6 @@ class InitialBinding extends Bindings {
     Get.put<ApiHelper>(ApiHelper(EnvironmentConfig.baseUrl,
         Get.find<SharedPreferenceHelper>(), Get.find<HiveStorageHelper>()));
 
-    // Register HomeController as a singleton
-    Get.lazyPut<HomeController>(() => HomeController(Get.find<HomeRepository>(),
-        Get.find<SharedPreferenceHelper>(), Get.find<HiveStorageHelper>()));
-
     //repo
     Get.put<LoginRepository>(LoginRepository(Get.find<ApiHelper>()));
     Get.put<ReturnsRepository>(ReturnsRepository(Get.find<ApiHelper>()));
@@ -36,6 +32,10 @@ class InitialBinding extends Bindings {
     /*// Register LoginBloc as a singleton
     Get.put<LoginBloc>(LoginBloc(
         Get.find<LoginRepository>(), Get.find<SharedPreferenceHelper>()));*/
+    // Register HomeController as a singleton
+
+    Get.lazyPut<HomeController>(() => HomeController(Get.find<HomeRepository>(),
+        Get.find<SharedPreferenceHelper>(), Get.find<HiveStorageHelper>()));
 
     Get.put<ReturnsBloc>(ReturnsBloc(Get.find<ReturnsRepository>()));
   }

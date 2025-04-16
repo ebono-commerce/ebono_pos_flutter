@@ -23,11 +23,10 @@ import 'package:ebono_pos/ui/home/model/overide_price_request.dart';
 import 'package:ebono_pos/ui/home/model/register_close_request.dart';
 import 'package:ebono_pos/ui/home/model/register_open_request.dart';
 import 'package:ebono_pos/ui/home/model/resume_hold_cart_request.dart';
+import 'package:ebono_pos/ui/home/model/terminal_transaction_request.dart';
 import 'package:ebono_pos/ui/home/model/update_cart.dart';
 import 'package:ebono_pos/ui/login/model/login_request.dart';
 import 'package:ebono_pos/ui/payment_summary/model/health_check_response.dart';
-
-import '../model/terminam_transaction_request.dart';
 
 class HomeRepository {
   final ApiHelper _apiHelper;
