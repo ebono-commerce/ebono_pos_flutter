@@ -9,11 +9,11 @@ class Logger {
   static File? _logFile;
   static final homeController = Get.find<HomeController>();
   static final sharedPrefsHelper = Get.find<SharedPreferenceHelper>();
-  static bool isLoggerEnabled = true;
+  static bool isLoggerEnabled = false;
+
   /// Initialize the log file with a custom path
   static Future<void> init() async {
-
-    if(!isLoggerEnabled) return;
+    if (!isLoggerEnabled) return;
 
     // logs/ in home directory
     String logDirPath = '${Platform.environment['HOME']}/logs';
@@ -47,8 +47,7 @@ class Logger {
   static Future<void> logButtonPress({
     String? button,
   }) async {
-
-    if(!isLoggerEnabled) return;
+    if (!isLoggerEnabled) return;
 
     if (_logFile == null) await init(); // Ensure file is initialized
 
@@ -83,7 +82,7 @@ class Logger {
   static Future<void> logView({
     String? view,
   }) async {
-    if(!isLoggerEnabled) return;
+    if (!isLoggerEnabled) return;
 
     if (_logFile == null) await init(); // Ensure file is initialized
 
@@ -120,7 +119,7 @@ class Logger {
     Map<String, dynamic>? response,
     Map<String, dynamic>? error,
   }) async {
-    if(!isLoggerEnabled) return;
+    if (!isLoggerEnabled) return;
 
     if (_logFile == null) await init(); // Ensure file is initialized
 
