@@ -26,6 +26,7 @@ class _OrderOnHoldState extends State<OrderOnHold> with WidgetsBindingObserver {
     if (mounted == true) {
       _numPadFocusNode.requestFocus();
     }
+    homeController.clearHoldCartOrders();
     homeController.ordersOnHoldApiCall();
 
     //WidgetsBinding.instance.addPostFrameCallback((_) {});

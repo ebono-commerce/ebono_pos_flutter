@@ -20,6 +20,7 @@ import 'package:ebono_pos/ui/search/search_products_view.dart';
 import 'package:ebono_pos/utils/auth_modes.dart';
 import 'package:ebono_pos/utils/common_methods.dart';
 import 'package:ebono_pos/utils/dash_line.dart';
+import 'package:ebono_pos/utils/debouncer.dart';
 import 'package:ebono_pos/utils/logger.dart';
 import 'package:ebono_pos/utils/price.dart';
 import 'package:flutter/material.dart';
@@ -1627,8 +1628,11 @@ class _OrdersSectionState extends State<OrdersSection>
                                   fontWeight: FontWeight.normal),
                             ),
                             TextSpan(
-                              text: homeController.customerName.value.isNotEmpty
-                                  ? homeController.customerName.value
+                              text: homeController.customerResponse.value
+                                          .customerName?.isNotEmpty ==
+                                      true
+                                  ? homeController
+                                      .customerResponse.value.customerName
                                       .toString()
                                   : " - ",
                               style: TextStyle(

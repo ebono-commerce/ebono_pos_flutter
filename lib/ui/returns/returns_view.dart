@@ -133,10 +133,6 @@ class _ReturnsViewState extends State<ReturnsView> {
   }
 
   void _resetAllValues() {
-    isCustomerOrdersFetched = false;
-    isOrderItemsFetched = false;
-    numPadTextController.clear();
-    _customerDetails = const Customer();
     returnsBloc.add(ReturnsResetEvent());
     homeController.isReturnViewReset.value = false;
     setState(() {});
@@ -266,7 +262,7 @@ class _ReturnsViewState extends State<ReturnsView> {
           bloc: returnsBloc,
           listener: (context, state) {
             if (state.isCustomerOrdersDataFetched == true) {
-              /* check whether customer needs veritication or not*/
+              /* check whether customer needs verification or not*/
               if (state.customerOrders.isCustomerVerificationRequired == true &&
                   state.customerOrders.customerOrderList.isNotEmpty &&
                   isCustomerDialogOpened == false) {
@@ -302,7 +298,7 @@ class _ReturnsViewState extends State<ReturnsView> {
               }
               setState(() => isCustomerDialogOpened = true);
             } else if (state.isOrderItemsFetched == true) {
-              /* check whether customer needs veritication or not*/
+              /* check whether customer needs verification or not*/
               if (state.orderItemsData.isCustomerVerificationRequired == true &&
                   state.orderItemsData.orderLines?.isNotEmpty == true &&
                   state.orderItemsData.customer?.isProxyNumber == false &&
@@ -352,13 +348,14 @@ class _ReturnsViewState extends State<ReturnsView> {
                 isOrderItemsFetched = true;
 
                 /* clearing the un-used values */
-                orderNumberTextController.clear();
-                numPadTextController.clear();
+                // orderNumberTextController.clear();
+                // numPadTextController.clear();
+                activeFocusNode = numPadFocusNode;
               }
               setState(() => isCustomerDialogOpened = true);
-            } else
+            }
             /* resetting all values */
-            if (state.resetAllValues == true) {
+            else if (state.resetAllValues == true) {
               displayCustomerOrdersTableData = false;
               displayCustomerOrdersTableData = false;
               displayInitialEmptyTable = true;
@@ -370,6 +367,7 @@ class _ReturnsViewState extends State<ReturnsView> {
               isCustomerOrdersFetched = false;
               isOrderItemsFetched = false;
               displayOrderItemsTableData = false;
+              numPadTextController.clear();
               _customerDetails = state.orderItemsData.customer ?? Customer();
               setState(() {});
             }
@@ -1007,8 +1005,8 @@ class _ReturnsViewState extends State<ReturnsView> {
                                 returnsConfirmationTableData:
                                     _returnsConfirmationTableData,
                                 onTapClose: () {
+                                  returnsBloc.add(ReturnsResetEvent());
                                   Get.back();
-                                  _resetAllValues();
                                 },
                                 onPaymentModeSelected: (String mode) {
                                   // Handle payment mode selection

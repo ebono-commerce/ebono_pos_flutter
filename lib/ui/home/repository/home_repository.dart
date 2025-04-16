@@ -20,7 +20,6 @@ import 'package:ebono_pos/ui/home/model/open_register_response.dart';
 import 'package:ebono_pos/ui/home/model/orders_on_hold.dart';
 import 'package:ebono_pos/ui/home/model/orders_onhold_request.dart';
 import 'package:ebono_pos/ui/home/model/overide_price_request.dart';
-import 'package:ebono_pos/ui/home/model/phone_number_request.dart';
 import 'package:ebono_pos/ui/home/model/register_close_request.dart';
 import 'package:ebono_pos/ui/home/model/register_open_request.dart';
 import 'package:ebono_pos/ui/home/model/resume_hold_cart_request.dart';
@@ -168,11 +167,12 @@ class HomeRepository {
   }
 
   Future<GeneralSuccessResponse> holdCart(
-      String cartId, PhoneNumberRequest phoneNumber) async {
+      {required String cartId,
+      required CustomerRequest customerRequest}) async {
     try {
       final response = await _apiHelper.post(
         '${ApiConstants.holdCart}$cartId/hold',
-        data: phoneNumber.toJson(),
+        data: customerRequest.toHoldCartJson(),
       );
       final generalResponse =
           generalSuccessResponseFromJson(jsonEncode(response));

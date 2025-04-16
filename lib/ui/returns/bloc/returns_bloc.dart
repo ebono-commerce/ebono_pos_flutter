@@ -1,13 +1,10 @@
-import 'package:audioplayers/audioplayers.dart';
+import 'package:ebono_pos/ui/common_widgets/show_stopper_widget.dart';
 import 'package:ebono_pos/ui/returns/models/customer_order_model.dart';
 import 'package:ebono_pos/ui/returns/models/order_items_model.dart';
 import 'package:ebono_pos/ui/returns/models/refund_success_model.dart';
 import 'package:ebono_pos/ui/returns/repository/returns_repository.dart';
-import 'package:ebono_pos/widgets/error_dialog_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:get/get.dart';
 
 part 'returns_event.dart';
 part 'returns_state.dart';
@@ -50,9 +47,17 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
     ReturnsResetEvent event,
     Emitter<ReturnsState> emit,
   ) async {
-    emit(state.updateInputValuesAndResetRemaining(
-      resetAllValues: true,
-    ));
+    try {
+      emit(state.updateInputValuesAndResetRemaining(
+        resetAllValues: true,
+      ));
+    } catch (e) {
+      emit(state.updateInputValuesAndResetRemaining());
+    } finally {
+      /* resetting resetAllValues to false to avoid re-rendering condition
+      in case of any other field changes */
+      emit(state.copyWith(resetAllValues: false));
+    }
   }
 
   Future<void> _proccedToReturnItems(
@@ -81,11 +86,19 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
         refundSuccessModel: response,
       ));
     } catch (e) {
-      emit(state.updateInputValuesAndResetRemaining(
-        isError: true,
-        errorMessage: e.toString(),
-        orderItemsData: state.orderItemsData,
-      ));
+      if (e.toString().contains('SHOW_STOPPER')) {
+        await showStopperError(errorMessage: e.toString().split('::').last);
+        emit(state.copyWith(isLoading: false));
+      } else {
+        emit(state.updateInputValuesAndResetRemaining(
+          isError: true,
+          isLoading: false,
+          errorMessage: e.toString(),
+          orderItemsData: state.orderItemsData,
+        ));
+      }
+    } finally {
+      emit(state.copyWith(isLoading: false));
     }
   }
 
@@ -105,23 +118,25 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
       ));
     } catch (e) {
       if (e.toString().contains("SHOW_STOPPER")) {
-        await showStopperError(
-          errorMessage: e.toString().split('::').last,
-          isScanApiError: true,
-        );
-      }
+        await showStopperError(errorMessage: e.toString().split('::').last);
 
-      emit(state.copyWith(
-        isError: true,
-        isCustomerOrdersDataFetched: false,
-        isLoading: false,
-        errorMessage: e.toString(),
-      ));
+        emit(state.updateInputValuesAndResetRemaining());
+      } else {
+        emit(state.copyWith(
+          isError: true,
+          isCustomerOrdersDataFetched: false,
+          isLoading: false,
+          errorMessage: e.toString().contains('::')
+              ? e.toString().split('::').last
+              : e.toString(),
+        ));
+      }
     } finally {
       emit(state.copyWith(
         isCustomerOrdersDataFetched: false,
         isOrderItemsFetched: false,
         isError: false,
+        isLoading: false,
       ));
     }
   }
@@ -165,26 +180,30 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
       ));
     } catch (e) {
       if (e.toString().contains("SHOW_STOPPER")) {
-        await showStopperError(
-          errorMessage: e.toString().split('::').last,
-          isScanApiError: true,
-        );
-      }
+        await showStopperError(errorMessage: e.toString().split('::').last);
 
-      emit(state.updateInputValuesAndResetRemaining(
-        isError: true,
-        customerOrders: event.isRetrivingOrderItems
-            ? state.customerOrders
-            : const CustomerOrders(),
-        errorMessage: e.toString(),
-        isStoreOrderNumber: state.isStoreOrderNumber,
-      ));
+        emit(state.updateInputValuesAndResetRemaining(
+          isStoreOrderNumber: state.isStoreOrderNumber,
+        ));
+      } else {
+        emit(state.updateInputValuesAndResetRemaining(
+          isError: true,
+          customerOrders: event.isRetrivingOrderItems
+              ? state.customerOrders
+              : const CustomerOrders(),
+          errorMessage: e.toString().contains('::')
+              ? e.toString().split('::').last
+              : e.toString(),
+          isStoreOrderNumber: state.isStoreOrderNumber,
+        ));
+      }
     } finally {
       emit(state.copyWith(
         isOrderItemsFetched: false,
         isFetchingOrderItems: false,
         isCustomerOrdersDataFetched: false,
         isError: false,
+        isLoading: false,
       ));
     }
   }
@@ -261,6 +280,10 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
           errorMessage: e.toString(),
         ),
       );
+    } finally {
+      emit(state.copyWith(
+        isLoading: false,
+      ));
     }
   }
 
@@ -316,6 +339,8 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
           lastSelectedItem: OrderLine(),
         ),
       );
+    } finally {
+      state.copyWith(isLoading: false);
     }
   }
 
@@ -355,6 +380,8 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
           errorMessage: e.toString(),
         ),
       );
+    } finally {
+      emit(state.copyWith(isLoading: false));
     }
   }
 
@@ -437,8 +464,11 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
     } catch (e) {
       emit(state.copyWith(
         isError: true,
+        isLoading: false,
         errorMessage: e.toString(),
       ));
+    } finally {
+      emit(state.copyWith(isLoading: false));
     }
   }
 
@@ -468,6 +498,7 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
     } catch (e) {
       emit(state.copyWith(
         isError: true,
+        isLoading: false,
         errorMessage: e.toString(),
       ));
     } finally {
@@ -475,36 +506,8 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
         isOrderItemsFetched: false,
         isCustomerOrdersDataFetched: false,
         isError: false,
+        isLoading: false,
       ));
     }
-  }
-
-  Future<void> showStopperError({
-    required String errorMessage,
-    bool isScanApiError = false,
-  }) async {
-    // Add the sound playing logic before showing dialog
-    final player = AudioPlayer();
-    await player.play(AssetSource(
-        isScanApiError ? 'audio/error.mp3' : 'audio/add_to_cart.mp3'));
-
-    Get.dialog(
-      Dialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: ErrorDialogWidget(
-          onPressed: () => Get.back(),
-          errorMessage: errorMessage,
-          iconWidget: SvgPicture.asset(
-            'assets/images/ic_close.svg',
-            width: 80,
-            height: 80,
-          ),
-        ),
-      ),
-      barrierDismissible: true,
-      useSafeArea: false,
-    );
   }
 }

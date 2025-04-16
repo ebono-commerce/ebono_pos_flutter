@@ -1,4 +1,3 @@
-import 'package:ebono_pos/api/api_helper.dart';
 import 'package:ebono_pos/constants/shared_preference_constants.dart';
 import 'package:ebono_pos/data_store/hive_storage_helper.dart';
 import 'package:ebono_pos/data_store/shared_preference_helper.dart';
@@ -109,24 +108,10 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       LoginButtonPressed event, Emitter<LoginState> emit) async {
     emit(LoginLoading());
     try {
-      final apiHelper = Get.find<ApiHelper>();
       /* check for health status api */
       final status = await healthCheckAPI();
-      if (status == false) {
-        apiHelper.cancelAllRequests();
-      }
-      final pointingTo = await _sharedPreferenceHelper.pointingTo();
 
-      /* Health check api fails & it's pointed to local */
-      if (status == false && pointingTo == 'LOCAL') {
-        /* change the base url & update flag */
-        await _sharedPreferenceHelper.pointTo(isCloud: true);
-      }
-      /* Health check api success & it's pointed to cloud */
-      else if (status == true && pointingTo == 'CLOUD') {
-        /* change the base url & update flag */
-        await _sharedPreferenceHelper.pointTo(isCloud: false);
-      }
+      await _sharedPreferenceHelper.pointTo(isCloud: status == false);
 
       String? appUUID = await _sharedPreferenceHelper.getAppUUID();
       if (appUUID == null) {

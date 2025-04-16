@@ -39,8 +39,6 @@ class CustomLogInterceptor extends Interceptor {
         'responseType': response.requestOptions.responseType.toString(),
       };
 
-      print("logg: $requestData $response");
-
       // Log the response data
       await Logger.logApi(
         request: requestData,
@@ -99,8 +97,6 @@ class CustomLogInterceptor extends Interceptor {
   bool _isRequestAllowed(String path) {
     return path.contains('/api/3.0/p2p/') ||
         path.contains(ApiConstants.fetchPaymentSummary) ||
-        path.contains(ApiConstants.terminalDetails) ||
-        path.contains(ApiConstants.outletDetails) ||
         path.contains(ApiConstants.placeOrder) ||
         path.contains(ApiConstants.orderInvoiceSSE) ||
         path.contains(ApiConstants.walletAuthentication) ||
