@@ -755,7 +755,7 @@ class HomeController extends GetxController {
   void showDialog() {
     if (isHealthChkDialogOpen.value == false) {
       if (Get.isDialogOpen ?? false) Get.back();
-      isHealthChkDialogOpen.value == true;
+      isHealthChkDialogOpen.value = true;
       Get.dialog(
         Dialog(
           shape: RoundedRectangleBorder(
