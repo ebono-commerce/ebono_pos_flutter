@@ -153,6 +153,9 @@ class HomeController extends GetxController {
 
   var pointingTo = 'LOCAl'.obs;
 
+  // completer to track if we're in the process of showing a dialog
+  Completer<void>? _healthCheckDialogCompleter;
+
   void notifyDialogClosed() {
     _logoutDialogController.add(true);
   }
@@ -725,6 +728,11 @@ class HomeController extends GetxController {
     _statusCheckTimer = Timer.periodic(
       const Duration(seconds: 5),
       (timer) async {
+        // Skip this cycle if we're already processing a health check failure
+        if (_healthCheckDialogCompleter != null) {
+          return;
+        }
+
         try {
           final loginStatus = await sharedPreferenceHelper.getLoginStatus();
           if (loginStatus != true) {
@@ -739,50 +747,61 @@ class HomeController extends GetxController {
             isOnline.value = true;
           } else {
             isOnline.value = false;
-            /* show dialog to logout the user */
-            showDialog();
+            // Show dialog exactly once
+            showHealthCheckDialog();
+            // Cancel timer immediately to prevent further checks
+            timer.cancel();
           }
         } catch (e) {
           isOnline.value = false;
-          Get.snackbar('Error while checking health', '$e');
-          /* show dialog to logout the user */
-          showDialog();
+          // Show dialog exactly once
+          showHealthCheckDialog();
+          // Cancel timer immediately
+          timer.cancel();
         }
       },
     );
   }
 
-  void showDialog() {
-    if (isHealthChkDialogOpen.value == false) {
-      if (Get.isDialogOpen ?? false) Get.back();
-      isHealthChkDialogOpen.value = true;
-      Get.dialog(
-        Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: ErrorDialogWidget(
-            height: 0.41,
-            onPressed: () {
-              isHealthChkDialogOpen.value == false;
-              final apiHelper = Get.find<ApiHelper>();
-              apiHelper.cancelAllRequests();
-              _statusCheckTimer?.cancel();
-              clearDataAndLogout();
-            },
-            errorMessage:
-                'Local service is down please press OK to login again',
-            iconWidget: const Icon(
-              Icons.warning_rounded,
-              color: Colors.amber,
-              size: 120,
-            ),
+  void showHealthCheckDialog() {
+    // Ensure we don't show dialog if already showing or in process
+    if (_healthCheckDialogCompleter != null ||
+        Get.currentRoute == PageRoutes.login) {
+      return;
+    }
+
+    // Create new completer to track this dialog session
+    _healthCheckDialogCompleter = Completer<void>();
+    isHealthChkDialogOpen.value = true;
+
+    Get.dialog(
+      Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: ErrorDialogWidget(
+          height: 0.41,
+          onPressed: () {
+            // Cleanup and logout
+            final apiHelper = Get.find<ApiHelper>();
+            apiHelper.cancelAllRequests();
+            _statusCheckTimer?.cancel();
+            isHealthChkDialogOpen.value = false;
+            _healthCheckDialogCompleter?.complete();
+            _healthCheckDialogCompleter = null;
+            clearDataAndLogout();
+          },
+          errorMessage: 'Local service is down please press OK to login again',
+          iconWidget: const Icon(
+            Icons.warning_rounded,
+            color: Colors.amber,
+            size: 120,
           ),
         ),
-        barrierDismissible: false,
-        useSafeArea: false,
-      );
-    }
+      ),
+      barrierDismissible: false,
+      useSafeArea: false,
+    );
   }
 
   Future<void> openRegisterApiCall() async {
@@ -1103,6 +1122,14 @@ class HomeController extends GetxController {
     apiHelper.cancelAllRequests();
     sharedPreferenceHelper.clearAll();
     hiveStorageHelper.clear();
+
+    // Close any open dialogs first
+    Get.closeAllSnackbars();
+    while (Get.isDialogOpen ?? false) {
+      Get.back();
+    }
+
+    // Clear routes and navigate to login
     Get.offAllNamed(PageRoutes.login);
   }
 
