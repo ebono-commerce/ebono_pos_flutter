@@ -711,6 +711,7 @@ class HomeController extends GetxController {
               holdCartId: id));
       /* resetting the existing state */
       cartId.value = response.cartId ?? '';
+      hiveStorageHelper.save(SharedPreferenceConstants.cartId, response.cartId);
       phoneNumber.value = mobileNumber ?? '';
       selectedTabButton.value = 2;
       getCustomerDetails();
