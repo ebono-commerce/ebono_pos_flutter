@@ -1131,7 +1131,7 @@ class HomeController extends GetxController {
     }
 
     // Clear routes and navigate to login
-    Get.offAllNamed(PageRoutes.login);
+    Get.until((route) => route.settings.name == PageRoutes.login);
   }
 
   @override
