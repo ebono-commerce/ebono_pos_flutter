@@ -767,7 +767,8 @@ class HomeController extends GetxController {
   void showHealthCheckDialog() {
     // Ensure we don't show dialog if already showing or in process
     if (_healthCheckDialogCompleter != null ||
-        Get.currentRoute == PageRoutes.login) {
+        Get.currentRoute == PageRoutes.login ||
+        isHealthChkDialogOpen.value) {
       return;
     }
 
@@ -1118,20 +1119,30 @@ class HomeController extends GetxController {
   }
 
   void clearDataAndLogout() {
+    // Cancel ongoing operations first
     final apiHelper = Get.find<ApiHelper>();
     _statusCheckTimer?.cancel();
     apiHelper.cancelAllRequests();
-    sharedPreferenceHelper.clearAll();
-    hiveStorageHelper.clear();
 
-    // Close any open dialogs first
+    // Close snack bars
     Get.closeAllSnackbars();
-    while (Get.isDialogOpen ?? false) {
-      Get.back();
+
+    // Force close ALL overlays including dialogs by using a more reliable approach
+    if (Get.overlayContext != null) {
+      // This will pop everything until we reach the first route
+      Navigator.of(Get.overlayContext!, rootNavigator: true)
+          .popUntil((route) => route.isFirst);
     }
 
-    // Clear routes and navigate to login
-    Get.until((route) => route.settings.name == PageRoutes.login);
+    // Add a small delay to ensure UI has updated before proceeding
+    Future.delayed(Duration(milliseconds: 100), () {
+      // Clear data
+      sharedPreferenceHelper.clearAll();
+      hiveStorageHelper.clear();
+
+      // Navigate to login with replacement
+      Get.offAllNamed(PageRoutes.login);
+    });
   }
 
   @override
