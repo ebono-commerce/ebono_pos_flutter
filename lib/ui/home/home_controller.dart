@@ -317,6 +317,7 @@ class HomeController extends GetxController {
     );
     phoneNumber.value = '';
     cartId.value = '';
+    await hiveStorageHelper.remove(SharedPreferenceConstants.cartId);
   }
 
   Future<void> initialResponse() async {
@@ -336,6 +337,7 @@ class HomeController extends GetxController {
     phoneNumber.value = '';
     cartId.value = '';
     customerName.value = '';
+    await hiveStorageHelper.remove(SharedPreferenceConstants.cartId);
     generalSuccessResponse.value = GeneralSuccessResponse(success: false);
     ordersOnHoldResponse.value = OrdersOnHoldResponse(data: [], meta: null);
   }
@@ -480,8 +482,9 @@ class HomeController extends GetxController {
           isCustomerProxySelected.value = false;
         } else {
           cartId.value = customerResponse.value.cartId.toString();
-          hiveStorageHelper.save(
-              SharedPreferenceConstants.cartId, cartId.value);
+          await hiveStorageHelper.remove(SharedPreferenceConstants.cartId);
+          await hiveStorageHelper.save(
+              SharedPreferenceConstants.cartId, response.cartId);
           fetchCartDetails();
         }
       }
@@ -664,6 +667,7 @@ class HomeController extends GetxController {
       generalSuccessResponse.value = response;
       isQuantitySelected.value = false;
       cartId.value = '';
+      await hiveStorageHelper.remove(SharedPreferenceConstants.cartId);
       getCustomerDetailsResponse.value = CustomerDetailsResponse();
       customerResponse.value = CustomerResponse();
       customerName.value = '';
@@ -690,6 +694,7 @@ class HomeController extends GetxController {
       );
       generalSuccessResponse.value = response;
       cartId.value = '';
+      await hiveStorageHelper.remove(SharedPreferenceConstants.cartId);
       getCustomerDetailsResponse.value = CustomerDetailsResponse();
       customerResponse.value = CustomerResponse();
       customerName.value = '';
@@ -714,7 +719,9 @@ class HomeController extends GetxController {
               holdCartId: id));
       /* resetting the existing state */
       cartId.value = response.cartId ?? '';
-      hiveStorageHelper.save(SharedPreferenceConstants.cartId, response.cartId);
+      await hiveStorageHelper.remove(SharedPreferenceConstants.cartId);
+      await hiveStorageHelper.save(
+          SharedPreferenceConstants.cartId, response.cartId);
       phoneNumber.value = mobileNumber ?? '';
       selectedTabButton.value = 2;
       getCustomerDetails();
