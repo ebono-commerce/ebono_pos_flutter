@@ -153,6 +153,9 @@ class HomeController extends GetxController {
 
   var pointingTo = 'LOCAl'.obs;
 
+  // completer to track if we're in the process of showing a dialog
+  Completer<void>? _healthCheckDialogCompleter;
+
   void notifyDialogClosed() {
     _logoutDialogController.add(true);
   }
@@ -314,6 +317,7 @@ class HomeController extends GetxController {
     );
     phoneNumber.value = '';
     cartId.value = '';
+    await hiveStorageHelper.remove(SharedPreferenceConstants.cartId);
   }
 
   Future<void> initialResponse() async {
@@ -333,6 +337,7 @@ class HomeController extends GetxController {
     phoneNumber.value = '';
     cartId.value = '';
     customerName.value = '';
+    await hiveStorageHelper.remove(SharedPreferenceConstants.cartId);
     generalSuccessResponse.value = GeneralSuccessResponse(success: false);
     ordersOnHoldResponse.value = OrdersOnHoldResponse(data: [], meta: null);
   }
@@ -477,8 +482,9 @@ class HomeController extends GetxController {
           isCustomerProxySelected.value = false;
         } else {
           cartId.value = customerResponse.value.cartId.toString();
-          hiveStorageHelper.save(
-              SharedPreferenceConstants.cartId, cartId.value);
+          await hiveStorageHelper.remove(SharedPreferenceConstants.cartId);
+          await hiveStorageHelper.save(
+              SharedPreferenceConstants.cartId, response.cartId);
           fetchCartDetails();
         }
       }
@@ -661,6 +667,7 @@ class HomeController extends GetxController {
       generalSuccessResponse.value = response;
       isQuantitySelected.value = false;
       cartId.value = '';
+      await hiveStorageHelper.remove(SharedPreferenceConstants.cartId);
       getCustomerDetailsResponse.value = CustomerDetailsResponse();
       customerResponse.value = CustomerResponse();
       customerName.value = '';
@@ -687,6 +694,7 @@ class HomeController extends GetxController {
       );
       generalSuccessResponse.value = response;
       cartId.value = '';
+      await hiveStorageHelper.remove(SharedPreferenceConstants.cartId);
       getCustomerDetailsResponse.value = CustomerDetailsResponse();
       customerResponse.value = CustomerResponse();
       customerName.value = '';
@@ -711,6 +719,9 @@ class HomeController extends GetxController {
               holdCartId: id));
       /* resetting the existing state */
       cartId.value = response.cartId ?? '';
+      await hiveStorageHelper.remove(SharedPreferenceConstants.cartId);
+      await hiveStorageHelper.save(
+          SharedPreferenceConstants.cartId, response.cartId);
       phoneNumber.value = mobileNumber ?? '';
       selectedTabButton.value = 2;
       getCustomerDetails();
@@ -725,6 +736,11 @@ class HomeController extends GetxController {
     _statusCheckTimer = Timer.periodic(
       const Duration(seconds: 5),
       (timer) async {
+        // Skip this cycle if we're already processing a health check failure
+        if (_healthCheckDialogCompleter != null) {
+          return;
+        }
+
         try {
           final loginStatus = await sharedPreferenceHelper.getLoginStatus();
           if (loginStatus != true) {
@@ -739,50 +755,62 @@ class HomeController extends GetxController {
             isOnline.value = true;
           } else {
             isOnline.value = false;
-            /* show dialog to logout the user */
-            showDialog();
+            // Show dialog exactly once
+            showHealthCheckDialog();
+            // Cancel timer immediately to prevent further checks
+            timer.cancel();
           }
         } catch (e) {
           isOnline.value = false;
-          Get.snackbar('Error while checking health', '$e');
-          /* show dialog to logout the user */
-          showDialog();
+          // Show dialog exactly once
+          showHealthCheckDialog();
+          // Cancel timer immediately
+          timer.cancel();
         }
       },
     );
   }
 
-  void showDialog() {
-    if (isHealthChkDialogOpen.value == false) {
-      if (Get.isDialogOpen ?? false) Get.back();
-      isHealthChkDialogOpen.value = true;
-      Get.dialog(
-        Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: ErrorDialogWidget(
-            height: 0.41,
-            onPressed: () {
-              isHealthChkDialogOpen.value == false;
-              final apiHelper = Get.find<ApiHelper>();
-              apiHelper.cancelAllRequests();
-              _statusCheckTimer?.cancel();
-              clearDataAndLogout();
-            },
-            errorMessage:
-                'Local service is down please press OK to login again',
-            iconWidget: const Icon(
-              Icons.warning_rounded,
-              color: Colors.amber,
-              size: 120,
-            ),
+  void showHealthCheckDialog() {
+    // Ensure we don't show dialog if already showing or in process
+    if (_healthCheckDialogCompleter != null ||
+        Get.currentRoute == PageRoutes.login ||
+        isHealthChkDialogOpen.value) {
+      return;
+    }
+
+    // Create new completer to track this dialog session
+    _healthCheckDialogCompleter = Completer<void>();
+    isHealthChkDialogOpen.value = true;
+
+    Get.dialog(
+      Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: ErrorDialogWidget(
+          height: 0.41,
+          onPressed: () {
+            // Cleanup and logout
+            final apiHelper = Get.find<ApiHelper>();
+            apiHelper.cancelAllRequests();
+            _statusCheckTimer?.cancel();
+            isHealthChkDialogOpen.value = false;
+            _healthCheckDialogCompleter?.complete();
+            _healthCheckDialogCompleter = null;
+            clearDataAndLogout();
+          },
+          errorMessage: 'Local service is down please press OK to login again',
+          iconWidget: const Icon(
+            Icons.warning_rounded,
+            color: Colors.amber,
+            size: 120,
           ),
         ),
-        barrierDismissible: false,
-        useSafeArea: false,
-      );
-    }
+      ),
+      barrierDismissible: false,
+      useSafeArea: false,
+    );
   }
 
   Future<void> openRegisterApiCall() async {
@@ -1098,12 +1126,30 @@ class HomeController extends GetxController {
   }
 
   void clearDataAndLogout() {
+    // Cancel ongoing operations first
     final apiHelper = Get.find<ApiHelper>();
     _statusCheckTimer?.cancel();
     apiHelper.cancelAllRequests();
-    sharedPreferenceHelper.clearAll();
-    hiveStorageHelper.clear();
-    Get.offAllNamed(PageRoutes.login);
+
+    // Close snack bars
+    Get.closeAllSnackbars();
+
+    // Force close ALL overlays including dialogs by using a more reliable approach
+    if (Get.overlayContext != null) {
+      // This will pop everything until we reach the first route
+      Navigator.of(Get.overlayContext!, rootNavigator: true)
+          .popUntil((route) => route.isFirst);
+    }
+
+    // Add a small delay to ensure UI has updated before proceeding
+    Future.delayed(Duration(milliseconds: 100), () {
+      // Clear data
+      sharedPreferenceHelper.clearAll();
+      hiveStorageHelper.clear();
+
+      // Navigate to login with replacement
+      Get.offAllNamed(PageRoutes.login);
+    });
   }
 
   @override
