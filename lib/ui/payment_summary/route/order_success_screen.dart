@@ -32,13 +32,6 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
     Logger.logView(view: 'order_success');
     super.initState();
   }
-
-  @override
-  void dispose() {
-    paymentBloc.add(CancelSSEEvent());
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     theme = Theme.of(context);
@@ -138,7 +131,7 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                                   e.toString(),
                                 );
                               } finally {
-                                paymentBloc.add(CancelSSEEvent());
+                              //  paymentBloc.add(CancelSSEEvent());
                                 Get.back();
                                 Get.back();
                               }
@@ -195,7 +188,7 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                                     'Error Printing Invoice',
                                     e.toString(),
                                   );
-                                  paymentBloc.add(CancelSSEEvent());
+                              //  paymentBloc.add(CancelSSEEvent());
                                   print(e);
                                 }
                                 Get.back();
