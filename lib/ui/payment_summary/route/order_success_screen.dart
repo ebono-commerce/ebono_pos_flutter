@@ -34,17 +34,11 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
   }
 
   @override
-  void dispose() {
-    paymentBloc.add(CancelSSEEvent());
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     theme = Theme.of(context);
 
-    return BlocProvider(
-      create: (context) => paymentBloc,
+    return BlocProvider.value(
+      value: paymentBloc,
       child: BlocListener<PaymentBloc, PaymentState>(
         listener: (BuildContext context, PaymentState state) {},
         child:

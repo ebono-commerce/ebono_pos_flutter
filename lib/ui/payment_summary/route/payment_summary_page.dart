@@ -16,7 +16,6 @@ import 'package:ebono_pos/ui/payment_summary/repository/PaymentRepository.dart';
 import 'package:ebono_pos/ui/payment_summary/route/order_success_screen.dart';
 import 'package:ebono_pos/ui/payment_summary/route/validate_otp_widget.dart';
 import 'package:ebono_pos/utils/dash_line.dart';
-import 'package:ebono_pos/utils/debouncer.dart';
 import 'package:ebono_pos/utils/logger.dart';
 import 'package:ebono_pos/utils/price.dart';
 import 'package:flutter/material.dart';
@@ -32,13 +31,7 @@ class PaymentSummaryScreen extends StatefulWidget {
 }
 
 class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
-  final paymentBloc = Get.put(
-    PaymentBloc(
-      Get.find<PaymentRepository>(),
-      Get.find<HiveStorageHelper>(),
-      Get.find<HomeController>(),
-    ),
-  );
+  late PaymentBloc paymentBloc;
 
   late ThemeData theme;
   String input = '';
@@ -62,6 +55,14 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
   final TextEditingController walletTextController = TextEditingController();
   @override
   void initState() {
+    paymentBloc = Get.put(
+      PaymentBloc(
+        Get.find<PaymentRepository>(),
+        Get.find<HiveStorageHelper>(),
+        Get.find<HomeController>(),
+      ),
+    );
+
     PaymentSummaryRequest paymentSummaryRequest = Get.arguments;
     if (mounted == true) {
       paymentBloc.add(PaymentInitialEvent(paymentSummaryRequest));
@@ -1225,13 +1226,13 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                       theme: theme,
                       textStyle: theme.textTheme.bodyMedium,
                       padding: EdgeInsets.all(12)),
-                  onPressed:
-                      (paymentBloc.allowPlaceOrder && state.isPlaceOrderLoading == false)
-                          ? () {
-                                Logger.logButtonPress(button: 'Place Order');
-                                paymentBloc.add(PlaceOrderEvent());
-                            }
-                          : null,
+                  onPressed: (paymentBloc.allowPlaceOrder &&
+                          state.isPlaceOrderLoading == false)
+                      ? () {
+                          Logger.logButtonPress(button: 'Place Order');
+                          paymentBloc.add(PlaceOrderEvent());
+                        }
+                      : null,
                   child: state.isPlaceOrderLoading
                       ? CircularProgressIndicator()
                       : Text(
@@ -1419,30 +1420,27 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
     }
   }
 
-  void _showOrderSuccessDialog() {
+  void _showOrderSuccessDialog() async {
     if (!Get.isDialogOpen!) {
-      Get.dialog(
-          barrierDismissible: false,
-          Dialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
-            ),
-            insetPadding: EdgeInsets.all(100),
-            backgroundColor: Colors.transparent,
-            child:
-                // WillPopScope(
-                //   onWillPop: () async => true,
-                //   child:
-                Container(
-                    padding: EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(20)),
-                    child: OrderSuccessScreen(
-                      isOfflineMode: paymentBloc.isOfflineMode,
-                    )),
-            // ),
-          ));
+      await Get.dialog(
+        barrierDismissible: false,
+        Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          insetPadding: EdgeInsets.all(100),
+          backgroundColor: Colors.transparent,
+          child: Container(
+              padding: EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                  color: Colors.white, borderRadius: BorderRadius.circular(20)),
+              child: OrderSuccessScreen(
+                isOfflineMode: paymentBloc.isOfflineMode,
+              )),
+        ),
+      );
+
+      paymentBloc.add(CancelSSEEvent());
     }
   }
 }
