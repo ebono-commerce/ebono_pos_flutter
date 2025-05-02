@@ -31,7 +31,13 @@ class PaymentSummaryScreen extends StatefulWidget {
 }
 
 class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
-  late PaymentBloc paymentBloc;
+  final paymentBloc = Get.put(
+    PaymentBloc(
+      Get.find<PaymentRepository>(),
+      Get.find<HiveStorageHelper>(),
+      Get.find<HomeController>(),
+    ),
+  );
 
   late ThemeData theme;
   String input = '';
@@ -55,14 +61,6 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
   final TextEditingController walletTextController = TextEditingController();
   @override
   void initState() {
-    paymentBloc = Get.put(
-      PaymentBloc(
-        Get.find<PaymentRepository>(),
-        Get.find<HiveStorageHelper>(),
-        Get.find<HomeController>(),
-      ),
-    );
-
     PaymentSummaryRequest paymentSummaryRequest = Get.arguments;
     if (mounted == true) {
       paymentBloc.add(PaymentInitialEvent(paymentSummaryRequest));
@@ -1420,9 +1418,9 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
     }
   }
 
-  void _showOrderSuccessDialog() async {
+  void _showOrderSuccessDialog() {
     if (!Get.isDialogOpen!) {
-      await Get.dialog(
+      Get.dialog(
         barrierDismissible: false,
         Dialog(
           shape: RoundedRectangleBorder(
@@ -1439,8 +1437,6 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
               )),
         ),
       );
-
-      paymentBloc.add(CancelSSEEvent());
     }
   }
 }

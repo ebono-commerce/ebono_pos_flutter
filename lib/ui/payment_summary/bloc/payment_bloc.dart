@@ -267,8 +267,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
                 isPaymentCancelSuccess: true));
           }
           Get.until((route) => route.settings.name != '/paymentStatusDialogue');
-          Get.snackbar(
-              'Payment status ${paymentStatusResponse.status}',
+          Get.snackbar('Payment status ${paymentStatusResponse.status}',
               '${paymentStatusResponse.message}');
 
           break;
@@ -296,7 +295,10 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
           break;
         case "P2P_ORIGINAL_P2P_REQUEST_IS_MISSING":
           p2pRequestId = '';
-          emit(state.copyWith(stopTimer: true, showPaymentPopup: false,isOnlinePaymentSuccess: false));
+          emit(state.copyWith(
+              stopTimer: true,
+              showPaymentPopup: false,
+              isOnlinePaymentSuccess: false));
           Get.until((route) => route.settings.name != '/paymentStatusDialogue');
           Get.snackbar('Payment status', '${paymentStatusResponse.message}');
 
@@ -314,7 +316,10 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
           break;
         default:
           Get.until((route) => route.settings.name != '/paymentStatusDialogue');
-          emit(state.copyWith(stopTimer: true, showPaymentPopup: false, isOnlinePaymentSuccess: false));
+          emit(state.copyWith(
+              stopTimer: true,
+              showPaymentPopup: false,
+              isOnlinePaymentSuccess: false));
           break;
       }
     } catch (error) {
@@ -567,6 +572,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
     _orderInvoiceSubscription =
         _paymentRepository.listenToPaymentUpdates(orderId).listen((event) {
       print("event data from sse ${event.data}");
+      Get.snackbar('SSE API CALL TRIGGERED', 'triggered sse api call');
       if (event.data != null && event.data?.isNotEmpty == true) {
         print("event data from sse");
         try {
@@ -579,6 +585,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
             ));
             _sseFallbackTimer?.cancel();
             _orderInvoiceSubscription?.cancel();
+            Get.snackbar('SSE API CALL CLOSED', 'on success');
           } else {
             emit(state.copyWith(
               isLoading: true,
