@@ -572,7 +572,6 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
     _orderInvoiceSubscription =
         _paymentRepository.listenToPaymentUpdates(orderId).listen((event) {
       print("event data from sse ${event.data}");
-      Get.snackbar('SSE API CALL TRIGGERED', 'triggered sse api call');
       if (event.data != null && event.data?.isNotEmpty == true) {
         print("event data from sse");
         try {

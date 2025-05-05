@@ -37,8 +37,8 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
   Widget build(BuildContext context) {
     theme = Theme.of(context);
 
-    return BlocProvider.value(
-      value: paymentBloc,
+    return BlocProvider(
+      create: (context) => paymentBloc,
       child: BlocListener<PaymentBloc, PaymentState>(
         listener: (BuildContext context, PaymentState state) {},
         child:

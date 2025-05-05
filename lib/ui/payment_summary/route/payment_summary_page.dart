@@ -1421,22 +1421,27 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
   void _showOrderSuccessDialog() {
     if (!Get.isDialogOpen!) {
       Get.dialog(
-        barrierDismissible: false,
-        Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          insetPadding: EdgeInsets.all(100),
-          backgroundColor: Colors.transparent,
-          child: Container(
-              padding: EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                  color: Colors.white, borderRadius: BorderRadius.circular(20)),
-              child: OrderSuccessScreen(
-                isOfflineMode: paymentBloc.isOfflineMode,
-              )),
-        ),
-      );
+          barrierDismissible: false,
+          Dialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            insetPadding: EdgeInsets.all(100),
+            backgroundColor: Colors.transparent,
+            child:
+                // WillPopScope(
+                //   onWillPop: () async => true,
+                //   child:
+                Container(
+                    padding: EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20)),
+                    child: OrderSuccessScreen(
+                      isOfflineMode: paymentBloc.isOfflineMode,
+                    )),
+            // ),
+          ));
     }
   }
 }
