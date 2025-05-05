@@ -7,7 +7,9 @@ Future<String> detectWeighingPort() async {
     final directory = Directory('/dev');
     final ports = directory
         .listSync()
-        .where((entity) => entity.path.contains('ttyS'))
+        .where((entity) =>
+            /* ttyUSB is only for testing purpose */
+            entity.path.contains('ttyS') || entity.path.contains('ttyUSB'))
         .map((entity) => entity.path)
         .toList();
 
