@@ -135,6 +135,8 @@ class HomeController extends GetxController {
   var pointedTo = 'LOCAL'.obs;
   var isHealthChkDialogOpen = false.obs;
 
+  var isQuantityExceedShowStopper = false.obs;
+  var isInvalidSKUShowStopper = false.obs;
   /* Loaders */
   var isRegisterApiLoading = false.obs;
   var isContinueWithOutCustomerBtnLoading = false.obs;
@@ -408,7 +410,11 @@ class HomeController extends GetxController {
       );
       selectedItemData.value = CartLine();
       if (error.toString().contains("SHOW_STOPPER")) {
-        await showStopperError(errorMessage: error.toString().split('::').last);
+        await showStopperError(errorMessage: error.toString().split('::').last).then((_){
+          if(error.toString().contains("Product not found")){
+            isInvalidSKUShowStopper.value = true;
+          }
+        });
       } else {
         Get.snackbar("Error While Scanning", '$error');
       }
@@ -648,7 +654,13 @@ class HomeController extends GetxController {
         await showStopperError(
           errorMessage: response.cartAlerts.first.message,
           isScanApiError: false,
-        );
+        ).then((_){
+          final alertType = response.cartAlerts.first.alertType;
+          if(alertType == 'MAX_QUANTITY_EXCEEDED'){
+            isQuantityExceedShowStopper.value = true;
+            isQuantitySelected.value = true;
+          }
+        });
 
         return;
       }
