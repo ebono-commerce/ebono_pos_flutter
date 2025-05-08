@@ -411,9 +411,7 @@ class HomeController extends GetxController {
       selectedItemData.value = CartLine();
       if (error.toString().contains("SHOW_STOPPER")) {
         await showStopperError(errorMessage: error.toString().split('::').last).then((_){
-          if(error.toString().contains("Product not found")){
             isInvalidSKUShowStopper.value = true;
-          }
         });
       } else {
         Get.snackbar("Error While Scanning", '$error');
@@ -655,8 +653,7 @@ class HomeController extends GetxController {
           errorMessage: response.cartAlerts.first.message,
           isScanApiError: false,
         ).then((_){
-          final alertType = response.cartAlerts.first.alertType;
-          if(alertType == 'MAX_QUANTITY_EXCEEDED'){
+          if(qUom == 'pcs'|| qUom == 'kg'){
             isQuantityExceedShowStopper.value = true;
             isQuantitySelected.value = true;
           }
