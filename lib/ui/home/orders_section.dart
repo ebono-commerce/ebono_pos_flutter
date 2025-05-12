@@ -68,6 +68,24 @@ class _OrdersSectionState extends State<OrdersSection>
       }
     });
 
+    ever(homeController.isQuantityExceedShowStopper, (value) {
+      if(value){
+        if(!numPadFocusNode.hasFocus){
+          numPadFocusNode.requestFocus();
+        }
+        homeController.isQuantityExceedShowStopper.value = false;
+      }
+    });
+
+    ever(homeController.isInvalidSKUShowStopper, (value) {
+      if(value){
+        if(!numPadFocusNode.hasFocus){
+          numPadFocusNode.requestFocus();
+        }
+        homeController.isInvalidSKUShowStopper.value = false;
+      }
+    });
+
     ever(weighingScaleService.weight, (value) {
       homeController.isAutoWeighDetection.value = true;
       if (!numPadFocusNode.hasFocus) {
@@ -92,6 +110,7 @@ class _OrdersSectionState extends State<OrdersSection>
     ever(homeController.isScanApiError, (value) {
       if (value) {
         numPadTextController.text = '';
+        _requestFocusOnNumpad();
         // setState(() {});
       }
     });
@@ -1287,6 +1306,7 @@ class _OrdersSectionState extends State<OrdersSection>
                                       true
                               ? null
                               : () async {
+                                  numPadFocusNode.unfocus();
                                   await Logger.logButtonPress(
                                     button: 'Proceed To Pay',
                                   );
