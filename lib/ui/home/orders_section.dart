@@ -69,8 +69,8 @@ class _OrdersSectionState extends State<OrdersSection>
     });
 
     ever(homeController.isQuantityExceedShowStopper, (value) {
-      if(value){
-        if(!numPadFocusNode.hasFocus){
+      if (value) {
+        if (!numPadFocusNode.hasFocus) {
           numPadFocusNode.requestFocus();
         }
         homeController.isQuantityExceedShowStopper.value = false;
@@ -78,8 +78,8 @@ class _OrdersSectionState extends State<OrdersSection>
     });
 
     ever(homeController.isInvalidSKUShowStopper, (value) {
-      if(value){
-        if(!numPadFocusNode.hasFocus){
+      if (value) {
+        if (!numPadFocusNode.hasFocus) {
           numPadFocusNode.requestFocus();
         }
         homeController.isInvalidSKUShowStopper.value = false;
@@ -119,6 +119,12 @@ class _OrdersSectionState extends State<OrdersSection>
       if (value == true) {
         numPadTextController.clear();
         homeController.clearWeightOnSuccess.value = false;
+      }
+    });
+
+    ever(homeController.triggerVerifyCustomerDialog, (value) {
+      if (value == true) {
+        triggerCustomerDialog();
       }
     });
 
@@ -164,6 +170,24 @@ class _OrdersSectionState extends State<OrdersSection>
     });
 
     super.initState();
+  }
+
+  void triggerCustomerDialog() async {
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          insetPadding: EdgeInsets.symmetric(vertical: 15.0),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20.0),
+          ),
+          child: AddCustomerWidget(context, onClose: _requestFocusOnNumpad),
+        );
+      },
+    );
+
+    homeController.displayOTPScreen.value = false;
+    homeController.triggerVerifyCustomerDialog.value = false;
   }
 
   @override
@@ -217,23 +241,7 @@ class _OrdersSectionState extends State<OrdersSection>
                   absorbing: homeController.registerId.value.isEmpty,
                   child: QuickActionButtons(
                     color: Colors.white,
-                    onCustomerPressed: () async {
-                      await showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return Dialog(
-                            insetPadding: EdgeInsets.symmetric(vertical: 15.0),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20.0),
-                            ),
-                            child: AddCustomerWidget(context,
-                                onClose: _requestFocusOnNumpad),
-                          );
-                        },
-                      );
-
-                      homeController.displayOTPScreen.value = false;
-                    },
+                    onCustomerPressed: triggerCustomerDialog,
                     onHoldCartPressed: () {
                       if (homeController.isContionueWithOutCustomer.value) {
                         showDialog(

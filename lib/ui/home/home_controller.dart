@@ -142,6 +142,7 @@ class HomeController extends GetxController {
   var isContinueWithOutCustomerBtnLoading = false.obs;
   var isSearchCustomerBtnLoading = false.obs;
   var isSelectOrAddCustomerBtnLoading = false.obs;
+  var triggerVerifyCustomerDialog = false.obs;
 
   RxList<AllowedPaymentMode> allowedPaymentModes = [AllowedPaymentMode()].obs;
   List<TransactionSummary> transactionSummaryList = [];
@@ -410,8 +411,9 @@ class HomeController extends GetxController {
       );
       selectedItemData.value = CartLine();
       if (error.toString().contains("SHOW_STOPPER")) {
-        await showStopperError(errorMessage: error.toString().split('::').last).then((_){
-            isInvalidSKUShowStopper.value = true;
+        await showStopperError(errorMessage: error.toString().split('::').last)
+            .then((_) {
+          isInvalidSKUShowStopper.value = true;
         });
       } else {
         Get.snackbar("Error While Scanning", '$error');
@@ -478,6 +480,12 @@ class HomeController extends GetxController {
       if (showOTPScreen) {
         displayOTPScreen.value = true;
       }
+      if (isFromResumeHoldCart &&
+          customerResponse.value.isCustomerVerificationRequired == true) {
+        displayOTPScreen.value = true;
+        triggerVerifyCustomerDialog.value = true;
+      }
+
       if (!isFromReturns) {
         if (cartId.value.isNotEmpty &&
             isCustomerProxySelected.value &&
@@ -652,8 +660,8 @@ class HomeController extends GetxController {
         await showStopperError(
           errorMessage: response.cartAlerts.first.message,
           isScanApiError: false,
-        ).then((_){
-          if(qUom == 'pcs'|| qUom == 'kg'){
+        ).then((_) {
+          if (qUom == 'pcs' || qUom == 'kg') {
             isQuantityExceedShowStopper.value = true;
             isQuantitySelected.value = true;
           }
