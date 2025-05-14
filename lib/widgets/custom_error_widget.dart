@@ -12,78 +12,64 @@ class CustomErrorWidget extends StatefulWidget {
 }
 
 class _CustomErrorWidgetState extends State<CustomErrorWidget> {
-  bool showCustomErrorScreen = false;
   final homeController = Get.find<HomeController>();
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (showCustomErrorScreen == false) {
-        Get.snackbar('Error', '${widget.details.exception}');
-      }
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
     return Material(
-      child: showCustomErrorScreen == false
-          ? SizedBox()
-          : SafeArea(
-              child: Scaffold(
-                backgroundColor: Colors.white,
-                body: Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(24.0),
-                    child: SingleChildScrollView(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(Icons.error_outline,
-                              size: 80, color: Colors.redAccent),
-                          const SizedBox(height: 20),
-                          const Text(
-                            "Oops! Something went wrong.",
-                            style: TextStyle(
-                                fontSize: 22,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black87),
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: 10),
-                          Text(
-                            widget.details.exception.toString(),
-                            style: TextStyle(
-                                fontSize: 16, color: Colors.grey[800]),
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: 20),
-                          _buildStackTrace(),
-                          const SizedBox(height: 40),
-                          ElevatedButton.icon(
-                            onPressed: () {
-                              if (widget.details.context != null &&
-                                  Navigator.canPop(context)) {
-                                Navigator.pop(context);
-                              }
-                            },
-                            icon: const Icon(Icons.arrow_back),
-                            label: const Text("Go Back"),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.redAccent,
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 24, vertical: 12),
-                            ),
-                          ),
-                        ],
+      child: SafeArea(
+        child: Scaffold(
+          backgroundColor: Colors.white,
+          body: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.error_outline,
+                        size: 80, color: Colors.redAccent),
+                    const SizedBox(height: 20),
+                    const Text(
+                      "Oops! Something went wrong.",
+                      style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      widget.details.exception.toString(),
+                      style: TextStyle(fontSize: 16, color: Colors.grey[800]),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 20),
+                    _buildStackTrace(),
+                    const SizedBox(height: 40),
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        if (widget.details.context != null &&
+                            Navigator.canPop(context)) {
+                          Navigator.pop(context);
+                        }
+                      },
+                      icon: const Icon(Icons.arrow_back),
+                      label: const Text("Go Back"),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.redAccent,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 24, vertical: 12),
                       ),
                     ),
-                  ),
+                  ],
                 ),
               ),
             ),
+          ),
+        ),
+      ),
     );
   }
 
