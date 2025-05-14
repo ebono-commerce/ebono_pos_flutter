@@ -1,18 +1,20 @@
-import 'package:get/get.dart';
 import 'package:window_manager/window_manager.dart';
 
 class CustomWindowListener extends WindowListener {
   final Function()? _onWindowResizedCallback;
   final Function()? _onWindowFocusCallback;
   final Function()? _onWindowBlurCallback;
+  final Function()? _onWindowRestoreCallback;
 
-  CustomWindowListener(
-      {Function()? onWindowResized,
-      Function()? onWindowFocus,
-      Function()? onWindowBlur})
-      : _onWindowResizedCallback = onWindowResized,
+  CustomWindowListener({
+    Function()? onWindowResized,
+    Function()? onWindowFocus,
+    Function()? onWindowBlur,
+    Function()? onWindowRestore,
+  })  : _onWindowResizedCallback = onWindowResized,
         _onWindowFocusCallback = onWindowFocus,
-        _onWindowBlurCallback = onWindowBlur;
+        _onWindowBlurCallback = onWindowBlur,
+        _onWindowRestoreCallback = onWindowRestore;
 
   @override
   void onWindowResized() {
@@ -42,27 +44,11 @@ class CustomWindowListener extends WindowListener {
   }
 
   @override
-  void onWindowUnmaximize() {
-    super.onWindowUnmaximize();
-
-    if (_onWindowResizedCallback != null) {
-      _onWindowResizedCallback();
-    }
-  }
-
-  @override
-  void onWindowEvent(String eventName) {
-    super.onWindowEvent(eventName);
-
-    Get.snackbar('Window Event', 'Event: $eventName');
-  }
-
-  @override
   void onWindowRestore() {
     super.onWindowRestore();
 
-    if (_onWindowResizedCallback != null) {
-      _onWindowResizedCallback();
+    if (_onWindowRestoreCallback != null) {
+      _onWindowRestoreCallback();
     }
   }
 }

@@ -1,11 +1,8 @@
-import 'dart:async';
-
 import 'package:ebono_pos/data_store/hive_storage_helper.dart';
 import 'package:ebono_pos/navigation/navigation.dart';
 import 'package:ebono_pos/theme/theme_data.dart';
 import 'package:ebono_pos/utils/SDP.dart';
 import 'package:ebono_pos/utils/logger.dart';
-import 'package:ebono_pos/utils/window_listener.dart';
 import 'package:ebono_pos/widgets/custom_error_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -32,26 +29,32 @@ void main() async {
     await windowManager.setFullScreen(true);
     await windowManager.show();
 
-    // Add a listener to monitor and restore full screen mode
-    windowManager.addListener(CustomWindowListener(
-      onWindowResized: () async {
-        bool isFullScreen = await windowManager.isFullScreen();
-        if (!isFullScreen) {
-          await windowManager.setFullScreen(true);
-        }
-      },
-      onWindowFocus: () async {
-        // Immediately attempt to restore fullscreen without delay
-        await windowManager.setFullScreen(true);
-      },
-      // Add this new handler for blur events
-      onWindowBlur: () async {
-        // Schedule a check to restore fullscreen after blur
-        Timer(const Duration(milliseconds: 2), () async {
-          await windowManager.setFullScreen(true);
-        });
-      },
-    ));
+    // // Add a listener to monitor and restore full screen mode
+    // windowManager.addListener(CustomWindowListener(onWindowResized: () async {
+    //   Get.snackbar('BLUR', 'window resize');
+    //   bool isFullScreen = await windowManager.isFullScreen();
+    //   if (!isFullScreen) {
+    //     await windowManager.setFullScreen(true);
+    //   }
+    // }, onWindowFocus: () async {
+    //   Get.snackbar('BLUR', 'window focus');
+    //   // Immediately attempt to restore fullscreen without delay
+    //   await windowManager.setFullScreen(true);
+    // },
+    //     // Add this new handler for blur events
+    //     onWindowBlur: () async {
+    //   Get.snackbar('BLUR', 'window blur');
+    //   // Schedule a check to restore fullscreen after blur
+    //   Timer(const Duration(milliseconds: 2), () async {
+    //     await windowManager.setFullScreen(true);
+    //   });
+    // }, onWindowRestore: () async {
+    //   Get.snackbar('BLUR', 'window restore');
+    //   // Schedule a check to restore fullscreen after blur
+    //   Timer(const Duration(milliseconds: 2), () async {
+    //     await windowManager.setFullScreen(true);
+    //   });
+    // }));
   });
 
   await HiveStorageHelper.init();
