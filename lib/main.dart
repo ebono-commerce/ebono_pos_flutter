@@ -28,33 +28,6 @@ void main() async {
   windowManager.waitUntilReadyToShow(windowOptions, () async {
     await windowManager.setFullScreen(true);
     await windowManager.show();
-
-    // // Add a listener to monitor and restore full screen mode
-    // windowManager.addListener(CustomWindowListener(onWindowResized: () async {
-    //   Get.snackbar('BLUR', 'window resize');
-    //   bool isFullScreen = await windowManager.isFullScreen();
-    //   if (!isFullScreen) {
-    //     await windowManager.setFullScreen(true);
-    //   }
-    // }, onWindowFocus: () async {
-    //   Get.snackbar('BLUR', 'window focus');
-    //   // Immediately attempt to restore fullscreen without delay
-    //   await windowManager.setFullScreen(true);
-    // },
-    //     // Add this new handler for blur events
-    //     onWindowBlur: () async {
-    //   Get.snackbar('BLUR', 'window blur');
-    //   // Schedule a check to restore fullscreen after blur
-    //   Timer(const Duration(milliseconds: 2), () async {
-    //     await windowManager.setFullScreen(true);
-    //   });
-    // }, onWindowRestore: () async {
-    //   Get.snackbar('BLUR', 'window restore');
-    //   // Schedule a check to restore fullscreen after blur
-    //   Timer(const Duration(milliseconds: 2), () async {
-    //     await windowManager.setFullScreen(true);
-    //   });
-    // }));
   });
 
   await HiveStorageHelper.init();
