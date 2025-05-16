@@ -16,7 +16,6 @@ import 'package:ebono_pos/ui/payment_summary/repository/PaymentRepository.dart';
 import 'package:ebono_pos/ui/payment_summary/route/order_success_screen.dart';
 import 'package:ebono_pos/ui/payment_summary/route/validate_otp_widget.dart';
 import 'package:ebono_pos/utils/dash_line.dart';
-import 'package:ebono_pos/utils/debouncer.dart';
 import 'package:ebono_pos/utils/logger.dart';
 import 'package:ebono_pos/utils/price.dart';
 import 'package:flutter/material.dart';
@@ -771,7 +770,9 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
 
                   /// if payment amount is zero disable or OnlinePaymentSuccess the state of buttons
                   if ((paymentBloc.totalPayable) <= 0.0 ||
-                      state.isOnlinePaymentSuccess) ...[
+                      state.isOnlinePaymentSuccess ||
+                      state.isPaymentInitiateApiLoading ||
+                      state.showPaymentPopup) ...[
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -928,6 +929,9 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                                         textStyle: theme.textTheme.bodyMedium,
                                         padding: EdgeInsets.all(12)),
                                     onPressed: (!state.isOnlinePaymentSuccess &&
+                                            !state
+                                                .isPaymentInitiateApiLoading &&
+                                            !state.showPaymentPopup &&
                                             onlinePaymentTextController
                                                 .value.text.isNotEmpty)
                                         ? () {
@@ -1225,13 +1229,13 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                       theme: theme,
                       textStyle: theme.textTheme.bodyMedium,
                       padding: EdgeInsets.all(12)),
-                  onPressed:
-                      (paymentBloc.allowPlaceOrder && state.isPlaceOrderLoading == false)
-                          ? () {
-                                Logger.logButtonPress(button: 'Place Order');
-                                paymentBloc.add(PlaceOrderEvent());
-                            }
-                          : null,
+                  onPressed: (paymentBloc.allowPlaceOrder &&
+                          state.isPlaceOrderLoading == false)
+                      ? () {
+                          Logger.logButtonPress(button: 'Place Order');
+                          paymentBloc.add(PlaceOrderEvent());
+                        }
+                      : null,
                   child: state.isPlaceOrderLoading
                       ? CircularProgressIndicator()
                       : Text(

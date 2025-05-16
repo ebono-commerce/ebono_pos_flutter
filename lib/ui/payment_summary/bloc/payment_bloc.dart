@@ -163,7 +163,9 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
   Future<void> _paymentInitiateApi(
       PaymentStartEvent event, Emitter<PaymentState> emit) async {
     emit(state.copyWith(
-        isLoading: true, initialState: false, isOnlinePaymentSuccess: true));
+        isLoading: true,
+        initialState: false,
+        isPaymentInitiateApiLoading: true));
 
     final reqBody = {
       "amount": onlinePayment,
@@ -197,7 +199,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
           isLoading: false,
           showPaymentPopup: paymentInitiateResponse.success,
           isPaymentStartSuccess: paymentInitiateResponse.success,
-          isOnlinePaymentSuccess: true,
+          isPaymentInitiateApiLoading: false,
         ));
         if (paymentInitiateResponse.p2PRequestId != "") {
           _startPeriodicPaymentStatusCheck();
@@ -211,14 +213,14 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
           isLoading: false,
           showPaymentPopup: false,
           isPaymentStartSuccess: false,
-          isOnlinePaymentSuccess: false,
+          isPaymentInitiateApiLoading: false,
         ));
       }
     } catch (error) {
       emit(state.copyWith(
           isLoading: false,
           isPaymentSummaryError: true,
-          isOnlinePaymentSuccess: false,
+          isPaymentInitiateApiLoading: false,
           errorMessage: error.toString()));
     }
   }
@@ -267,8 +269,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
                 isPaymentCancelSuccess: true));
           }
           Get.until((route) => route.settings.name != '/paymentStatusDialogue');
-          Get.snackbar(
-              'Payment status ${paymentStatusResponse.status}',
+          Get.snackbar('Payment status ${paymentStatusResponse.status}',
               '${paymentStatusResponse.message}');
 
           break;
@@ -296,7 +297,10 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
           break;
         case "P2P_ORIGINAL_P2P_REQUEST_IS_MISSING":
           p2pRequestId = '';
-          emit(state.copyWith(stopTimer: true, showPaymentPopup: false,isOnlinePaymentSuccess: false));
+          emit(state.copyWith(
+              stopTimer: true,
+              showPaymentPopup: false,
+              isOnlinePaymentSuccess: false));
           Get.until((route) => route.settings.name != '/paymentStatusDialogue');
           Get.snackbar('Payment status', '${paymentStatusResponse.message}');
 
@@ -314,7 +318,10 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
           break;
         default:
           Get.until((route) => route.settings.name != '/paymentStatusDialogue');
-          emit(state.copyWith(stopTimer: true, showPaymentPopup: false, isOnlinePaymentSuccess: false));
+          emit(state.copyWith(
+              stopTimer: true,
+              showPaymentPopup: false,
+              isOnlinePaymentSuccess: false));
           break;
       }
     } catch (error) {

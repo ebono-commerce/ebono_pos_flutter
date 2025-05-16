@@ -23,6 +23,7 @@ class PaymentState {
   final bool isWalletChargeError;
   final bool isVerifyOTPLoading;
   final bool isResendOTPLoading;
+  final bool isPaymentInitiateApiLoading;
 
   const PaymentState({
     this.initialState = false,
@@ -49,6 +50,7 @@ class PaymentState {
     this.isWalletChargeError = false,
     this.isResendOTPLoading = false,
     this.isVerifyOTPLoading = false,
+    this.isPaymentInitiateApiLoading = false,
   });
 
   PaymentState copyWith({
@@ -76,6 +78,7 @@ class PaymentState {
     bool? isWalletChargeError,
     bool? isResendOTPLoading,
     bool? isVerifyOTPLoading,
+    bool? isPaymentInitiateApiLoading,
   }) {
     return PaymentState(
       initialState: initialState ?? this.initialState,
@@ -111,6 +114,8 @@ class PaymentState {
       isWalletChargeError: isWalletChargeError ?? this.isWalletChargeError,
       isVerifyOTPLoading: isVerifyOTPLoading ?? this.isVerifyOTPLoading,
       isResendOTPLoading: isResendOTPLoading ?? this.isResendOTPLoading,
+      isPaymentInitiateApiLoading:
+          isPaymentInitiateApiLoading ?? this.isPaymentInitiateApiLoading,
     );
   }
 }
