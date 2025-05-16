@@ -224,17 +224,27 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                   Container(
                     width: 180,
                     height: 74,
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 5.0, vertical: 10),
+                    padding: EdgeInsets.symmetric(
+                        horizontal: 5.0,
+                        vertical: state.isSmsInvoiceLoading ? 0 : 10),
                     child: ElevatedButton(
-                      onPressed: /*!state.isLoading && state.allowPrintInvoice
-                          ? () {
-                              homeController.initialResponse();
-                              Get.back();
-                              Get.back();
-                            }
-                          : */
-                          null,
+                      onPressed: _isStoreOrder()
+                          ? null
+                          : !state.isLoading &&
+                                  !state.isSmsInvoiceLoading &&
+                                  state.allowPrintInvoice &&
+                                  state.isSmsInvoiceSuccess == false
+                              ? () {
+                                  paymentBloc.add(SmsInvoiceEvent(
+                                    () {
+                                      homeController.initialResponse();
+                                      Get.back();
+                                      Get.back();
+                                      Get.back();
+                                    },
+                                  ));
+                                }
+                              : null,
                       style: ElevatedButton.styleFrom(
                           elevation: 1,
                           padding:
@@ -247,18 +257,20 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                           backgroundColor: CustomColors.keyBoardBgColor,
                           disabledBackgroundColor: CustomColors.grey,
                           disabledForegroundColor: CustomColors.grey),
-                      child: Center(
-                        child: Text(
-                          textAlign: TextAlign.center,
-                          "SMS Digital Invoice",
-                          style: Theme.of(context)
-                              .textTheme
-                              .labelLarge
-                              ?.copyWith(
-                                  fontWeight: FontWeight.w600,
-                                  color: CustomColors.primaryColor),
-                        ),
-                      ),
+                      child: state.isSmsInvoiceLoading
+                          ? CircularProgressIndicator()
+                          : Center(
+                              child: Text(
+                                textAlign: TextAlign.center,
+                                "SMS Digital Invoice",
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .labelLarge
+                                    ?.copyWith(
+                                        fontWeight: FontWeight.w600,
+                                        color: CustomColors.primaryColor),
+                              ),
+                            ),
                     ),
                   ),
                 ],
@@ -268,5 +280,12 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
         }),
       ),
     );
+  }
+
+  _isStoreOrder() {
+    return homeController.customerProxyNumber.value ==
+            paymentBloc.paymentSummaryRequest.phoneNumber
+        ? true
+        : false;
   }
 }
