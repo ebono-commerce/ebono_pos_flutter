@@ -224,9 +224,8 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                   Container(
                     width: 180,
                     height: 74,
-                    padding: EdgeInsets.symmetric(
-                        horizontal: 5.0,
-                        vertical: state.isSmsInvoiceLoading ? 0 : 10),
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 5.0, vertical: 10),
                     child: ElevatedButton(
                       onPressed: _isStoreOrder()
                           ? null
@@ -257,10 +256,13 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                           backgroundColor: CustomColors.keyBoardBgColor,
                           disabledBackgroundColor: CustomColors.grey,
                           disabledForegroundColor: CustomColors.grey),
-                      child: state.isSmsInvoiceLoading
-                          ? CircularProgressIndicator()
-                          : Center(
-                              child: Text(
+                      child: Center(
+                        child: state.isSmsInvoiceLoading
+                            ? SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator())
+                            : Text(
                                 textAlign: TextAlign.center,
                                 "SMS Digital Invoice",
                                 style: Theme.of(context)
@@ -270,7 +272,7 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                                         fontWeight: FontWeight.w600,
                                         color: CustomColors.primaryColor),
                               ),
-                            ),
+                      ),
                     ),
                   ),
                 ],
