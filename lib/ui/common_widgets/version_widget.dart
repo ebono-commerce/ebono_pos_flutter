@@ -11,7 +11,7 @@ class VersionWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final sharedPrefs = Get.find<SharedPreferenceHelper>();
-    String environment = String.fromEnvironment('ENV', defaultValue: 'prod');
+    String environment = String.fromEnvironment('ENV', defaultValue: 'dev');
 
     return FutureBuilder<Map<String, dynamic>>(
       future: Future.wait([
