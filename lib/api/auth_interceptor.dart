@@ -18,9 +18,14 @@ class AuthInterceptor extends Interceptor {
     String? token = await _sharedPreferenceHelper.getAuthToken();
     String? appUUID = await _sharedPreferenceHelper.getAppUUID();
     String pointedTo = await _sharedPreferenceHelper.pointingTo();
+    final bool isLocalHttpRequest = options.extra['isLocalHttpRequest'] == true;
+    final isTestModeEnabled =
+        await _sharedPreferenceHelper.isTestModeEnabled() == true;
 
     // Check if it's a local HTTP request (marked by the CustomConnectionInterceptor)
-    final bool isLocalHttpRequest = options.extra['isLocalHttpRequest'] == true;
+    if (isTestModeEnabled) {
+      options.headers['x-operation-mode'] = 'TRAINING';
+    }
 
     if (options.uri.path.contains('/api/3.0/p2p/')) {
       options.baseUrl = EnvironmentConfig.paymentBaseUrl;
