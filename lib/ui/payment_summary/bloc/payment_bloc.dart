@@ -78,6 +78,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
     on<WalletIdealEvent>(_onWalletIdeal);
     on<PaymentIdealEvent>(_onIdeal);
     on<CancelSSEEvent>(_onCancelSSEEvent);
+    on<SmsInvoiceEvent>(_smsInvoice);
   }
 
   void _startPeriodicPaymentStatusCheck() {
@@ -267,8 +268,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
                 isPaymentCancelSuccess: true));
           }
           Get.until((route) => route.settings.name != '/paymentStatusDialogue');
-          Get.snackbar(
-              'Payment status ${paymentStatusResponse.status}',
+          Get.snackbar('Payment status ${paymentStatusResponse.status}',
               '${paymentStatusResponse.message}');
 
           break;
@@ -296,7 +296,10 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
           break;
         case "P2P_ORIGINAL_P2P_REQUEST_IS_MISSING":
           p2pRequestId = '';
-          emit(state.copyWith(stopTimer: true, showPaymentPopup: false,isOnlinePaymentSuccess: false));
+          emit(state.copyWith(
+              stopTimer: true,
+              showPaymentPopup: false,
+              isOnlinePaymentSuccess: false));
           Get.until((route) => route.settings.name != '/paymentStatusDialogue');
           Get.snackbar('Payment status', '${paymentStatusResponse.message}');
 
@@ -314,7 +317,10 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
           break;
         default:
           Get.until((route) => route.settings.name != '/paymentStatusDialogue');
-          emit(state.copyWith(stopTimer: true, showPaymentPopup: false, isOnlinePaymentSuccess: false));
+          emit(state.copyWith(
+              stopTimer: true,
+              showPaymentPopup: false,
+              isOnlinePaymentSuccess: false));
           break;
       }
     } catch (error) {
@@ -545,7 +551,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
       invoiceSummaryResponse = await _paymentRepository
           .getInvoice(orderSummaryResponse.orderNumber!);
 
-      emit(state.copyWith(isLoading: false));
+      emit(state.copyWith(isLoading: false, allowPrintInvoice: true));
       _sseFallbackTimer?.cancel();
       _orderInvoiceSubscription?.cancel();
     } catch (error) {
@@ -690,6 +696,29 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
     }
   }
 
+  _smsInvoice(SmsInvoiceEvent event, Emitter<PaymentState> emit) async {
+    emit(state.copyWith(isSmsInvoiceLoading: true));
+
+    try {
+      final response = await _paymentRepository
+          .generateSmsInvoice(paymentSummaryResponse.orderNumber ?? '');
+
+      emit(state.copyWith(
+          isSmsInvoiceLoading: false, isSmsInvoiceSuccess: true));
+      event.onSuccess();
+    } catch (error) {
+      emit(state.copyWith(
+        isSmsInvoiceLoading: false,
+        errorMessage: error.toString(),
+        isSmsInvoiceSuccess: false,
+      ));
+      Get.snackbar(
+        'Error',
+        error.toString(),
+      );
+    }
+  }
+
   Future<void> _onWalletIdeal(
       WalletIdealEvent event, Emitter<PaymentState> emit) async {
     emit(state.copyWith(
@@ -711,7 +740,6 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
   @override
   Future<void> close() {
     _timer?.cancel();
-    print('STEP:Timer closed');
     return super.close();
   }
 }

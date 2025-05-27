@@ -15,6 +15,7 @@ import 'package:ebono_pos/ui/payment_summary/model/payment_summary_response.dart
 import 'package:ebono_pos/ui/payment_summary/model/place_order_request.dart';
 import 'package:ebono_pos/ui/payment_summary/model/wallet_charge_request.dart';
 import 'package:flutter_client_sse/flutter_client_sse.dart';
+
 import '../../../api/api_exception.dart';
 
 class PaymentRepository {
@@ -140,6 +141,16 @@ class PaymentRepository {
       final paymentSummaryResponse =
           paymentSummaryResponseFromJson(jsonEncode(response));
       return paymentSummaryResponse;
+    } catch (e) {
+      throw ApiException(e.toString());
+    }
+  }
+
+  Future<GeneralSuccessResponse> generateSmsInvoice(String number) async {
+    try {
+      final response = await _apiHelper.post(ApiConstants.generateSmsInvoice,
+          data: {"order_number": number});
+      return GeneralSuccessResponse.fromJson(response);
     } catch (e) {
       throw ApiException(e.toString());
     }
