@@ -93,7 +93,7 @@ class MyApp extends StatelessWidget {
                     child: Positioned(
                       top: -4,
                       // left: 10,
-                      left: MediaQuery.sizeOf(context).width * 0.64,
+                      left: MediaQuery.sizeOf(context).width * 0.68,
                       child: Center(
                         child: Container(
                           padding: const EdgeInsets.only(

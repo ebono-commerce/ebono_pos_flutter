@@ -313,7 +313,7 @@ class _LoginPageState extends State<LoginPage> {
               // Sign in button
               SizedBox(
                 width: double.infinity,
-                height: 60,
+                height: 50,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Theme.of(context).colorScheme.secondary,
@@ -349,6 +349,7 @@ class _LoginPageState extends State<LoginPage> {
 
               const UnableToLoginWidget(),
 
+              const SizedBox(height: 10),
               // Unable to log in text
               Center(
                 child: Wrap(
@@ -363,12 +364,12 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
 
-              SizedBox(height: 30),
+              SizedBox(height: 20),
               BlocBuilder<TestModeCubit, bool>(
                 builder: (context, isTestModeEnabled) {
                   return SizedBox(
                     width: double.infinity,
-                    height: 60,
+                    height: 50,
                     child: ElevatedButton(
                       onPressed: () {
                         context.read<TestModeCubit>().toggle();
@@ -586,7 +587,7 @@ class _LoginPageState extends State<LoginPage> {
                       },
                     ))
                 : SizedBox(),
-            SizedBox(height: 20),
+            SizedBox(height: 30),
 
             // Sign in button
             SizedBox(
@@ -617,7 +618,6 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
             ),
-            SizedBox(height: 10),
           ],
         ),
       ),
