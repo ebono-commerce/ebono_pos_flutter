@@ -24,11 +24,13 @@ import 'package:ebono_pos/utils/price.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 
+import '../../../data_store/shared_preference_helper.dart';
+
 class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
   final PaymentRepository _paymentRepository;
   final HiveStorageHelper hiveStorageHelper;
   final HomeController _homeController;
-
+  final sharedPreferenceHelper = Get.find<SharedPreferenceHelper>();
   Timer? _timer;
   late PaymentSummaryRequest paymentSummaryRequest;
   late PaymentSummaryResponse paymentSummaryResponse;
@@ -164,9 +166,10 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
       PaymentStartEvent event, Emitter<PaymentState> emit) async {
     emit(state.copyWith(
         isLoading: true, initialState: false, isOnlinePaymentSuccess: true));
+    final isTestMode = await sharedPreferenceHelper.isTestModeEnabled();
 
     final reqBody = {
-      "amount": onlinePayment,
+      "amount": isTestMode ? '1.0' : onlinePayment,
       "externalRefNumber":
           paymentSummaryResponse.orderNumber ?? generateRandom8DigitNumber(),
       "customerName":
@@ -267,8 +270,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
                 isPaymentCancelSuccess: true));
           }
           Get.until((route) => route.settings.name != '/paymentStatusDialogue');
-          Get.snackbar(
-              'Payment status ${paymentStatusResponse.status}',
+          Get.snackbar('Payment status ${paymentStatusResponse.status}',
               '${paymentStatusResponse.message}');
 
           break;
@@ -296,7 +298,10 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
           break;
         case "P2P_ORIGINAL_P2P_REQUEST_IS_MISSING":
           p2pRequestId = '';
-          emit(state.copyWith(stopTimer: true, showPaymentPopup: false,isOnlinePaymentSuccess: false));
+          emit(state.copyWith(
+              stopTimer: true,
+              showPaymentPopup: false,
+              isOnlinePaymentSuccess: false));
           Get.until((route) => route.settings.name != '/paymentStatusDialogue');
           Get.snackbar('Payment status', '${paymentStatusResponse.message}');
 
@@ -314,7 +319,10 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
           break;
         default:
           Get.until((route) => route.settings.name != '/paymentStatusDialogue');
-          emit(state.copyWith(stopTimer: true, showPaymentPopup: false, isOnlinePaymentSuccess: false));
+          emit(state.copyWith(
+              stopTimer: true,
+              showPaymentPopup: false,
+              isOnlinePaymentSuccess: false));
           break;
       }
     } catch (error) {
