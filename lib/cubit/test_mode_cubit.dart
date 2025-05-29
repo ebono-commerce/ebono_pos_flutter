@@ -13,12 +13,13 @@ class TestModeCubit extends Cubit<bool> {
 
   void _loadTestModeStatus() async {
     final status = await _sharedPreferenceHelper.isTestModeEnabled();
+    print("testmode: sp: $status");
     emit(status);
   }
 
-  void toggle() {
+  void toggle() async {
     final newState = !state;
-    _sharedPreferenceHelper.saveTestModeStatus(newState);
     emit(newState);
+    await _sharedPreferenceHelper.saveTestModeStatus(newState);
   }
 }

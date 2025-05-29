@@ -169,7 +169,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
     final isTestMode = await sharedPreferenceHelper.isTestModeEnabled();
 
     final reqBody = {
-      "amount": isTestMode ? '1.0' : onlinePayment,
+      "amount": isTestMode == true ? '1.0' : onlinePayment,
       "externalRefNumber":
           paymentSummaryResponse.orderNumber ?? generateRandom8DigitNumber(),
       "customerName":
