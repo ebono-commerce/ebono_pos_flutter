@@ -91,7 +91,7 @@ class MyApp extends StatelessWidget {
                   Visibility(
                     visible: isTestModeEnabled,
                     child: Positioned(
-                      top: -4,
+                      top: 0,
                       // left: 10,
                       left: MediaQuery.sizeOf(context).width * 0.68,
                       child: Center(
