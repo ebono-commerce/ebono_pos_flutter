@@ -92,6 +92,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
     on<WalletIdealEvent>(_onWalletIdeal);
     on<PaymentIdealEvent>(_onIdeal);
     on<CancelSSEEvent>(_onCancelSSEEvent);
+    on<SmsInvoiceEvent>(_smsInvoice);
   }
 
   void _startPeriodicPaymentStatusCheck() {
@@ -819,7 +820,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
       invoiceSummaryResponse = await _paymentRepository
           .getInvoice(orderSummaryResponse.orderNumber!);
 
-      emit(state.copyWith(isLoading: false));
+      emit(state.copyWith(isLoading: false, allowPrintInvoice: true));
       _sseFallbackTimer?.cancel();
       _orderInvoiceSubscription?.cancel();
     } catch (error) {
@@ -964,6 +965,29 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
     }
   }
 
+  _smsInvoice(SmsInvoiceEvent event, Emitter<PaymentState> emit) async {
+    emit(state.copyWith(isSmsInvoiceLoading: true));
+
+    try {
+      final response = await _paymentRepository
+          .generateSmsInvoice(paymentSummaryResponse.orderNumber ?? '');
+
+      emit(state.copyWith(
+          isSmsInvoiceLoading: false, isSmsInvoiceSuccess: true));
+      event.onSuccess();
+    } catch (error) {
+      emit(state.copyWith(
+        isSmsInvoiceLoading: false,
+        errorMessage: error.toString(),
+        isSmsInvoiceSuccess: false,
+      ));
+      Get.snackbar(
+        'Error',
+        error.toString(),
+      );
+    }
+  }
+
   Future<void> _onWalletIdeal(
       WalletIdealEvent event, Emitter<PaymentState> emit) async {
     emit(state.copyWith(
@@ -985,7 +1009,6 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
   @override
   Future<void> close() {
     _timer?.cancel();
-    print('STEP:Timer closed');
     return super.close();
   }
 }

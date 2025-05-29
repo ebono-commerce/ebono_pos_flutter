@@ -133,9 +133,9 @@ class _CouponCodeWidgetState extends State<CouponCodeWidget> {
   @override
   Widget build(BuildContext context) {
     theme = Theme.of(context);
-    return  PopScope(
-      onPopInvokedWithResult: (val,result){
-        if(widget.onClose != null){
+    return PopScope(
+      onPopInvokedWithResult: (val, result) {
+        if (widget.onClose != null) {
           widget.onClose!();
         }
       },
@@ -144,85 +144,86 @@ class _CouponCodeWidgetState extends State<CouponCodeWidget> {
         children: [
           Flexible(
               child: SizedBox(
-                width: 900,
-                child: Stack(
-                  children: [
-                    Center(
-                      child: SizedBox(
-                        width: 400,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.center,
+            width: 900,
+            child: Stack(
+              children: [
+                Center(
+                  child: SizedBox(
+                    width: 400,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const SizedBox(height: 30),
+                        Text(
+                          "Enter Coupon Code",
+                          style: theme.textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: CustomColors.black,
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
                           children: [
-                            const SizedBox(height: 30),
-                            Text(
-                              "Enter Coupon Code",
-                              style: theme.textTheme.titleLarge?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: CustomColors.black,
-                              ),
-                            ),
-                            const SizedBox(height: 20),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 5),
-                                  child: Form(
-                                    key: _formKey,
-                                    child: commonTextField(
-                                      label: "Coupon Code",
-                                      controller: couponCodeController,
-                                      focusNode: couponCodeFocusNode,
-                                      readOnly: isInvalidCoupon,
-                                      helperText: coupon?.message,
-                                      helperTextStyle: theme.textTheme.labelMedium
-                                          ?.copyWith(color: CustomColors.green),
-                                      validator: (value) {
-                                        if (coupon?.couponCode != null &&
-                                            coupon?.isApplied! == false) {
-                                          return coupon?.message;
-                                        } else if (value!.isEmpty) {
-                                          return "Please Enter Coupon Code";
-                                        }
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 5),
+                              child: Form(
+                                key: _formKey,
+                                child: commonTextField(
+                                  label: "Coupon Code",
+                                  controller: couponCodeController,
+                                  focusNode: couponCodeFocusNode,
+                                  readOnly: isInvalidCoupon,
+                                  helperText: coupon?.message,
+                                  helperTextStyle: theme.textTheme.labelMedium
+                                      ?.copyWith(color: CustomColors.green),
+                                  validator: (value) {
+                                    if (coupon?.couponCode != null &&
+                                        coupon?.isApplied! == false) {
+                                      return coupon?.message;
+                                    } else if (value!.isEmpty) {
+                                      return "Please Enter Coupon Code";
+                                    }
 
-                                        return null;
-                                      },
-                                      onValueChanged: (value) {},
-                                    ),
-                                  ),
+                                    return null;
+                                  },
+                                  onValueChanged: (value) {},
                                 ),
-                              ],
-                            ),
-                            const SizedBox(height: 20),
-                            Row(
-                              children: [
-                                Expanded(flex: 1, child: applyButton()),
-                                Expanded(flex: 1, child: closeButton())
-                              ],
+                              ),
                             ),
                           ],
                         ),
-                      ),
+                        const SizedBox(height: 20),
+                        Row(
+                          children: [
+                            Expanded(flex: 1, child: applyButton()),
+                            Expanded(flex: 1, child: closeButton())
+                          ],
+                        ),
+                      ],
                     ),
-                    Positioned(
-                      right: 18,
-                      top: 18,
-                      child: InkWell(
-                          onTap: () {
-                            Navigator.pop(widget.dialogContext);
-                          },
-                          child: SvgPicture.asset(
-                            'assets/images/ic_close.svg',
-                            semanticsLabel: 'cash icon,',
-                            width: 30,
-                            height: 30,
-                          ),
-                        )),
-                  ],
+                  ),
                 ),
-              ) ),
+                Positioned(
+                    right: 18,
+                    top: 18,
+                    child: InkWell(
+                      onTap: () {
+                        Navigator.pop(widget.dialogContext);
+                      },
+                      child: SvgPicture.asset(
+                        'assets/images/ic_close.svg',
+                        semanticsLabel: 'cash icon,',
+                        width: 30,
+                        height: 30,
+                      ),
+                    )),
+              ],
+            ),
+          )),
           SizedBox(
             width: 900,
             child: CustomQwertyPad(
@@ -288,7 +289,7 @@ class _CouponCodeWidgetState extends State<CouponCodeWidget> {
         * else we are asking user to apply coupon
         */
         child: Text(
-          (isInvalidCoupon || isValidCoupon) ? "Remove" : "Apply",
+          (isInvalidCoupon || isValidCoupon) ? "Clear" : "Apply",
           style: theme.textTheme.bodyMedium
               ?.copyWith(color: Colors.black, fontWeight: FontWeight.normal),
         ),
