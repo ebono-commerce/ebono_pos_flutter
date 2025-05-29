@@ -97,7 +97,11 @@ class MyApp extends StatelessWidget {
                       child: Center(
                         child: Container(
                           padding: const EdgeInsets.only(
-                              left: 40, right: 40, bottom: 5),
+                            left: 40,
+                            right: 40,
+                            bottom: 5,
+                            top: 3,
+                          ),
                           decoration: BoxDecoration(
                             color: Color(0xFFFA0E64),
                             borderRadius: const BorderRadius.only(
