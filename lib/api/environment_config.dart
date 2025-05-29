@@ -1,6 +1,6 @@
 class EnvironmentConfig {
   static const String environment =
-      String.fromEnvironment('ENV', defaultValue: 'dev');
+      String.fromEnvironment('ENV', defaultValue: 'stage');
 
   static String get baseUrl {
     switch (environment) {
