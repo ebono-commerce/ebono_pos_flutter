@@ -375,6 +375,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
         case "PENDING":
         case "NO_RECORD_FOUND":
           break;
+        case "SUCCESS":
         case "TXN_SUCCESS":
           emit(state.copyWith(
             stopTimer: true,
