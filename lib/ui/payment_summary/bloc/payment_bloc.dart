@@ -386,6 +386,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
           Get.snackbar('Payment status ${paymentStatusResponse.status}',
               '${paymentStatusResponse.message}');
           break;
+        case "FAIL":
         case "TXN_FAILURE":
           p2pRequestId = '';
           emit(state.copyWith(
@@ -580,6 +581,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
       if (paytmPaymentInitiateResponse.body?.resultInfo?.resultStatus == "SUCCESS") {
         emit(state.copyWith(
             isLoading: false,
+            stopTimer: true,
             isPaymentCancelSuccess: true,
             isOnlinePaymentSuccess: false,
             showPaymentPopup: false));
@@ -620,6 +622,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
       if (paymentStatusResponse.success == true) {
         emit(state.copyWith(
             isLoading: false,
+            stopTimer: true,
             isPaymentCancelSuccess: paymentStatusResponse.success,
             isOnlinePaymentSuccess: false,
             showPaymentPopup: false));
