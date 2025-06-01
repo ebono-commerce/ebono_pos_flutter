@@ -268,7 +268,7 @@ class _LoginPageState extends State<LoginPage> {
       color: Colors.white,
       elevation: 10,
       child: Container(
-        padding: EdgeInsets.all(40),
+        padding: EdgeInsets.all(25),
         child: Form(
           key: _formKey,
           child: Column(
@@ -366,7 +366,7 @@ class _LoginPageState extends State<LoginPage> {
 
               SizedBox(height: 20),
               BlocBuilder<TestModeCubit, bool>(
-                builder: (context, isTestModeEnabled) {
+                builder: (context, isTrainingModeEnabled) {
                   return SizedBox(
                     width: double.infinity,
                     height: 50,
@@ -389,7 +389,7 @@ class _LoginPageState extends State<LoginPage> {
                         elevation: 6,
                       ),
                       child: Text(
-                        '${isTestModeEnabled ? 'Exit' : 'Enter'} Test Mode',
+                        '${isTrainingModeEnabled ? 'Exit' : 'Enter'} Test Mode',
                         style: TextStyle(color: Colors.white),
                       ),
                     ),

@@ -193,6 +193,8 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
     emit(state.copyWith(isLoading: true, initialState: false));
 
     try {
+      final isTestMode = await sharedPreferenceHelper.isTestModeEnabled();
+
       var paytmInitiateChecksumRequest = PaytmInitiateChecksumRequest(
           outletId:
               "${hiveStorageHelper.read(SharedPreferenceConstants.selectedOutletId)}",
@@ -200,7 +202,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
               "${hiveStorageHelper.read(SharedPreferenceConstants.selectedTerminalId)}",
           cartId: paymentSummaryResponse.cartId,
           amount: AmountPayable(
-            centAmount: (onlineAmount * 100).toInt(),
+            centAmount: (isTestMode ? 1 : onlineAmount * 100).toInt(),
             currency: paymentSummaryResponse.amountPayable?.currency,
             fraction: 100,
           ));
@@ -210,7 +212,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
 
       emit(state.copyWith(isFetchPaytmInitiateChecksumSuccess: true));
 
-    await _paymentInitiatePaytmApi(event, emit);
+      await _paymentInitiatePaytmApi(event, emit);
     } catch (error) {
       emit(state.copyWith(isLoading: false, errorMessage: error.toString()));
       Get.snackbar('Error', error.toString());
@@ -337,10 +339,11 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
     try {
       var paytmStatusChecksumRequest = PaytmStatusChecksumRequest(
           outletId:
-          "${hiveStorageHelper.read(SharedPreferenceConstants.selectedOutletId)}",
+              "${hiveStorageHelper.read(SharedPreferenceConstants.selectedOutletId)}",
           terminalId:
-          "${hiveStorageHelper.read(SharedPreferenceConstants.selectedTerminalId)}",
-          requestId: paytmInitiateChecksumResponse.payload?.body?.merchantTransactionId ,
+              "${hiveStorageHelper.read(SharedPreferenceConstants.selectedTerminalId)}",
+          requestId: paytmInitiateChecksumResponse
+              .payload?.body?.merchantTransactionId,
           cartId: paymentSummaryResponse.cartId);
 
       paytmStatusChecksumResponse = await _paymentRepository
@@ -550,12 +553,13 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
 
     try {
       var paytmCancelChecksumRequest = PaytmStatusChecksumRequest(
-          outletId:
-          "${hiveStorageHelper.read(SharedPreferenceConstants.selectedOutletId)}",
-          terminalId:
-          "${hiveStorageHelper.read(SharedPreferenceConstants.selectedTerminalId)}",
-          cartId: paymentSummaryResponse.cartId,
-        requestId: paytmInitiateChecksumResponse.payload?.body?.merchantTransactionId ,
+        outletId:
+            "${hiveStorageHelper.read(SharedPreferenceConstants.selectedOutletId)}",
+        terminalId:
+            "${hiveStorageHelper.read(SharedPreferenceConstants.selectedTerminalId)}",
+        cartId: paymentSummaryResponse.cartId,
+        requestId:
+            paytmInitiateChecksumResponse.payload?.body?.merchantTransactionId,
       );
 
       paytmInitiateChecksumResponse = await _paymentRepository
@@ -582,8 +586,9 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
 
     try {
       paytmPaymentInitiateResponse =
-      await _paymentRepository.paytmPaymentCancelApi(paytmCancelPayload);
-      if (paytmPaymentInitiateResponse.body?.resultInfo?.resultStatus == "SUCCESS") {
+          await _paymentRepository.paytmPaymentCancelApi(paytmCancelPayload);
+      if (paytmPaymentInitiateResponse.body?.resultInfo?.resultStatus ==
+          "SUCCESS") {
         emit(state.copyWith(
             isLoading: false,
             stopTimer: true,
