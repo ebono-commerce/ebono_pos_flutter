@@ -191,6 +191,8 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
     emit(state.copyWith(isLoading: true, initialState: false));
 
     try {
+      final isTestMode = await sharedPreferenceHelper.isTestModeEnabled();
+
       var paytmInitiateChecksumRequest = PaytmInitiateChecksumRequest(
           outletId:
               "${hiveStorageHelper.read(SharedPreferenceConstants.selectedOutletId)}",
@@ -198,7 +200,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
               "${hiveStorageHelper.read(SharedPreferenceConstants.selectedTerminalId)}",
           cartId: paymentSummaryResponse.cartId,
           amount: AmountPayable(
-            centAmount: (onlineAmount * 100).toInt(),
+            centAmount: (isTestMode ? 1 : onlineAmount * 100).toInt(),
             currency: paymentSummaryResponse.amountPayable?.currency,
             fraction: 100,
           ));
