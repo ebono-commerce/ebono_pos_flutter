@@ -9,7 +9,7 @@ class Logger {
   static File? _logFile;
   static final homeController = Get.find<HomeController>();
   static final sharedPrefsHelper = Get.find<SharedPreferenceHelper>();
-  static bool isLoggerEnabled = false;
+  static bool isLoggerEnabled = true;
 
   /// Initialize the log file with a custom path
   // static Future<void> init() async {
