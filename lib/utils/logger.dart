@@ -6,10 +6,20 @@ import 'package:ebono_pos/ui/home/home_controller.dart';
 import 'package:get/get.dart';
 
 class Logger {
+  // static File? _logFile;
+  // static final homeController = Get.find<HomeController>();
+  // static final sharedPrefsHelper = Get.find<SharedPreferenceHelper>();
+  // static bool isLoggerEnabled = true;
+
   static File? _logFile;
-  static final homeController = Get.find<HomeController>();
-  static final sharedPrefsHelper = Get.find<SharedPreferenceHelper>();
-  static bool isLoggerEnabled = false;
+  static HomeController? _homeController;
+  static SharedPreferenceHelper? _sharedPrefsHelper;
+  static bool isLoggerEnabled = true;
+
+  static void _initControllers() {
+    _homeController ??= Get.find<HomeController>();
+    _sharedPrefsHelper ??= Get.find<SharedPreferenceHelper>();
+  }
 
   /// Initialize the log file with a custom path
   static Future<void> init() async {
@@ -51,6 +61,8 @@ class Logger {
 
     if (_logFile == null) await init(); // Ensure file is initialized
 
+    _initControllers();
+
     final logEntry = <String, dynamic>{
       "time_stamp": DateTime.now().toIso8601String(),
       "app_id": '',
@@ -65,14 +77,14 @@ class Logger {
     };
 
     logEntry['event_type'] = "BUTTON";
-    logEntry['app_id'] = await sharedPrefsHelper.getAppUUID();
-    logEntry['cashier'] = homeController.userDetails.value.fullName;
-    logEntry['store_id'] = homeController.selectedTerminalId;
-    logEntry['store_name'] = homeController.selectedOutletId;
-    logEntry['order_number'] = homeController.orderNumber.value;
-    logEntry['cart_id'] = homeController.cartId.value;
+    logEntry['app_id'] = await _sharedPrefsHelper?.getAppUUID();
+    logEntry['cashier'] = _homeController?.userDetails.value.fullName;
+    logEntry['store_id'] = _homeController?.selectedTerminalId;
+    logEntry['store_name'] = _homeController?.selectedOutletId;
+    logEntry['order_number'] = _homeController?.orderNumber.value;
+    logEntry['cart_id'] = _homeController?.cartId.value;
     logEntry['customer_number'] =
-        homeController.customerResponse.value.phoneNumber?.number.toString();
+        _homeController?.customerResponse.value.phoneNumber?.number.toString();
 
     if (button != null) logEntry['button'] = button;
 
@@ -99,14 +111,14 @@ class Logger {
       "view": ""
     };
 
-    logEntry['app_id'] = await sharedPrefsHelper.getAppUUID();
-    logEntry['cashier'] = homeController.userDetails.value.fullName;
-    logEntry['store_id'] = homeController.selectedTerminalId;
-    logEntry['store_name'] = homeController.selectedOutletId;
-    logEntry['order_number'] = homeController.orderNumber.value;
-    logEntry['cart_id'] = homeController.cartId.value;
+    logEntry['app_id'] = await _sharedPrefsHelper?.getAppUUID();
+    logEntry['cashier'] = _homeController?.userDetails.value.fullName;
+    logEntry['store_id'] = _homeController?.selectedTerminalId;
+    logEntry['store_name'] = _homeController?.selectedOutletId;
+    logEntry['order_number'] = _homeController?.orderNumber.value;
+    logEntry['cart_id'] = _homeController?.cartId.value;
     logEntry['customer_number'] =
-        homeController.customerResponse.value.phoneNumber?.number.toString();
+        _homeController?.customerResponse.value.phoneNumber?.number.toString();
 
     if (view != null) logEntry['view'] = view;
 
@@ -139,14 +151,14 @@ class Logger {
       "error": "{}",
     };
 
-    logEntry['app_id'] = await sharedPrefsHelper.getAppUUID();
-    logEntry['cashier'] = homeController.userDetails.value.fullName;
-    logEntry['store_id'] = homeController.selectedTerminalId;
-    logEntry['store_name'] = homeController.selectedOutletId;
-    logEntry['order_number'] = homeController.orderNumber.value;
-    logEntry['cart_id'] = homeController.cartId.value;
+    logEntry['app_id'] = await _sharedPrefsHelper?.getAppUUID();
+    logEntry['cashier'] = _homeController?.userDetails.value.fullName;
+    logEntry['store_id'] = _homeController?.selectedTerminalId;
+    logEntry['store_name'] = _homeController?.selectedOutletId;
+    logEntry['order_number'] = _homeController?.orderNumber.value;
+    logEntry['cart_id'] = _homeController?.cartId.value;
     logEntry['customer_number'] =
-        homeController.customerResponse.value.phoneNumber?.number.toString();
+        _homeController?.customerResponse.value.phoneNumber?.number.toString();
 
     if (url != null) logEntry['url'] = url;
     if (request != null) logEntry['request'] = request;
@@ -154,5 +166,59 @@ class Logger {
     if (error != null) logEntry['error'] = error;
 
     await _saveLogEntry(logEntry); // Directly append the log entry to the file
+  }
+
+  // New simplified methods without HomeController dependency
+  static Future<void> logButtonSimple({
+    required String button,
+    String? description,
+  }) async {
+    if (!isLoggerEnabled) return;
+    if (_logFile == null) await init();
+
+    final logEntry = {
+      "time_stamp": DateTime.now().toIso8601String(),
+      "event_type": "BUTTON",
+      "button": button,
+      if (description != null) "description": description,
+    };
+
+    await _saveLogEntry(logEntry);
+  }
+
+  static Future<void> logViewSimple({
+    required String view,
+  }) async {
+    if (!isLoggerEnabled) return;
+    if (_logFile == null) await init();
+
+    final logEntry = {
+      "time_stamp": DateTime.now().toIso8601String(),
+      "event_type": "VIEW",
+      "view": view,
+    };
+
+    await _saveLogEntry(logEntry);
+  }
+
+  static Future<void> logApiSimple({
+    required String url,
+    Map<String, dynamic>? request,
+    Map<String, dynamic>? response,
+    Map<String, dynamic>? error,
+  }) async {
+    if (!isLoggerEnabled) return;
+    if (_logFile == null) await init();
+
+    final logEntry = {
+      "time_stamp": DateTime.now().toIso8601String(),
+      "event_type": "API",
+      "url": url,
+      "request": request ?? {},
+      "response": response ?? {},
+      "error": error ?? {},
+    };
+
+    await _saveLogEntry(logEntry);
   }
 }

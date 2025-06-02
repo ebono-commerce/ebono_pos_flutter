@@ -2,7 +2,7 @@ name: ebono_pos
 description: "Ebono POS."
 publish_to: "none" # Remove this line if you wish to publish to pub.dev
 
-version: 1.2.1
+version: 1.5.5
 
 environment:
   sdk: ^3.5.3
@@ -22,8 +22,7 @@ dependencies:
   libserialport: ^0.3.0+1
   digital_scale: ^1.0.1+6
   pdf: ^3.11.1
-  intl: ^0.19.0
-  flutter_styled_toast: ^2.2.1
+  intl: ^0.20.0
   dio: ^5.7.0
   shared_preferences: ^2.3.3
   uuid: ^4.5.1
