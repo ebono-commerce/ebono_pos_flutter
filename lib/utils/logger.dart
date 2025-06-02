@@ -11,12 +11,12 @@ class Logger {
   static final sharedPrefsHelper = Get.find<SharedPreferenceHelper>();
   static bool isLoggerEnabled = true;
 
-  /// Initialize the log file with a custom path
+  // /// Initialize the log file with a custom path
   // static Future<void> init() async {
   //   if (!isLoggerEnabled) return;
   //
   //   // logs/ in var directory
-  //   String logDirPath = '${Platform.environment['var']}/logs';
+  //   String logDirPath = '${Platform.environment['HOME']}/logs';
   //
   //   // Ensure the logs directory exists
   //   final logDir = Directory(logDirPath);
@@ -33,33 +33,65 @@ class Logger {
   //     await _logFile!.create();
   //   }
   // }
+
   static Future<void> init() async {
     if (!isLoggerEnabled) return;
 
     String logDirPath;
 
+    // Determine the appropriate log directory based on platform
     if (Platform.isLinux || Platform.isMacOS) {
-      logDirPath = '/var/logs/ebono'; // safer to use subfolder for your app
+      logDirPath = '/var/log/ebono-pos-logs';
     } else {
-      // Fallback for development or other platforms
-      logDirPath = '${Directory.systemTemp.path}/ebono_logs';
+      // Fallback for other platforms (Windows, etc.)
+      logDirPath = '${Platform.environment['HOME']}/logs';
     }
 
-    final logDir = Directory(logDirPath);
-    if (!await logDir.exists()) {
-      try {
+    try {
+      // Ensure the logs directory exists
+      final logDir = Directory(logDirPath);
+
+      if (!await logDir.exists()) {
         await logDir.create(recursive: true);
-      } catch (e) {
-        print('❌ Failed to create log directory: $e');
-        return;
+
+        // Set appropriate permissions for the directory (755)
+        if (Platform.isLinux || Platform.isMacOS) {
+          await Process.run('chmod', ['755', logDirPath]);
+        }
       }
-    }
 
-    _logFile = File('$logDirPath/ebono_pos_logs.txt');
-    print('PATH => ${_logFile?.path}');
+      // Define the log file path
+      _logFile = File('$logDirPath/ebono_pos_logs.txt');
+      print('LOG PATH => ${_logFile?.path}');
 
-    if (!await _logFile!.exists()) {
-      await _logFile!.create();
+      // Create log file if it doesn't exist
+      if (!await _logFile!.exists()) {
+        await _logFile!.create();
+
+        // Set appropriate permissions for the file (644 - read/write for owner, read for group/others)
+        if (Platform.isLinux || Platform.isMacOS) {
+          await Process.run('chmod', ['644', _logFile!.path]);
+        }
+      }
+
+      print('Logger initialized successfully at: ${_logFile!.path}');
+    } catch (e) {
+      print('Error initializing logger: $e');
+
+      // Fallback to user home directory if /var/log access fails
+      logDirPath = '${Platform.environment['HOME']}/ebono-pos-logs';
+
+      final fallbackDir = Directory(logDirPath);
+      if (!await fallbackDir.exists()) {
+        await fallbackDir.create(recursive: true);
+      }
+
+      _logFile = File('$logDirPath/ebono_pos_logs.txt');
+      if (!await _logFile!.exists()) {
+        await _logFile!.create();
+      }
+
+      print('Logger initialized with fallback path: ${_logFile!.path}');
     }
   }
 
