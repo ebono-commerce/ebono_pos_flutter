@@ -12,23 +12,52 @@ class Logger {
   static bool isLoggerEnabled = false;
 
   /// Initialize the log file with a custom path
+  // static Future<void> init() async {
+  //   if (!isLoggerEnabled) return;
+  //
+  //   // logs/ in var directory
+  //   String logDirPath = '${Platform.environment['var']}/logs';
+  //
+  //   // Ensure the logs directory exists
+  //   final logDir = Directory(logDirPath);
+  //
+  //   if (!await logDir.exists()) {
+  //     await logDir.create(recursive: true);
+  //   }
+  //
+  //   // Define the log file path
+  //   // Create log file if it doesn't exist
+  //   _logFile = File('$logDirPath/ebono_pos_logs.txt');
+  //   print('PATH=>${_logFile?.path}');
+  //   if (!await _logFile!.exists()) {
+  //     await _logFile!.create();
+  //   }
+  // }
   static Future<void> init() async {
     if (!isLoggerEnabled) return;
 
-    // logs/ in home directory
-    String logDirPath = '${Platform.environment['HOME']}/logs';
+    String logDirPath;
 
-    // Ensure the logs directory exists
-    final logDir = Directory(logDirPath);
-
-    if (!await logDir.exists()) {
-      await logDir.create(recursive: true);
+    if (Platform.isLinux || Platform.isMacOS) {
+      logDirPath = '/var/logs/ebono'; // safer to use subfolder for your app
+    } else {
+      // Fallback for development or other platforms
+      logDirPath = '${Directory.systemTemp.path}/ebono_logs';
     }
 
-    // Define the log file path
-    // Create log file if it doesn't exist
+    final logDir = Directory(logDirPath);
+    if (!await logDir.exists()) {
+      try {
+        await logDir.create(recursive: true);
+      } catch (e) {
+        print('❌ Failed to create log directory: $e');
+        return;
+      }
+    }
+
     _logFile = File('$logDirPath/ebono_pos_logs.txt');
-    print('PATH=>${_logFile?.path}');
+    print('PATH => ${_logFile?.path}');
+
     if (!await _logFile!.exists()) {
       await _logFile!.create();
     }
