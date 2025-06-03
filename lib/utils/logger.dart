@@ -6,11 +6,6 @@ import 'package:ebono_pos/ui/home/home_controller.dart';
 import 'package:get/get.dart';
 
 class Logger {
-  // static File? _logFile;
-  // static final homeController = Get.find<HomeController>();
-  // static final sharedPrefsHelper = Get.find<SharedPreferenceHelper>();
-  // static bool isLoggerEnabled = true;
-
   static File? _logFile;
   static HomeController? _homeController;
   static SharedPreferenceHelper? _sharedPrefsHelper;
