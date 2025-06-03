@@ -156,6 +156,8 @@ class HomeController extends GetxController {
   // completer to track if we're in the process of showing a dialog
   Completer<void>? _healthCheckDialogCompleter;
 
+  RxInt healthCheckFailCount = 0.obs;
+
   void notifyDialogClosed() {
     _logoutDialogController.add(true);
   }
@@ -734,7 +736,7 @@ class HomeController extends GetxController {
 
   Future<void> healthCheckApiCall() async {
     _statusCheckTimer = Timer.periodic(
-      const Duration(seconds: 5),
+      const Duration(seconds: 10),
       (timer) async {
         // Skip this cycle if we're already processing a health check failure
         if (_healthCheckDialogCompleter != null) {
@@ -753,18 +755,21 @@ class HomeController extends GetxController {
 
           if (response.statusCode == 200) {
             isOnline.value = true;
+            healthCheckFailCount.value = 0;
           } else {
+            ++healthCheckFailCount.value;
             isOnline.value = false;
-            // Show dialog exactly once
-            showHealthCheckDialog();
-            // Cancel timer immediately to prevent further checks
-            timer.cancel();
           }
         } catch (e) {
+          ++healthCheckFailCount.value;
+          isOnline.value = false;
+        }
+
+        if (healthCheckFailCount.value > 3) {
           isOnline.value = false;
           // Show dialog exactly once
           showHealthCheckDialog();
-          // Cancel timer immediately
+          // Cancel timer immediately to prevent further checks
           timer.cancel();
         }
       },
