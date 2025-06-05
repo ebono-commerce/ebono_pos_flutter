@@ -182,9 +182,11 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
               outletId: selectedOutlet,
               terminalId: selectedTerminal,
               posMode: selectedPosMode));
-
+      final trainingModeStatus =
+          await _sharedPreferenceHelper.isTestModeEnabled();
       _sharedPreferenceHelper.clearAll();
       hiveStorageHelper.clear();
+      await _sharedPreferenceHelper.saveTestModeStatus(trainingModeStatus);
       emit(LogoutSuccess());
     } catch (error) {
       emit(LogoutFailure(error.toString()));
