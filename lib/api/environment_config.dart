@@ -1,6 +1,6 @@
 class EnvironmentConfig {
   static const String environment =
-      String.fromEnvironment('ENV', defaultValue: 'dev');
+      String.fromEnvironment('ENV', defaultValue: 'stage');
 
   static String get baseUrl {
     switch (environment) {
@@ -43,7 +43,7 @@ class EnvironmentConfig {
   static String get paytmBaseUrl {
     switch (environment) {
       case 'prod':
-      return "https://securegw-edc.paytm.in/";
+        return "https://securegw-edc.paytm.in/";
       case 'stage':
       case 'dev':
       default:
