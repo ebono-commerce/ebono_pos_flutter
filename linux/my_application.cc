@@ -15,21 +15,14 @@ struct _MyApplication {
 
 G_DEFINE_TYPE(MyApplication, my_application, GTK_TYPE_APPLICATION)
 
-/// Called when the window gains focus
-static gboolean on_window_focus_in(GtkWidget* widget, GdkEventFocus* event, gpointer user_data) {
-    // Reapply fullscreen if lost
-    gtk_window_fullscreen(GTK_WINDOW(widget));
-    return FALSE;
-}
-
 // GApplication::activate - app launched or clicked from dock
 static void my_application_activate(GApplication* application) {
     MyApplication* self = MY_APPLICATION(application);
 
-    // If window already exists, bring it to front and ensure fullscreen
+    // If window already exists, bring to front and fullscreen it again
     if (self->main_window != NULL) {
         gtk_window_present(self->main_window);
-        gtk_window_fullscreen(self->main_window);
+        gtk_window_fullscreen(self->main_window);  // Reapply fullscreen
         return;
     }
 
@@ -59,18 +52,13 @@ static void my_application_activate(GApplication* application) {
 
     gtk_window_set_default_size(window, 1280, 720);
 
-    // Initial fullscreen
+    // Fullscreen on initial launch
     gtk_window_fullscreen(window);
-
-    // Keep on top if desired
     gtk_window_set_keep_above(window, TRUE);
-
-    // Reapply fullscreen whenever window regains focus
-    g_signal_connect(G_OBJECT(window), "focus-in-event", G_CALLBACK(on_window_focus_in), NULL);
 
     gtk_widget_show(GTK_WIDGET(window));
 
-    // Create the Flutter view
+    // Create Flutter view
     g_autoptr(FlDartProject) project = fl_dart_project_new();
     fl_dart_project_set_dart_entrypoint_arguments(project, self->dart_entrypoint_arguments);
 
@@ -78,7 +66,7 @@ static void my_application_activate(GApplication* application) {
     gtk_widget_show(GTK_WIDGET(view));
     gtk_container_add(GTK_CONTAINER(window), GTK_WIDGET(view));
 
-    // Register plugins and grab focus
+    // Register plugins
     fl_register_plugins(FL_PLUGIN_REGISTRY(view));
     gtk_widget_grab_focus(GTK_WIDGET(view));
 }
@@ -86,8 +74,6 @@ static void my_application_activate(GApplication* application) {
 // GApplication::local_command_line
 static gboolean my_application_local_command_line(GApplication* application, gchar*** arguments, int* exit_status) {
     MyApplication* self = MY_APPLICATION(application);
-
-    // Store Dart entrypoint args
     self->dart_entrypoint_arguments = g_strdupv(*arguments + 1);
 
     g_autoptr(GError) error = NULL;
@@ -115,7 +101,6 @@ static void my_application_shutdown(GApplication* application) {
 // GObject::dispose
 static void my_application_dispose(GObject* object) {
     MyApplication* self = MY_APPLICATION(object);
-
     g_clear_pointer(&self->dart_entrypoint_arguments, g_strfreev);
 
     if (self->main_window != NULL) {
