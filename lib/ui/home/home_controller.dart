@@ -356,6 +356,7 @@ class HomeController extends GetxController {
   }
 
   Future<void> clearCart() async {
+    isContionueWithOutCustomer.value = false;
     cartResponse.value = CartResponse(cartId: '', cartType: '');
   }
 
@@ -480,11 +481,12 @@ class HomeController extends GetxController {
       if (showOTPScreen) {
         displayOTPScreen.value = true;
       }
-      if (isFromResumeHoldCart &&
-          customerResponse.value.isCustomerVerificationRequired == true) {
-        displayOTPScreen.value = true;
-        triggerVerifyCustomerDialog.value = true;
-      }
+
+      // if (isFromResumeHoldCart &&
+      //     customerResponse.value.isCustomerVerificationRequired == true) {
+      // displayOTPScreen.value = true;
+      // triggerVerifyCustomerDialog.value = true;
+      // }
 
       if (!isFromReturns) {
         if (cartId.value.isNotEmpty &&
