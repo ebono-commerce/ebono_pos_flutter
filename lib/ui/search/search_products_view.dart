@@ -129,7 +129,7 @@ class _SearchProductsViewState extends State<SearchProductsView> {
                                 emptyDataMessage: "No Products Found",
                                 columnWidths: {
                                   0: FlexColumnWidth(1),
-                                  1: FlexColumnWidth(2.6),
+                                  1: FlexColumnWidth(2.4),
                                   2: FlexColumnWidth(1.5),
                                   3: FlexColumnWidth(1),
                                 },
@@ -340,7 +340,7 @@ class _SearchProductsViewState extends State<SearchProductsView> {
             controller: _scrollController,
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 5,
-              childAspectRatio: 2.8,
+              childAspectRatio: 2.6,
               mainAxisSpacing: 2.0,
               crossAxisSpacing: 2.0,
             ),
