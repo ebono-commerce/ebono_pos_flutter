@@ -11,6 +11,8 @@ import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
+import '../../utils/logger.dart';
+
 class RegisterSection extends StatefulWidget {
   const RegisterSection({super.key});
 
@@ -497,7 +499,7 @@ class _RegisterSectionState extends State<RegisterSection>
                           ? null
                           : () {
                               if (homeController.registerId.value == "") {
-                                // OPEN
+                                Logger.logButtonPress(button: 'Open Register');
                                 double floatVal = double.tryParse(homeController
                                         .openFloatPayment.value) ??
                                     0;
@@ -512,6 +514,7 @@ class _RegisterSectionState extends State<RegisterSection>
                                 }
                               } else {
                                 // CLOSE
+                                Logger.logButtonPress(button: 'Close Register');
                                 homeController.closeRegisterApiCall();
                               }
                             }

@@ -4,6 +4,8 @@ import 'package:ebono_pos/ui/home/widgets/add_customer_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../utils/logger.dart';
+
 class AddCustomerStaticWidget extends StatefulWidget {
   const AddCustomerStaticWidget({super.key});
 
@@ -351,6 +353,8 @@ class _AddCustomerStaticWidgetState extends State<AddCustomerStaticWidget>
                         .isContinueWithOutCustomerBtnLoading.value
                     ? null
                     : () {
+                        Logger.logButtonPress(
+                            button: 'Continue Without Customer Number');
                         homeController.phoneNumber.value =
                             homeController.customerProxyNumber.value;
                         homeController.customerName.value =

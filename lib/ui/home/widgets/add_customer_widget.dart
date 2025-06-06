@@ -11,6 +11,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 
+import '../../../utils/logger.dart';
+
 class AddCustomerWidget extends StatefulWidget {
   final BuildContext dialogContext;
   final bool isDialogForHoldCart;
@@ -625,6 +627,10 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
                                             widget.isDialogForReturns == false,
                                         child: _buildCustomButton(
                                           onPressed: () {
+                                            Logger.logButtonPress(
+                                              button:
+                                                  'Continue Without Customer Number',
+                                            );
                                             homeController.phoneNumber.value =
                                                 homeController
                                                     .customerProxyNumber.value;
@@ -855,6 +861,7 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
             ? null
             : homeController.phoneNumber.value.isNotEmpty
                 ? () {
+                    Logger.logButtonPress(button: 'Search Customer');
                     _controllerCustomerName.clear();
                     if (isValidPhoneNumber(homeController.phoneNumber.value)) {
                       homeController.getCustomerDetails(
@@ -908,6 +915,7 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
             ? null
             : homeController.customerName.isNotEmpty
                 ? () {
+                    Logger.logButtonPress(button: 'Select Customer');
                     homeController.isCustomerProxySelected.value = true;
                     homeController.isContionueWithOutCustomer.value = false;
                     homeController.fetchCustomer(

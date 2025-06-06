@@ -179,6 +179,7 @@ class _OrdersSectionState extends State<OrdersSection>
                           } else {
                             return _buildRegisterClosed(context,
                                 onPressed: () async {
+                              Logger.logButtonPress(button: 'Open Register');
                               homeController.selectedTabButton.value = 1;
                             });
                           }
@@ -238,6 +239,7 @@ class _OrdersSectionState extends State<OrdersSection>
                             AuthModeExtension.fromString(
                                 homeController.isEnableHoldCartEnabled.value);
                         if (enableHoldCartMode == AuthModes.enabled) {
+                          Logger.logButtonPress(button: 'Hold Cart');
                           homeController.holdCartApiCall();
                         } else if (enableHoldCartMode == AuthModes.authorised) {
                           showDialog(
@@ -274,6 +276,7 @@ class _OrdersSectionState extends State<OrdersSection>
                       );
                     },
                     onCouponsPressed: () {
+                      Logger.logButtonPress(button: 'Coupon Button');
                       showDialog(
                         context: context,
                         builder: (BuildContext context) {
@@ -292,6 +295,7 @@ class _OrdersSectionState extends State<OrdersSection>
                       );
                     },
                     onClearCartPressed: () {
+                      Logger.logButtonPress(button: 'Clear Cart');
                       Get.defaultDialog(
                         title: '',
                         content: Column(
@@ -408,12 +412,14 @@ class _OrdersSectionState extends State<OrdersSection>
                       });
                     },
                     onInventoryInquiryPressed: () {
+                      Logger.logButtonPress(button: 'Force Logout');
                       homeController.clearDataAndLogout();
                     },
                     onSearchItemsPressed: homeController.pointingTo.value ==
                             'CLOUD'
                         ? null
                         : () {
+                            Logger.logButtonPress(button: 'Search Items');
                             showDialog(
                               context: context,
                               builder: (BuildContext context) {
