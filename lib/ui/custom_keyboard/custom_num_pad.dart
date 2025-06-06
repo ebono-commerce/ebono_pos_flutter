@@ -20,7 +20,6 @@ class CustomNumPad extends StatefulWidget {
 }
 
 class _CustomNumPadState extends State<CustomNumPad> {
-  int? _activePointerId;
   void _onKeyPressed(String value) {
     if (!widget.focusNode.hasFocus) {
       widget.focusNode.requestFocus();
@@ -138,222 +137,132 @@ class _CustomNumPadState extends State<CustomNumPad> {
 
   // Function to build a key icon
   Widget _buildKeyIcon(String img, String label) {
-    return Listener(
-        onPointerDown: (event) {
-          if (_activePointerId != null) return;
-          _activePointerId = event.pointer;
-        },
-        onPointerUp: (event) {
-          if (_activePointerId == event.pointer) {
-            _activePointerId = null;
-          }
-        },
-        onPointerCancel: (event) {
-          if (_activePointerId == event.pointer) {
-            _activePointerId = null;
-          }
-        },
-        child: IgnorePointer(
-          ignoring: _activePointerId != null,
-          child: InkWell(
-            onTap: () {
-              _onKeyPressed(label);
-            },
-            borderRadius: BorderRadius.circular(10.0),
-            child: Container(
-              padding: EdgeInsets.all(20.0),
-              margin: EdgeInsets.all(5.0),
-              decoration: BoxDecoration(
-                color: CustomColors.keyBoardBgColor,
-                border: Border.all(color: CustomColors.keyBoardBgColor),
-                borderRadius: BorderRadius.circular(10.0),
-              ),
-              child: Center(
-                child: Image.asset(
-                  img,
-                  height: 20,
-                  width: 20,
-                ),
-              ),
-            ),
+    return InkWell(
+      onTap: () {
+        _onKeyPressed(label);
+      },
+      borderRadius: BorderRadius.circular(10.0),
+      child: Container(
+        padding: EdgeInsets.all(20.0),
+        margin: EdgeInsets.all(5.0),
+        decoration: BoxDecoration(
+          color: CustomColors.keyBoardBgColor,
+          border: Border.all(color: CustomColors.keyBoardBgColor),
+          borderRadius: BorderRadius.circular(10.0),
+        ),
+        child: Center(
+          child: Image.asset(
+            img,
+            height: 20,
+            width: 20,
           ),
-        ));
+        ),
+      ),
+    );
   }
 
   Widget _buildKeyClear(String img) {
-    return Listener(
-        onPointerDown: (event) {
-          if (_activePointerId != null) return;
-          _activePointerId = event.pointer;
-        },
-        onPointerUp: (event) {
-          if (_activePointerId == event.pointer) {
-            _activePointerId = null;
-          }
-        },
-        onPointerCancel: (event) {
-          if (_activePointerId == event.pointer) {
-            _activePointerId = null;
-          }
-        },
-        child: IgnorePointer(
-          ignoring: _activePointerId != null,
-          child: InkWell(
-            onTap: () {
-              _onClear();
-            },
-            borderRadius: BorderRadius.circular(10.0),
-            child: Container(
-              padding: EdgeInsets.all(20.0),
-              margin: EdgeInsets.all(5.0),
-              decoration: BoxDecoration(
-                color: CustomColors.keyBoardBgColor,
-                border: Border.all(color: CustomColors.keyBoardBgColor),
-                borderRadius: BorderRadius.circular(10.0),
-              ),
-              child: Center(
-                child: Image.asset(
-                  img,
-                  height: 20,
-                  width: 20,
-                ),
-              ),
-            ),
+    return InkWell(
+      onTap: () {
+        _onClear();
+      },
+      borderRadius: BorderRadius.circular(10.0),
+      child: Container(
+        padding: EdgeInsets.all(20.0),
+        margin: EdgeInsets.all(5.0),
+        decoration: BoxDecoration(
+          color: CustomColors.keyBoardBgColor,
+          border: Border.all(color: CustomColors.keyBoardBgColor),
+          borderRadius: BorderRadius.circular(10.0),
+        ),
+        child: Center(
+          child: Image.asset(
+            img,
+            height: 20,
+            width: 20,
           ),
-        ));
+        ),
+      ),
+    );
   }
 
   Widget _buildKeyClearAll(String img) {
-    return Listener(
-        onPointerDown: (event) {
-          if (_activePointerId != null) return;
-          _activePointerId = event.pointer;
-        },
-        onPointerUp: (event) {
-          if (_activePointerId == event.pointer) {
-            _activePointerId = null;
-          }
-        },
-        onPointerCancel: (event) {
-          if (_activePointerId == event.pointer) {
-            _activePointerId = null;
-          }
-        },
-        child: IgnorePointer(
-          ignoring: _activePointerId != null,
-          child: InkWell(
-            onTap: () {
-              _onClearAll();
-            },
-            borderRadius: BorderRadius.circular(10.0),
-            child: Container(
-              padding: EdgeInsets.all(20.0),
-              margin: EdgeInsets.all(5.0),
-              decoration: BoxDecoration(
-                color: CustomColors.keyBoardBgColor,
-                border: Border.all(color: CustomColors.keyBoardBgColor),
-                borderRadius: BorderRadius.circular(10.0),
-              ),
-              child: Center(
-                child: Image.asset(
-                  img,
-                  height: 20,
-                  width: 20,
-                ),
-              ),
-            ),
+    return InkWell(
+      onTap: () {
+        _onClearAll();
+      },
+      borderRadius: BorderRadius.circular(10.0),
+      child: Container(
+        padding: EdgeInsets.all(20.0),
+        margin: EdgeInsets.all(5.0),
+        decoration: BoxDecoration(
+          color: CustomColors.keyBoardBgColor,
+          border: Border.all(color: CustomColors.keyBoardBgColor),
+          borderRadius: BorderRadius.circular(10.0),
+        ),
+        child: Center(
+          child: Image.asset(
+            img,
+            height: 20,
+            width: 20,
           ),
-        ));
+        ),
+      ),
+    );
   }
 
   Widget _buildKeyEnterIcon(String img) {
-    return Listener(
-        onPointerDown: (event) {
-          if (_activePointerId != null) return;
-          _activePointerId = event.pointer;
-        },
-        onPointerUp: (event) {
-          if (_activePointerId == event.pointer) {
-            _activePointerId = null;
-          }
-        },
-        onPointerCancel: (event) {
-          if (_activePointerId == event.pointer) {
-            _activePointerId = null;
-          }
-        },
-        child: IgnorePointer(
-          ignoring: _activePointerId != null,
-          child: InkWell(
-            onTap: () {
-              _onEnterPressed(widget.textController.text);
-            },
-            child: Container(
-              padding: EdgeInsets.symmetric(vertical: 50.0, horizontal: 1),
-              margin: EdgeInsets.all(5.0),
-              decoration: BoxDecoration(
-                color: CustomColors.keyBoardBgColor,
-                border: Border.all(color: CustomColors.keyBoardBgColor),
-                borderRadius: BorderRadius.circular(10.0),
-              ),
-              child: Center(
-                child: Container(
-                  padding: EdgeInsets.symmetric(vertical: 0.0, horizontal: 15),
-                  // margin: const EdgeInsets.all(15.0),
-                  child: Image.asset(
-                    img,
-                    height: 30,
-                    width: 30,
-                  ),
-                ),
-              ),
+    return InkWell(
+      onTap: () {
+        _onEnterPressed(widget.textController.text);
+      },
+      child: Container(
+        padding: EdgeInsets.symmetric(vertical: 50.0, horizontal: 1),
+        margin: EdgeInsets.all(5.0),
+        decoration: BoxDecoration(
+          color: CustomColors.keyBoardBgColor,
+          border: Border.all(color: CustomColors.keyBoardBgColor),
+          borderRadius: BorderRadius.circular(10.0),
+        ),
+        child: Center(
+          child: Container(
+            padding: EdgeInsets.symmetric(vertical: 0.0, horizontal: 15),
+            // margin: const EdgeInsets.all(15.0),
+            child: Image.asset(
+              img,
+              height: 30,
+              width: 30,
             ),
           ),
-        ));
+        ),
+      ),
+    );
   }
 
   Widget _buildKeyDot(String img) {
-    return Listener(
-        onPointerDown: (event) {
-          if (_activePointerId != null) return;
-          _activePointerId = event.pointer;
-        },
-        onPointerUp: (event) {
-          if (_activePointerId == event.pointer) {
-            _activePointerId = null;
-          }
-        },
-        onPointerCancel: (event) {
-          if (_activePointerId == event.pointer) {
-            _activePointerId = null;
-          }
-        },
-        child: IgnorePointer(
-          ignoring: _activePointerId != null,
-          child: InkWell(
-            onTap: () {
-              _onKeyPressed(".");
-            },
-            child: Container(
-              padding: EdgeInsets.all(10.0),
-              margin: EdgeInsets.all(5.0),
-              decoration: BoxDecoration(
-                color: CustomColors.keyBoardBgColor,
-                border: Border.all(color: CustomColors.keyBoardBgColor),
-                borderRadius: BorderRadius.circular(10.0),
-              ),
-              child: Center(
-                child: Container(
-                  margin: const EdgeInsets.all(15.0),
-                  child: Image.asset(
-                    img,
-                    height: 10,
-                    width: 10,
-                  ),
-                ),
-              ),
+    return InkWell(
+      onTap: () {
+        _onKeyPressed(".");
+      },
+      child: Container(
+        padding: EdgeInsets.all(10.0),
+        margin: EdgeInsets.all(5.0),
+        decoration: BoxDecoration(
+          color: CustomColors.keyBoardBgColor,
+          border: Border.all(color: CustomColors.keyBoardBgColor),
+          borderRadius: BorderRadius.circular(10.0),
+        ),
+        child: Center(
+          child: Container(
+            margin: const EdgeInsets.all(15.0),
+            child: Image.asset(
+              img,
+              height: 10,
+              width: 10,
             ),
           ),
-        ));
+        ),
+      ),
+    );
   }
 }
