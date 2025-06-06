@@ -122,11 +122,11 @@ class _OrdersSectionState extends State<OrdersSection>
       }
     });
 
-    ever(homeController.triggerVerifyCustomerDialog, (value) {
-      if (value == true) {
-        triggerCustomerDialog();
-      }
-    });
+    // ever(homeController.triggerVerifyCustomerDialog, (value) {
+    //   if (value == true) {
+    //     triggerCustomerDialog();
+    //   }
+    // });
 
     WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
