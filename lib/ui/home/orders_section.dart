@@ -588,6 +588,7 @@ class _OrdersSectionState extends State<OrdersSection>
               var quantity =
                   '${(itemData.item?.isWeighedItem == true) ? (itemData.quantity?.quantityNumber) : (itemData.quantity?.quantityNumber?.toInt())}';
               numPadTextController.text = quantity;
+              numPadFocusNode.requestFocus();
             },
             child: _buildTableCell(itemData.item?.skuCode ?? '',
                 maxLines: 1, width: 100)),
@@ -1016,6 +1017,7 @@ class _OrdersSectionState extends State<OrdersSection>
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 8.0),
                           child: commonTextField(
+                            filled: true,
                             label: homeController.isQuantitySelected.value
                                 ? homeController.selectedItemData.value.item
                                             ?.isWeighedItem ==
