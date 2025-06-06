@@ -470,7 +470,10 @@ class HomeController extends GetxController {
               : 'POS',
           terminalId: selectedTerminalId,
           outletId: selectedOutletId));
+
       customerResponse.value = response;
+      isContionueWithOutCustomer.value =
+          customerProxyNumber.value == phoneNumber.value;
 
       hiveStorageHelper.save(SharedPreferenceConstants.sessionCustomerNumber,
           "${customerResponse.value.phoneNumber?.countryCode}${customerResponse.value.phoneNumber?.number}");
@@ -481,11 +484,11 @@ class HomeController extends GetxController {
       if (showOTPScreen) {
         displayOTPScreen.value = true;
       }
-      if (isFromResumeHoldCart &&
-          customerResponse.value.isCustomerVerificationRequired == true) {
-        displayOTPScreen.value = true;
-        triggerVerifyCustomerDialog.value = true;
-      }
+      // if (isFromResumeHoldCart &&
+      //     customerResponse.value.isCustomerVerificationRequired == true) {
+      //   displayOTPScreen.value = true;
+      //   triggerVerifyCustomerDialog.value = true;
+      // }
 
       if (!isFromReturns) {
         if (cartId.value.isNotEmpty &&
@@ -876,6 +879,7 @@ class HomeController extends GetxController {
       await hiveStorageHelper.save(
           SharedPreferenceConstants.cartId, response.cartId);
       phoneNumber.value = mobileNumber ?? '';
+      isContionueWithOutCustomer.value = false;
       selectedTabButton.value = 2;
       getCustomerDetails();
       fetchCustomer(isFromResumeHoldCart: true);
