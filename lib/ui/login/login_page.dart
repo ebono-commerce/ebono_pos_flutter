@@ -200,18 +200,20 @@ class _LoginPageState extends State<LoginPage> {
                                     color: Colors.white,
                                     child: SizedBox(
                                       width: 900,
-                                      child: CustomQwertyPad(
-                                        textController: _qwertyPadController,
-                                        focusNode: activeFocusNode!,
-                                        onEnterPressed: (value) {
-                                          if (activeFocusNode ==
-                                              loginIdFocusNode) {
-                                            passwordFocusNode.requestFocus();
-                                          } else if (activeFocusNode ==
-                                              passwordFocusNode) {
-                                            passwordFocusNode.unfocus();
-                                          }
-                                        },
+                                      child: Material(
+                                        child: CustomQwertyPad(
+                                          textController: _qwertyPadController,
+                                          focusNode: activeFocusNode!,
+                                          onEnterPressed: (value) {
+                                            if (activeFocusNode ==
+                                                loginIdFocusNode) {
+                                              passwordFocusNode.requestFocus();
+                                            } else if (activeFocusNode ==
+                                                passwordFocusNode) {
+                                              passwordFocusNode.unfocus();
+                                            }
+                                          },
+                                        ),
                                       ),
                                     ),
                                   ),
