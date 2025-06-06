@@ -322,11 +322,7 @@ class _OrderOnHoldState extends State<OrderOnHold> with WidgetsBindingObserver {
                                       fontWeight: FontWeight.w500),
                                 ),
                                 Text(
-                                  homeController.cartResponse.value.cartLines
-                                              ?.length !=
-                                          null
-                                      ? '${homeController.cartResponse.value.totalItems}'
-                                      : '-',
+                                  '-',
                                   style: TextStyle(
                                       color: Colors.black87,
                                       fontSize: 16,

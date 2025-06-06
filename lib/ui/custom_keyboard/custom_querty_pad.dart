@@ -82,95 +82,97 @@ class _CustomQwertyPadState extends State<CustomQwertyPad> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    _buildKeyIcon('assets/images/qwerty_1.png', '1'),
-                    _buildKeyIcon('assets/images/qwerty_2.png', '2'),
-                    _buildKeyIcon('assets/images/qwerty_3.png', '3'),
-                    _buildKeyIcon('assets/images/qwerty_4.png', '4'),
-                    _buildKeyIcon('assets/images/qwerty_5.png', '5'),
-                    _buildKeyIcon('assets/images/qwerty_6.png', '6'),
-                    _buildKeyIcon('assets/images/qwerty_7.png', '7'),
-                    _buildKeyIcon('assets/images/qwerty_8.png', '8'),
-                    _buildKeyIcon('assets/images/qwerty_9.png', '9'),
-                    _buildKeyIcon('assets/images/qwerty_0.png', '0'),
-                  ],
-                ),
-                // First row of alphabet keys
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    _buildKeyIcon('assets/images/qwerty_q.png', 'q'),
-                    _buildKeyIcon('assets/images/qwerty_w.png', 'w'),
-                    _buildKeyIcon('assets/images/qwerty_e.png', 'e'),
-                    _buildKeyIcon('assets/images/qwerty_r.png', 'r'),
-                    _buildKeyIcon('assets/images/qwerty_t.png', 't'),
-                    _buildKeyIcon('assets/images/qwerty_y.png', 'y'),
-                    _buildKeyIcon('assets/images/qwerty_u.png', 'u'),
-                    _buildKeyIcon('assets/images/qwerty_i.png', 'i'),
-                    _buildKeyIcon('assets/images/qwerty_o.png', 'o'),
-                    _buildKeyIcon('assets/images/qwerty_p.png', 'p'),
-                  ],
-                ),
-                // Second row of alphabet keys
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    _buildKeyIcon('assets/images/qwerty_a.png', 'a'),
-                    _buildKeyIcon('assets/images/qwerty_s.png', 's'),
-                    _buildKeyIcon('assets/images/qwerty_d.png', 'd'),
-                    _buildKeyIcon('assets/images/qwerty_f.png', 'f'),
-                    _buildKeyIcon('assets/images/qwerty_g.png', 'g'),
-                    _buildKeyIcon('assets/images/qwerty_h.png', 'h'),
-                    _buildKeyIcon('assets/images/qwerty_j.png', 'j'),
-                    _buildKeyIcon('assets/images/qwerty_k.png', 'k'),
-                    _buildKeyIcon('assets/images/qwerty_l.png', 'l'),
-                    _buildKeyBackspaceIcon('assets/images/qwerty_back.png'),
-                    // Backspace key
-                  ],
-                ),
-                // Third row of alphabet keys and enter key
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    _buildKeyIcon('assets/images/qwerty_z.png', 'z'),
-                    _buildKeyIcon('assets/images/qwerty_x.png', 'x'),
-                    _buildKeyIcon('assets/images/qwerty_c.png', 'c'),
-                    _buildKeyIcon('assets/images/qwerty_v.png', 'v'),
-                    _buildKeySpaceIcon('assets/images/qwerty_space.png'),
-                    _buildKeyIcon('assets/images/qwerty_b.png', 'b'),
-                    _buildKeyIcon('assets/images/qwerty_n.png', 'n'),
-                    _buildKeyIcon('assets/images/qwerty_m.png', 'm'),
-                    _buildShiftKeyIcon(
-                      'assets/images/${isShiftKeyPressed ? 'selected_shift_key' : 'shift_key'}.png',
-                    ),
-                    // Enter key
-                  ],
-                ),
-              ],
-            ),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                _buildKeyIcon('assets/images/qwerty_dot.png', '.'),
-                _buildKeyIcon('assets/images/qwerty_comma.png', ','),
-                _buildKeyEnterIcon('assets/images/qwerty_enter.png'),
-              ],
-            )
-          ],
-        ),
-      ],
+    return Material(
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      _buildKeyIcon('assets/images/qwerty_1.png', '1'),
+                      _buildKeyIcon('assets/images/qwerty_2.png', '2'),
+                      _buildKeyIcon('assets/images/qwerty_3.png', '3'),
+                      _buildKeyIcon('assets/images/qwerty_4.png', '4'),
+                      _buildKeyIcon('assets/images/qwerty_5.png', '5'),
+                      _buildKeyIcon('assets/images/qwerty_6.png', '6'),
+                      _buildKeyIcon('assets/images/qwerty_7.png', '7'),
+                      _buildKeyIcon('assets/images/qwerty_8.png', '8'),
+                      _buildKeyIcon('assets/images/qwerty_9.png', '9'),
+                      _buildKeyIcon('assets/images/qwerty_0.png', '0'),
+                    ],
+                  ),
+                  // First row of alphabet keys
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      _buildKeyIcon('assets/images/qwerty_q.png', 'q'),
+                      _buildKeyIcon('assets/images/qwerty_w.png', 'w'),
+                      _buildKeyIcon('assets/images/qwerty_e.png', 'e'),
+                      _buildKeyIcon('assets/images/qwerty_r.png', 'r'),
+                      _buildKeyIcon('assets/images/qwerty_t.png', 't'),
+                      _buildKeyIcon('assets/images/qwerty_y.png', 'y'),
+                      _buildKeyIcon('assets/images/qwerty_u.png', 'u'),
+                      _buildKeyIcon('assets/images/qwerty_i.png', 'i'),
+                      _buildKeyIcon('assets/images/qwerty_o.png', 'o'),
+                      _buildKeyIcon('assets/images/qwerty_p.png', 'p'),
+                    ],
+                  ),
+                  // Second row of alphabet keys
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      _buildKeyIcon('assets/images/qwerty_a.png', 'a'),
+                      _buildKeyIcon('assets/images/qwerty_s.png', 's'),
+                      _buildKeyIcon('assets/images/qwerty_d.png', 'd'),
+                      _buildKeyIcon('assets/images/qwerty_f.png', 'f'),
+                      _buildKeyIcon('assets/images/qwerty_g.png', 'g'),
+                      _buildKeyIcon('assets/images/qwerty_h.png', 'h'),
+                      _buildKeyIcon('assets/images/qwerty_j.png', 'j'),
+                      _buildKeyIcon('assets/images/qwerty_k.png', 'k'),
+                      _buildKeyIcon('assets/images/qwerty_l.png', 'l'),
+                      _buildKeyBackspaceIcon('assets/images/qwerty_back.png'),
+                      // Backspace key
+                    ],
+                  ),
+                  // Third row of alphabet keys and enter key
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      _buildKeyIcon('assets/images/qwerty_z.png', 'z'),
+                      _buildKeyIcon('assets/images/qwerty_x.png', 'x'),
+                      _buildKeyIcon('assets/images/qwerty_c.png', 'c'),
+                      _buildKeyIcon('assets/images/qwerty_v.png', 'v'),
+                      _buildKeySpaceIcon('assets/images/qwerty_space.png'),
+                      _buildKeyIcon('assets/images/qwerty_b.png', 'b'),
+                      _buildKeyIcon('assets/images/qwerty_n.png', 'n'),
+                      _buildKeyIcon('assets/images/qwerty_m.png', 'm'),
+                      _buildShiftKeyIcon(
+                        'assets/images/${isShiftKeyPressed ? 'selected_shift_key' : 'shift_key'}.png',
+                      ),
+                      // Enter key
+                    ],
+                  ),
+                ],
+              ),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  _buildKeyIcon('assets/images/qwerty_dot.png', '.'),
+                  _buildKeyIcon('assets/images/qwerty_comma.png', ','),
+                  _buildKeyEnterIcon('assets/images/qwerty_enter.png'),
+                ],
+              )
+            ],
+          ),
+        ],
+      ),
     );
   }
 

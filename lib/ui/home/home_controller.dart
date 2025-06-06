@@ -741,6 +741,8 @@ class HomeController extends GetxController {
           SharedPreferenceConstants.cartId, response.cartId);
       phoneNumber.value = mobileNumber ?? '';
       selectedTabButton.value = 2;
+      // to hold a cart we need customer mandatory, so we are setting this to true
+      isContionueWithOutCustomer.value = false;
       getCustomerDetails();
       fetchCustomer(isFromResumeHoldCart: true);
       clearHoldCartOrders();

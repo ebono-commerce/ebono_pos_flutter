@@ -69,9 +69,12 @@ class SearchProductsTableData {
           text: scanProductsResponse.skuTitle.toString(),
           width: 460,
         ),
-        TableCellWidget(
-          text: scanProductsResponse.productType.toString(),
-          width: 240,
+        Padding(
+          padding: const EdgeInsets.only(left: 7.0),
+          child: TableCellWidget(
+            text: scanProductsResponse.productType.toString(),
+            width: 240,
+          ),
         ),
         TableCellWidget(
           text: scanProductsResponse.priceList?.isEmpty == true
