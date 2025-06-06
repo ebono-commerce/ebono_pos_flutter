@@ -22,6 +22,7 @@ class CustomQwertyPad extends StatefulWidget {
 
 class _CustomQwertyPadState extends State<CustomQwertyPad> {
   bool isShiftKeyPressed = false;
+  int? _activePointerId;
 
   void _onKeyPressed(String value) {
     if (!widget.focusNode.hasFocus) {
@@ -176,24 +177,43 @@ class _CustomQwertyPadState extends State<CustomQwertyPad> {
 
   // Function to build a key icon for letters
   Widget _buildKeyIcon(String img, String label) {
-    return InkWell(
-      onTap: () {
-        _onKeyPressed(label);
+    return Listener(
+      onPointerDown: (event) {
+        if (_activePointerId != null) return;
+        _activePointerId = event.pointer;
       },
-      borderRadius: BorderRadius.circular(10.0),
-      child: Container(
-        padding: EdgeInsets.all(20.0),
-        margin: EdgeInsets.all(5.0),
-        decoration: BoxDecoration(
-          color: CustomColors.keyBoardBgColor,
-          // border: Border.all(color: Color(0xFFF0F4F4)),
+      onPointerUp: (event) {
+        if (_activePointerId == event.pointer) {
+          _activePointerId = null;
+        }
+      },
+      onPointerCancel: (event) {
+        if (_activePointerId == event.pointer) {
+          _activePointerId = null;
+        }
+      },
+      child: IgnorePointer(
+        ignoring: _activePointerId != null,
+        child: InkWell(
+          onTap: () {
+            _onKeyPressed(label);
+          },
           borderRadius: BorderRadius.circular(10.0),
-        ),
-        child: Center(
-          child: Image.asset(
-            img,
-            width: 25,
-            height: 25, // old 20 x20
+          child: Container(
+            padding: EdgeInsets.all(20.0),
+            margin: EdgeInsets.all(5.0),
+            decoration: BoxDecoration(
+              color: CustomColors.keyBoardBgColor,
+              // border: Border.all(color: Color(0xFFF0F4F4)),
+              borderRadius: BorderRadius.circular(10.0),
+            ),
+            child: Center(
+              child: Image.asset(
+                img,
+                width: 25,
+                height: 25, // old 20 x20
+              ),
+            ),
           ),
         ),
       ),
@@ -202,22 +222,41 @@ class _CustomQwertyPadState extends State<CustomQwertyPad> {
 
   // Function to build a backspace key icon
   Widget _buildShiftKeyIcon(String img) {
-    return InkWell(
-      onTap: _onShiftKey,
-      borderRadius: BorderRadius.circular(10.0),
-      child: Container(
-        padding: EdgeInsets.all(15.0),
-        margin: EdgeInsets.all(5.0),
-        decoration: BoxDecoration(
-          color: CustomColors.keyBoardBgColor,
-          border: Border.all(color: CustomColors.keyBoardBgColor),
+    return Listener(
+      onPointerDown: (event) {
+        if (_activePointerId != null) return;
+        _activePointerId = event.pointer;
+      },
+      onPointerUp: (event) {
+        if (_activePointerId == event.pointer) {
+          _activePointerId = null;
+        }
+      },
+      onPointerCancel: (event) {
+        if (_activePointerId == event.pointer) {
+          _activePointerId = null;
+        }
+      },
+      child: IgnorePointer(
+        ignoring: _activePointerId != null,
+        child: InkWell(
+          onTap: _onShiftKey,
           borderRadius: BorderRadius.circular(10.0),
-        ),
-        child: Center(
-          child: Image.asset(
-            img,
-            width: 30,
-            height: 30,
+          child: Container(
+            padding: EdgeInsets.all(15.0),
+            margin: EdgeInsets.all(5.0),
+            decoration: BoxDecoration(
+              color: CustomColors.keyBoardBgColor,
+              border: Border.all(color: CustomColors.keyBoardBgColor),
+              borderRadius: BorderRadius.circular(10.0),
+            ),
+            child: Center(
+              child: Image.asset(
+                img,
+                width: 30,
+                height: 30,
+              ),
+            ),
           ),
         ),
       ),
@@ -226,102 +265,174 @@ class _CustomQwertyPadState extends State<CustomQwertyPad> {
 
   // Function to build a backspace key icon
   Widget _buildKeyBackspaceIcon(String img) {
-    return InkWell(
-      onTap: _onBackspace,
-      borderRadius: BorderRadius.circular(10.0),
-      child: Container(
-        padding: EdgeInsets.all(15.0),
-        margin: EdgeInsets.all(5.0),
-        decoration: BoxDecoration(
-          color: CustomColors.keyBoardBgColor,
-          border: Border.all(color: CustomColors.keyBoardBgColor),
-          borderRadius: BorderRadius.circular(10.0),
-        ),
-        child: Center(
-          child: Image.asset(
-            img,
-            width: 30,
-            height: 30,
+    return Listener(
+        onPointerDown: (event) {
+          if (_activePointerId != null) return;
+          _activePointerId = event.pointer;
+        },
+        onPointerUp: (event) {
+          if (_activePointerId == event.pointer) {
+            _activePointerId = null;
+          }
+        },
+        onPointerCancel: (event) {
+          if (_activePointerId == event.pointer) {
+            _activePointerId = null;
+          }
+        },
+        child: IgnorePointer(
+          ignoring: _activePointerId != null,
+          child: InkWell(
+            onTap: _onBackspace,
+            borderRadius: BorderRadius.circular(10.0),
+            child: Container(
+              padding: EdgeInsets.all(15.0),
+              margin: EdgeInsets.all(5.0),
+              decoration: BoxDecoration(
+                color: CustomColors.keyBoardBgColor,
+                border: Border.all(color: CustomColors.keyBoardBgColor),
+                borderRadius: BorderRadius.circular(10.0),
+              ),
+              child: Center(
+                child: Image.asset(
+                  img,
+                  width: 30,
+                  height: 30,
+                ),
+              ),
+            ),
           ),
-        ),
-      ),
-    );
+        ));
   }
 
   // Function to build a space key icon
   Widget _buildKeySpaceIcon(String img) {
-    return InkWell(
-      onTap: _onSpace,
-      borderRadius: BorderRadius.circular(10.0),
-      child: Container(
-        padding: EdgeInsets.all(20.0),
-        margin: EdgeInsets.all(5.0),
-        decoration: BoxDecoration(
-          color: CustomColors.keyBoardBgColor,
-          border: Border.all(color: CustomColors.keyBoardBgColor),
-          borderRadius: BorderRadius.circular(10.0),
-        ),
-        child: Center(
-          child: Image.asset(
-            img,
-            width: 100,
-            height: 20,
+    return Listener(
+        onPointerDown: (event) {
+          if (_activePointerId != null) return;
+          _activePointerId = event.pointer;
+        },
+        onPointerUp: (event) {
+          if (_activePointerId == event.pointer) {
+            _activePointerId = null;
+          }
+        },
+        onPointerCancel: (event) {
+          if (_activePointerId == event.pointer) {
+            _activePointerId = null;
+          }
+        },
+        child: IgnorePointer(
+          ignoring: _activePointerId != null,
+          child: InkWell(
+            onTap: _onSpace,
+            borderRadius: BorderRadius.circular(10.0),
+            child: Container(
+              padding: EdgeInsets.all(20.0),
+              margin: EdgeInsets.all(5.0),
+              decoration: BoxDecoration(
+                color: CustomColors.keyBoardBgColor,
+                border: Border.all(color: CustomColors.keyBoardBgColor),
+                borderRadius: BorderRadius.circular(10.0),
+              ),
+              child: Center(
+                child: Image.asset(
+                  img,
+                  width: 100,
+                  height: 20,
+                ),
+              ),
+            ),
           ),
-        ),
-      ),
-    );
+        ));
   }
 
   // Function to build an enter key icon
   Widget _buildKeyEnterIcon(String img) {
-    return InkWell(
-      onTap: () {
-        _onEnterPressed(widget.textController.text);
-      },
-      borderRadius: BorderRadius.circular(10.0),
-      child: Container(
-        padding: EdgeInsets.all(20.0),
-        margin: EdgeInsets.all(5.0),
-        decoration: BoxDecoration(
-          color: CustomColors.keyBoardBgColor,
-          border: Border.all(color: CustomColors.keyBoardBgColor),
-          borderRadius: BorderRadius.circular(10.0),
-        ),
-        child: Center(
-          child: Image.asset(
-            img,
-            width: 20,
-            height: 100, // old 90
+    return Listener(
+        onPointerDown: (event) {
+          if (_activePointerId != null) return;
+          _activePointerId = event.pointer;
+        },
+        onPointerUp: (event) {
+          if (_activePointerId == event.pointer) {
+            _activePointerId = null;
+          }
+        },
+        onPointerCancel: (event) {
+          if (_activePointerId == event.pointer) {
+            _activePointerId = null;
+          }
+        },
+        child: IgnorePointer(
+          ignoring: _activePointerId != null,
+          child: InkWell(
+            onTap: () {
+              _onEnterPressed(widget.textController.text);
+            },
+            borderRadius: BorderRadius.circular(10.0),
+            child: Container(
+              padding: EdgeInsets.all(20.0),
+              margin: EdgeInsets.all(5.0),
+              decoration: BoxDecoration(
+                color: CustomColors.keyBoardBgColor,
+                border: Border.all(color: CustomColors.keyBoardBgColor),
+                borderRadius: BorderRadius.circular(10.0),
+              ),
+              child: Center(
+                child: Image.asset(
+                  img,
+                  width: 20,
+                  height: 100, // old 90
+                ),
+              ),
+            ),
           ),
-        ),
-      ),
-    );
+        ));
   }
 
   Widget _buildKeyDot(String img, String label) {
-    return InkWell(
-      onTap: () {
-        _onKeyPressed(label);
-      },
-      child: Container(
-        padding: EdgeInsets.all(10.0),
-        margin: EdgeInsets.all(5.0),
-        decoration: BoxDecoration(
-          color: CustomColors.keyBoardBgColor,
-          border: Border.all(color: CustomColors.keyBoardBgColor),
-          borderRadius: BorderRadius.circular(10.0),
-        ),
-        child: Center(
-          child: Container(
-            margin: const EdgeInsets.all(15.0),
-            child: Image.asset(
-              img,
-              height: 10,
-              width: 10,
+    return Listener(
+        onPointerDown: (event) {
+          if (_activePointerId != null) return;
+          _activePointerId = event.pointer;
+        },
+        onPointerUp: (event) {
+          if (_activePointerId == event.pointer) {
+            _activePointerId = null;
+          }
+        },
+        onPointerCancel: (event) {
+          if (_activePointerId == event.pointer) {
+            _activePointerId = null;
+          }
+        },
+        child: IgnorePointer(
+          ignoring: _activePointerId != null,
+          child: InkWell(
+            onTap: () {
+              _onKeyPressed(label);
+            },
+            child: Container(
+              padding: EdgeInsets.all(10.0),
+              margin: EdgeInsets.all(5.0),
+              decoration: BoxDecoration(
+                color: CustomColors.keyBoardBgColor,
+                border: Border.all(color: CustomColors.keyBoardBgColor),
+                borderRadius: BorderRadius.circular(10.0),
+              ),
+              child: Center(
+                child: Container(
+                  margin: const EdgeInsets.all(15.0),
+                  child: Image.asset(
+                    img,
+                    height: 10,
+                    width: 10,
+                  ),
+                ),
+              ),
             ),
           ),
-        ),
-      ),
-    );
+        ));
   }
 }
