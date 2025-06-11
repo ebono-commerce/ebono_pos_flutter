@@ -1,104 +1,30 @@
-#name: Stage Distributor Build
-#
-#on:
-#  workflow_dispatch:
-#
-#jobs:
-#  build:
-#    runs-on: ubuntu-22.04
-#
-#    steps:
-#      # Checkout the code
-#      - name: Checkout code
-#        uses: actions/checkout@v3
-#
-#      # Install system dependencies
-#      - name: Install required dependencies
-#        run: |
-#          sudo apt-get update && sudo apt upgrade -y
-#          sudo apt-get install -y clang cmake git ninja-build pkg-config libgtk-3-dev liblzma-dev libstdc++-12-dev libunwind-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev
-#
-#      # Set up Flutter
-#      - name: Set up Flutter
-#        uses: subosito/flutter-action@v2
-#        with:
-#          flutter-version: "3.32.0"
-#
-#      # Get version and commit ID
-#      - name: Get version and commit ID
-#        id: vars
-#        run: |
-#          VERSION=$(grep '^version: ' pubspec.yaml | sed 's/version: //' | tr -d ' ')
-#          COMMIT_ID=$(git rev-parse --short HEAD)
-#          echo "version=$VERSION" >> $GITHUB_OUTPUT
-#          echo "commit_id=$COMMIT_ID" >> $GITHUB_OUTPUT
-#
-#      # Install Flutter dependencies
-#      - name: Install Flutter dependencies
-#        run: flutter pub get
-#
-#      # Activate Flutter Distributor
-#      - name: Activate Flutter Distributor
-#        run: dart pub global activate flutter_distributor
-#
-#      # Generate the build using Flutter Distributor
-#      - name: Build Stage Release
-#        run: flutter_distributor release --name=stage --jobs=release-stage-linux-deb
-#
-#      # Rename .deb file
-#      - name: Rename .deb file
-#        run: |
-#          mkdir -p renamed
-#          ORIGINAL_DEB=$(find dist/ -name '*.deb' | head -n 1)
-#          NEW_NAME="ebono_pos_stage-${{ steps.vars.outputs.version }}-${{ steps.vars.outputs.commit_id }}.deb"
-#          cp "$ORIGINAL_DEB" "renamed/$NEW_NAME"
-#
-#      # Authenticate to GCP
-#      - name: Authenticate to Google Cloud
-#        uses: google-github-actions/auth@v2
-#        with:
-#          credentials_json: '${{ secrets.GOOGLE_PRIVATE_KEY_STG }}'
-#
-#      # Upload .deb to GCS
-#      - name: Upload .deb to GCS
-#        uses: google-github-actions/upload-cloud-storage@v2
-#        with:
-#          path: renamed/ebono_pos_stage-${{ steps.vars.outputs.version }}-${{ steps.vars.outputs.commit_id }}.deb
-#          destination: 'ebono-release-bucket-staging'
-#
-#      # Optional: Upload to GitHub as an artifact
-#      - name: Upload build artifact to GitHub
-#        uses: actions/upload-artifact@v4
-#        with:
-#          name: stage-release-${{ steps.vars.outputs.version }}
-#          path: renamed/
-
-
 name: Stage Distributor Build
 
 on:
   workflow_dispatch:
 
 jobs:
-  setup:
+  build:
     runs-on: ubuntu-22.04
-    outputs:
-      version: ${{ steps.vars.outputs.version }}
-      commit_id: ${{ steps.vars.outputs.commit_id }}
+
     steps:
+      # Checkout the code
       - name: Checkout code
         uses: actions/checkout@v3
 
+      # Install system dependencies
       - name: Install required dependencies
         run: |
           sudo apt-get update && sudo apt upgrade -y
           sudo apt-get install -y clang cmake git ninja-build pkg-config libgtk-3-dev liblzma-dev libstdc++-12-dev libunwind-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev
 
+      # Set up Flutter
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
           flutter-version: "3.32.0"
 
+      # Get version and commit ID
       - name: Get version and commit ID
         id: vars
         run: |
@@ -107,52 +33,45 @@ jobs:
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "commit_id=$COMMIT_ID" >> $GITHUB_OUTPUT
 
-  build:
-    runs-on: ubuntu-22.04
-    needs: setup
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: "3.32.0"
-
+      # Install Flutter dependencies
       - name: Install Flutter dependencies
         run: flutter pub get
 
+      # Activate Flutter Distributor
       - name: Activate Flutter Distributor
         run: dart pub global activate flutter_distributor
 
+      # Generate the build using Flutter Distributor
       - name: Build Stage Release
         run: flutter_distributor release --name=stage --jobs=release-stage-linux-deb
 
-  rename_and_check:
-    runs-on: ubuntu-22.04
-    needs: [ setup, build ]
-    outputs:
-      final_filename: ${{ steps.rename_deb.outputs.final_filename }}
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      # Rename .deb file
+      - name: Rename .deb file
+        run: |
+          mkdir -p renamed
+          ORIGINAL_DEB=$(find dist/ -name '*.deb' | head -n 1)
+          NEW_NAME="ebono_pos_stage-${{ steps.vars.outputs.version }}-${{ steps.vars.outputs.commit_id }}.deb"
+          cp "$ORIGINAL_DEB" "renamed/$NEW_NAME"
 
+      # Authenticate to GCP
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
           credentials_json: '${{ secrets.GOOGLE_PRIVATE_KEY_STG }}'
 
+      # Install gsutil
       - name: Install gsutil
         run: |
           sudo apt-get update
           sudo apt-get install -y google-cloud-sdk
 
+      # Rename .deb file with uniqueness check
       - name: Rename .deb file with uniqueness check
         id: rename_deb
         run: |
           ORIGINAL_DEB=$(find dist/ -name '*.deb' | head -n 1)
-          VERSION=${{ needs.setup.outputs.version }}
-          COMMIT_ID=${{ needs.setup.outputs.commit_id }}
+          VERSION=${{ steps.vars.outputs.version }}
+          COMMIT_ID=${{ steps.vars.outputs.commit_id }}
           BASE_NAME="ebono_pos_stage"
           BUCKET="ebono-release-bucket-staging"
           
@@ -161,16 +80,19 @@ jobs:
             if [ $suffix -eq 0 ]; then
               VERSION_SUFFIX="$VERSION"
             else
+              # Insert suffix before commit ID: e.g. 1.0.0 -> 1.0.0.1
               VERSION_SUFFIX="${VERSION}.${suffix}"
             fi
 
             FILE_NAME="${BASE_NAME}-${VERSION_SUFFIX}-${COMMIT_ID}.deb"
             FILE_PATH="renamed/${FILE_NAME}"
 
+            # Check if file exists in GCS bucket
             if gsutil -q stat "gs://${BUCKET}/${FILE_NAME}"; then
               echo "File ${FILE_NAME} exists in bucket, incrementing suffix..."
               suffix=$((suffix + 1))
             else
+              # File does not exist, break loop
               break
             fi
           done
@@ -180,23 +102,16 @@ jobs:
 
           echo "final_filename=$FILE_NAME" >> $GITHUB_OUTPUT
 
-  upload:
-    runs-on: ubuntu-22.04
-    needs: rename_and_check
-    steps:
-      - name: Authenticate to Google Cloud
-        uses: google-github-actions/auth@v2
-        with:
-          credentials_json: '${{ secrets.GOOGLE_PRIVATE_KEY_STG }}'
-
+      # Upload .deb to GCS
       - name: Upload .deb to GCS
         uses: google-github-actions/upload-cloud-storage@v2
         with:
-          path: renamed/${{ needs.rename_and_check.outputs.final_filename }}
+          path: renamed/${{ steps.rename_deb.outputs.final_filename }}
           destination: 'ebono-release-bucket-staging'
 
+      # Optional: Upload to GitHub as an artifact
       - name: Upload build artifact to GitHub
         uses: actions/upload-artifact@v4
         with:
-          name: stage-release
+          name: stage-release-${{ steps.vars.outputs.version }}
           path: renamed/
