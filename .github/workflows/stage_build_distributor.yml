@@ -116,6 +116,7 @@ jobs:
         with:
           path: ${{ steps.rename_deb.outputs.final_filepath }}
           destination: 'ebono-release-bucket-staging'
+          process_gcloudignore: false
 
       # Print final file information
       - name: Print upload information
