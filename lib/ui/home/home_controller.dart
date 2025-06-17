@@ -35,6 +35,7 @@ import 'package:ebono_pos/widgets/error_dialog_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../api/broadcast_ip.dart';
 import 'model/add_to_cart.dart';
 
 class HomeController extends GetxController {
@@ -157,6 +158,8 @@ class HomeController extends GetxController {
 
   var pointingTo = 'LOCAl'.obs;
 
+  var broadCastIpAddress = ''.obs;
+
   // completer to track if we're in the process of showing a dialog
   Completer<void>? _healthCheckDialogCompleter;
 
@@ -168,11 +171,114 @@ class HomeController extends GetxController {
   void onInit() async {
     _checkConnectivity();
     await readStorageData();
+    // _loadBroadcast();
+    await _setupUdpBroadcastListener();
     if (Platform.isLinux) {
       // initializeWeighingScale();
     }
     //  initialResponse();
     super.onInit();
+  }
+
+  // void _loadBroadcast() async {
+  //   final broadcasts = await getBroadcastAddresses();
+  //
+  //   broadCastIpAddress.value =
+  //       broadcasts.isNotEmpty ? broadcasts.join('\n') : '';
+  //
+  //   print("broadCastIpAddress: ${broadCastIpAddress.value}");
+  //
+  //   if (broadCastIpAddress.value.trim().isNotEmpty) {
+  //     listenForUdpBroadcast(
+  //       broadCastIp: broadCastIpAddress.value,
+  //       port: 8888,
+  //       onMessage: (message, sender) {
+  //         print("message: ${message.toString()} sender: ${sender.toString()}");
+  //       },
+  //     );
+  //   }
+  // }
+
+  /// Set up UDP broadcast listener for network communication
+  ///
+  /// This method:
+  /// 1. Gets available broadcast addresses
+  /// 2. Starts listening on the first available broadcast address
+  /// 3. Sets up message handling for incoming broadcasts
+  Future<void> _setupUdpBroadcastListener() async {
+    try {
+      print('🔍 Discovering broadcast addresses...');
+
+      // Get all available broadcast addresses for this device
+      final broadcasts = await UdpBroadcastManager.getBroadcastAddresses();
+
+      // Store broadcast addresses for UI display
+      broadCastIpAddress.value = broadcasts.isNotEmpty
+          ? broadcasts.join('\n')
+          : 'No broadcast addresses found';
+
+      print('📍 Available broadcast addresses:');
+      for (int i = 0; i < broadcasts.length; i++) {
+        print('   ${i + 1}. ${broadcasts[i]}');
+      }
+
+      // Start listening if we have at least one broadcast address
+      if (broadcasts.isNotEmpty) {
+        final primaryBroadcast = broadcasts.first;
+
+        await UdpBroadcastManager.listenForUdpBroadcast(
+          port: 8888,
+          broadCastIp: primaryBroadcast,
+          onMessage: _handleIncomingBroadcast,
+        );
+
+        print('🎯 UDP broadcast listener active on $primaryBroadcast:8888');
+      } else {
+        print('⚠️ No broadcast addresses available - UDP listener not started');
+      }
+    } catch (e) {
+      print('❌ Failed to setup UDP broadcast listener: $e');
+
+      // Optionally show user-friendly error
+      if (e is UnsupportedError) {
+        print('💡 This platform is not supported for UDP broadcasting');
+      } else {
+        print('💡 Check network connectivity and permissions');
+      }
+    }
+  }
+
+  /// Handle incoming UDP broadcast messages
+  ///
+  /// This is called whenever a UDP broadcast is received
+  /// Add your business logic here based on the message content
+  void _handleIncomingBroadcast(String message, InternetAddress sender) {
+    // Ensure controller is still active
+    if (isClosed) {
+      print('⚠️ Controller disposed, ignoring broadcast message');
+      return;
+    }
+
+    print('📥 Processing broadcast: "$message" from ${sender.address}');
+
+    // Handle different message types
+    final cleanMessage = message.trim();
+
+    switch (cleanMessage.toLowerCase()) {
+      case 'reddygona':
+        print("hello reddygona");
+        break;
+
+      case 'ping':
+        print("hey not now");
+        break;
+
+      case 'discover':
+        print("discovered great dev");
+        break;
+
+      default:
+    }
   }
 
   Future<void> readStorageData() async {
@@ -1281,8 +1387,12 @@ class HomeController extends GetxController {
   void onClose() {
     _statusCheckTimer?.cancel();
     _logoutDialogController.close();
-    // digitalWeighingScale.dispose();
+    closeUdpSocketConnection();
     super.onClose();
+  }
+
+  void closeUdpSocketConnection() async {
+    await closeUdpSocket();
   }
 
   void clearDataAndLogout() {
@@ -1316,6 +1426,7 @@ class HomeController extends GetxController {
   void dispose() {
     _statusCheckTimer?.cancel();
     clearDataAndLogout();
+    closeUdpSocketConnection();
     super.dispose();
   }
 }
