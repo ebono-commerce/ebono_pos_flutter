@@ -390,6 +390,7 @@ class HomeController extends GetxController {
             scanProductsResponse.value.salesUom,
             cartId.value,
             isWeightedItem: true,
+            isBizerbaCode: true,
           );
         }
       } else {
@@ -676,9 +677,11 @@ class HomeController extends GetxController {
     String? qtyUom,
     String? cartId, {
     bool isWeightedItem = false,
+    bool isBizerbaCode = false,
   }) async {
     try {
       isApiCallInProgress = true;
+      isQuantitySelected.value = false;
 
       final response = await _homeRepository.addToCart(
         AddToCartRequest(
@@ -697,12 +700,6 @@ class HomeController extends GetxController {
         cartId,
       );
 
-      // Clear local and observable cart states to avoid duplicates
-      cartLines.clear();
-      clearCart();
-
-      cartResponse.value = response;
-
       //  Check for STOPPER error before processing cart lines
       if (response.cartAlerts.isNotEmpty &&
           response.cartAlerts.first.errorCode == "SHOW_STOPPER") {
@@ -712,6 +709,12 @@ class HomeController extends GetxController {
         );
         return;
       }
+
+      // Clear local and observable cart states to avoid duplicates
+      cartLines.clear();
+      clearCart();
+
+      cartResponse.value = response;
 
       //  Add valid cart lines
       if (response.cartLines?.isNotEmpty == true) {
@@ -726,7 +729,7 @@ class HomeController extends GetxController {
         if (firstCartLine.item?.isWeighedItem == true &&
             quantityNumber != null &&
             firstCartLine.quantity?.quantityUom != 'pcs') {
-          isQuantitySelected.value = true;
+          isQuantitySelected.value = isBizerbaCode == false;
 
           selectedItemData.value = CartLine(
             cartLineId: firstCartLine.cartLineId,
