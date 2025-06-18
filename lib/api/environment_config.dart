@@ -5,7 +5,8 @@ class EnvironmentConfig {
   static String get baseUrl {
     switch (environment) {
       case 'prod':
-        return "http://api-local.ebono.com/store/";
+        // return "http://api-local.ebono.com/store/";
+        return bffUrl;
       case 'stage':
         return "http://api-local.ebono.com/store/";
       case 'dev':

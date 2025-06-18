@@ -15,6 +15,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 
+import '../../cubit/test_mode_cubit.dart';
 import '../common_widgets/version_widget.dart';
 
 class LoginPage extends StatefulWidget {
@@ -360,6 +361,39 @@ class _LoginPageState extends State<LoginPage> {
                         child: const BackToPortSelection()),
                   ],
                 ),
+              ),
+
+              SizedBox(height: 30),
+              BlocBuilder<TestModeCubit, bool>(
+                builder: (context, isTestModeEnabled) {
+                  return SizedBox(
+                    width: double.infinity,
+                    height: 60,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        context.read<TestModeCubit>().toggle();
+                        setState(() {});
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color(0xFFFA0E64),
+                        textStyle:
+                            Theme.of(context).textTheme.titleLarge?.copyWith(
+                                  fontWeight: FontWeight.w500,
+                                ),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 20, vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        elevation: 6,
+                      ),
+                      child: Text(
+                        '${isTestModeEnabled ? 'Exit' : 'Enter'} Test Mode',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  );
+                },
               ),
             ],
           ),
