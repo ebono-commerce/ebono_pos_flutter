@@ -42,7 +42,7 @@ class EnvironmentConfig {
   static String get paytmBaseUrl {
     switch (environment) {
       case 'prod':
-      return "https://securegw-edc.paytm.in/";
+        return "https://securegw-edc.paytm.in/";
       case 'stage':
       case 'dev':
       default:

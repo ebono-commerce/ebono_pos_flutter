@@ -17,15 +17,20 @@ class AppRequestInterceptor extends Interceptor {
     String? token = await _sharedPreferenceHelper.getAuthToken();
     String? appUUID = await _sharedPreferenceHelper.getAppUUID();
     String pointedTo = await _sharedPreferenceHelper.pointingTo();
+    final isTestModeEnabled =
+        await _sharedPreferenceHelper.isTestModeEnabled() == true;
+
+    // Check if it's a local HTTP request (marked by the CustomConnectionInterceptor)
+    if (isTestModeEnabled) {
+      options.headers['x-operation-mode'] = 'TRAINING';
+    }
 
     if (options.uri.path.contains('/api/3.0/p2p/')) {
       options.baseUrl = EnvironmentConfig.ezetapBaseUrl;
       options.headers['Accept'] = 'application/json, text/plain, */*';
-    }
-    else if (options.uri.path.contains('/ecr')) {
+    } else if (options.uri.path.contains('/ecr')) {
       options.baseUrl = EnvironmentConfig.paytmBaseUrl;
-    }
-    else if (options.uri.path.contains('/health')) {
+    } else if (options.uri.path.contains('/health')) {
       /* made duration to 5 sec, in order to reduce time out in login when switching*/
       options.connectTimeout = Duration(seconds: 5);
     } else {
