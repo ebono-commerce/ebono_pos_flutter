@@ -1,5 +1,6 @@
 import 'package:ebono_pos/constants/custom_colors.dart';
 import 'package:ebono_pos/data_store/hive_storage_helper.dart';
+import 'package:ebono_pos/data_store/shared_preference_helper.dart';
 import 'package:ebono_pos/navigation/page_routes.dart';
 import 'package:ebono_pos/ui/Common_button.dart';
 import 'package:ebono_pos/ui/common_text_field.dart';
@@ -32,11 +33,8 @@ class PaymentSummaryScreen extends StatefulWidget {
 
 class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
   final paymentBloc = Get.put(
-    PaymentBloc(
-      Get.find<PaymentRepository>(),
-      Get.find<HiveStorageHelper>(),
-      Get.find<HomeController>(),
-    ),
+    PaymentBloc(Get.find<PaymentRepository>(), Get.find<HiveStorageHelper>(),
+        Get.find<HomeController>(), Get.find<SharedPreferenceHelper>()),
   );
 
   late ThemeData theme;
@@ -1224,13 +1222,13 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                       theme: theme,
                       textStyle: theme.textTheme.bodyMedium,
                       padding: EdgeInsets.all(12)),
-                  onPressed:
-                      (paymentBloc.allowPlaceOrder && state.isPlaceOrderLoading == false)
-                          ? () {
-                                Logger.logButtonPress(button: 'Place Order');
-                                paymentBloc.add(PlaceOrderEvent());
-                            }
-                          : null,
+                  onPressed: (paymentBloc.allowPlaceOrder &&
+                          state.isPlaceOrderLoading == false)
+                      ? () {
+                          Logger.logButtonPress(button: 'Place Order');
+                          paymentBloc.add(PlaceOrderEvent());
+                        }
+                      : null,
                   child: state.isPlaceOrderLoading
                       ? CircularProgressIndicator()
                       : Text(

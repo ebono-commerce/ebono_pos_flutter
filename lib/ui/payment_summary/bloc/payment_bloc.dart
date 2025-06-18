@@ -77,8 +77,8 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
   bool isOfflinePaymentVerified = false;
   String paymentProvider = '';
 
-  PaymentBloc(
-      this._paymentRepository, this.hiveStorageHelper, this._homeController, this.sharedPreferenceHelper)
+  PaymentBloc(this._paymentRepository, this.hiveStorageHelper,
+      this._homeController, this.sharedPreferenceHelper)
       : super(PaymentState()) {
     on<PaymentInitialEvent>(_onInitial);
     on<FetchPaymentSummary>(_fetchPaymentSummary);
