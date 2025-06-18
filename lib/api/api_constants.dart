@@ -30,9 +30,12 @@ class ApiConstants {
   static final ezetapInitiateApi = '/api/3.0/p2p/start';
   static final ezetapStatusApi = '/api/3.0/p2p/status';
   static final ezetapCancelApi = '/api/3.0/p2p/cancel';
-  static final fetchPaytmInitiateChecksum = 'checkout/api/v1/pos/payment/paytm/request';
-  static final fetchPaytmStatusChecksum = 'checkout/api/v1/pos/payment/paytm/status';
-  static final fetchPaytmCancelChecksum = 'checkout/api/v1/pos/payment/paytm/abort';
+  static final fetchPaytmInitiateChecksum =
+      'checkout/api/v1/pos/payment/paytm/request';
+  static final fetchPaytmStatusChecksum =
+      'checkout/api/v1/pos/payment/paytm/status';
+  static final fetchPaytmCancelChecksum =
+      'checkout/api/v1/pos/payment/paytm/abort';
   static final paytmInitiateApi = 'ecr/payment/request';
   static final paytmStatusApi = 'ecr/V2/payment/status';
   static final paytmCancelApi = 'ecr/abort/txn';
@@ -65,5 +68,4 @@ class ApiConstants {
 
   static String searchItems(String searchText) =>
       'catalog/api/v1/pos/products/fetch/$searchText';
-  static final generateSmsInvoice = '/account/api/v1/pos/trigger_sms';
 }

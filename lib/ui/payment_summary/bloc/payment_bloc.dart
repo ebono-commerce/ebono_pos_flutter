@@ -92,7 +92,6 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
     on<WalletIdealEvent>(_onWalletIdeal);
     on<PaymentIdealEvent>(_onIdeal);
     on<CancelSSEEvent>(_onCancelSSEEvent);
-    on<SmsInvoiceEvent>(_smsInvoice);
   }
 
   void _startPeriodicPaymentStatusCheck() {
@@ -208,7 +207,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
 
       emit(state.copyWith(isFetchPaytmInitiateChecksumSuccess: true));
 
-    await _paymentInitiatePaytmApi(event, emit);
+      await _paymentInitiatePaytmApi(event, emit);
     } catch (error) {
       emit(state.copyWith(isLoading: false, errorMessage: error.toString()));
       Get.snackbar('Error', error.toString());
@@ -334,10 +333,11 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
     try {
       var paytmStatusChecksumRequest = PaytmStatusChecksumRequest(
           outletId:
-          "${hiveStorageHelper.read(SharedPreferenceConstants.selectedOutletId)}",
+              "${hiveStorageHelper.read(SharedPreferenceConstants.selectedOutletId)}",
           terminalId:
-          "${hiveStorageHelper.read(SharedPreferenceConstants.selectedTerminalId)}",
-          requestId: paytmInitiateChecksumResponse.payload?.body?.merchantTransactionId ,
+              "${hiveStorageHelper.read(SharedPreferenceConstants.selectedTerminalId)}",
+          requestId: paytmInitiateChecksumResponse
+              .payload?.body?.merchantTransactionId,
           cartId: paymentSummaryResponse.cartId);
 
       paytmStatusChecksumResponse = await _paymentRepository
@@ -547,12 +547,13 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
 
     try {
       var paytmCancelChecksumRequest = PaytmStatusChecksumRequest(
-          outletId:
-          "${hiveStorageHelper.read(SharedPreferenceConstants.selectedOutletId)}",
-          terminalId:
-          "${hiveStorageHelper.read(SharedPreferenceConstants.selectedTerminalId)}",
-          cartId: paymentSummaryResponse.cartId,
-        requestId: paytmInitiateChecksumResponse.payload?.body?.merchantTransactionId ,
+        outletId:
+            "${hiveStorageHelper.read(SharedPreferenceConstants.selectedOutletId)}",
+        terminalId:
+            "${hiveStorageHelper.read(SharedPreferenceConstants.selectedTerminalId)}",
+        cartId: paymentSummaryResponse.cartId,
+        requestId:
+            paytmInitiateChecksumResponse.payload?.body?.merchantTransactionId,
       );
 
       paytmInitiateChecksumResponse = await _paymentRepository
@@ -579,8 +580,9 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
 
     try {
       paytmPaymentInitiateResponse =
-      await _paymentRepository.paytmPaymentCancelApi(paytmCancelPayload);
-      if (paytmPaymentInitiateResponse.body?.resultInfo?.resultStatus == "SUCCESS") {
+          await _paymentRepository.paytmPaymentCancelApi(paytmCancelPayload);
+      if (paytmPaymentInitiateResponse.body?.resultInfo?.resultStatus ==
+          "SUCCESS") {
         emit(state.copyWith(
             isLoading: false,
             stopTimer: true,
@@ -962,29 +964,6 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
         isVerifyOTPLoading: false,
         isResendOTPLoading: false,
       ));
-    }
-  }
-
-  _smsInvoice(SmsInvoiceEvent event, Emitter<PaymentState> emit) async {
-    emit(state.copyWith(isSmsInvoiceLoading: true));
-
-    try {
-      final response = await _paymentRepository
-          .generateSmsInvoice(paymentSummaryResponse.orderNumber ?? '');
-
-      emit(state.copyWith(
-          isSmsInvoiceLoading: false, isSmsInvoiceSuccess: true));
-      event.onSuccess();
-    } catch (error) {
-      emit(state.copyWith(
-        isSmsInvoiceLoading: false,
-        errorMessage: error.toString(),
-        isSmsInvoiceSuccess: false,
-      ));
-      Get.snackbar(
-        'Error',
-        error.toString(),
-      );
     }
   }
 
