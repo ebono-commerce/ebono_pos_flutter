@@ -48,6 +48,9 @@ class AuthInterceptor extends Interceptor {
       options.baseUrl = pointedTo == 'LOCAL'
           ? EnvironmentConfig.baseUrl
           : EnvironmentConfig.bffUrl;
+      if (options.uri.path.contains(ApiConstants.generateSmsInvoice)) {
+        options.baseUrl = EnvironmentConfig.bffUrl;
+      }
     }
     print('app id : $appUUID');
     print('token $token');
