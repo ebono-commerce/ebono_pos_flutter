@@ -1,6 +1,7 @@
 import 'package:ebono_pos/constants/custom_colors.dart';
 import 'package:ebono_pos/data_store/hive_storage_helper.dart';
 import 'package:ebono_pos/data_store/shared_preference_helper.dart';
+import 'package:ebono_pos/extensions/string_extension.dart';
 import 'package:ebono_pos/navigation/page_routes.dart';
 import 'package:ebono_pos/ui/Common_button.dart';
 import 'package:ebono_pos/ui/common_text_field.dart';
@@ -109,7 +110,9 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
         } else {
           if (activeFocusNode == cashPaymentFocusNode) {
             _formKey.currentState?.validate();
-            cashPaymentTextController.text = numPadTextController.text;
+            String enterValue = numPadTextController.text;
+            cashPaymentTextController.text =
+                enterValue.limitDecimalDigits(decimalRange: 2);
             paymentBloc.isOfflinePaymentVerified = false;
           } else if (activeFocusNode == onlinePaymentFocusNode) {
             _formKey.currentState?.validate();
@@ -862,7 +865,9 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                                             (paymentBloc.totalPayable -
                                                     (paymentBloc.cashAmount))
                                                 .abs()
-                                                .toString();
+                                                .toString()
+                                                .limitDecimalDigits(
+                                                    decimalRange: 2);
                                         paymentBloc.onlinePayment = balance;
                                         onlinePaymentTextController.text =
                                             balance;

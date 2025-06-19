@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:ebono_pos/constants/shared_preference_constants.dart';
 import 'package:ebono_pos/data_store/hive_storage_helper.dart';
 import 'package:ebono_pos/data_store/shared_preference_helper.dart';
+import 'package:ebono_pos/extensions/string_extension.dart';
 import 'package:ebono_pos/ui/common_widgets/show_stopper_widget.dart';
 import 'package:ebono_pos/ui/home/home_controller.dart';
 import 'package:ebono_pos/ui/home/model/phone_number_request.dart';
@@ -734,12 +735,14 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
           (option) =>
               option.code == paymentStatusResponse.paymentMode?.toUpperCase(),
         );
+        final amountOnline = double.parse(
+            onlineAmount.toString().limitDecimalDigits(decimalRange: 2));
         paymentMethods?.add(PaymentMethod(
             paymentOptionId: onlinePaymentOption?.paymentOptionId,
             pspId: onlinePaymentOption?.pspId,
             requestId: p2pRequestId,
             transactionReferenceId: paymentStatusResponse.txnId,
-            amount: onlineAmount,
+            amount: amountOnline,
             methodDetail: [
               MethodDetail(
                   key: "METHOD", value: paymentStatusResponse.paymentMode),
