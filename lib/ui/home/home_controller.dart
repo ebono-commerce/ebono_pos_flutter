@@ -35,7 +35,7 @@ import 'package:ebono_pos/widgets/error_dialog_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../api/broadcast_ip.dart';
+import '../../api/broadcast.dart';
 import 'model/add_to_cart.dart';
 
 class HomeController extends GetxController {
@@ -207,35 +207,34 @@ class HomeController extends GetxController {
   /// 3. Sets up message handling for incoming broadcasts
   Future<void> _setupUdpBroadcastListener() async {
     try {
-      print('🔍 Discovering broadcast addresses...');
-
-      // Get all available broadcast addresses for this device
-      final broadcasts = await UdpBroadcastManager.getBroadcastAddresses();
-
-      // Store broadcast addresses for UI display
-      broadCastIpAddress.value = broadcasts.isNotEmpty
-          ? broadcasts.join('\n')
-          : 'No broadcast addresses found';
-
-      print('📍 Available broadcast addresses:');
-      for (int i = 0; i < broadcasts.length; i++) {
-        print('   ${i + 1}. ${broadcasts[i]}');
-      }
+      // print('🔍 Discovering broadcast addresses...');
+      //
+      // // Get all available broadcast addresses for this device
+      // final broadcasts = await UdpBroadcastManager.getBroadcastAddresses();
+      //
+      // // Store broadcast addresses for UI display
+      // broadCastIpAddress.value = broadcasts.isNotEmpty
+      //     ? broadcasts.join('\n')
+      //     : 'No broadcast addresses found';
+      //
+      // print('📍 Available broadcast addresses:');
+      // for (int i = 0; i < broadcasts.length; i++) {
+      //   print('   ${i + 1}. ${broadcasts[i]}');
+      // }
 
       // Start listening if we have at least one broadcast address
-      if (broadcasts.isNotEmpty) {
-        final primaryBroadcast = broadcasts.first;
+      // if (broadcasts.isNotEmpty) {
+      //   final primaryBroadcast = broadcasts.first;
 
-        await UdpBroadcastManager.listenForUdpBroadcast(
-          port: 8888,
-          broadCastIp: primaryBroadcast,
-          onMessage: _handleIncomingBroadcast,
-        );
+      await UdpBroadcastManager.listenForUdpBroadcast(
+        port: 8888,
+        onMessage: _handleIncomingBroadcast,
+      );
 
-        print('🎯 UDP broadcast listener active on $primaryBroadcast:8888');
-      } else {
-        print('⚠️ No broadcast addresses available - UDP listener not started');
-      }
+      // print('🎯 UDP broadcast listener active on $primaryBroadcast:8888');
+      // } else {
+      //   print('⚠️ No broadcast addresses available - UDP listener not started');
+      // }
     } catch (e) {
       print('❌ Failed to setup UDP broadcast listener: $e');
 
