@@ -21,11 +21,13 @@ class AppRequestInterceptor extends Interceptor {
     if (options.uri.path.contains('/api/3.0/p2p/')) {
       options.baseUrl = EnvironmentConfig.ezetapBaseUrl;
       options.headers['Accept'] = 'application/json, text/plain, */*';
-    }
-    else if (options.uri.path.contains('/ecr')) {
+    } else if (options.uri.path.contains('/ecr')) {
       options.baseUrl = EnvironmentConfig.paytmBaseUrl;
-    }
-    else if (options.uri.path.contains('/health')) {
+    } else if (options.uri.path.contains('metrics-collector')) {
+      options.baseUrl = pointedTo == 'LOCAL'
+          ? EnvironmentConfig.metricsBaseUrl
+          : EnvironmentConfig.metricsBffUrl;
+    } else if (options.uri.path.contains('/health')) {
       /* made duration to 5 sec, in order to reduce time out in login when switching*/
       options.connectTimeout = Duration(seconds: 5);
     } else {

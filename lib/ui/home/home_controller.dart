@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
@@ -9,7 +10,9 @@ import 'package:ebono_pos/data_store/shared_preference_helper.dart';
 import 'package:ebono_pos/models/cart_response.dart';
 import 'package:ebono_pos/models/coupon_details.dart';
 import 'package:ebono_pos/models/customer_response.dart';
+import 'package:ebono_pos/models/pos_metrics_payload.dart';
 import 'package:ebono_pos/models/scan_products_response.dart';
+import 'package:ebono_pos/models/udp_response.dart';
 import 'package:ebono_pos/navigation/page_routes.dart';
 import 'package:ebono_pos/ui/common_widgets/show_stopper_widget.dart';
 import 'package:ebono_pos/ui/home/model/cart_request.dart';
@@ -34,6 +37,7 @@ import 'package:ebono_pos/ui/payment_summary/model/health_check_response.dart';
 import 'package:ebono_pos/widgets/error_dialog_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 import '../../api/broadcast.dart';
 import 'model/add_to_cart.dart';
@@ -207,34 +211,10 @@ class HomeController extends GetxController {
   /// 3. Sets up message handling for incoming broadcasts
   Future<void> _setupUdpBroadcastListener() async {
     try {
-      // print('🔍 Discovering broadcast addresses...');
-      //
-      // // Get all available broadcast addresses for this device
-      // final broadcasts = await UdpBroadcastManager.getBroadcastAddresses();
-      //
-      // // Store broadcast addresses for UI display
-      // broadCastIpAddress.value = broadcasts.isNotEmpty
-      //     ? broadcasts.join('\n')
-      //     : 'No broadcast addresses found';
-      //
-      // print('📍 Available broadcast addresses:');
-      // for (int i = 0; i < broadcasts.length; i++) {
-      //   print('   ${i + 1}. ${broadcasts[i]}');
-      // }
-
-      // Start listening if we have at least one broadcast address
-      // if (broadcasts.isNotEmpty) {
-      //   final primaryBroadcast = broadcasts.first;
-
       await UdpBroadcastManager.listenForUdpBroadcast(
         port: 8888,
         onMessage: _handleIncomingBroadcast,
       );
-
-      // print('🎯 UDP broadcast listener active on $primaryBroadcast:8888');
-      // } else {
-      //   print('⚠️ No broadcast addresses available - UDP listener not started');
-      // }
     } catch (e) {
       print('❌ Failed to setup UDP broadcast listener: $e');
 
@@ -251,7 +231,7 @@ class HomeController extends GetxController {
   ///
   /// This is called whenever a UDP broadcast is received
   /// Add your business logic here based on the message content
-  void _handleIncomingBroadcast(String message, InternetAddress sender) {
+  void _handleIncomingBroadcast(String message, InternetAddress sender) async {
     // Ensure controller is still active
     if (isClosed) {
       print('⚠️ Controller disposed, ignoring broadcast message');
@@ -260,23 +240,54 @@ class HomeController extends GetxController {
 
     print('📥 Processing broadcast: "$message" from ${sender.address}');
 
-    // Handle different message types
-    final cleanMessage = message.trim();
+    try {
+      // Decode JSON message into a Map
+      final decoded = jsonDecode(message);
 
-    switch (cleanMessage.toLowerCase()) {
-      case 'reddygona':
-        print("hello reddygona");
-        break;
+      // Create UDPBroadCaseResponse from decoded map
+      UDPBroadCaseResponse udpBroadCaseResponse =
+          UDPBroadCaseResponse.fromMap(decoded);
 
-      case 'ping':
-        print("hey not now");
-        break;
+      if (udpBroadCaseResponse.event == 'SEND_POS_APP_METRICS') {
+        print('✅ Decoded event: ${udpBroadCaseResponse.event}');
+        print('📦 Payload: ${udpBroadCaseResponse.payload.toMap()}');
 
-      case 'discover':
-        print("discovered great dev");
-        break;
+        var edcDevice = hiveStorageHelper
+            .read(SharedPreferenceConstants.edcDeviceDetails) as List;
 
-      default:
+        List<EdcDevice> edcDeviceDetails = edcDevice.map((item) {
+          if (item is Map<String, dynamic>) {
+            return EdcDevice.fromJson(item);
+          } else {
+            return EdcDevice.fromJson(Map<String, dynamic>.from(item));
+          }
+        }).toList();
+
+        final info = await PackageInfo.fromPlatform();
+        final appVersion =
+            '${info.version}${info.buildNumber.isNotEmpty ? '' : '.${info.buildNumber}'}';
+
+        _homeRepository.sendPosMetrics(
+            payload: PosMetricsPayload(
+          appVersion: appVersion,
+          currentCartId: cartResponse.value.cartId.toString(),
+          dmsId: udpBroadCaseResponse.payload.dmsId,
+          edcType: edcDeviceDetails.firstOrNull?.provider?.toLowerCase() ?? "",
+          lastOrderAt: 'NA',
+          macAddress:
+              await UdpBroadcastManager.instance.getPrimaryMacAddress() ?? '',
+          outletId: udpBroadCaseResponse.payload.outletId,
+          triggerType: udpBroadCaseResponse.payload.triggerType,
+          registerId: registerId.value,
+          terminalId: selectedTerminal.value,
+          type: 'CLIENT',
+          upstreamType: pointedTo.value,
+          userId: userDetails.value.userId,
+          weighingScaleStatus: 'NA',
+        ));
+      }
+    } catch (e) {
+      print('❌ Failed to decode UDP broadcast message: $e');
     }
   }
 

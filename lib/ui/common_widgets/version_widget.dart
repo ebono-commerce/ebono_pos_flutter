@@ -11,7 +11,8 @@ class VersionWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final sharedPrefs = Get.find<SharedPreferenceHelper>();
-    String environment = String.fromEnvironment('ENV', defaultValue: 'stage');
+    String environment =
+        const String.fromEnvironment('ENV', defaultValue: 'stage');
 
     return FutureBuilder<Map<String, dynamic>>(
       future: Future.wait([
@@ -22,24 +23,18 @@ class VersionWidget extends StatelessWidget {
             'pointingTo': values[1] as String,
           }),
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Text('');
-        } else if (snapshot.hasError) {
-          return Text('');
-        } else if (snapshot.hasData) {
-          final packageInfo = snapshot.data!['packageInfo'] as PackageInfo;
-          final pointingTo = snapshot.data!['pointingTo'] as String;
-          final version = packageInfo.version;
-          return Text(
-            '(SAVOmart $environment $pointingTo - $version)',
-            style: Theme.of(context)
-                .textTheme
-                .labelMedium
-                ?.copyWith(fontSize: fontSize),
-          );
-        } else {
-          return Text('');
-        }
+        if (!snapshot.hasData) return const SizedBox();
+
+        final packageInfo = snapshot.data!['packageInfo'] as PackageInfo;
+        final pointingTo = snapshot.data!['pointingTo'] as String;
+
+        return Text(
+          '(SAVOmart $environment $pointingTo - ${packageInfo.version}+${packageInfo.buildNumber})',
+          style: Theme.of(context)
+              .textTheme
+              .labelMedium
+              ?.copyWith(fontSize: fontSize),
+        );
       },
     );
   }
