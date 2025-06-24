@@ -2,8 +2,6 @@ class EnvironmentConfig {
   static const String environment =
       String.fromEnvironment('ENV', defaultValue: 'stage');
 
-  static String get metricsBffUrl => 'https://api-staging.ebono.com/';
-
   static String get metricsBaseUrl => 'http://api-local.ebono.com/';
 
   static String get baseUrl {

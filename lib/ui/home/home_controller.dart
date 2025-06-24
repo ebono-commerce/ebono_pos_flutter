@@ -34,6 +34,7 @@ import 'package:ebono_pos/ui/login/model/login_request.dart';
 import 'package:ebono_pos/ui/login/model/login_response.dart';
 import 'package:ebono_pos/ui/login/model/terminal_details_response.dart';
 import 'package:ebono_pos/ui/payment_summary/model/health_check_response.dart';
+import 'package:ebono_pos/ui/payment_summary/weighing_scale_service.dart';
 import 'package:ebono_pos/widgets/error_dialog_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -171,12 +172,14 @@ class HomeController extends GetxController {
     _logoutDialogController.add(true);
   }
 
+  var paymentProvider = ''.obs;
+
   @override
   void onInit() async {
     _checkConnectivity();
     await readStorageData();
     // _loadBroadcast();
-    await _setupUdpBroadcastListener();
+    if (pointedTo.value == 'LOCAL') await _setupUdpBroadcastListener();
     if (Platform.isLinux) {
       // initializeWeighingScale();
     }
@@ -210,6 +213,7 @@ class HomeController extends GetxController {
   /// 2. Starts listening on the first available broadcast address
   /// 3. Sets up message handling for incoming broadcasts
   Future<void> _setupUdpBroadcastListener() async {
+    if (pointedTo.value != 'LOCAL') return;
     try {
       await UdpBroadcastManager.listenForUdpBroadcast(
         port: 8888,
@@ -232,6 +236,7 @@ class HomeController extends GetxController {
   /// This is called whenever a UDP broadcast is received
   /// Add your business logic here based on the message content
   void _handleIncomingBroadcast(String message, InternetAddress sender) async {
+    if (pointedTo.value != 'LOCAL') return;
     // Ensure controller is still active
     if (isClosed) {
       print('⚠️ Controller disposed, ignoring broadcast message');
@@ -245,35 +250,28 @@ class HomeController extends GetxController {
       final decoded = jsonDecode(message);
 
       // Create UDPBroadCaseResponse from decoded map
-      UDPBroadCaseResponse udpBroadCaseResponse =
-          UDPBroadCaseResponse.fromMap(decoded);
+      UDPBroadCaseResponse udpBroadCaseResponse = UDPBroadCaseResponse.fromMap(
+        decoded,
+      );
+
+      final weighingScaleService = Get.find<WeighingScaleService>();
 
       if (udpBroadCaseResponse.event == 'SEND_POS_APP_METRICS') {
         print('✅ Decoded event: ${udpBroadCaseResponse.event}');
         print('📦 Payload: ${udpBroadCaseResponse.payload.toMap()}');
 
-        var edcDevice = hiveStorageHelper
-            .read(SharedPreferenceConstants.edcDeviceDetails) as List;
-
-        List<EdcDevice> edcDeviceDetails = edcDevice.map((item) {
-          if (item is Map<String, dynamic>) {
-            return EdcDevice.fromJson(item);
-          } else {
-            return EdcDevice.fromJson(Map<String, dynamic>.from(item));
-          }
-        }).toList();
-
         final info = await PackageInfo.fromPlatform();
-        final appVersion =
-            '${info.version}${info.buildNumber.isNotEmpty ? '' : '.${info.buildNumber}'}';
+        final appVersion = info.version;
 
         _homeRepository.sendPosMetrics(
             payload: PosMetricsPayload(
           appVersion: appVersion,
-          currentCartId: cartResponse.value.cartId.toString(),
+          currentCartId: cartResponse.value.cartId ?? '',
           dmsId: udpBroadCaseResponse.payload.dmsId,
-          edcType: edcDeviceDetails.firstOrNull?.provider?.toLowerCase() ?? "",
-          lastOrderAt: 'NA',
+          edcType: paymentProvider.value,
+          lastOrderAt: hiveStorageHelper.read(
+            SharedPreferenceConstants.lastOrderAt,
+          ),
           macAddress:
               await UdpBroadcastManager.instance.getPrimaryMacAddress() ?? '',
           outletId: udpBroadCaseResponse.payload.outletId,
@@ -283,7 +281,9 @@ class HomeController extends GetxController {
           type: 'CLIENT',
           upstreamType: pointedTo.value,
           userId: userDetails.value.userId,
-          weighingScaleStatus: 'NA',
+          weighingScaleStatus: await weighingScaleService.isScaleConnected()
+              ? 'Available'
+              : 'Not Available',
         ));
       }
     } catch (e) {
@@ -327,6 +327,10 @@ class HomeController extends GetxController {
 
     final userData =
         hiveStorageHelper.read(SharedPreferenceConstants.userDetails);
+
+    paymentProvider.value = hiveStorageHelper.read(
+      SharedPreferenceConstants.paymentProvider,
+    );
 
     if (userData != null && userData is Map) {
       // Convert Map<dynamic, dynamic> to Map<String, dynamic>

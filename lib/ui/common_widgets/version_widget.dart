@@ -29,7 +29,7 @@ class VersionWidget extends StatelessWidget {
         final pointingTo = snapshot.data!['pointingTo'] as String;
 
         return Text(
-          '(SAVOmart $environment $pointingTo - ${packageInfo.version}+${packageInfo.buildNumber})',
+          '(SAVOmart $environment $pointingTo - ${packageInfo.version})',
           style: Theme.of(context)
               .textTheme
               .labelMedium

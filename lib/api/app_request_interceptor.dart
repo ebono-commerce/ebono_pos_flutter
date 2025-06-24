@@ -24,9 +24,7 @@ class AppRequestInterceptor extends Interceptor {
     } else if (options.uri.path.contains('/ecr')) {
       options.baseUrl = EnvironmentConfig.paytmBaseUrl;
     } else if (options.uri.path.contains('metrics-collector')) {
-      options.baseUrl = pointedTo == 'LOCAL'
-          ? EnvironmentConfig.metricsBaseUrl
-          : EnvironmentConfig.metricsBffUrl;
+      options.baseUrl = EnvironmentConfig.metricsBaseUrl;
     } else if (options.uri.path.contains('/health')) {
       /* made duration to 5 sec, in order to reduce time out in login when switching*/
       options.connectTimeout = Duration(seconds: 5);

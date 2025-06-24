@@ -281,6 +281,17 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
           SharedPreferenceConstants.isSalesAssociateLinkEnabled,
           response.outletDetails?.salesAssociateLink);
 
+      final provider = response.terminalDetails?.edcDevices?.isNotEmpty == true
+          ? response.terminalDetails!.edcDevices!.first.provider
+                  ?.toLowerCase() ??
+              ""
+          : "";
+
+      hiveStorageHelper.save(
+        SharedPreferenceConstants.paymentProvider,
+        provider,
+      );
+
       List<Map<String, dynamic>> allowedPaymentModeJson = response
               .outletDetails!.allowedPaymentModes
               ?.map((mode) => mode.toJson())
