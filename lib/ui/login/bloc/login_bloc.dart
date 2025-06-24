@@ -33,6 +33,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
   List<String> availablePorts = [];
   List<Printer> availablePrintersDetails = [];
   List<String> availablePrinters = [];
+  bool isTestModeEnabled = false;
 
   Map<String, Map<String, String>> allowedPosData = {
     'POS': {
@@ -71,8 +72,13 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     on<SelectPosMode>(_selectPosMode);
   }
 
+  Future<void> fetchTestMode() async {
+    isTestModeEnabled = await _sharedPreferenceHelper.isTestModeEnabled();
+  }
+
   Future<void> _onLoginInitial(
       LoginInitialEvent event, Emitter<LoginState> emit) async {
+    await fetchTestMode();
     availablePorts = SerialPort.availablePorts;
     //Printer? selectedPrinter = await Printing.pickPrinter(context: context);
     availablePrintersDetails = await Printing.listPrinters();
@@ -176,9 +182,11 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
               outletId: selectedOutlet,
               terminalId: selectedTerminal,
               posMode: selectedPosMode));
-
+      final trainingModeStatus =
+          await _sharedPreferenceHelper.isTestModeEnabled();
       _sharedPreferenceHelper.clearAll();
       hiveStorageHelper.clear();
+      await _sharedPreferenceHelper.saveTestModeStatus(trainingModeStatus);
       emit(LogoutSuccess());
     } catch (error) {
       emit(LogoutFailure(error.toString()));

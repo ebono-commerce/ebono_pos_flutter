@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:ebono_pos/constants/shared_preference_constants.dart';
 import 'package:ebono_pos/data_store/hive_storage_helper.dart';
+import 'package:ebono_pos/data_store/shared_preference_helper.dart';
+import 'package:ebono_pos/extensions/string_extension.dart';
 import 'package:ebono_pos/ui/common_widgets/show_stopper_widget.dart';
 import 'package:ebono_pos/ui/home/home_controller.dart';
 import 'package:ebono_pos/ui/home/model/phone_number_request.dart';
@@ -34,7 +36,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
   final PaymentRepository _paymentRepository;
   final HiveStorageHelper hiveStorageHelper;
   final HomeController _homeController;
-
+  final SharedPreferenceHelper sharedPreferenceHelper;
   Timer? _timer;
   late PaymentSummaryRequest paymentSummaryRequest;
   late PaymentSummaryResponse paymentSummaryResponse;
@@ -76,8 +78,8 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
   bool isOfflinePaymentVerified = false;
   String paymentProvider = '';
 
-  PaymentBloc(
-      this._paymentRepository, this.hiveStorageHelper, this._homeController)
+  PaymentBloc(this._paymentRepository, this.hiveStorageHelper,
+      this._homeController, this.sharedPreferenceHelper)
       : super(PaymentState()) {
     on<PaymentInitialEvent>(_onInitial);
     on<FetchPaymentSummary>(_fetchPaymentSummary);
@@ -92,7 +94,6 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
     on<WalletIdealEvent>(_onWalletIdeal);
     on<PaymentIdealEvent>(_onIdeal);
     on<CancelSSEEvent>(_onCancelSSEEvent);
-    on<SmsInvoiceEvent>(_smsInvoice);
   }
 
   void _startPeriodicPaymentStatusCheck() {
@@ -191,6 +192,8 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
     emit(state.copyWith(isLoading: true, initialState: false));
 
     try {
+      final isTestMode = await sharedPreferenceHelper.isTestModeEnabled();
+
       var paytmInitiateChecksumRequest = PaytmInitiateChecksumRequest(
           outletId:
               "${hiveStorageHelper.read(SharedPreferenceConstants.selectedOutletId)}",
@@ -198,7 +201,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
               "${hiveStorageHelper.read(SharedPreferenceConstants.selectedTerminalId)}",
           cartId: paymentSummaryResponse.cartId,
           amount: AmountPayable(
-            centAmount: (onlineAmount * 100).toInt(),
+            centAmount: (isTestMode ? 1 : onlineAmount * 100).toInt(),
             currency: paymentSummaryResponse.amountPayable?.currency,
             fraction: 100,
           ));
@@ -261,9 +264,10 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
       PaymentStartEvent event, Emitter<PaymentState> emit) async {
     emit(state.copyWith(
         isLoading: true, initialState: false, isOnlinePaymentSuccess: true));
+    final isTestMode = await sharedPreferenceHelper.isTestModeEnabled();
 
     PaymentRequest paymentRequest = PaymentRequest(
-        amount: onlinePayment,
+        amount: isTestMode ? '1.0' : onlinePayment,
         externalRefNumber:
             paymentSummaryResponse.orderNumber ?? generateRandom8DigitNumber(),
         customerName:
@@ -731,12 +735,14 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
           (option) =>
               option.code == paymentStatusResponse.paymentMode?.toUpperCase(),
         );
+        final amountOnline = double.parse(
+            onlineAmount.toString().limitDecimalDigits(decimalRange: 2));
         paymentMethods?.add(PaymentMethod(
             paymentOptionId: onlinePaymentOption?.paymentOptionId,
             pspId: onlinePaymentOption?.pspId,
             requestId: p2pRequestId,
             transactionReferenceId: paymentStatusResponse.txnId,
-            amount: onlineAmount,
+            amount: amountOnline,
             methodDetail: [
               MethodDetail(
                   key: "METHOD", value: paymentStatusResponse.paymentMode),
@@ -974,29 +980,6 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
         isVerifyOTPLoading: false,
         isResendOTPLoading: false,
       ));
-    }
-  }
-
-  _smsInvoice(SmsInvoiceEvent event, Emitter<PaymentState> emit) async {
-    emit(state.copyWith(isSmsInvoiceLoading: true));
-
-    try {
-      final response = await _paymentRepository
-          .generateSmsInvoice(paymentSummaryResponse.orderNumber ?? '');
-
-      emit(state.copyWith(
-          isSmsInvoiceLoading: false, isSmsInvoiceSuccess: true));
-      event.onSuccess();
-    } catch (error) {
-      emit(state.copyWith(
-        isSmsInvoiceLoading: false,
-        errorMessage: error.toString(),
-        isSmsInvoiceSuccess: false,
-      ));
-      Get.snackbar(
-        'Error',
-        error.toString(),
-      );
     }
   }
 

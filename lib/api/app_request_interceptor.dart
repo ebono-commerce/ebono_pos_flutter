@@ -17,6 +17,13 @@ class AppRequestInterceptor extends Interceptor {
     String? token = await _sharedPreferenceHelper.getAuthToken();
     String? appUUID = await _sharedPreferenceHelper.getAppUUID();
     String pointedTo = await _sharedPreferenceHelper.pointingTo();
+    final isTestModeEnabled =
+        await _sharedPreferenceHelper.isTestModeEnabled() == true;
+
+    // Check if it's a local HTTP request (marked by the CustomConnectionInterceptor)
+    if (isTestModeEnabled) {
+      options.headers['x-operation-mode'] = 'TRAINING';
+    }
 
     if (options.uri.path.contains('/api/3.0/p2p/')) {
       options.baseUrl = EnvironmentConfig.ezetapBaseUrl;

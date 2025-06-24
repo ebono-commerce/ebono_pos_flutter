@@ -98,7 +98,7 @@ class PaymentRepository {
         data: request.toJson(),
       );
       final paytmChecksumResponse =
-      paytmInitiateChecksumResponseFromJson(jsonEncode(response));
+          paytmInitiateChecksumResponseFromJson(jsonEncode(response));
       return paytmChecksumResponse;
     } catch (e) {
       throw Exception(e);
@@ -112,7 +112,8 @@ class PaymentRepository {
         ApiConstants.paytmInitiateApi,
         data: request.toJson(),
       );
-      final paytmPaymentInitiateResponse = paytmPaymentInitiateResponseFromJson(jsonEncode(response));
+      final paytmPaymentInitiateResponse =
+          paytmPaymentInitiateResponseFromJson(jsonEncode(response));
       return paytmPaymentInitiateResponse;
     } catch (e) {
       throw Exception(e);
@@ -127,7 +128,7 @@ class PaymentRepository {
         data: request.toJson(),
       );
       final paytmChecksumResponse =
-      paytmStatusChecksumResponseFromJson(jsonEncode(response));
+          paytmStatusChecksumResponseFromJson(jsonEncode(response));
       return paytmChecksumResponse;
     } catch (e) {
       throw Exception(e);
@@ -142,7 +143,7 @@ class PaymentRepository {
         data: request.toJson(),
       );
       final paytmPaymentStatusResponse =
-      paytmPaymentStatusResponseFromJson(jsonEncode(response));
+          paytmPaymentStatusResponseFromJson(jsonEncode(response));
       return paytmPaymentStatusResponse;
     } catch (e) {
       throw Exception(e);
@@ -157,7 +158,7 @@ class PaymentRepository {
         data: request.toJson(),
       );
       final paytmChecksumResponse =
-      paytmInitiateChecksumResponseFromJson(jsonEncode(response));
+          paytmInitiateChecksumResponseFromJson(jsonEncode(response));
       return paytmChecksumResponse;
     } catch (e) {
       throw Exception(e);
@@ -172,7 +173,7 @@ class PaymentRepository {
         data: request.toJson(),
       );
       final paytmPaymentInitiateResponse =
-      paytmPaymentInitiateResponseFromJson(jsonEncode(response));
+          paytmPaymentInitiateResponseFromJson(jsonEncode(response));
       return paytmPaymentInitiateResponse;
     } catch (e) {
       throw Exception(e);
@@ -236,16 +237,6 @@ class PaymentRepository {
       final paymentSummaryResponse =
           paymentSummaryResponseFromJson(jsonEncode(response));
       return paymentSummaryResponse;
-    } catch (e) {
-      throw ApiException(e.toString());
-    }
-  }
-
-  Future<GeneralSuccessResponse> generateSmsInvoice(String number) async {
-    try {
-      final response = await _apiHelper.post(ApiConstants.generateSmsInvoice,
-          data: {"order_number": number});
-      return GeneralSuccessResponse.fromJson(response);
     } catch (e) {
       throw ApiException(e.toString());
     }
