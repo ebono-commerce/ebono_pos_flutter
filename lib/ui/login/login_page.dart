@@ -16,6 +16,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 
+import '../../cubit/test_mode_cubit.dart';
 import '../common_widgets/version_widget.dart';
 
 class LoginPage extends StatefulWidget {
@@ -268,7 +269,7 @@ class _LoginPageState extends State<LoginPage> {
       color: Colors.white,
       elevation: 10,
       child: Container(
-        padding: EdgeInsets.all(40),
+        padding: EdgeInsets.all(25),
         child: Form(
           key: _formKey,
           child: Column(
@@ -313,7 +314,7 @@ class _LoginPageState extends State<LoginPage> {
               // Sign in button
               SizedBox(
                 width: double.infinity,
-                height: 60,
+                height: 50,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Theme.of(context).colorScheme.secondary,
@@ -349,6 +350,7 @@ class _LoginPageState extends State<LoginPage> {
 
               const UnableToLoginWidget(),
 
+              const SizedBox(height: 10),
               // Unable to log in text
               Center(
                 child: Wrap(
@@ -365,6 +367,39 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ],
                 ),
+              ),
+
+              SizedBox(height: 20),
+              BlocBuilder<TestModeCubit, bool>(
+                builder: (context, isTrainingModeEnabled) {
+                  return SizedBox(
+                    width: double.infinity,
+                    height: 50,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        context.read<TestModeCubit>().toggle();
+                        setState(() {});
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color(0xFFFA0E64),
+                        textStyle:
+                            Theme.of(context).textTheme.titleLarge?.copyWith(
+                                  fontWeight: FontWeight.w500,
+                                ),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 20, vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        elevation: 6,
+                      ),
+                      child: Text(
+                        '${isTrainingModeEnabled ? 'Exit' : 'Enter'} Test Mode',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  );
+                },
               ),
             ],
           ),
@@ -557,7 +592,7 @@ class _LoginPageState extends State<LoginPage> {
                       },
                     ))
                 : SizedBox(),
-            SizedBox(height: 20),
+            SizedBox(height: 30),
 
             // Sign in button
             SizedBox(
@@ -591,7 +626,6 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
             ),
-            SizedBox(height: 10),
           ],
         ),
       ),

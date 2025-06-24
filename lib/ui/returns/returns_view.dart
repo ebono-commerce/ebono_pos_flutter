@@ -1017,6 +1017,9 @@ class _ReturnsViewState extends State<ReturnsView> {
                         );
                         // Clearing Dropdown values on dialog close
                         returnsBloc.add(ResetValuesOnDialogCloseEvent());
+                        if (returnsBloc.state.isOrderReturnedSuccessfully) {
+                          homeController.isReturnViewReset.value = true;
+                        }
                       }
                     : null,
                 style: ElevatedButton.styleFrom(

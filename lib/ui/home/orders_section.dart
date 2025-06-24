@@ -68,6 +68,24 @@ class _OrdersSectionState extends State<OrdersSection>
       }
     });
 
+    ever(homeController.isQuantityExceedShowStopper, (value) {
+      if (value) {
+        if (!numPadFocusNode.hasFocus) {
+          numPadFocusNode.requestFocus();
+        }
+        homeController.isQuantityExceedShowStopper.value = false;
+      }
+    });
+
+    ever(homeController.isInvalidSKUShowStopper, (value) {
+      if (value) {
+        if (!numPadFocusNode.hasFocus) {
+          numPadFocusNode.requestFocus();
+        }
+        homeController.isInvalidSKUShowStopper.value = false;
+      }
+    });
+
     ever(weighingScaleService.weight, (value) {
       homeController.isAutoWeighDetection.value = true;
       if (!numPadFocusNode.hasFocus) {
@@ -92,6 +110,7 @@ class _OrdersSectionState extends State<OrdersSection>
     ever(homeController.isScanApiError, (value) {
       if (value) {
         numPadTextController.text = '';
+        _requestFocusOnNumpad();
         // setState(() {});
       }
     });
@@ -102,6 +121,12 @@ class _OrdersSectionState extends State<OrdersSection>
         homeController.clearWeightOnSuccess.value = false;
       }
     });
+
+    // ever(homeController.triggerVerifyCustomerDialog, (value) {
+    //   if (value == true) {
+    //     triggerCustomerDialog();
+    //   }
+    // });
 
     WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -145,6 +170,24 @@ class _OrdersSectionState extends State<OrdersSection>
     });
 
     super.initState();
+  }
+
+  void triggerCustomerDialog() async {
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          insetPadding: EdgeInsets.symmetric(vertical: 15.0),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20.0),
+          ),
+          child: AddCustomerWidget(context, onClose: _requestFocusOnNumpad),
+        );
+      },
+    );
+
+    homeController.displayOTPScreen.value = false;
+    homeController.triggerVerifyCustomerDialog.value = false;
   }
 
   @override
@@ -198,23 +241,7 @@ class _OrdersSectionState extends State<OrdersSection>
                   absorbing: homeController.registerId.value.isEmpty,
                   child: QuickActionButtons(
                     color: Colors.white,
-                    onCustomerPressed: () async {
-                      await showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return Dialog(
-                            insetPadding: EdgeInsets.symmetric(vertical: 15.0),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20.0),
-                            ),
-                            child: AddCustomerWidget(context,
-                                onClose: _requestFocusOnNumpad),
-                          );
-                        },
-                      );
-
-                      homeController.displayOTPScreen.value = false;
-                    },
+                    onCustomerPressed: triggerCustomerDialog,
                     onHoldCartPressed: () {
                       if (homeController.isContionueWithOutCustomer.value) {
                         showDialog(
@@ -561,6 +588,7 @@ class _OrdersSectionState extends State<OrdersSection>
               var quantity =
                   '${(itemData.item?.isWeighedItem == true) ? (itemData.quantity?.quantityNumber) : (itemData.quantity?.quantityNumber?.toInt())}';
               numPadTextController.text = quantity;
+              numPadFocusNode.requestFocus();
             },
             child: _buildTableCell(itemData.item?.skuCode ?? '',
                 maxLines: 1, width: 100)),
@@ -989,6 +1017,7 @@ class _OrdersSectionState extends State<OrdersSection>
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 8.0),
                           child: commonTextField(
+                            filled: true,
                             label: homeController.isQuantitySelected.value
                                 ? homeController.selectedItemData.value.item
                                             ?.isWeighedItem ==
@@ -1287,6 +1316,7 @@ class _OrdersSectionState extends State<OrdersSection>
                                       true
                               ? null
                               : () async {
+                                  numPadFocusNode.unfocus();
                                   await Logger.logButtonPress(
                                     button: 'Proceed To Pay',
                                   );

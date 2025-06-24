@@ -187,6 +187,7 @@ class EdcDevice {
   String? username;
   String? deviceId;
   String? deviceType;
+  String? provider;
 
   EdcDevice({
     this.pspId,
@@ -194,6 +195,7 @@ class EdcDevice {
     this.username,
     this.deviceId,
     this.deviceType,
+    this.provider,
   });
 
   factory EdcDevice.fromJson(Map<String, dynamic> json) => EdcDevice(
@@ -202,6 +204,7 @@ class EdcDevice {
     username: json["username"],
     deviceId: json["device_id"],
     deviceType: json["device_type"],
+    provider: json["provider"],
   );
 
   Map<String, dynamic> toJson() => {
@@ -210,6 +213,7 @@ class EdcDevice {
     "username": username,
     "device_id": deviceId,
     "device_type": deviceType,
+    "provider": provider,
   };
 }
 

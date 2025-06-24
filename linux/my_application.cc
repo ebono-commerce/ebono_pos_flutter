@@ -14,6 +14,13 @@ struct _MyApplication {
 
 G_DEFINE_TYPE(MyApplication, my_application, GTK_TYPE_APPLICATION)
 
+// Handle focus-in events to ensure full screen state is maintained
+static gboolean on_window_focus_in(GtkWidget* widget, GdkEventFocus* event, gpointer user_data) {
+    // Re-enable fullscreen when focus returns to the application
+    gtk_window_fullscreen(GTK_WINDOW(widget));
+    return FALSE;
+}
+
 // Implements GApplication::activate.
 static void my_application_activate(GApplication* application) {
   MyApplication* self = MY_APPLICATION(application);
@@ -29,7 +36,7 @@ static void my_application_activate(GApplication* application) {
   // if future cases occur).
   gboolean use_header_bar = TRUE;
 #ifdef GDK_WINDOWING_X11
-  GdkScreen* screen = gtk_window_get_screen(window);
+    GdkScreen* screen = gtk_window_get_screen(window);
   if (GDK_IS_X11_SCREEN(screen)) {
     const gchar* wm_name = gdk_x11_screen_get_window_manager_name(screen);
     if (g_strcmp0(wm_name, "GNOME Shell") != 0) {
@@ -49,6 +56,13 @@ static void my_application_activate(GApplication* application) {
 
   gtk_window_set_default_size(window, 1280, 720);
   gtk_window_fullscreen(GTK_WINDOW(window));
+
+  // Connect focus-in event signal to handle regaining focus
+  g_signal_connect(G_OBJECT(window), "focus-in-event", G_CALLBACK(on_window_focus_in), NULL);
+
+  // Set window type hint to stay on top
+  gtk_window_set_keep_above(window, TRUE);
+
   gtk_widget_show(GTK_WIDGET(window));
 
   g_autoptr(FlDartProject) project = fl_dart_project_new();
