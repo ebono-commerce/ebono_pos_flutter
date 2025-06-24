@@ -107,10 +107,11 @@ class _HomeAppBarState extends State<HomeAppBar> {
                                 }
                                 return Tooltip(
                                   message: toolTipMsg,
+                                  triggerMode: TooltipTriggerMode.tap,
                                   child: ClipOval(
                                     child: SizedBox(
-                                      width: 15,
-                                      height: 15,
+                                      width: 20,
+                                      height: 20,
                                       child: ColoredBox(color: indicationColor),
                                     ),
                                   ),
