@@ -135,7 +135,7 @@ class _LoginPageState extends State<LoginPage> {
               }
             } else if (state is LoginSuccess) {
               loginBloc.add(
-                GetOutletDetails(loginBloc.outletList.first),
+                GetOutletDetails(loginBloc.outletList.first, null),
               );
             } else if (state is LoginFailure) {
               Get.snackbar("Login Error ui", state.error);
@@ -432,7 +432,12 @@ class _LoginPageState extends State<LoginPage> {
                 if (value != null) {
                   Future.delayed(Duration(milliseconds: 400), () {
                     loginBloc.add(
-                      GetOutletDetails(value),
+                      GetOutletDetails(value, () {
+                        if (loginBloc.terminalList.isNotEmpty) {
+                          terminalDropDownKey.currentState?.changeSelectedItem(
+                              loginBloc.terminalList.first);
+                        }
+                      }),
                     );
                   });
                 }

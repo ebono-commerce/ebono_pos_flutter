@@ -241,4 +241,14 @@ class PaymentRepository {
       throw ApiException(e.toString());
     }
   }
+
+  Future<GeneralSuccessResponse> generateSmsInvoice(String number) async {
+    try {
+      final response = await _apiHelper.post(ApiConstants.generateSmsInvoice,
+          data: {"order_number": number});
+      return GeneralSuccessResponse.fromJson(response);
+    } catch (e) {
+      throw ApiException(e.toString());
+    }
+  }
 }

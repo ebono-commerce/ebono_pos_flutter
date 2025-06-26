@@ -94,6 +94,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
     on<WalletIdealEvent>(_onWalletIdeal);
     on<PaymentIdealEvent>(_onIdeal);
     on<CancelSSEEvent>(_onCancelSSEEvent);
+    on<SmsInvoiceEvent>(_smsInvoice);
   }
 
   void _startPeriodicPaymentStatusCheck() {
@@ -971,6 +972,29 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
         isVerifyOTPLoading: false,
         isResendOTPLoading: false,
       ));
+    }
+  }
+
+  _smsInvoice(SmsInvoiceEvent event, Emitter<PaymentState> emit) async {
+    emit(state.copyWith(isSmsInvoiceLoading: true));
+
+    try {
+      final response = await _paymentRepository
+          .generateSmsInvoice(paymentSummaryResponse.orderNumber ?? '');
+
+      emit(state.copyWith(
+          isSmsInvoiceLoading: false, isSmsInvoiceSuccess: true));
+      event.onSuccess();
+    } catch (error) {
+      emit(state.copyWith(
+        isSmsInvoiceLoading: false,
+        errorMessage: error.toString(),
+        isSmsInvoiceSuccess: false,
+      ));
+      Get.snackbar(
+        'Error',
+        error.toString(),
+      );
     }
   }
 

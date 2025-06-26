@@ -90,16 +90,33 @@ class _HomeAppBarState extends State<HomeAppBar> {
                           spacing: 10,
                           children: [
                             Obx(
-                              () => ImageIcon(
-                                size: 20,
-                                color: homeController.pointedTo.value == 'CLOUD'
-                                    ? CustomColors.green
-                                    : CustomColors.red,
-                                homeController.isOnline.value == true
-                                    ? AssetImage('assets/images/ic_online.png')
-                                    : AssetImage(
-                                        'assets/images/ic_offline.png'),
-                              ),
+                              () {
+                                Color indicationColor = Colors.green;
+                                String toolTipMsg = '';
+                                if (homeController.pointedTo.value == 'CLOUD') {
+                                  indicationColor = Colors.green;
+                                  toolTipMsg = 'Connected to Cloud';
+                                } else if (homeController.pointedTo.value ==
+                                    'LOCAL') {
+                                  indicationColor = Colors.yellow.shade700;
+                                  toolTipMsg = 'Local Billing Active';
+                                } else {
+                                  indicationColor = Colors.red;
+                                  toolTipMsg =
+                                      'Internet Connection Lost - Retry or Notify Manager';
+                                }
+                                return Tooltip(
+                                  message: toolTipMsg,
+                                  triggerMode: TooltipTriggerMode.tap,
+                                  child: ClipOval(
+                                    child: SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: ColoredBox(color: indicationColor),
+                                    ),
+                                  ),
+                                );
+                              },
                             ),
                             Obx(
                               () => Text(

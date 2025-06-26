@@ -233,6 +233,9 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
             SharedPreferenceConstants.selectedPosMode, allowedPosModes.first);
       }
       emit(GetOutletDetailsSuccess());
+      if (event.onOutletSelected != null) {
+        event.onOutletSelected!();
+      }
     } catch (error) {
       emit(GetOutletDetailsFailure(error.toString()));
     }
@@ -288,6 +291,13 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       hiveStorageHelper.save(
           SharedPreferenceConstants.isSalesAssociateLinkEnabled,
           response.outletDetails?.salesAssociateLink);
+      hiveStorageHelper.save(SharedPreferenceConstants.isDigitalInvoiceEnabled,
+          response.outletDetails?.isDigitalInvoiceEnabled);
+      hiveStorageHelper.save(
+          SharedPreferenceConstants.mandateRegisterCloseOnLogout,
+          response.outletDetails?.mandateRegisterCloseOnLogout);
+      hiveStorageHelper.save(SharedPreferenceConstants.isReturnsEnabled,
+          response.terminalDetails?.returnsEnabledMode);
 
       List<Map<String, dynamic>> allowedPaymentModeJson = response
               .outletDetails!.allowedPaymentModes
