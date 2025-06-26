@@ -5,6 +5,8 @@ import 'package:ebono_pos/data_store/shared_preference_helper.dart';
 import 'package:ebono_pos/navigation/page_routes.dart';
 import 'package:get/get.dart';
 
+import 'api_constants.dart';
+
 class AppRequestInterceptor extends Interceptor {
   final SharedPreferenceHelper _sharedPreferenceHelper;
   final HiveStorageHelper hiveStorageHelper;
