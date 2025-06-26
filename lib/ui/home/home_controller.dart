@@ -744,6 +744,10 @@ class HomeController extends GetxController {
         if (firstCartLine.item?.isWeighedItem == true &&
             quantityNumber != null &&
             firstCartLine.quantity?.quantityUom != 'pcs') {
+          isQuantityEmpty.value = cartLines.any((cart) =>
+              cart.quantity?.quantityNumber == 0 ||
+              cart.quantity?.quantityNumber == 0.0);
+
           isQuantitySelected.value = isBizerbaCode == false;
 
           selectedItemData.value = CartLine(
