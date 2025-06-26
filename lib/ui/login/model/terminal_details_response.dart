@@ -245,8 +245,8 @@ class EdcDevice {
         username: json["username"],
         deviceId: json["device_id"],
         deviceType: json["device_type"],
-      provider: json["provider"],
-  );
+        provider: json["provider"],
+      );
 
   Map<String, dynamic> toJson() => {
         "psp_id": pspId,
@@ -254,8 +254,8 @@ class EdcDevice {
         "username": username,
         "device_id": deviceId,
         "device_type": deviceType,
-      "provider": provider,
-  };
+        "provider": provider,
+      };
 }
 
 class PrinterDevice {
