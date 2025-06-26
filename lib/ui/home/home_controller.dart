@@ -123,6 +123,9 @@ class HomeController extends GetxController {
   var isEnableHoldCartEnabled = ''.obs;
   var isPriceEditEnabled = ''.obs;
   var isSalesAssociateLinkEnabled = ''.obs;
+  var isMandateRegisterCloseOnLogoutEnabled = ''.obs;
+  var isReturnViewEnabled = ''.obs;
+  var isDigitalInvoiceEnabled = false;
   bool isApiCallInProgress = false;
   var selectedItemData = CartLine().obs;
   var lastRoute = PageRoutes.paymentSummary.obs;
@@ -131,6 +134,12 @@ class HomeController extends GetxController {
   var isQuantityEmpty = false.obs;
   var isQuantitySelected = false.obs;
   var overideApproverUserId = ''.obs;
+  var deleteLineApproverUserId = ''.obs;
+  var holdCartApproverUserId = ''.obs;
+  var returnsViewApproverUserId = ''.obs;
+  var qtyEditApproverUserId = ''.obs;
+  var salesAssociateApproverUserId = ''.obs;
+
   var couponDetails = ''.obs;
   var pointedTo = 'LOCAL'.obs;
   var isHealthChkDialogOpen = false.obs;
@@ -203,6 +212,12 @@ class HomeController extends GetxController {
         hiveStorageHelper.read(SharedPreferenceConstants.isPriceEditEnabled);
     isSalesAssociateLinkEnabled.value = hiveStorageHelper
         .read(SharedPreferenceConstants.isSalesAssociateLinkEnabled);
+    isDigitalInvoiceEnabled = hiveStorageHelper
+        .read(SharedPreferenceConstants.isDigitalInvoiceEnabled);
+    isMandateRegisterCloseOnLogoutEnabled.value = hiveStorageHelper
+        .read(SharedPreferenceConstants.mandateRegisterCloseOnLogout);
+    isReturnViewEnabled.value =
+        hiveStorageHelper.read(SharedPreferenceConstants.isReturnsEnabled);
     pointingTo.value = await sharedPreferenceHelper.pointingTo();
 
     final userData =
@@ -991,15 +1006,28 @@ class HomeController extends GetxController {
     }
   }
 
-  Future<void> getAuthorisation(String username, String password) async {
+  Future<bool> getAuthorisation(
+      String username, String password, String authFor) async {
     try {
       var response = await _homeRepository.getAuthorisation(
           LoginRequest(userName: username, password: password));
       if (response.userId != null && response.userId?.isNotEmpty == true) {
-        overideApproverUserId.value = response.userId!;
+        if (authFor == 'PRICE_OVERRIDE') {
+          overideApproverUserId.value = response.userId!;
+        } else if (authFor == 'DELETE') {
+          deleteLineApproverUserId.value = response.userId!;
+        } else if (authFor == 'HOLD_CART') {
+          holdCartApproverUserId.value = response.userId!;
+        } else if (authFor == 'RETURNS') {
+          returnsViewApproverUserId.value = response.userId!;
+        } else if (authFor == 'QTY_EDIT') {
+          qtyEditApproverUserId.value = response.userId!;
+        }
       }
+      return true;
     } catch (e) {
       Get.snackbar('Error while authorizing', '$e');
+      return false;
     }
   }
 

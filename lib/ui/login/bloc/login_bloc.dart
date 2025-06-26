@@ -280,6 +280,13 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       hiveStorageHelper.save(
           SharedPreferenceConstants.isSalesAssociateLinkEnabled,
           response.outletDetails?.salesAssociateLink);
+      hiveStorageHelper.save(SharedPreferenceConstants.isDigitalInvoiceEnabled,
+          response.outletDetails?.isDigitalInvoiceEnabled);
+      hiveStorageHelper.save(
+          SharedPreferenceConstants.mandateRegisterCloseOnLogout,
+          response.outletDetails?.mandateRegisterCloseOnLogout);
+      hiveStorageHelper.save(SharedPreferenceConstants.isReturnsEnabled,
+          response.terminalDetails?.returnsEnabledMode);
 
       List<Map<String, dynamic>> allowedPaymentModeJson = response
               .outletDetails!.allowedPaymentModes

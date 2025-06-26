@@ -228,7 +228,7 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                       padding:
                           EdgeInsets.symmetric(horizontal: 5.0, vertical: 10),
                       child: ElevatedButton(
-                          onPressed: _isStoreOrder()
+                          onPressed: _isDigitalInvoiceDisabled()
                               ? null
                               : (!state.isLoading &&
                                       !state.isSmsInvoiceLoading &&
@@ -285,7 +285,8 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
     );
   }
 
-  _isStoreOrder() {
+  _isDigitalInvoiceDisabled() {
+    if (homeController.isDigitalInvoiceEnabled == false) return true;
     return homeController.customerProxyNumber.value ==
             paymentBloc.paymentSummaryRequest.phoneNumber
         ? true
