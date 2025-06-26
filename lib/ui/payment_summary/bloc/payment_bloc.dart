@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:ebono_pos/constants/shared_preference_constants.dart';
 import 'package:ebono_pos/data_store/hive_storage_helper.dart';
+import 'package:ebono_pos/data_store/shared_preference_helper.dart';
+import 'package:ebono_pos/extensions/string_extension.dart';
 import 'package:ebono_pos/ui/common_widgets/show_stopper_widget.dart';
 import 'package:ebono_pos/ui/home/home_controller.dart';
 import 'package:ebono_pos/ui/home/model/phone_number_request.dart';
@@ -16,6 +18,12 @@ import 'package:ebono_pos/ui/payment_summary/model/payment_status_request.dart';
 import 'package:ebono_pos/ui/payment_summary/model/payment_status_response.dart';
 import 'package:ebono_pos/ui/payment_summary/model/payment_summary_request.dart';
 import 'package:ebono_pos/ui/payment_summary/model/payment_summary_response.dart';
+import 'package:ebono_pos/ui/payment_summary/model/paytm_initiate_checksum_request.dart';
+import 'package:ebono_pos/ui/payment_summary/model/paytm_initiate_checksum_response.dart';
+import 'package:ebono_pos/ui/payment_summary/model/paytm_payment_inititate_response.dart';
+import 'package:ebono_pos/ui/payment_summary/model/paytm_payment_status_response.dart';
+import 'package:ebono_pos/ui/payment_summary/model/paytm_status_checksum_request.dart';
+import 'package:ebono_pos/ui/payment_summary/model/paytm_status_checksum_response.dart';
 import 'package:ebono_pos/ui/payment_summary/model/place_order_request.dart';
 import 'package:ebono_pos/ui/payment_summary/model/wallet_charge_request.dart';
 import 'package:ebono_pos/ui/payment_summary/repository/PaymentRepository.dart';
@@ -28,7 +36,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
   final PaymentRepository _paymentRepository;
   final HiveStorageHelper hiveStorageHelper;
   final HomeController _homeController;
-
+  final SharedPreferenceHelper sharedPreferenceHelper;
   Timer? _timer;
   late PaymentSummaryRequest paymentSummaryRequest;
   late PaymentSummaryResponse paymentSummaryResponse;
@@ -39,6 +47,12 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
 
   late PaymentInitiateResponse paymentInitiateResponse;
   late PaymentStatusResponse paymentStatusResponse;
+
+  late PaytmInitiateChecksumResponse paytmInitiateChecksumResponse;
+  late PaytmPaymentInitiateResponse paytmPaymentInitiateResponse;
+
+  late PaytmStatusChecksumResponse paytmStatusChecksumResponse;
+  late PaytmPaymentStatusResponse paytmPaymentStatusResponse;
 
   String cashPayment = '';
   String onlinePayment = '';
@@ -62,8 +76,10 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
   Timer? _sseFallbackTimer;
   bool isOfflineMode = false;
   bool isOfflinePaymentVerified = false;
-  PaymentBloc(
-      this._paymentRepository, this.hiveStorageHelper, this._homeController)
+  String paymentProvider = '';
+
+  PaymentBloc(this._paymentRepository, this.hiveStorageHelper,
+      this._homeController, this.sharedPreferenceHelper)
       : super(PaymentState()) {
     on<PaymentInitialEvent>(_onInitial);
     on<FetchPaymentSummary>(_fetchPaymentSummary);
@@ -163,27 +179,110 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
 
   Future<void> _paymentInitiateApi(
       PaymentStartEvent event, Emitter<PaymentState> emit) async {
+    paymentProvider = edcDetails.firstOrNull?.provider?.toLowerCase() ?? "";
+
+    if (paymentProvider == "paytm") {
+      await _fetchPaytmInitiateChecksumApi(event, emit);
+    } else {
+      await _paymentInitiateEzyTapApi(event, emit);
+    }
+  }
+
+  Future<void> _fetchPaytmInitiateChecksumApi(
+      PaymentStartEvent event, Emitter<PaymentState> emit) async {
+    emit(state.copyWith(isLoading: true, initialState: false));
+
+    try {
+      final isTestMode = await sharedPreferenceHelper.isTestModeEnabled();
+
+      var paytmInitiateChecksumRequest = PaytmInitiateChecksumRequest(
+          outletId:
+              "${hiveStorageHelper.read(SharedPreferenceConstants.selectedOutletId)}",
+          terminalId:
+              "${hiveStorageHelper.read(SharedPreferenceConstants.selectedTerminalId)}",
+          cartId: paymentSummaryResponse.cartId,
+          amount: AmountPayable(
+            centAmount: (isTestMode ? 1 : onlineAmount * 100).toInt(),
+            currency: paymentSummaryResponse.amountPayable?.currency,
+            fraction: 100,
+          ));
+
+      paytmInitiateChecksumResponse = await _paymentRepository
+          .fetchPaytmInitiateChecksumApi(paytmInitiateChecksumRequest);
+
+      emit(state.copyWith(isFetchPaytmInitiateChecksumSuccess: true));
+
+      await _paymentInitiatePaytmApi(event, emit);
+    } catch (error) {
+      emit(state.copyWith(isLoading: false, errorMessage: error.toString()));
+      Get.snackbar('Error', error.toString());
+    }
+  }
+
+  Future<void> _paymentInitiatePaytmApi(
+      PaymentStartEvent event, Emitter<PaymentState> emit) async {
+    PaytmInitiatePayload payload = PaytmInitiatePayload(
+      head: paytmInitiateChecksumResponse.payload?.head,
+      body: paytmInitiateChecksumResponse.payload?.body,
+    );
+
+    print(
+        'Payment Request: ${payload.head?.toJson()}, ${payload.body?.toJson()}');
+
+    try {
+      paytmPaymentInitiateResponse =
+          await _paymentRepository.paytmPaymentInitiateApi(payload);
+
+      if (paytmPaymentInitiateResponse.body?.resultInfo?.resultStatus ==
+          "ACCEPTED_SUCCESS") {
+        emit(state.copyWith(
+          isLoading: false,
+          showPaymentPopup: true,
+          isPaymentStartSuccess: true,
+          isOnlinePaymentSuccess: true,
+        ));
+        _startPeriodicPaymentStatusCheck();
+      } else {
+        Get.snackbar('Error',
+            '${paytmPaymentInitiateResponse.body?.resultInfo?.resultMsg}');
+        emit(state.copyWith(
+          isLoading: false,
+          showPaymentPopup: false,
+          isPaymentStartSuccess: false,
+          isOnlinePaymentSuccess: false,
+        ));
+      }
+    } catch (error) {
+      emit(state.copyWith(
+          isLoading: false,
+          isPaymentSummaryError: true,
+          isOnlinePaymentSuccess: false,
+          errorMessage: error.toString()));
+    }
+  }
+
+  Future<void> _paymentInitiateEzyTapApi(
+      PaymentStartEvent event, Emitter<PaymentState> emit) async {
     emit(state.copyWith(
         isLoading: true, initialState: false, isOnlinePaymentSuccess: true));
+    final isTestMode = await sharedPreferenceHelper.isTestModeEnabled();
 
-    final reqBody = {
-      "amount": onlinePayment,
-      "externalRefNumber":
-          paymentSummaryResponse.orderNumber ?? generateRandom8DigitNumber(),
-      "customerName":
-          "${hiveStorageHelper.read(SharedPreferenceConstants.sessionCustomerName)}",
-      "customerEmail": "",
-      "customerMobileNumber":
-          "${hiveStorageHelper.read(SharedPreferenceConstants.sessionCustomerNumber)}",
-      "is_emi": false,
-      //"terminal_id": "10120",demo account
-      "terminal_id":
-          "${hiveStorageHelper.read(SharedPreferenceConstants.selectedTerminalId)}",
-      "username": edcDetails.firstOrNull?.username,
-      "appKey": edcDetails.firstOrNull?.appKey,
-      "pushTo": {"deviceId": edcDetails.firstOrNull?.deviceId}
-    };
-    var paymentRequest = PaymentRequest.fromJson(reqBody);
+    PaymentRequest paymentRequest = PaymentRequest(
+        amount: isTestMode ? '1.0' : onlinePayment,
+        externalRefNumber:
+            paymentSummaryResponse.orderNumber ?? generateRandom8DigitNumber(),
+        customerName:
+            "${hiveStorageHelper.read(SharedPreferenceConstants.sessionCustomerName)}",
+        customerEmail: "",
+        customerMobileNumber:
+            "${hiveStorageHelper.read(SharedPreferenceConstants.sessionCustomerNumber)}",
+        isEmi: false,
+        terminalId:
+            "${hiveStorageHelper.read(SharedPreferenceConstants.selectedTerminalId)}",
+        username: edcDetails.firstOrNull?.username,
+        appKey: edcDetails.firstOrNull?.appKey,
+        pushTo: PushTo(deviceId: edcDetails.firstOrNull?.deviceId));
+
     print(
         'Payment Request: ${paymentRequest.amount}, ${paymentRequest.customerName}, ${paymentRequest.customerMobileNumber}');
 
@@ -226,13 +325,116 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
 
   Future<void> _paymentStatusApi(
       PaymentStatusEvent event, Emitter<PaymentState> emit) async {
+    if (paymentProvider == "paytm") {
+      await _fetchPaytmStatusChecksumApi(event, emit);
+    } else {
+      await _paymentStatusEzyTapApi(event, emit);
+    }
+  }
+
+  Future<void> _fetchPaytmStatusChecksumApi(
+      PaymentStatusEvent event, Emitter<PaymentState> emit) async {
+    emit(state.copyWith(isLoading: true, initialState: false));
+
+    try {
+      var paytmStatusChecksumRequest = PaytmStatusChecksumRequest(
+          outletId:
+              "${hiveStorageHelper.read(SharedPreferenceConstants.selectedOutletId)}",
+          terminalId:
+              "${hiveStorageHelper.read(SharedPreferenceConstants.selectedTerminalId)}",
+          requestId: paytmInitiateChecksumResponse
+              .payload?.body?.merchantTransactionId,
+          cartId: paymentSummaryResponse.cartId);
+
+      paytmStatusChecksumResponse = await _paymentRepository
+          .fetchPaytmStatusChecksumApi(paytmStatusChecksumRequest);
+
+      emit(state.copyWith(isFetchPaytmStatusChecksumSuccess: true));
+
+      await _paymentStatusPaytmApi(event, emit);
+    } catch (error) {
+      emit(state.copyWith(isLoading: false, errorMessage: error.toString()));
+      Get.snackbar('Error', error.toString());
+    }
+  }
+
+  Future<void> _paymentStatusPaytmApi(
+      PaymentStatusEvent event, Emitter<PaymentState> emit) async {
     emit(state.copyWith(isLoading: false, initialState: false));
-    final reqBody = {
-      "username": edcDetails.firstOrNull?.username,
-      "appKey": edcDetails.firstOrNull?.appKey,
-      "origP2pRequestId": p2pRequestId
-    };
-    var paymentStatusRequest = PaymentStatusRequest.fromJson(reqBody);
+
+    var paytmStatusPayload = PaytmStatusPayload(
+        head: paytmStatusChecksumResponse.payload?.head,
+        body: paytmStatusChecksumResponse.payload?.body);
+
+    print(
+        'Payment status Request: ${paytmStatusPayload.head?.toJson()}, ${paytmStatusPayload.body?.toJson()}');
+
+    try {
+      if (event.isFromDialogue) {
+        emit(state.copyWith(isLoading: true));
+        // closeSnackBar();
+      }
+      paytmPaymentStatusResponse =
+          await _paymentRepository.paytmPaymentStatusApi(paytmStatusPayload);
+      if (event.isFromDialogue) emit(state.copyWith(isLoading: false));
+
+      switch (paytmPaymentStatusResponse.body?.resultInfo?.resultStatus) {
+        case "PENDING":
+        case "NO_RECORD_FOUND":
+          break;
+        case "SUCCESS":
+        case "TXN_SUCCESS":
+          emit(state.copyWith(
+            stopTimer: true,
+            showPaymentPopup: false,
+            isOnlinePaymentSuccess: true,
+            isPaymentStatusSuccess: true,
+          ));
+          Get.until((route) => route.settings.name != '/paymentStatusDialogue');
+          Get.snackbar('Payment status ${paymentStatusResponse.status}',
+              '${paymentStatusResponse.message}');
+          break;
+        case "FAIL":
+        case "TXN_FAILURE":
+          p2pRequestId = '';
+          emit(state.copyWith(
+              stopTimer: true,
+              showPaymentPopup: false,
+              isOnlinePaymentSuccess: false,
+              isPaymentCancelSuccess: true));
+          Get.until((route) => route.settings.name != '/paymentStatusDialogue');
+          Get.snackbar('Payment status', '${paymentStatusResponse.message}');
+          break;
+        default:
+          Get.until((route) => route.settings.name != '/paymentStatusDialogue');
+          emit(state.copyWith(
+              stopTimer: true,
+              showPaymentPopup: false,
+              isOnlinePaymentSuccess: false));
+          break;
+      }
+    } catch (error) {
+      emit(state.copyWith(
+        isLoading: false,
+        isPaymentSummaryError: true,
+        showPaymentPopup: false,
+        errorMessage: error.toString(),
+        stopTimer: true,
+        isOnlinePaymentSuccess: false,
+      ));
+      _timer?.cancel();
+    }
+  }
+
+  Future<void> _paymentStatusEzyTapApi(
+      PaymentStatusEvent event, Emitter<PaymentState> emit) async {
+    emit(state.copyWith(isLoading: false, initialState: false));
+
+    var paymentStatusRequest = PaymentStatusRequest(
+        username: edcDetails.firstOrNull?.username,
+        appKey: edcDetails.firstOrNull?.appKey,
+        origP2PRequestId: p2pRequestId);
+
     print('Payment Status Request: ${paymentStatusRequest.origP2PRequestId}');
 
     try {
@@ -338,6 +540,80 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
 
   Future<void> _paymentCancelApi(
       PaymentCancelEvent event, Emitter<PaymentState> emit) async {
+    if (paymentProvider == "paytm") {
+      await _fetchPaytmCancelChecksumApi(event, emit);
+    } else {
+      await _paymentCancelEzyTapApi(event, emit);
+    }
+  }
+
+  Future<void> _fetchPaytmCancelChecksumApi(
+      PaymentCancelEvent event, Emitter<PaymentState> emit) async {
+    emit(state.copyWith(isLoading: true, initialState: false));
+
+    try {
+      var paytmCancelChecksumRequest = PaytmStatusChecksumRequest(
+        outletId:
+            "${hiveStorageHelper.read(SharedPreferenceConstants.selectedOutletId)}",
+        terminalId:
+            "${hiveStorageHelper.read(SharedPreferenceConstants.selectedTerminalId)}",
+        cartId: paymentSummaryResponse.cartId,
+        requestId:
+            paytmInitiateChecksumResponse.payload?.body?.merchantTransactionId,
+      );
+
+      paytmInitiateChecksumResponse = await _paymentRepository
+          .fetchPaytmCancelChecksumApi(paytmCancelChecksumRequest);
+
+      emit(state.copyWith(isFetchPaytmCancelChecksumSuccess: true));
+
+      await _paymentCancelPaytmApi(event, emit);
+    } catch (error) {
+      emit(state.copyWith(isLoading: false, errorMessage: error.toString()));
+      Get.snackbar('Error', error.toString());
+    }
+  }
+
+  Future<void> _paymentCancelPaytmApi(
+      PaymentCancelEvent event, Emitter<PaymentState> emit) async {
+    emit(state.copyWith(isLoading: true, initialState: false));
+    var paytmCancelPayload = PaytmStatusPayload(
+        head: paytmStatusChecksumResponse.payload?.head,
+        body: paytmStatusChecksumResponse.payload?.body);
+
+    print(
+        'Payment status Request: ${paytmCancelPayload.head?.toJson()}, ${paytmCancelPayload.body?.toJson()}');
+
+    try {
+      paytmPaymentInitiateResponse =
+          await _paymentRepository.paytmPaymentCancelApi(paytmCancelPayload);
+      if (paytmPaymentInitiateResponse.body?.resultInfo?.resultStatus ==
+          "SUCCESS") {
+        emit(state.copyWith(
+            isLoading: false,
+            stopTimer: true,
+            isPaymentCancelSuccess: true,
+            isOnlinePaymentSuccess: false,
+            showPaymentPopup: false));
+        Get.until((route) => route.settings.name != '/paymentStatusDialogue');
+      } else {
+        emit(state.copyWith(
+          isLoading: false,
+          isOnlinePaymentSuccess: false,
+        ));
+        Get.snackbar('Error', '${paymentInitiateResponse.message}');
+      }
+    } catch (error) {
+      emit(state.copyWith(
+          isLoading: false,
+          isPaymentSummaryError: true,
+          isOnlinePaymentSuccess: false,
+          errorMessage: error.toString()));
+    }
+  }
+
+  Future<void> _paymentCancelEzyTapApi(
+      PaymentCancelEvent event, Emitter<PaymentState> emit) async {
     emit(state.copyWith(isLoading: true, initialState: false));
     final reqBody = {
       "username": edcDetails.firstOrNull?.username,
@@ -356,6 +632,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
       if (paymentStatusResponse.success == true) {
         emit(state.copyWith(
             isLoading: false,
+            stopTimer: true,
             isPaymentCancelSuccess: paymentStatusResponse.success,
             isOnlinePaymentSuccess: false,
             showPaymentPopup: false));
@@ -459,12 +736,14 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
           (option) =>
               option.code == paymentStatusResponse.paymentMode?.toUpperCase(),
         );
+        final amountOnline = double.parse(
+            onlineAmount.toString().limitDecimalDigits(decimalRange: 2));
         paymentMethods?.add(PaymentMethod(
             paymentOptionId: onlinePaymentOption?.paymentOptionId,
             pspId: onlinePaymentOption?.pspId,
             requestId: p2pRequestId,
             transactionReferenceId: paymentStatusResponse.txnId,
-            amount: onlineAmount,
+            amount: amountOnline,
             methodDetail: [
               MethodDetail(
                   key: "METHOD", value: paymentStatusResponse.paymentMode),
@@ -740,7 +1019,6 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
   @override
   Future<void> close() {
     _timer?.cancel();
-    print('STEP:Timer closed');
     return super.close();
   }
 }

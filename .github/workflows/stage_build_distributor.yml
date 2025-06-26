@@ -1,13 +1,7 @@
 name: Stage Distributor Build
 
 on:
-  # Allow manual trigger
   workflow_dispatch:
-
-  # Allow auto-trigger on push to the 'deployment' branch
-  #push:
-  #branches:
-  #- Deployment
 
 jobs:
   build:
@@ -28,14 +22,16 @@ jobs:
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: "3.27.1"
+          flutter-version: "3.32.0"
 
-      # Get version
-      - name: Get version from pubspec.yaml
-        id: version
+      # Get version and commit ID
+      - name: Get version and commit ID
+        id: vars
         run: |
-          VERSION=$(grep '^version: ' pubspec.yaml | sed 's/version: //')
+          VERSION=$(grep '^version: ' pubspec.yaml | sed 's/version: //' | tr -d ' ')
+          COMMIT_ID=$(git rev-parse --short HEAD)
           echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "commit_id=$COMMIT_ID" >> $GITHUB_OUTPUT
 
       # Install Flutter dependencies
       - name: Install Flutter dependencies
@@ -47,12 +43,90 @@ jobs:
 
       # Generate the build using Flutter Distributor
       - name: Build Stage Release
-        run: |
-          flutter_distributor release --name=stage --jobs=release-stage-linux-deb
+        run: flutter_distributor release --name=stage --jobs=release-stage-linux-deb
 
-      # Optional: Upload artifacts (deb file)
-      - name: Upload build artifact
+      # Authenticate to GCP
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: '${{ secrets.GOOGLE_PRIVATE_KEY_STG }}'
+
+      # Install Google Cloud CLI (fixed package name)
+      - name: Install Google Cloud CLI
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y google-cloud-cli
+
+      # Rename .deb file with uniqueness check
+      - name: Rename .deb file with uniqueness check
+        id: rename_deb
+        run: |
+          ORIGINAL_DEB=$(find dist/ -name '*.deb' | head -n 1)
+          VERSION=${{ steps.vars.outputs.version }}
+          COMMIT_ID=${{ steps.vars.outputs.commit_id }}
+          BASE_NAME="ebono_pos_stage"
+          BUCKET="ebono-release-bucket-staging"
+          
+          # Create renamed directory
+          mkdir -p renamed
+          
+          # Start with suffix 0 (no suffix)
+          suffix=0
+          
+          while true; do
+            if [ $suffix -eq 0 ]; then
+              # First attempt: no suffix (original version)
+              FILE_NAME="${BASE_NAME}-${VERSION}-${COMMIT_ID}.deb"
+            else
+              # Subsequent attempts: add suffix to version
+              FILE_NAME="${BASE_NAME}-${VERSION}.${suffix}-${COMMIT_ID}.deb"
+            fi
+          
+            FILE_PATH="renamed/${FILE_NAME}"
+          
+            echo "Checking if file exists: gs://${BUCKET}/${FILE_NAME}"
+          
+            # Check if file exists in GCS bucket
+            if gsutil -q stat "gs://${BUCKET}/${FILE_NAME}" 2>/dev/null; then
+              echo "File ${FILE_NAME} exists in bucket, incrementing suffix..."
+              suffix=$((suffix + 1))
+            else
+              echo "File ${FILE_NAME} does not exist, using this name"
+              break
+            fi
+          
+            # Safety check to prevent infinite loop
+            if [ $suffix -gt 100 ]; then
+              echo "Error: Too many versions exist (suffix > 100)"
+              exit 1
+            fi
+          done
+          
+          # Copy the original deb file with the new name
+          cp "$ORIGINAL_DEB" "$FILE_PATH"
+          echo "Created file: $FILE_PATH"
+          
+          # Output the final filename for subsequent steps
+          echo "final_filename=$FILE_NAME" >> $GITHUB_OUTPUT
+          echo "final_filepath=$FILE_PATH" >> $GITHUB_OUTPUT
+
+      # Upload .deb to GCS
+      - name: Upload .deb to GCS
+        uses: google-github-actions/upload-cloud-storage@v2
+        with:
+          path: ${{ steps.rename_deb.outputs.final_filepath }}
+          destination: 'ebono-release-bucket-staging'
+          process_gcloudignore: false
+
+      # Print final file information
+      - name: Print upload information
+        run: |
+          echo "Successfully uploaded: ${{ steps.rename_deb.outputs.final_filename }}"
+          echo "File location: gs://ebono-release-bucket-staging/${{ steps.rename_deb.outputs.final_filename }}"
+
+      # Optional: Upload to GitHub as an artifact
+      - name: Upload build artifact to GitHub
         uses: actions/upload-artifact@v4
         with:
-          name: stage-release-${{ steps.version.outputs.version }}
-          path: dist/
+          name: stage-release-${{ steps.vars.outputs.version }}
+          path: renamed/

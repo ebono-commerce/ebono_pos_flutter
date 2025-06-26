@@ -1,5 +1,7 @@
 import 'package:ebono_pos/constants/custom_colors.dart';
 import 'package:ebono_pos/data_store/hive_storage_helper.dart';
+import 'package:ebono_pos/data_store/shared_preference_helper.dart';
+import 'package:ebono_pos/extensions/string_extension.dart';
 import 'package:ebono_pos/navigation/page_routes.dart';
 import 'package:ebono_pos/ui/Common_button.dart';
 import 'package:ebono_pos/ui/common_text_field.dart';
@@ -16,7 +18,6 @@ import 'package:ebono_pos/ui/payment_summary/repository/PaymentRepository.dart';
 import 'package:ebono_pos/ui/payment_summary/route/order_success_screen.dart';
 import 'package:ebono_pos/ui/payment_summary/route/validate_otp_widget.dart';
 import 'package:ebono_pos/utils/dash_line.dart';
-import 'package:ebono_pos/utils/debouncer.dart';
 import 'package:ebono_pos/utils/logger.dart';
 import 'package:ebono_pos/utils/price.dart';
 import 'package:flutter/material.dart';
@@ -33,11 +34,8 @@ class PaymentSummaryScreen extends StatefulWidget {
 
 class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
   final paymentBloc = Get.put(
-    PaymentBloc(
-      Get.find<PaymentRepository>(),
-      Get.find<HiveStorageHelper>(),
-      Get.find<HomeController>(),
-    ),
+    PaymentBloc(Get.find<PaymentRepository>(), Get.find<HiveStorageHelper>(),
+        Get.find<HomeController>(), Get.find<SharedPreferenceHelper>()),
   );
 
   late ThemeData theme;
@@ -112,7 +110,9 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
         } else {
           if (activeFocusNode == cashPaymentFocusNode) {
             _formKey.currentState?.validate();
-            cashPaymentTextController.text = numPadTextController.text;
+            String enterValue = numPadTextController.text;
+            cashPaymentTextController.text =
+                enterValue.limitDecimalDigits(decimalRange: 2);
             paymentBloc.isOfflinePaymentVerified = false;
           } else if (activeFocusNode == onlinePaymentFocusNode) {
             _formKey.currentState?.validate();
@@ -865,7 +865,9 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                                             (paymentBloc.totalPayable -
                                                     (paymentBloc.cashAmount))
                                                 .abs()
-                                                .toString();
+                                                .toString()
+                                                .limitDecimalDigits(
+                                                    decimalRange: 2);
                                         paymentBloc.onlinePayment = balance;
                                         onlinePaymentTextController.text =
                                             balance;
@@ -1225,13 +1227,13 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                       theme: theme,
                       textStyle: theme.textTheme.bodyMedium,
                       padding: EdgeInsets.all(12)),
-                  onPressed:
-                      (paymentBloc.allowPlaceOrder && state.isPlaceOrderLoading == false)
-                          ? () {
-                                Logger.logButtonPress(button: 'Place Order');
-                                paymentBloc.add(PlaceOrderEvent());
-                            }
-                          : null,
+                  onPressed: (paymentBloc.allowPlaceOrder &&
+                          state.isPlaceOrderLoading == false)
+                      ? () {
+                          Logger.logButtonPress(button: 'Place Order');
+                          paymentBloc.add(PlaceOrderEvent());
+                        }
+                      : null,
                   child: state.isPlaceOrderLoading
                       ? CircularProgressIndicator()
                       : Text(
