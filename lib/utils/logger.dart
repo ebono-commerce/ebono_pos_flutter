@@ -1,37 +1,43 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:ebono_pos/data_store/hive_storage_helper.dart';
 import 'package:ebono_pos/data_store/shared_preference_helper.dart';
-import 'package:ebono_pos/ui/home/home_controller.dart';
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
+
+import '../constants/shared_preference_constants.dart';
+
+Future<void> _writeLogEntry(Map<String, dynamic> params) async {
+  final String filePath = params['filePath'] as String;
+  final Map<String, dynamic> logEntry =
+      params['logEntry'] as Map<String, dynamic>;
+
+  final file = File(filePath);
+  final jsonContent = jsonEncode(logEntry);
+
+  await file.writeAsString('$jsonContent\n,', mode: FileMode.append);
+}
 
 class Logger {
   static File? _logFile;
-  static HomeController? _homeController;
-  static SharedPreferenceHelper? _sharedPrefsHelper;
+  static HiveStorageHelper hiveStorageHelper = Get.find<HiveStorageHelper>();
+  static SharedPreferenceHelper sharedPrefsHelper =
+      Get.find<SharedPreferenceHelper>();
   static bool isLoggerEnabled = true;
-
-  static void _initControllers() {
-    _homeController ??= Get.find<HomeController>();
-    _sharedPrefsHelper ??= Get.find<SharedPreferenceHelper>();
-  }
 
   /// Initialize the log file with a custom path
   static Future<void> init() async {
     if (!isLoggerEnabled) return;
 
-    // logs/ in home directory
     String logDirPath = '${Platform.environment['HOME']}/logs';
 
-    // Ensure the logs directory exists
     final logDir = Directory(logDirPath);
 
     if (!await logDir.exists()) {
       await logDir.create(recursive: true);
     }
 
-    // Define the log file path
-    // Create log file if it doesn't exist
     _logFile = File('$logDirPath/ebono_pos_logs.txt');
     print('PATH=>${_logFile?.path}');
     if (!await _logFile!.exists()) {
@@ -39,11 +45,54 @@ class Logger {
     }
   }
 
-  /// Helper function to save the log data back to the file
+  /// Common method to fetch shared contextual data for logs
+  static Future<Map<String, dynamic>> _getCommonLogData() async {
+    final appId = await sharedPrefsHelper.getAppUUID();
+
+    final userData =
+        hiveStorageHelper.read(SharedPreferenceConstants.userDetails);
+
+    String cashier = '';
+    if (userData != null && userData is Map) {
+      final userDetailsData = userData.map(
+        (key, value) => MapEntry(key.toString(), value),
+      );
+
+      cashier = userDetailsData['full_name'] ?? '';
+    }
+
+    final storeId =
+        hiveStorageHelper.read(SharedPreferenceConstants.selectedTerminalId) ??
+            '';
+    final storeName =
+        hiveStorageHelper.read(SharedPreferenceConstants.selectedOutletId) ??
+            '';
+    final cartId =
+        hiveStorageHelper.read(SharedPreferenceConstants.cartId) ?? '';
+
+    return {
+      "app_id": appId,
+      "cashier": cashier,
+      "store_id": storeId,
+      "store_name": storeName,
+      // "order_number": orderNumber,
+      "cart_id": cartId,
+      // "customer_number": customerNumber,
+    };
+  }
+
   static Future<void> _saveLogEntry(Map<String, dynamic> logEntry) async {
+    if (_logFile == null) {
+      await init();
+    }
+
+    if (_logFile == null) return;
+
     try {
-      String jsonContent = jsonEncode(logEntry);
-      await _logFile!.writeAsString('$jsonContent\n,', mode: FileMode.append);
+      await compute(_writeLogEntry, {
+        'filePath': _logFile!.path,
+        'logEntry': logEntry,
+      });
     } catch (e) {
       Get.snackbar('Unable To Write Log', 'Not able to log to a file');
     }
@@ -53,71 +102,36 @@ class Logger {
     String? button,
   }) async {
     if (!isLoggerEnabled) return;
+    if (_logFile == null) await init();
 
-    if (_logFile == null) await init(); // Ensure file is initialized
+    final commonData = await _getCommonLogData();
 
-    _initControllers();
-
-    final logEntry = <String, dynamic>{
+    final logEntry = {
       "time_stamp": DateTime.now().toIso8601String(),
-      "app_id": '',
-      "order_number": '',
-      "customer_number": '',
-      "cart_id": '',
-      "event_type": '',
-      "cashier": "",
-      "store_id": '',
-      "store_name": "",
-      "button": ""
+      "event_type": "BUTTON",
+      ...commonData,
+      if (button != null) "button": button,
     };
 
-    logEntry['event_type'] = "BUTTON";
-    logEntry['app_id'] = await _sharedPrefsHelper?.getAppUUID();
-    logEntry['cashier'] = _homeController?.userDetails.value.fullName;
-    logEntry['store_id'] = _homeController?.selectedTerminalId;
-    logEntry['store_name'] = _homeController?.selectedOutletId;
-    logEntry['order_number'] = _homeController?.orderNumber.value;
-    logEntry['cart_id'] = _homeController?.cartId.value;
-    logEntry['customer_number'] =
-        _homeController?.customerResponse.value.phoneNumber?.number.toString();
-
-    if (button != null) logEntry['button'] = button;
-
-    await _saveLogEntry(logEntry); // Directly append the log entry to the file
+    await _saveLogEntry(logEntry);
   }
 
   static Future<void> logView({
     String? view,
   }) async {
     if (!isLoggerEnabled) return;
+    if (_logFile == null) await init();
 
-    if (_logFile == null) await init(); // Ensure file is initialized
+    final commonData = await _getCommonLogData();
 
-    final logEntry = <String, dynamic>{
+    final logEntry = {
       "time_stamp": DateTime.now().toIso8601String(),
-      "app_id": '',
-      "order_number": '',
-      "customer_number": '',
-      "cart_id": '',
-      "event_type": 'VIEW',
-      "cashier": "",
-      "store_id": '',
-      "store_name": "",
-      "view": ""
+      "event_type": "VIEW",
+      ...commonData,
+      if (view != null) "view": view,
     };
 
-    logEntry['app_id'] = await _sharedPrefsHelper?.getAppUUID();
-    logEntry['cashier'] = _homeController?.userDetails.value.fullName;
-    logEntry['store_id'] = _homeController?.selectedTerminalId;
-    logEntry['store_name'] = _homeController?.selectedOutletId;
-    logEntry['order_number'] = _homeController?.orderNumber.value;
-    logEntry['cart_id'] = _homeController?.cartId.value;
-    logEntry['customer_number'] =
-        _homeController?.customerResponse.value.phoneNumber?.number.toString();
-
-    if (view != null) logEntry['view'] = view;
-
-    await _saveLogEntry(logEntry); // Directly append the log entry to the file
+    await _saveLogEntry(logEntry);
   }
 
   static Future<void> logApi({
@@ -127,43 +141,24 @@ class Logger {
     Map<String, dynamic>? error,
   }) async {
     if (!isLoggerEnabled) return;
+    if (_logFile == null) await init();
 
-    if (_logFile == null) await init(); // Ensure file is initialized
+    final commonData = await _getCommonLogData();
 
-    final logEntry = <String, dynamic>{
+    final logEntry = {
       "time_stamp": DateTime.now().toIso8601String(),
-      "app_id": '',
-      "order_number": '',
-      "customer_number": '',
-      "cart_id": '',
-      "event_type": 'API',
-      "cashier": "",
-      "store_id": '',
-      "store_name": "",
-      "url": "",
-      "request": "{}",
-      "response": "{}",
-      "error": "{}",
+      "event_type": "API",
+      ...commonData,
+      "url": url ?? '',
+      "request": request ?? {},
+      "response": response ?? {},
+      "error": error ?? {},
     };
 
-    logEntry['app_id'] = await _sharedPrefsHelper?.getAppUUID();
-    logEntry['cashier'] = _homeController?.userDetails.value.fullName;
-    logEntry['store_id'] = _homeController?.selectedTerminalId;
-    logEntry['store_name'] = _homeController?.selectedOutletId;
-    logEntry['order_number'] = _homeController?.orderNumber.value;
-    logEntry['cart_id'] = _homeController?.cartId.value;
-    logEntry['customer_number'] =
-        _homeController?.customerResponse.value.phoneNumber?.number.toString();
-
-    if (url != null) logEntry['url'] = url;
-    if (request != null) logEntry['request'] = request;
-    if (response != null) logEntry['response'] = response;
-    if (error != null) logEntry['error'] = error;
-
-    await _saveLogEntry(logEntry); // Directly append the log entry to the file
+    await _saveLogEntry(logEntry);
   }
 
-  // New simplified methods without HomeController dependency
+  // Simplified methods without common data (if you want)
   static Future<void> logButtonSimple({
     required String button,
     String? description,
@@ -212,6 +207,24 @@ class Logger {
       "request": request ?? {},
       "response": response ?? {},
       "error": error ?? {},
+    };
+
+    await _saveLogEntry(logEntry);
+  }
+
+  static Future<void> logException({
+    String eventType = 'EXCEPTION',
+    required String error,
+    required String stackTrace,
+  }) async {
+    if (!isLoggerEnabled) return;
+    if (_logFile == null) await init();
+
+    final logEntry = {
+      "time_stamp": DateTime.now().toIso8601String(),
+      "event_type": eventType,
+      "error": error,
+      "stack_trace": stackTrace,
     };
 
     await _saveLogEntry(logEntry);

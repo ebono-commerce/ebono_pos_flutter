@@ -13,7 +13,7 @@ class WeighingScaleService extends GetxService {
 
   @override
   Future<void> onInit() async {
-   await initWeighingScale();
+    await initWeighingScale();
     super.onInit();
   }
 
@@ -45,6 +45,20 @@ class WeighingScaleService extends GetxService {
     }
   }
 
+  Future<bool> isScaleConnected() async {
+    try {
+      final portName = await sharedPreferenceHelper.getPortName() ?? '';
+      if (Platform.isLinux && portName.isNotEmpty) {
+        final port = File(portName);
+        if (await port.exists()) {
+          return true;
+        }
+      }
+    } catch (e) {
+      print("Error checking scale connection: $e");
+    }
+    return false;
+  }
 
   @override
   void onClose() {

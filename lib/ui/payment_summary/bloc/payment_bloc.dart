@@ -522,6 +522,15 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
             .read(SharedPreferenceConstants.registerTransactionId),
       ));
 
+      /* clear data if existing */
+      hiveStorageHelper.remove(SharedPreferenceConstants.lastOrderAt);
+
+      /* store it for fresh */
+      hiveStorageHelper.save(
+        SharedPreferenceConstants.lastOrderAt,
+        orderSummaryResponse.orderDate.toString(),
+      );
+
       emit(state.copyWith(
           isLoading: false,
           isPlaceOrderLoading: false,

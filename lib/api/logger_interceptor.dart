@@ -31,7 +31,7 @@ class CustomLogInterceptor extends Interceptor {
     Map<String, dynamic> responseData = {
       'statusCode': response.statusCode,
       'data': response.data,
-      // 'headers': await _headersToMap(response.headers),
+      'headers': await _headersToMap(response.headers),
       // 'requestUri': response.requestOptions.uri.toString(),
       // 'responseType': response.requestOptions.responseType.toString(),
     };
@@ -110,16 +110,16 @@ class CustomLogInterceptor extends Interceptor {
   }
 
   /// Helper function to convert Dio's Headers to a Map<String, String>
-// Future<Map<String, dynamic>> _headersToMap(Headers headers) async {
-//   try {
-//     final Map<String, dynamic> headersMap = {};
-//     headers.forEach((key, value) {
-//       headersMap[key] =
-//           value.join(", "); // Join multiple values in the list with commas
-//     });
-//     return headersMap;
-//   } catch (e, stack) {
-//     return {};
-//   }
-// }
+  Future<Map<String, dynamic>> _headersToMap(Headers headers) async {
+    try {
+      final Map<String, dynamic> headersMap = {};
+      headers.forEach((key, value) {
+        headersMap[key] =
+            value.join(", "); // Join multiple values in the list with commas
+      });
+      return headersMap;
+    } catch (e, stack) {
+      return {};
+    }
+  }
 }
