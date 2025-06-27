@@ -35,6 +35,7 @@ void main() async {
     runApp(const MyApp());
   }, (error, stackTrace) {
     Logger.logException(
+      eventType: 'EXCEPTION: ROOT',
       error: error.toString(),
       stackTrace: stackTrace.toString(),
     );

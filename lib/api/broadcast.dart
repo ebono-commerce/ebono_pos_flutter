@@ -101,11 +101,12 @@ class UdpBroadcastManager {
               final message = utf8.decode(datagram.data);
 
               print(
-                  '📨 UDP Broadcast received from $senderAddress: "$message"');
+                '📨 UDP Broadcast received from $senderAddress: "$message"',
+              );
 
               // Call the provided callback if available
               if (onMessage != null) {
-                onMessage(message, datagram.address);
+                onMessage.call(message, datagram.address);
               }
             } catch (e) {
               print('❌ Error processing received UDP message: $e');

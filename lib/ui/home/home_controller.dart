@@ -276,6 +276,7 @@ class HomeController extends GetxController {
       }
 
       Logger.logException(
+        eventType: 'EXCEPTION : BROADCAST',
         error: e.toString(),
         stackTrace: stack.toString(),
       );
@@ -342,6 +343,7 @@ class HomeController extends GetxController {
       print('❌ Failed to decode UDP broadcast message: $e $stack');
 
       Logger.logException(
+        eventType: 'EXCEPTION: Failed to decode UDP broadcast message',
         error: e.toString(),
         stackTrace: stack.toString(),
       );
