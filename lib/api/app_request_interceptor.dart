@@ -5,6 +5,8 @@ import 'package:ebono_pos/data_store/shared_preference_helper.dart';
 import 'package:ebono_pos/navigation/page_routes.dart';
 import 'package:get/get.dart';
 
+import 'api_constants.dart';
+
 class AppRequestInterceptor extends Interceptor {
   final SharedPreferenceHelper _sharedPreferenceHelper;
   final HiveStorageHelper hiveStorageHelper;
@@ -35,6 +37,8 @@ class AppRequestInterceptor extends Interceptor {
     } else if (options.uri.path.contains('/health')) {
       /* made duration to 5 sec, in order to reduce time out in login when switching*/
       options.connectTimeout = Duration(seconds: 5);
+    } else if (options.uri.path.contains(ApiConstants.generateSmsInvoice)) {
+      options.baseUrl = EnvironmentConfig.bffUrl;
     } else {
       if (token != null && !options.uri.path.contains('/login')) {
         options.headers['Authorization'] = 'Bearer $token';
@@ -46,7 +50,6 @@ class AppRequestInterceptor extends Interceptor {
       options.baseUrl = pointedTo == 'LOCAL'
           ? EnvironmentConfig.baseUrl
           : EnvironmentConfig.bffUrl;
-
       // Check if the URL is using HTTP protocol and is a local address
       final bool isHttpProtocol = options.uri.scheme == 'http';
       final bool isLocalHost = options.uri.host.contains('local') ||
