@@ -31,4 +31,5 @@ class SharedPreferenceConstants {
   static final pointingTo = 'pointingTo';
   static final paymentProvider = 'paymentProvider';
   static final lastOrderAt = 'lastOrderAt';
+  static final testModeStatus = 'testModeStatus';
 }
