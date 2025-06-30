@@ -244,22 +244,66 @@ class _OrdersSectionState extends State<OrdersSection>
                     onCustomerPressed: triggerCustomerDialog,
                     onHoldCartPressed: () {
                       if (homeController.isContionueWithOutCustomer.value) {
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return Dialog(
-                              insetPadding:
-                                  EdgeInsets.symmetric(vertical: 15.0),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20.0),
-                              ),
-                              child: AddCustomerWidget(
-                                context,
-                                onClose: _requestFocusOnNumpad,
-                              ),
-                            );
-                          },
-                        );
+                        AuthModes enableHoldCartMode =
+                            AuthModeExtension.fromString(
+                                homeController.isEnableHoldCartEnabled.value);
+                        if (enableHoldCartMode == AuthModes.enabled ||
+                            homeController
+                                .holdCartApproverUserId.value.isNotEmpty) {
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return Dialog(
+                                insetPadding:
+                                    EdgeInsets.symmetric(vertical: 15.0),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20.0),
+                                ),
+                                child: AddCustomerWidget(
+                                  context,
+                                  onClose: _requestFocusOnNumpad,
+                                ),
+                              );
+                            },
+                          );
+                        } else if (enableHoldCartMode == AuthModes.authorised) {
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return Dialog(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20.0),
+                                ),
+                                child: AuthorisationRequiredWidget(
+                                  context,
+                                  'HOLD_CART',
+                                  onAuthSuccess: () {
+                                    showDialog(
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return Dialog(
+                                          insetPadding: EdgeInsets.symmetric(
+                                              vertical: 15.0),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(20.0),
+                                          ),
+                                          child: AddCustomerWidget(
+                                            context,
+                                            onClose: _requestFocusOnNumpad,
+                                          ),
+                                        );
+                                      },
+                                    );
+                                  },
+                                ),
+                              );
+                            },
+                          );
+                        } else {
+                          Get.snackbar('Action Disabled for this account',
+                              'Please contact support');
+                        }
                       } else {
                         AuthModes enableHoldCartMode =
                             AuthModeExtension.fromString(
@@ -604,7 +648,8 @@ class _OrdersSectionState extends State<OrdersSection>
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20.0),
                     ),
-                    child: PriceOverrideWithAuthWidget(context, itemData),
+                    child: PriceOverrideWithAuthWidget(context, itemData,
+                        enablePriceEdit == AuthModes.enabled),
                   );
                 },
               );
@@ -630,7 +675,8 @@ class _OrdersSectionState extends State<OrdersSection>
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20.0),
                     ),
-                    child: PriceOverrideWithAuthWidget(context, itemData),
+                    child: PriceOverrideWithAuthWidget(context, itemData,
+                        enablePriceEdit == AuthModes.enabled),
                   );
                 },
               );
