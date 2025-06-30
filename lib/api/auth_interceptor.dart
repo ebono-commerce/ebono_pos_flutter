@@ -34,6 +34,8 @@ class AuthInterceptor extends Interceptor {
       } else if (options.uri.path.contains('/cancel')) {
         options.path = ApiConstants.paymentApiCancel;
       }
+    } else if (options.uri.path.contains('metrics-collector')) {
+      options.baseUrl = EnvironmentConfig.metricsBaseUrl;
     } else if (options.uri.path.contains('/health')) {
       /* made duration to 5 sec, in order to reduce time out in login when switching*/
       options.connectTimeout = Duration(seconds: 5);
