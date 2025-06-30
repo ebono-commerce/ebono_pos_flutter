@@ -20,46 +20,46 @@ bool showCustomError = false;
 
 void main() async {
   runZonedGuarded(() async {
-  WidgetsFlutterBinding.ensureInitialized();
+    WidgetsFlutterBinding.ensureInitialized();
 
-  await windowManager.ensureInitialized();
+    await windowManager.ensureInitialized();
 
-  WindowOptions windowOptions = WindowOptions(
-    center: true,
-    backgroundColor: Colors.transparent,
-    titleBarStyle: TitleBarStyle.hidden, // Hide the title bar
-  );
+    WindowOptions windowOptions = WindowOptions(
+      center: true,
+      backgroundColor: Colors.transparent,
+      titleBarStyle: TitleBarStyle.hidden, // Hide the title bar
+    );
 
-  windowManager.waitUntilReadyToShow(windowOptions, () async {
-    await windowManager.setFullScreen(true);
-    await windowManager.show();
-  });
+    windowManager.waitUntilReadyToShow(windowOptions, () async {
+      await windowManager.setFullScreen(true);
+      await windowManager.show();
+    });
 
-  await HiveStorageHelper.init();
-  await Logger.init();
+    await HiveStorageHelper.init();
+    await Logger.init();
 
-  if (showCustomError) {
-    ErrorWidget.builder = (FlutterErrorDetails details) {
-      return CustomErrorWidget(details: details);
-    };
-  }
+    if (showCustomError) {
+      ErrorWidget.builder = (FlutterErrorDetails details) {
+        return CustomErrorWidget(details: details);
+      };
+    }
 
-  runApp(
-    BlocProvider(
-      create: (_) => TestModeCubit(),
-      child: const MyApp(),
-    ),
-  );
+    runApp(
+      BlocProvider(
+        create: (_) => TestModeCubit(),
+        child: const MyApp(),
+      ),
+    );
 
-  // Use immersiveSticky to hide all system UI overlays
-  SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+    // Use immersiveSticky to hide all system UI overlays
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
 
-  // Add specific UI overlay settings for Linux touch screens
-  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-    statusBarColor: Colors.transparent,
-    systemNavigationBarColor: Colors.transparent,
-  ));
-  }}, (error, stackTrace) {
+    // Add specific UI overlay settings for Linux touch screens
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      systemNavigationBarColor: Colors.transparent,
+    ));
+  }, (error, stackTrace) {
     Logger.logException(
       eventType: 'EXCEPTION: ROOT',
       error: error.toString(),
@@ -67,6 +67,7 @@ void main() async {
     );
   });
 }
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
