@@ -11,7 +11,7 @@ extension AuthModeExtension on AuthModes {
         return AuthModes.enabled;
       case "DISABLED":
         return AuthModes.disabled;
-      case "ENABLED_WITH_AUTH":
+      case "AUTHORISED":
         return AuthModes.authorised;
       default:
         return AuthModes.disabled;

@@ -253,8 +253,8 @@ class _PriceOverrideWithAuthWidgetState
             textStyle: theme.textTheme.bodyMedium,
             padding: EdgeInsets.all(12)),
         onPressed: () {
-          homeController.getAuthorisation(loginIdController.text,
-              passwordController.text, 'PRICE_OVERRIDE');
+          homeController.getAuthorisation(
+              loginIdController.text, passwordController.text);
         },
         child: Text(
           "Authorise",
@@ -399,9 +399,9 @@ class _PriceOverrideWithAuthWidgetState
                       )
                     ]))
                     .then((value) {
-                  if (value != null) {
-                    Navigator.pop(widget.dialogContext);
-                  }
+                      if(value != null){
+                        Navigator.pop(widget.dialogContext);
+                      }
                 });
               }
             : null,

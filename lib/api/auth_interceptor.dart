@@ -1,17 +1,16 @@
 import 'package:dio/dio.dart';
+import 'package:ebono_pos/api/api_constants.dart';
 import 'package:ebono_pos/api/environment_config.dart';
 import 'package:ebono_pos/data_store/hive_storage_helper.dart';
 import 'package:ebono_pos/data_store/shared_preference_helper.dart';
 import 'package:ebono_pos/navigation/page_routes.dart';
 import 'package:get/get.dart';
 
-import 'api_constants.dart';
-
-class AppRequestInterceptor extends Interceptor {
+class AuthInterceptor extends Interceptor {
   final SharedPreferenceHelper _sharedPreferenceHelper;
   final HiveStorageHelper hiveStorageHelper;
 
-  AppRequestInterceptor(this._sharedPreferenceHelper, this.hiveStorageHelper);
+  AuthInterceptor(this._sharedPreferenceHelper, this.hiveStorageHelper);
 
   @override
   Future<void> onRequest(
@@ -19,24 +18,25 @@ class AppRequestInterceptor extends Interceptor {
     String? token = await _sharedPreferenceHelper.getAuthToken();
     String? appUUID = await _sharedPreferenceHelper.getAppUUID();
     String pointedTo = await _sharedPreferenceHelper.pointingTo();
-    final isTestModeEnabled =
-        await _sharedPreferenceHelper.isTestModeEnabled() == true;
 
     // Check if it's a local HTTP request (marked by the CustomConnectionInterceptor)
-    if (isTestModeEnabled) {
-      options.headers['x-operation-mode'] = 'TRAINING';
-    }
+    final bool isLocalHttpRequest = options.extra['isLocalHttpRequest'] == true;
 
     if (options.uri.path.contains('/api/3.0/p2p/')) {
-      options.baseUrl = EnvironmentConfig.ezetapBaseUrl;
+      options.baseUrl = EnvironmentConfig.paymentBaseUrl;
+      options.headers['Content-Type'] = 'application/json';
       options.headers['Accept'] = 'application/json, text/plain, */*';
-    } else if (options.uri.path.contains('/ecr')) {
-      options.baseUrl = EnvironmentConfig.paytmBaseUrl;
+
+      if (options.uri.path.contains('/status')) {
+        options.path = ApiConstants.paymentApiStatus;
+      } else if (options.uri.path.contains('/start')) {
+        options.path = ApiConstants.paymentApiInitiate;
+      } else if (options.uri.path.contains('/cancel')) {
+        options.path = ApiConstants.paymentApiCancel;
+      }
     } else if (options.uri.path.contains('/health')) {
       /* made duration to 5 sec, in order to reduce time out in login when switching*/
       options.connectTimeout = Duration(seconds: 5);
-    } else if (options.uri.path.contains(ApiConstants.generateSmsInvoice)) {
-      options.baseUrl = EnvironmentConfig.bffUrl;
     } else {
       if (token != null && !options.uri.path.contains('/login')) {
         options.headers['Authorization'] = 'Bearer $token';
@@ -48,20 +48,11 @@ class AppRequestInterceptor extends Interceptor {
       options.baseUrl = pointedTo == 'LOCAL'
           ? EnvironmentConfig.baseUrl
           : EnvironmentConfig.bffUrl;
-      // Check if the URL is using HTTP protocol and is a local address
-      final bool isHttpProtocol = options.uri.scheme == 'http';
-      final bool isLocalHost = options.uri.host.contains('local') ||
-          options.uri.host.contains('localhost') ||
-          options.uri.host.contains('127.0.0.1') ||
-          options.uri.host.contains('api-local');
-
-      // If it's HTTP and local, mark it with a custom property
-      if (isHttpProtocol && isLocalHost) {
-        // Add a custom property to options to mark as local HTTP request
-        // Only mark as local HTTP request if pointedTo is 'LOCAL'
-        options.extra['isLocalHttpRequest'] = (pointedTo == 'LOCAL');
-      }
     }
+    print('app id : $appUUID');
+    print('token $token');
+    print('isLocalHttpRequest: $isLocalHttpRequest');
+    // Continue with the request
     return handler.next(options);
   }
 

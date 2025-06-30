@@ -129,7 +129,7 @@ class _SearchProductsViewState extends State<SearchProductsView> {
                                 emptyDataMessage: "No Products Found",
                                 columnWidths: {
                                   0: FlexColumnWidth(1),
-                                  1: FlexColumnWidth(2.4),
+                                  1: FlexColumnWidth(2.6),
                                   2: FlexColumnWidth(1.5),
                                   3: FlexColumnWidth(1),
                                 },

@@ -221,61 +221,46 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
                         ),
                       ),
                     ),
-                  if (widget.isOfflineMode == false)
-                    Container(
-                      width: 180,
-                      height: 74,
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 5.0, vertical: 10),
-                      child: ElevatedButton(
-                          onPressed: _isDigitalInvoiceDisabled()
-                              ? null
-                              : (!state.isLoading &&
-                                      !state.isSmsInvoiceLoading &&
-                                      state.allowPrintInvoice &&
-                                      state.isSmsInvoiceSuccess == false)
-                                  ? () {
-                                      paymentBloc.add(SmsInvoiceEvent(
-                                        () {
-                                          homeController.initialResponse();
-                                          Get.back();
-                                          Get.back();
-                                          Get.back();
-                                        },
-                                      ));
-                                    }
-                                  : null,
-                          style: ElevatedButton.styleFrom(
-                              elevation: 1,
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 1, vertical: 20),
-                              shape: RoundedRectangleBorder(
-                                side: BorderSide(
-                                    color: CustomColors.primaryColor,
-                                    width: 1.5),
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              backgroundColor: CustomColors.keyBoardBgColor,
-                              disabledBackgroundColor: CustomColors.grey,
-                              disabledForegroundColor: CustomColors.grey),
-                          child: Center(
-                            child: state.isSmsInvoiceLoading
-                                ? SizedBox(
-                                    height: 20,
-                                    width: 20,
-                                    child: CircularProgressIndicator())
-                                : Text(
-                                    textAlign: TextAlign.center,
-                                    "SMS Digital Invoice",
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .labelLarge
-                                        ?.copyWith(
-                                            fontWeight: FontWeight.w600,
-                                            color: CustomColors.primaryColor),
-                                  ),
-                          )),
+                  Container(
+                    width: 180,
+                    height: 74,
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 5.0, vertical: 10),
+                    child: ElevatedButton(
+                      onPressed: /*!state.isLoading && state.allowPrintInvoice
+                          ? () {
+                              homeController.initialResponse();
+                              Get.back();
+                              Get.back();
+                            }
+                          : */
+                          null,
+                      style: ElevatedButton.styleFrom(
+                          elevation: 1,
+                          padding:
+                              EdgeInsets.symmetric(horizontal: 1, vertical: 20),
+                          shape: RoundedRectangleBorder(
+                            side: BorderSide(
+                                color: CustomColors.primaryColor, width: 1.5),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          backgroundColor: CustomColors.keyBoardBgColor,
+                          disabledBackgroundColor: CustomColors.grey,
+                          disabledForegroundColor: CustomColors.grey),
+                      child: Center(
+                        child: Text(
+                          textAlign: TextAlign.center,
+                          "SMS Digital Invoice",
+                          style: Theme.of(context)
+                              .textTheme
+                              .labelLarge
+                              ?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                  color: CustomColors.primaryColor),
+                        ),
+                      ),
                     ),
+                  ),
                 ],
               )
             ],
@@ -283,13 +268,5 @@ class _OrderSuccessScreenState extends State<OrderSuccessScreen> {
         }),
       ),
     );
-  }
-
-  _isDigitalInvoiceDisabled() {
-    if (homeController.isDigitalInvoiceEnabled == false) return true;
-    return homeController.customerProxyNumber.value ==
-            paymentBloc.paymentSummaryRequest.phoneNumber
-        ? true
-        : false;
   }
 }

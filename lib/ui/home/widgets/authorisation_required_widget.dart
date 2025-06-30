@@ -10,11 +10,13 @@ import 'package:get/get.dart';
 class AuthorisationRequiredWidget extends StatefulWidget {
   final BuildContext dialogContext;
   final Function()? onClose;
-  final Function()? onAuthSuccess;
-  final String authFor;
 
-  const AuthorisationRequiredWidget(this.dialogContext, this.authFor,
-      {super.key, this.onClose, this.onAuthSuccess});
+  const AuthorisationRequiredWidget(
+      this.dialogContext,
+      {
+        super.key,
+        this.onClose
+      });
 
   @override
   State<AuthorisationRequiredWidget> createState() =>
@@ -71,20 +73,20 @@ class _AuthorisationRequiredWidgetState
     });
   }
 
+
   @override
   Widget build(BuildContext context) {
     theme = Theme.of(context);
-    return PopScope(
-      onPopInvokedWithResult: (val, result) {
-        if (widget.onClose != null) {
+    return  PopScope(
+      onPopInvokedWithResult: (val,result){
+        if(widget.onClose != null){
           widget.onClose!();
         }
       },
       child: Column(
         children: [
-          SizedBox(
-            width: 900,
-            child: Row(
+          SizedBox(width: 900,
+            child:  Row(
               mainAxisAlignment: MainAxisAlignment.end,
               mainAxisSize: MainAxisSize.max,
               children: [
@@ -103,14 +105,13 @@ class _AuthorisationRequiredWidgetState
                   ),
                 ),
               ],
-            ),
-          ),
+            ),),
           SizedBox(
             width: 400,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Text(
+                  Text(
                   "Authorization required!",
                   style: theme.textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
@@ -127,7 +128,8 @@ class _AuthorisationRequiredWidgetState
                         label: "Login Id",
                         controller: loginIdController,
                         focusNode: loginIdFocusNode,
-                        onValueChanged: (value) => value,
+                        onValueChanged: (value) =>
+                        value,
                       ),
                     ),
                     Padding(
@@ -137,7 +139,8 @@ class _AuthorisationRequiredWidgetState
                         controller: passwordController,
                         focusNode: passwordFocusNode,
                         obscureText: true,
-                        onValueChanged: (value) => value,
+                        onValueChanged: (value) =>
+                        value,
                         //readOnly: homeController.phoneNumber.isEmpty,
                       ),
                     ),
@@ -162,7 +165,8 @@ class _AuthorisationRequiredWidgetState
               onEnterPressed: (value) {
                 if (activeFocusNode == loginIdFocusNode) {
                   passwordFocusNode.requestFocus();
-                } else if (activeFocusNode == passwordFocusNode) {
+                } else if (activeFocusNode ==
+                    passwordFocusNode) {
                   passwordFocusNode.unfocus();
                 }
               },
@@ -182,17 +186,9 @@ class _AuthorisationRequiredWidgetState
             theme: theme,
             textStyle: theme.textTheme.bodyMedium,
             padding: EdgeInsets.all(12)),
-        onPressed: () async {
-          // Navigator.pop(widget.dialogContext);
-          // Get.snackbar("Not yet implemented", 'Not yet implemented');
-          final isAuthorized = await homeController.getAuthorisation(
-              loginIdController.text, passwordController.text, widget.authFor);
-          if (isAuthorized) {
-            Navigator.pop(widget.dialogContext);
-            if (widget.onAuthSuccess != null) {
-              widget.onAuthSuccess!();
-            }
-          }
+        onPressed: () {
+          Navigator.pop(widget.dialogContext);
+          Get.snackbar("Not yet implemented", 'Not yet implemented');
         },
         child: Text(
           "Authorise",
