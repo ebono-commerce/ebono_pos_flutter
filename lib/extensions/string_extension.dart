@@ -24,3 +24,27 @@ extension StringExtension on String {
     }).join(' ');
   }
 }
+
+extension DecimalStringValidator on String {
+  /// Trims the string to maximum [decimalRange] digits after decimal point.
+  /// If more than one decimal exists, returns original string.
+  String limitDecimalDigits({required int decimalRange}) {
+    if (this.isEmpty) return this;
+
+    if (this.contains('.') && this.indexOf('.') != this.lastIndexOf('.')) {
+      return this;
+    }
+
+    final parts = this.split('.');
+
+    if (parts.length == 1) {
+      return this;
+    }
+
+    final whole = parts[0];
+    final decimal =
+        parts[1].substring(0, decimalRange.clamp(0, parts[1].length));
+
+    return '$whole.$decimal';
+  }
+}

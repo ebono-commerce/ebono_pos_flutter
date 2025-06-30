@@ -49,3 +49,8 @@ class WalletIdealEvent extends PaymentEvent {}
 class PaymentIdealEvent extends PaymentEvent {}
 
 class CancelSSEEvent extends PaymentEvent {}
+
+class SmsInvoiceEvent extends PaymentEvent {
+  final Function onSuccess;
+  SmsInvoiceEvent(this.onSuccess);
+}

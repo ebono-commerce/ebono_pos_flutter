@@ -8,15 +8,13 @@ import 'package:ebono_pos/ui/login/bloc/login_event.dart';
 import 'package:ebono_pos/ui/login/bloc/login_state.dart';
 import 'package:ebono_pos/ui/login/repository/login_repository.dart';
 import 'package:ebono_pos/ui/payment_summary/weighing_scale_service.dart';
-import 'package:ebono_pos/utils/logger.dart';
+import 'package:ebono_pos/utils/auth_modes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 
 class LogoutButton extends StatefulWidget {
-  const LogoutButton({
-    super.key,
-    this.buttonWidth});
+  const LogoutButton({super.key, this.buttonWidth});
   final double? buttonWidth;
   @override
   State<LogoutButton> createState() => _LogoutButtonState();
@@ -47,7 +45,11 @@ class _LogoutButtonState extends State<LogoutButton> {
         child: BlocBuilder<LoginBloc, LoginState>(
           builder: (context, state) {
             return logoutButton(context, () {
-              if (homeController.registerId.value.isNotEmpty) {
+              AuthModes isMandateRegisterCloseOnLogoutEnabled =
+                  AuthModeExtension.fromString(homeController
+                      .isMandateRegisterCloseOnLogoutEnabled.value);
+              if (homeController.registerId.value.isNotEmpty &&
+                  isMandateRegisterCloseOnLogoutEnabled == AuthModes.enabled) {
                 Get.dialog(
                   AlertDialog(
                     title: Text('Are you sure you want to logout?'),
@@ -107,7 +109,7 @@ class _LogoutButtonState extends State<LogoutButton> {
                       ),
                     ],
                   ),
-                ).then((_){
+                ).then((_) {
                   homeController.notifyDialogClosed();
                 });
               } else {
