@@ -10,6 +10,7 @@ import 'package:ebono_pos/ui/login/bloc/login_event.dart';
 import 'package:ebono_pos/ui/login/bloc/login_state.dart';
 import 'package:ebono_pos/ui/login/repository/login_repository.dart';
 import 'package:ebono_pos/ui/payment_summary/weighing_scale_service.dart';
+import 'package:ebono_pos/utils/logger.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
@@ -354,10 +355,14 @@ class _LoginPageState extends State<LoginPage> {
                   crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
                     TextButton(
-                        onPressed: () {
-                          loginBloc.add(LoginInitialEvent());
-                        },
-                        child: const BackToPortSelection()),
+                      onPressed: () {
+                        Logger.logButtonSimple(
+                          button: 'Clicked on Login BTN',
+                        );
+                        loginBloc.add(LoginInitialEvent());
+                      },
+                      child: const BackToPortSelection(),
+                    ),
                   ],
                 ),
               ),
@@ -573,6 +578,9 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 onPressed: () {
                   Future.delayed(Duration(milliseconds: 400), () {
+                    Logger.logButtonSimple(
+                      button: 'Clicked on Continue BTN Terminal Selection',
+                    );
                     loginBloc.add(
                       SubmitTerminalDetails(),
                     );
@@ -712,6 +720,10 @@ class _LoginPageState extends State<LoginPage> {
                   onPressed: () {
                     if (_portSelectionFormKey.currentState?.validate() ==
                         true) {
+                      Logger.logButtonSimple(
+                        button: 'Clicked on Continue BTN in Port Selection',
+                        description: 'Printer: $selectedPrinter, $selectedPort',
+                      );
                       Future.delayed(Duration(milliseconds: 400), () {
                         if (availablePorts.isNotEmpty) {
                           loginBloc.add(
@@ -734,9 +746,7 @@ class _LoginPageState extends State<LoginPage> {
                       });
                     }
                   },
-                  child: Text(
-                    'Continue',
-                  ),
+                  child: Text('Continue'),
                 ),
               ),
               SizedBox(height: 10),

@@ -2,6 +2,8 @@ class EnvironmentConfig {
   static const String environment =
       String.fromEnvironment('ENV', defaultValue: 'prod');
 
+  static String get metricsBaseUrl => 'http://api-local.ebono.com/';
+
   static String get baseUrl {
     switch (environment) {
       case 'prod':

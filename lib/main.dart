@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:ebono_pos/data_store/hive_storage_helper.dart';
 import 'package:ebono_pos/navigation/navigation.dart';
 import 'package:ebono_pos/theme/theme_data.dart';
@@ -11,21 +13,33 @@ import 'di/initial_binding.dart';
 import 'navigation/page_routes.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await windowManager.ensureInitialized();
-   WindowOptions windowOptions = WindowOptions(
-     center: true,
-     backgroundColor: Colors.transparent,
-     titleBarStyle: TitleBarStyle.hidden, // Hide the title bar
-   );
-   windowManager.waitUntilReadyToShow(windowOptions, () async {
-     await windowManager.setFullScreen(true);
-     await windowManager.show();
-   });
+  runZonedGuarded(() async {
+    WidgetsFlutterBinding.ensureInitialized();
 
-  await HiveStorageHelper.init();
-  await Logger.init(); // Initialize logger before running the app
-  runApp(const MyApp());
+    await windowManager.ensureInitialized();
+
+    WindowOptions windowOptions = WindowOptions(
+      center: true,
+      backgroundColor: Colors.transparent,
+      titleBarStyle: TitleBarStyle.hidden,
+    );
+
+    windowManager.waitUntilReadyToShow(windowOptions, () async {
+      await windowManager.setFullScreen(true);
+      await windowManager.show();
+    });
+
+    await HiveStorageHelper.init();
+    await Logger.init();
+
+    runApp(const MyApp());
+  }, (error, stackTrace) {
+    Logger.logException(
+      eventType: 'EXCEPTION: ROOT',
+      error: error.toString(),
+      stackTrace: stackTrace.toString(),
+    );
+  });
 }
 
 /*void getHiveDirectory() async {

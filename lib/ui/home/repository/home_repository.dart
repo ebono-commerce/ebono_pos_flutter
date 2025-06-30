@@ -8,6 +8,7 @@ import 'package:ebono_pos/data_store/hive_storage_helper.dart';
 import 'package:ebono_pos/models/cart_response.dart';
 import 'package:ebono_pos/models/coupon_details.dart';
 import 'package:ebono_pos/models/customer_response.dart';
+import 'package:ebono_pos/models/pos_metrics_payload.dart';
 import 'package:ebono_pos/models/scan_products_response.dart';
 import 'package:ebono_pos/ui/home/model/add_to_cart.dart';
 import 'package:ebono_pos/ui/home/model/cart_request.dart';
@@ -331,6 +332,19 @@ class HomeRepository {
           .toList();
 
       return transactionSummaryList;
+    } catch (e) {
+      throw ApiException('$e');
+    }
+  }
+
+  Future<void> sendPosMetrics({
+    required PosMetricsPayload payload,
+  }) async {
+    try {
+      await _apiHelper.post(
+        ApiConstants.sendPosMetrics,
+        data: payload.toMap(),
+      );
     } catch (e) {
       throw ApiException('$e');
     }
