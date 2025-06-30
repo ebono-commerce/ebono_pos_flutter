@@ -104,6 +104,8 @@ class CustomLogInterceptor extends Interceptor {
         path.contains(ApiConstants.walletCharge);
   }
 
+  CustomLogInterceptor();
+
   /// Helper function to convert Dio's Headers to a Map<String, String>
   Future<Map<String, dynamic>> _headersToMap(Headers headers) async {
     try {

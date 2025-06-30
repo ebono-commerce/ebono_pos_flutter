@@ -96,10 +96,9 @@ class _MultipleMrpWidgetState extends State<MultipleMrpWidget> {
                     trailing: Container(
                       decoration: BoxDecoration(
                         color: Colors.white,
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(
-                          color: Colors.grey.shade300,
-                        ),
+                        borderRadius: BorderRadius.circular(10),border: Border.all(
+                        color: Colors.grey.shade300,
+                      ),
                       ),
                       child: Padding(
                         padding: const EdgeInsets.all(4.0),
@@ -151,16 +150,7 @@ class _MultipleMrpWidgetState extends State<MultipleMrpWidget> {
                         scanData.priceList?[index].mrp?.fraction,
                       ),
                       (value) {
-                        homeController
-                            .addToCartApiCall(
-                          scanData.skuCode,
-                          1,
-                          scanData.priceList?[index].mrpId,
-                          scanData.salesUom,
-                          homeController.cartId.value,
-                          isBizerbaCode: true,
-                        )
-                            .then((value) {
+                        homeController.addToCartApiCall(scanData.skuCode, 1, scanData.priceList?[index].mrpId, scanData.salesUom, homeController.cartId.value).then((value){
                           Navigator.pop(widget.dialogContext);
                         });
                       },

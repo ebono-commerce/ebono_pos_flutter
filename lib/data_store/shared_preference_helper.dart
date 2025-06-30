@@ -2,6 +2,7 @@ import 'package:ebono_pos/constants/shared_preference_constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SharedPreferenceHelper {
+
   static SharedPreferenceHelper? _instance;
 
   // Private constructor for singleton pattern
@@ -18,7 +19,7 @@ class SharedPreferenceHelper {
     final prefs = await SharedPreferences.getInstance();
     final appUUID = prefs.getString(SharedPreferenceConstants.appUUID);
     await prefs.clear().then((value) async {
-      if (appUUID?.isNotEmpty == true) {
+      if(appUUID?.isNotEmpty == true){
         await prefs.setString(SharedPreferenceConstants.appUUID, appUUID!);
       }
     });
@@ -63,8 +64,7 @@ class SharedPreferenceHelper {
   // Store the selectedOutlet
   Future<void> storeSelectedOutlet(String selectedOutlet) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(
-        SharedPreferenceConstants.selectedOutletId, selectedOutlet);
+    await prefs.setString(SharedPreferenceConstants.selectedOutletId, selectedOutlet);
   }
 
   // Retrieve the selectedOutlet
@@ -142,17 +142,5 @@ class SharedPreferenceHelper {
   Future<String> pointingTo() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(SharedPreferenceConstants.pointingTo) ?? 'LOCAL';
-  }
-
-  // Store the PortName
-  Future<void> saveTestModeStatus(bool status) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(SharedPreferenceConstants.testModeStatus, status);
-  }
-
-  // Retrieve the PortName
-  Future<bool> isTestModeEnabled() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getBool(SharedPreferenceConstants.testModeStatus) ?? false;
   }
 }

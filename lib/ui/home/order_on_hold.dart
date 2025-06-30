@@ -157,7 +157,14 @@ class _OrderOnHoldState extends State<OrderOnHold> with WidgetsBindingObserver {
                                             fontWeight: FontWeight.w400),
                                       ),
                                       TextSpan(
-                                        text: "-",
+                                        text: homeController
+                                                    .scanProductsResponse
+                                                    .value
+                                                    .salesUom
+                                                    ?.isNotEmpty ==
+                                                true
+                                            ? '-'
+                                            : " - ",
                                         style: TextStyle(
                                             color: Colors.black,
                                             fontSize: 14,
@@ -277,124 +284,125 @@ class _OrderOnHoldState extends State<OrderOnHold> with WidgetsBindingObserver {
               ),
             ),
             Spacer(),
-            IgnorePointer(
-              ignoring: true,
-              child: Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: Container(
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      border: Border.all(color: Colors.grey),
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(10),
-                        topRight: Radius.circular(10),
-                        bottomLeft: Radius.circular(10),
-                        bottomRight: Radius.circular(10),
-                      ),
-                      // borderRadius: BorderRadius.circular(
-                      //     10),
-                      shape: BoxShape.rectangle,
+            Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Container(
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    border: Border.all(color: Colors.grey),
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(10),
+                      topRight: Radius.circular(10),
+                      bottomLeft: Radius.circular(10),
+                      bottomRight: Radius.circular(10),
                     ),
-                    child: Column(
-                      children: [
-                        Container(
-                          padding: EdgeInsets.only(
-                              left: 10, right: 10, top: 5, bottom: 10),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Column(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    '-',
-                                    style: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w500),
-                                  ),
-                                  Text(
-                                    '-',
-                                    style: TextStyle(
-                                        color: Colors.black87,
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w600),
-                                  ),
-                                ],
-                              ),
-                              Column(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    '-',
-                                    style: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w500),
-                                  ),
-                                  Text(
-                                    "-",
-                                    style: TextStyle(
-                                        color: Colors.black87,
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w600),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                        Container(
-                          width: double.infinity,
-                          padding: EdgeInsets.only(
-                              left: 4, right: 4, top: 10, bottom: 4),
-                          child: ElevatedButton(
-                            onPressed: () {},
-                            style: ElevatedButton.styleFrom(
-                                elevation: 1,
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 1, vertical: 10),
-                                shape: RoundedRectangleBorder(
-                                  side: BorderSide.none,
-                                  borderRadius: BorderRadius.circular(10),
+                    // borderRadius: BorderRadius.circular(
+                    //     10),
+                    shape: BoxShape.rectangle,
+                  ),
+                  child: Column(
+                    children: [
+                      Container(
+                        padding: EdgeInsets.only(
+                            left: 10, right: 10, top: 5, bottom: 10),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  '-',
+                                  style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500),
                                 ),
-                                backgroundColor: CustomColors.cardBackground),
-                            child: SizedBox(
-                              height: 56,
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    "-",
-                                    style: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-
-                                  Text(
-                                    "-",
-                                    style: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.w400),
-                                  ),
-                                  // : Container(
-                                  //     //height: 40,
-                                  //     ),
-                                ],
+                                Text(
+                                  homeController.cartResponse.value.cartLines
+                                              ?.length !=
+                                          null
+                                      ? '${homeController.cartResponse.value.totalItems}'
+                                      : '-',
+                                  style: TextStyle(
+                                      color: Colors.black87,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600),
+                                ),
+                              ],
+                            ),
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  '-',
+                                  style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500),
+                                ),
+                                Text(
+                                  "-",
+                                  style: TextStyle(
+                                      color: Colors.black87,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        width: double.infinity,
+                        padding: EdgeInsets.only(
+                            left: 4, right: 4, top: 10, bottom: 4),
+                        child: ElevatedButton(
+                          onPressed: () {},
+                          style: ElevatedButton.styleFrom(
+                              elevation: 1,
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 1, vertical: 10),
+                              shape: RoundedRectangleBorder(
+                                side: BorderSide.none,
+                                borderRadius: BorderRadius.circular(10),
                               ),
+                              backgroundColor: CustomColors.cardBackground),
+                          child: SizedBox(
+                            height: 56,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Text(
+                                  "-",
+                                  style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold),
+                                ),
+
+                                Text(
+                                  "-",
+                                  style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w400),
+                                ),
+                                // : Container(
+                                //     //height: 40,
+                                //     ),
+                              ],
                             ),
                           ),
-                        )
-                      ],
-                    )),
-              ),
+                        ),
+                      )
+                    ],
+                  )),
             ),
           ],
         ),

@@ -27,9 +27,8 @@ class LogoutButtonPressed extends LoginEvent {
 
 class GetOutletDetails extends LoginEvent {
   final String outletName;
-  final Function()? onOutletSelected;
 
-  GetOutletDetails(this.outletName, this.onOutletSelected);
+  GetOutletDetails(this.outletName);
 }
 
 class SelectTerminal extends LoginEvent {
@@ -40,7 +39,7 @@ class SelectTerminal extends LoginEvent {
 
 class SubmitTerminalDetails extends LoginEvent {}
 
-class SelectPosMode extends LoginEvent {
+class SelectPosMode extends LoginEvent{
   final String posMode;
 
   SelectPosMode(this.posMode);

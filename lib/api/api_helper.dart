@@ -5,8 +5,10 @@ import 'package:ebono_pos/data_store/shared_preference_helper.dart';
 import 'package:flutter_client_sse/constants/sse_request_type_enum.dart';
 import 'package:flutter_client_sse/flutter_client_sse.dart';
 
-import 'app_request_interceptor.dart';
+import 'auth_interceptor.dart';
+import 'custom_connection_interceptor.dart';
 import 'custom_http_client_adapter.dart';
+import 'logger_interceptor.dart';
 
 class ApiHelper {
   late dio.Dio _dio;
@@ -59,10 +61,17 @@ class ApiHelper {
         }));
 
     // Set our custom HTTP client adapter
+    _dio.httpClientAdapter = CustomHttpClientAdapter();
+
+    // Add our custom connection interceptor first
+    _dio.interceptors.add(CustomConnectionInterceptor(_sharedPreferenceHelper));
+
+    // Then add auth interceptor
+    _dio.interceptors
+        .add(AuthInterceptor(_sharedPreferenceHelper, hiveStorageHelper));
 
     _dio.interceptors.addAll([
-      AppRequestInterceptor(_sharedPreferenceHelper, hiveStorageHelper),
-      //CustomLogInterceptor(),
+      CustomLogInterceptor(),
       dio.LogInterceptor(
         request: true,
         requestBody: true,
@@ -70,8 +79,6 @@ class ApiHelper {
         error: true,
       ),
     ]);
-
-    _dio.httpClientAdapter = CustomHttpClientAdapter();
   }
 
   // Factory constructor to return the same instance
@@ -93,6 +100,9 @@ class ApiHelper {
 
     return SSEClient.subscribeToSSE(
       url: url,
+      /* header: headers ?? {
+        'Content-Type': 'application/json',
+      },*/
       method: SSERequestType.GET,
       header: {},
     );

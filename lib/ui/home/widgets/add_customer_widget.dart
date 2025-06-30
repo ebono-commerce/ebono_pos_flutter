@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:ebono_pos/constants/custom_colors.dart';
 import 'package:ebono_pos/extensions/string_extension.dart';
-import 'package:ebono_pos/navigation/page_routes.dart';
 import 'package:ebono_pos/ui/custom_keyboard/custom_querty_pad.dart';
 import 'package:ebono_pos/ui/home/home_controller.dart';
 import 'package:ebono_pos/ui/home/model/customer_details_response.dart';
@@ -69,9 +68,6 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
       /* resetting otp count */
       homeController.resendOTPCount.value = 0;
 
-      /* making default otp screen to false */
-      homeController.displayOTPScreen.value = false;
-
       /* clearing existingCustomer on initital to avoid duplicate  */
       homeController.getCustomerDetailsResponse.value.existingCustomer = null;
 
@@ -101,20 +97,13 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
     });
 
     ever(homeController.customerResponse, (value) {
-      if (value.phoneNumber != null &&
-          homeController.isContionueWithOutCustomer.value == false) {
+      if (value.phoneNumber != null) {
         if (widget.dialogContext.mounted &&
             homeController
                     .customerResponse.value.isCustomerVerificationRequired ==
                 false &&
             widget.isDialogForReturns == false) {
           Get.back();
-        }
-      } else if (homeController.isContionueWithOutCustomer.value) {
-        // Force close ALL overlays including dialogs by using a more reliable approach
-        if (Get.overlayContext != null) {
-          Navigator.of(Get.overlayContext!, rootNavigator: true)
-              .popUntil((route) => route.settings.name == PageRoutes.home);
         }
       }
     });

@@ -4,8 +4,6 @@
 
 import 'dart:convert';
 
-import 'package:ebono_pos/ui/payment_summary/model/payment_initiate_request.dart';
-
 PaymentCancelRequest paymentCancelRequestFromJson(String str) =>
     PaymentCancelRequest.fromJson(json.decode(str));
 
@@ -41,3 +39,18 @@ class PaymentCancelRequest {
       };
 }
 
+class PushTo {
+  String? deviceId;
+
+  PushTo({
+    this.deviceId,
+  });
+
+  factory PushTo.fromJson(Map<String, dynamic> json) => PushTo(
+        deviceId: json["deviceId"],
+      );
+
+  Map<String, dynamic> toJson() => {
+        "deviceId": deviceId,
+      };
+}

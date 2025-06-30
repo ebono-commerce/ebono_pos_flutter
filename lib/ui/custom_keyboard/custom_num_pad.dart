@@ -24,11 +24,6 @@ class _CustomNumPadState extends State<CustomNumPad> {
     if (!widget.focusNode.hasFocus) {
       widget.focusNode.requestFocus();
     }
-    if (value == '.') {
-      if (widget.textController.text.contains('.')) {
-        return;
-      }
-    }
     widget.textController.text += value;
   }
 

@@ -12,16 +12,9 @@ import 'package:ebono_pos/ui/payment_summary/model/payment_status_request.dart';
 import 'package:ebono_pos/ui/payment_summary/model/payment_status_response.dart';
 import 'package:ebono_pos/ui/payment_summary/model/payment_summary_request.dart';
 import 'package:ebono_pos/ui/payment_summary/model/payment_summary_response.dart';
-import 'package:ebono_pos/ui/payment_summary/model/paytm_initiate_checksum_request.dart';
-import 'package:ebono_pos/ui/payment_summary/model/paytm_initiate_checksum_response.dart';
-import 'package:ebono_pos/ui/payment_summary/model/paytm_payment_inititate_response.dart';
-import 'package:ebono_pos/ui/payment_summary/model/paytm_payment_status_response.dart';
-import 'package:ebono_pos/ui/payment_summary/model/paytm_status_checksum_request.dart';
-import 'package:ebono_pos/ui/payment_summary/model/paytm_status_checksum_response.dart';
 import 'package:ebono_pos/ui/payment_summary/model/place_order_request.dart';
 import 'package:ebono_pos/ui/payment_summary/model/wallet_charge_request.dart';
 import 'package:flutter_client_sse/flutter_client_sse.dart';
-
 import '../../../api/api_exception.dart';
 
 class PaymentRepository {
@@ -48,7 +41,7 @@ class PaymentRepository {
       PaymentRequest request) async {
     try {
       final response = await _apiHelper.post(
-        ApiConstants.ezetapInitiateApi,
+        ApiConstants.paymentApiInitiate,
         data: request.toJson(),
       );
       final paymentInitiateResponse =
@@ -63,7 +56,7 @@ class PaymentRepository {
       PaymentStatusRequest request) async {
     try {
       final response = await _apiHelper.post(
-        ApiConstants.ezetapStatusApi,
+        ApiConstants.paymentApiStatus,
         data: request.toJson(),
       );
       final paymentStatusResponse =
@@ -79,102 +72,12 @@ class PaymentRepository {
       PaymentCancelRequest request) async {
     try {
       final response = await _apiHelper.post(
-        ApiConstants.ezetapCancelApi,
+        ApiConstants.paymentApiCancel,
         data: request.toJson(),
       );
       final paymentStatusResponse =
           paymentStatusResponseFromJson(jsonEncode(response));
       return paymentStatusResponse;
-    } catch (e) {
-      throw Exception(e);
-    }
-  }
-
-  Future<PaytmInitiateChecksumResponse> fetchPaytmInitiateChecksumApi(
-      PaytmInitiateChecksumRequest request) async {
-    try {
-      final response = await _apiHelper.post(
-        ApiConstants.fetchPaytmInitiateChecksum,
-        data: request.toJson(),
-      );
-      final paytmChecksumResponse =
-          paytmInitiateChecksumResponseFromJson(jsonEncode(response));
-      return paytmChecksumResponse;
-    } catch (e) {
-      throw Exception(e);
-    }
-  }
-
-  Future<PaytmPaymentInitiateResponse> paytmPaymentInitiateApi(
-      PaytmInitiatePayload request) async {
-    try {
-      final response = await _apiHelper.post(
-        ApiConstants.paytmInitiateApi,
-        data: request.toJson(),
-      );
-      final paytmPaymentInitiateResponse =
-          paytmPaymentInitiateResponseFromJson(jsonEncode(response));
-      return paytmPaymentInitiateResponse;
-    } catch (e) {
-      throw Exception(e);
-    }
-  }
-
-  Future<PaytmStatusChecksumResponse> fetchPaytmStatusChecksumApi(
-      PaytmStatusChecksumRequest request) async {
-    try {
-      final response = await _apiHelper.post(
-        ApiConstants.fetchPaytmStatusChecksum,
-        data: request.toJson(),
-      );
-      final paytmChecksumResponse =
-          paytmStatusChecksumResponseFromJson(jsonEncode(response));
-      return paytmChecksumResponse;
-    } catch (e) {
-      throw Exception(e);
-    }
-  }
-
-  Future<PaytmPaymentStatusResponse> paytmPaymentStatusApi(
-      PaytmStatusPayload request) async {
-    try {
-      final response = await _apiHelper.post(
-        ApiConstants.paytmStatusApi,
-        data: request.toJson(),
-      );
-      final paytmPaymentStatusResponse =
-          paytmPaymentStatusResponseFromJson(jsonEncode(response));
-      return paytmPaymentStatusResponse;
-    } catch (e) {
-      throw Exception(e);
-    }
-  }
-
-  Future<PaytmInitiateChecksumResponse> fetchPaytmCancelChecksumApi(
-      PaytmStatusChecksumRequest request) async {
-    try {
-      final response = await _apiHelper.post(
-        ApiConstants.fetchPaytmCancelChecksum,
-        data: request.toJson(),
-      );
-      final paytmChecksumResponse =
-          paytmInitiateChecksumResponseFromJson(jsonEncode(response));
-      return paytmChecksumResponse;
-    } catch (e) {
-      throw Exception(e);
-    }
-  }
-
-  Future<PaytmPaymentInitiateResponse> paytmPaymentCancelApi(
-      PaytmStatusPayload request) async {
-    try {
-      final response = await _apiHelper.post(
-        ApiConstants.paytmCancelApi,
-        data: request.toJson(),
-      );
-      final paytmPaymentInitiateResponse =
-          paytmPaymentInitiateResponseFromJson(jsonEncode(response));
-      return paytmPaymentInitiateResponse;
     } catch (e) {
       throw Exception(e);
     }
@@ -237,16 +140,6 @@ class PaymentRepository {
       final paymentSummaryResponse =
           paymentSummaryResponseFromJson(jsonEncode(response));
       return paymentSummaryResponse;
-    } catch (e) {
-      throw ApiException(e.toString());
-    }
-  }
-
-  Future<GeneralSuccessResponse> generateSmsInvoice(String number) async {
-    try {
-      final response = await _apiHelper.post(ApiConstants.generateSmsInvoice,
-          data: {"order_number": number});
-      return GeneralSuccessResponse.fromJson(response);
     } catch (e) {
       throw ApiException(e.toString());
     }

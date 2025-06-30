@@ -23,8 +23,6 @@ class PaymentState {
   final bool isWalletChargeError;
   final bool isVerifyOTPLoading;
   final bool isResendOTPLoading;
-  final bool isSmsInvoiceLoading;
-  final bool isSmsInvoiceSuccess;
 
   const PaymentState({
     this.initialState = false,
@@ -51,8 +49,6 @@ class PaymentState {
     this.isWalletChargeError = false,
     this.isResendOTPLoading = false,
     this.isVerifyOTPLoading = false,
-    this.isSmsInvoiceLoading = false,
-    this.isSmsInvoiceSuccess = false,
   });
 
   PaymentState copyWith({
@@ -65,9 +61,6 @@ class PaymentState {
     bool? isPaymentCancelSuccess,
     bool? isPaymentStartSuccess,
     bool? isPaymentSummarySuccess,
-    bool? isFetchPaytmInitiateChecksumSuccess,
-    bool? isFetchPaytmStatusChecksumSuccess,
-    bool? isFetchPaytmCancelChecksumSuccess,
     bool? isPaymentSummaryError,
     bool? isPlaceOrderSuccess,
     bool? isPlaceOrderError,
@@ -83,8 +76,6 @@ class PaymentState {
     bool? isWalletChargeError,
     bool? isResendOTPLoading,
     bool? isVerifyOTPLoading,
-    bool? isSmsInvoiceLoading,
-    bool? isSmsInvoiceSuccess,
   }) {
     return PaymentState(
       initialState: initialState ?? this.initialState,
@@ -120,8 +111,6 @@ class PaymentState {
       isWalletChargeError: isWalletChargeError ?? this.isWalletChargeError,
       isVerifyOTPLoading: isVerifyOTPLoading ?? this.isVerifyOTPLoading,
       isResendOTPLoading: isResendOTPLoading ?? this.isResendOTPLoading,
-      isSmsInvoiceLoading: isSmsInvoiceLoading ?? this.isSmsInvoiceLoading,
-      isSmsInvoiceSuccess: isSmsInvoiceSuccess ?? this.isSmsInvoiceSuccess,
     );
   }
 }

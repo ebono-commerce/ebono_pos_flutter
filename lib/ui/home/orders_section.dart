@@ -68,24 +68,6 @@ class _OrdersSectionState extends State<OrdersSection>
       }
     });
 
-    ever(homeController.isQuantityExceedShowStopper, (value) {
-      if (value) {
-        if (!numPadFocusNode.hasFocus) {
-          numPadFocusNode.requestFocus();
-        }
-        homeController.isQuantityExceedShowStopper.value = false;
-      }
-    });
-
-    ever(homeController.isInvalidSKUShowStopper, (value) {
-      if (value) {
-        if (!numPadFocusNode.hasFocus) {
-          numPadFocusNode.requestFocus();
-        }
-        homeController.isInvalidSKUShowStopper.value = false;
-      }
-    });
-
     ever(weighingScaleService.weight, (value) {
       homeController.isAutoWeighDetection.value = true;
       if (!numPadFocusNode.hasFocus) {
@@ -110,7 +92,6 @@ class _OrdersSectionState extends State<OrdersSection>
     ever(homeController.isScanApiError, (value) {
       if (value) {
         numPadTextController.text = '';
-        _requestFocusOnNumpad();
         // setState(() {});
       }
     });
@@ -121,12 +102,6 @@ class _OrdersSectionState extends State<OrdersSection>
         homeController.clearWeightOnSuccess.value = false;
       }
     });
-
-    // ever(homeController.triggerVerifyCustomerDialog, (value) {
-    //   if (value == true) {
-    //     triggerCustomerDialog();
-    //   }
-    // });
 
     WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -170,24 +145,6 @@ class _OrdersSectionState extends State<OrdersSection>
     });
 
     super.initState();
-  }
-
-  void triggerCustomerDialog() async {
-    await showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return Dialog(
-          insetPadding: EdgeInsets.symmetric(vertical: 15.0),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20.0),
-          ),
-          child: AddCustomerWidget(context, onClose: _requestFocusOnNumpad),
-        );
-      },
-    );
-
-    homeController.displayOTPScreen.value = false;
-    homeController.triggerVerifyCustomerDialog.value = false;
   }
 
   @override
@@ -241,7 +198,23 @@ class _OrdersSectionState extends State<OrdersSection>
                   absorbing: homeController.registerId.value.isEmpty,
                   child: QuickActionButtons(
                     color: Colors.white,
-                    onCustomerPressed: triggerCustomerDialog,
+                    onCustomerPressed: () async {
+                      await showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return Dialog(
+                            insetPadding: EdgeInsets.symmetric(vertical: 15.0),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20.0),
+                            ),
+                            child: AddCustomerWidget(context,
+                                onClose: _requestFocusOnNumpad),
+                          );
+                        },
+                      );
+
+                      homeController.displayOTPScreen.value = false;
+                    },
                     onHoldCartPressed: () {
                       if (homeController.isContionueWithOutCustomer.value) {
                         showDialog(
@@ -264,9 +237,7 @@ class _OrdersSectionState extends State<OrdersSection>
                         AuthModes enableHoldCartMode =
                             AuthModeExtension.fromString(
                                 homeController.isEnableHoldCartEnabled.value);
-                        if (enableHoldCartMode == AuthModes.enabled ||
-                            homeController
-                                .holdCartApproverUserId.value.isNotEmpty) {
+                        if (enableHoldCartMode == AuthModes.enabled) {
                           homeController.holdCartApiCall();
                         } else if (enableHoldCartMode == AuthModes.authorised) {
                           showDialog(
@@ -276,13 +247,7 @@ class _OrdersSectionState extends State<OrdersSection>
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(20.0),
                                 ),
-                                child: AuthorisationRequiredWidget(
-                                  context,
-                                  'HOLD_CART',
-                                  onAuthSuccess: () {
-                                    return homeController.holdCartApiCall();
-                                  },
-                                ),
+                                child: AuthorisationRequiredWidget(context),
                               );
                             },
                           );
@@ -293,29 +258,20 @@ class _OrdersSectionState extends State<OrdersSection>
                       }
                     },
                     onSalesAssociatePressed: () {
-                      AuthModes enableSalesAssociateMode =
-                          AuthModeExtension.fromString(
-                              homeController.isSalesAssociateLinkEnabled.value);
-                      if (enableSalesAssociateMode == AuthModes.disabled) {
-                        Get.snackbar('Action Disabled for this account',
-                            'Please contact support');
-                      } else {
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return Dialog(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20.0),
-                              ),
-                              child: AuthorisationRequiredWidget(
-                                context,
-                                'SALES_ASSOCIATE',
-                                onClose: _requestFocusOnNumpad,
-                              ),
-                            );
-                          },
-                        );
-                      }
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return Dialog(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20.0),
+                            ),
+                            child: AuthorisationRequiredWidget(
+                              context,
+                              onClose: _requestFocusOnNumpad,
+                            ),
+                          );
+                        },
+                      );
                     },
                     onCouponsPressed: () {
                       showDialog(
@@ -359,8 +315,38 @@ class _OrdersSectionState extends State<OrdersSection>
                                         horizontal: 4, vertical: 10),
                                     child: ElevatedButton(
                                       onPressed: () {
-                                        homeController.clearFullCart();
-                                        Get.back();
+                                        AuthModes enableHoldCartMode =
+                                            AuthModeExtension.fromString(
+                                                homeController
+                                                    .isEnableHoldCartEnabled
+                                                    .value);
+                                        if (enableHoldCartMode ==
+                                            AuthModes.enabled) {
+                                          homeController.clearFullCart();
+                                          Get.back();
+                                        } else if (enableHoldCartMode ==
+                                            AuthModes.authorised) {
+                                          Get.back();
+                                          showDialog(
+                                            context: context,
+                                            builder: (BuildContext context) {
+                                              return Dialog(
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          20.0),
+                                                ),
+                                                child:
+                                                    AuthorisationRequiredWidget(
+                                                        context),
+                                              );
+                                            },
+                                          );
+                                        } else {
+                                          Get.snackbar(
+                                              'Action Disabled for this account',
+                                              'Please contact support');
+                                        }
                                       },
                                       style: ElevatedButton.styleFrom(
                                         elevation: 1,
@@ -575,13 +561,11 @@ class _OrdersSectionState extends State<OrdersSection>
               var quantity =
                   '${(itemData.item?.isWeighedItem == true) ? (itemData.quantity?.quantityNumber) : (itemData.quantity?.quantityNumber?.toInt())}';
               numPadTextController.text = quantity;
-              numPadFocusNode.requestFocus();
             },
             child: _buildTableCell(itemData.item?.skuCode ?? '',
                 maxLines: 1, width: 100)),
         InkWell(
             onTap: () {
-              print('STEP:here2');
               homeController.selectedItemData.value = itemData;
               homeController.isQuantitySelected.value = true;
               var quantity =
@@ -694,36 +678,11 @@ class _OrdersSectionState extends State<OrdersSection>
   ) {
     return InkWell(
       onTap: () {
-        print('STEP: qty selected');
-        print(itemData.quantity?.quantityNumber);
-        if (itemData.item?.isWeighedItem == true &&
-            itemData.quantity?.quantityNumber == 0.0) {
-          onQuantityEdit(itemData);
-        } else if (itemData.item?.isWeighedItem == false &&
-            (itemData.quantity?.quantityNumber?.toInt() ?? 0) < 1) {
-          onQuantityEdit(itemData);
-        } else {
-          AuthModes qtyMode = AuthModeExtension.fromString(
-            homeController.isQuantityEditEnabled.value,
-          );
-          if (qtyMode == AuthModes.enabled ||
-              homeController.qtyEditApproverUserId.value.isNotEmpty) {
-            onQuantityEdit(itemData);
-          } else if (qtyMode == AuthModes.authorised) {
-            showDialog(
-              context: context,
-              builder: (_) => Dialog(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20.0)),
-                child: AuthorisationRequiredWidget(context, 'QTY_EDIT',
-                    onAuthSuccess: () => onQuantityEdit(itemData)),
-              ),
-            );
-          } else {
-            Get.snackbar(
-                'Action Disabled for this account', 'Please contact support');
-          }
-        }
+        homeController.selectedItemData.value = itemData;
+        homeController.isQuantitySelected.value = true;
+        var quantity =
+            '${(itemData.item?.isWeighedItem == true) ? (itemData.quantity?.quantityNumber) : (itemData.quantity?.quantityNumber?.toInt())}';
+        numPadTextController.text = quantity;
       },
       child: Container(
         padding: EdgeInsets.all(8),
@@ -786,14 +745,6 @@ class _OrdersSectionState extends State<OrdersSection>
     );
   }
 
-  void onQuantityEdit(CartLine itemData) {
-    homeController.selectedItemData.value = itemData;
-    homeController.isQuantitySelected.value = true;
-    var quantity =
-        '${(itemData.item?.isWeighedItem == true) ? (itemData.quantity?.quantityNumber) : (itemData.quantity?.quantityNumber?.toInt())}';
-    numPadTextController.text = quantity;
-  }
-
   Widget _buildDeleteButton(CartLine itemData) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
@@ -816,8 +767,7 @@ class _OrdersSectionState extends State<OrdersSection>
                 homeController.isLineDeleteEnabled.value,
               );
 
-              if (deleteMode == AuthModes.enabled ||
-                  homeController.deleteLineApproverUserId.value.isNotEmpty) {
+              if (deleteMode == AuthModes.enabled) {
                 _showRemoveDialog(itemData);
               } else if (deleteMode == AuthModes.authorised) {
                 showDialog(
@@ -825,8 +775,7 @@ class _OrdersSectionState extends State<OrdersSection>
                   builder: (_) => Dialog(
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20.0)),
-                    child: AuthorisationRequiredWidget(context, 'DELETE',
-                        onAuthSuccess: () => _showRemoveDialog(itemData)),
+                    child: AuthorisationRequiredWidget(context),
                   ),
                 );
               } else {
@@ -1040,7 +989,6 @@ class _OrdersSectionState extends State<OrdersSection>
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 8.0),
                           child: commonTextField(
-                            filled: true,
                             label: homeController.isQuantitySelected.value
                                 ? homeController.selectedItemData.value.item
                                             ?.isWeighedItem ==
@@ -1339,7 +1287,6 @@ class _OrdersSectionState extends State<OrdersSection>
                                       true
                               ? null
                               : () async {
-                                  numPadFocusNode.unfocus();
                                   await Logger.logButtonPress(
                                     button: 'Proceed To Pay',
                                   );
