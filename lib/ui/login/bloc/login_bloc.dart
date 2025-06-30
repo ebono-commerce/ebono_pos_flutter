@@ -233,9 +233,6 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
             SharedPreferenceConstants.selectedPosMode, allowedPosModes.first);
       }
       emit(GetOutletDetailsSuccess());
-      if (event.onOutletSelected != null) {
-        event.onOutletSelected!();
-      }
     } catch (error) {
       emit(GetOutletDetailsFailure(error.toString()));
     }
