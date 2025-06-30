@@ -30,4 +30,6 @@ class SharedPreferenceConstants {
   static final edcDeviceDetails = 'edcDeviceDetails';
   static final pointingTo = 'pointingTo';
   static final testModeStatus = 'testModeStatus';
+  static final paymentProvider = 'paymentProvider';
+  static final lastOrderAt = 'lastOrderAt';
 }

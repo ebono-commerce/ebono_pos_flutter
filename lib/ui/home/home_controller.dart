@@ -1,15 +1,19 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:ebono_pos/api/api_helper.dart';
+import 'package:ebono_pos/api/broadcast.dart';
 import 'package:ebono_pos/constants/shared_preference_constants.dart';
 import 'package:ebono_pos/data_store/hive_storage_helper.dart';
 import 'package:ebono_pos/data_store/shared_preference_helper.dart';
 import 'package:ebono_pos/models/cart_response.dart';
 import 'package:ebono_pos/models/coupon_details.dart';
 import 'package:ebono_pos/models/customer_response.dart';
+import 'package:ebono_pos/models/pos_metrics_payload.dart';
 import 'package:ebono_pos/models/scan_products_response.dart';
+import 'package:ebono_pos/models/udp_response.dart';
 import 'package:ebono_pos/navigation/page_routes.dart';
 import 'package:ebono_pos/ui/common_widgets/show_stopper_widget.dart';
 import 'package:ebono_pos/ui/home/model/cart_request.dart';
@@ -34,6 +38,10 @@ import 'package:ebono_pos/ui/payment_summary/model/health_check_response.dart';
 import 'package:ebono_pos/widgets/error_dialog_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+
+import '../../utils/logger.dart';
+import '../payment_summary/weighing_scale_service.dart';
 
 import 'model/add_to_cart.dart';
 
@@ -169,6 +177,9 @@ class HomeController extends GetxController {
   // completer to track if we're in the process of showing a dialog
   Completer<void>? _healthCheckDialogCompleter;
 
+  RxInt healthCheckFailCount = 0.obs;
+  var paymentProvider = ''.obs;
+
   void notifyDialogClosed() {
     _logoutDialogController.add(true);
   }
@@ -177,6 +188,7 @@ class HomeController extends GetxController {
   void onInit() async {
     _checkConnectivity();
     await readStorageData();
+    if (pointedTo.value == 'LOCAL') await _setupUdpBroadcastListener();
     if (Platform.isLinux) {
       // initializeWeighingScale();
     }
@@ -227,6 +239,11 @@ class HomeController extends GetxController {
     final userData =
         hiveStorageHelper.read(SharedPreferenceConstants.userDetails);
 
+    paymentProvider.value = hiveStorageHelper.read(
+          SharedPreferenceConstants.paymentProvider,
+        ) ??
+        '';
+
     if (userData != null && userData is Map) {
       // Convert Map<dynamic, dynamic> to Map<String, dynamic>
       final userDetailsData = userData.map(
@@ -252,6 +269,104 @@ class HomeController extends GetxController {
     }).toList();
 
     allowedPaymentModes.value = allowedPayments;
+  }
+
+  /// Set up UDP broadcast listener for network communication
+  ///
+  /// This method:
+  /// 1. Gets available broadcast addresses
+  /// 2. Starts listening on the first available broadcast address
+  /// 3. Sets up message handling for incoming broadcasts
+  Future<void> _setupUdpBroadcastListener() async {
+    if (pointedTo.value != 'LOCAL') return;
+    try {
+      await UdpBroadcastManager.listenForUdpBroadcast(
+        port: 9999,
+        onMessage: _handleIncomingBroadcast,
+      );
+    } catch (e, stack) {
+      print('❌ Failed to setup UDP broadcast listener: $e');
+
+      // Optionally show user-friendly error
+      if (e is UnsupportedError) {
+        print('💡 This platform is not supported for UDP broadcasting');
+      } else {
+        print('💡 Check network connectivity and permissions');
+      }
+
+      Logger.logException(
+        eventType: 'EXCEPTION : BROADCAST',
+        error: e.toString(),
+        stackTrace: stack.toString(),
+      );
+    }
+  }
+
+  /// Handle incoming UDP broadcast messages
+  ///
+  /// This is called whenever a UDP broadcast is received
+  /// Add your business logic here based on the message content
+  void _handleIncomingBroadcast(String message, InternetAddress sender) async {
+    if (pointedTo.value != 'LOCAL') return;
+    // Ensure controller is still active
+    if (isClosed) {
+      print('⚠️ Controller disposed, ignoring broadcast message');
+      return;
+    }
+
+    print('📥 Processing broadcast: "$message" from ${sender.address}');
+
+    try {
+      // Decode JSON message into a Map
+      final decoded = jsonDecode(message);
+
+      // Create UDPBroadCaseResponse from decoded map
+      UDPBroadCaseResponse udpBroadCaseResponse = UDPBroadCaseResponse.fromMap(
+        decoded,
+      );
+
+      final weighingScaleService = Get.find<WeighingScaleService>();
+
+      if (udpBroadCaseResponse.event == 'SEND_POS_APP_METRICS') {
+        print('✅ Decoded event: ${udpBroadCaseResponse.event}');
+        print('📦 Payload: ${udpBroadCaseResponse.payload.toMap()}');
+
+        final info = await PackageInfo.fromPlatform();
+        final appVersion = info.version;
+
+        _homeRepository.sendPosMetrics(
+            payload: PosMetricsPayload(
+          appVersion: appVersion,
+          currentCartId: cartResponse.value.cartId ?? '',
+          dmsId: udpBroadCaseResponse.payload.dmsId,
+          edcType: paymentProvider.value,
+          lastOrderAt: hiveStorageHelper.read(
+                SharedPreferenceConstants.lastOrderAt,
+              ) ??
+              '',
+          macAddress:
+              await UdpBroadcastManager.instance.getPrimaryMacAddress() ?? '',
+          outletId: udpBroadCaseResponse.payload.outletId,
+          triggerType: udpBroadCaseResponse.payload.triggerType,
+          registerId: registerId.value,
+          terminalId: selectedTerminal.value,
+          type: 'CLIENT',
+          upstreamType: pointedTo.value,
+          userId: userDetails.value.userId,
+          weighingScaleStatus: await weighingScaleService.isScaleConnected()
+              ? 'Available'
+              : 'Not Available',
+        ));
+      }
+    } catch (e, stack) {
+      print('❌ Failed to decode UDP broadcast message: $e $stack');
+
+      Logger.logException(
+        eventType: 'EXCEPTION: Failed to decode UDP broadcast message',
+        error: e.toString(),
+        stackTrace: stack.toString(),
+      );
+    }
   }
 
   /*void initializeWeighingScale() {
@@ -913,7 +1028,7 @@ class HomeController extends GetxController {
 
   Future<void> healthCheckApiCall() async {
     _statusCheckTimer = Timer.periodic(
-      const Duration(seconds: 5),
+      const Duration(seconds: 10),
       (timer) async {
         // Skip this cycle if we're already processing a health check failure
         if (_healthCheckDialogCompleter != null) {
@@ -932,18 +1047,21 @@ class HomeController extends GetxController {
 
           if (response.statusCode == 200) {
             isOnline.value = true;
+            healthCheckFailCount.value = 0;
           } else {
+            ++healthCheckFailCount.value;
             isOnline.value = false;
-            // Show dialog exactly once
-            showHealthCheckDialog();
-            // Cancel timer immediately to prevent further checks
-            timer.cancel();
           }
         } catch (e) {
+          ++healthCheckFailCount.value;
+          isOnline.value = false;
+        }
+
+        if (healthCheckFailCount.value > 3) {
           isOnline.value = false;
           // Show dialog exactly once
           showHealthCheckDialog();
-          // Cancel timer immediately
+          // Cancel timer immediately to prevent further checks
           timer.cancel();
         }
       },
@@ -1313,6 +1431,7 @@ class HomeController extends GetxController {
   void onClose() {
     _statusCheckTimer?.cancel();
     _logoutDialogController.close();
+    closeUdpSocketConnection();
     // digitalWeighingScale.dispose();
     super.onClose();
   }
@@ -1344,9 +1463,14 @@ class HomeController extends GetxController {
     });
   }
 
+  void closeUdpSocketConnection() async {
+    await closeUdpSocket();
+  }
+
   @override
   void dispose() {
     _statusCheckTimer?.cancel();
+    closeUdpSocketConnection();
     clearDataAndLogout();
     super.dispose();
   }

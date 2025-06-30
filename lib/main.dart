@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:ebono_pos/data_store/hive_storage_helper.dart';
 import 'package:ebono_pos/navigation/navigation.dart';
 import 'package:ebono_pos/theme/theme_data.dart';
@@ -17,6 +19,7 @@ import 'navigation/page_routes.dart';
 bool showCustomError = false;
 
 void main() async {
+  runZonedGuarded(() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await windowManager.ensureInitialized();
@@ -56,8 +59,14 @@ void main() async {
     statusBarColor: Colors.transparent,
     systemNavigationBarColor: Colors.transparent,
   ));
+  }}, (error, stackTrace) {
+    Logger.logException(
+      eventType: 'EXCEPTION: ROOT',
+      error: error.toString(),
+      stackTrace: stackTrace.toString(),
+    );
+  });
 }
-
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 

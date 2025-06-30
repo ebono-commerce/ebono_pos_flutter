@@ -69,4 +69,7 @@ class ApiConstants {
   static String searchItems(String searchText) =>
       'catalog/api/v1/pos/products/fetch/$searchText';
   static String generateSmsInvoice = '/account/api/v1/pos/trigger_sms';
+
+  static final sendPosMetrics =
+      'metrics-collector/v1/metrics-collector/capture';
 }
