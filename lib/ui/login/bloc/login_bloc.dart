@@ -18,6 +18,8 @@ import 'package:libserialport/libserialport.dart';
 import 'package:printing/printing.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../../utils/logger.dart';
+
 class LoginBloc extends Bloc<LoginEvent, LoginState> {
   final LoginRepository _loginRepository;
   final SharedPreferenceHelper _sharedPreferenceHelper;
@@ -299,6 +301,17 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       hiveStorageHelper.save(SharedPreferenceConstants.isReturnsEnabled,
           response.terminalDetails?.returnsEnabledMode);
 
+      final provider = response.terminalDetails?.edcDevices?.isNotEmpty == true
+          ? response.terminalDetails!.edcDevices!.first.provider
+                  ?.toLowerCase() ??
+              ""
+          : "";
+
+      hiveStorageHelper.save(
+        SharedPreferenceConstants.paymentProvider,
+        provider,
+      );
+
       List<Map<String, dynamic>> allowedPaymentModeJson = response
               .outletDetails!.allowedPaymentModes
               ?.map((mode) => mode.toJson())
@@ -319,8 +332,12 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
 
       print('edc details:${edcDeviceDetails.firstOrNull}');
       emit(SubmitTerminalDetailsSuccess());
-    } catch (error) {
+    } catch (error, stackTrace) {
       emit(SubmitTerminalDetailsFailure(error.toString()));
+      Logger.logException(
+        error: error.toString(),
+        stackTrace: stackTrace.toString(),
+      );
     }
   }
 

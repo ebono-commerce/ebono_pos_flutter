@@ -28,6 +28,7 @@ import 'package:ebono_pos/ui/payment_summary/model/place_order_request.dart';
 import 'package:ebono_pos/ui/payment_summary/model/wallet_charge_request.dart';
 import 'package:ebono_pos/ui/payment_summary/repository/PaymentRepository.dart';
 import 'package:ebono_pos/utils/common_methods.dart';
+import 'package:ebono_pos/utils/logger.dart';
 import 'package:ebono_pos/utils/price.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
@@ -133,22 +134,26 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
 
   Future<void> _onInitial(
       PaymentInitialEvent event, Emitter<PaymentState> emit) async {
-    emit(state.copyWith(initialState: true));
-    paymentSummaryRequest = event.request;
-    add(FetchPaymentSummary());
+    try {
+      emit(state.copyWith(initialState: true));
+      paymentSummaryRequest = event.request;
+      add(FetchPaymentSummary());
 
-    var edcDevice = hiveStorageHelper
-        .read(SharedPreferenceConstants.edcDeviceDetails) as List;
+      var edcDevice = hiveStorageHelper
+          .read(SharedPreferenceConstants.edcDeviceDetails) as List;
 
-    List<EdcDevice> edcDeviceDetails = edcDevice.map((item) {
-      if (item is Map<String, dynamic>) {
-        return EdcDevice.fromJson(item);
-      } else {
-        return EdcDevice.fromJson(Map<String, dynamic>.from(item));
-      }
-    }).toList();
-    print(edcDeviceDetails.first.username);
-    edcDetails = edcDeviceDetails;
+      List<EdcDevice> edcDeviceDetails = edcDevice.map((item) {
+        if (item is Map<String, dynamic>) {
+          return EdcDevice.fromJson(item);
+        } else {
+          return EdcDevice.fromJson(Map<String, dynamic>.from(item));
+        }
+      }).toList();
+      print(edcDeviceDetails.first.username);
+      edcDetails = edcDeviceDetails;
+    } catch (e, stack) {
+      Logger.logViewSimple(view: 'error: $e, $stack: $stack');
+    }
   }
 
   Future<void> _fetchPaymentSummary(
@@ -796,6 +801,15 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
         registerTransactionId: hiveStorageHelper
             .read(SharedPreferenceConstants.registerTransactionId),
       ));
+
+      /* clear data if existing */
+      hiveStorageHelper.remove(SharedPreferenceConstants.lastOrderAt);
+
+      /* store it for fresh */
+      hiveStorageHelper.save(
+        SharedPreferenceConstants.lastOrderAt,
+        orderSummaryResponse.orderDate.toString(),
+      );
 
       emit(state.copyWith(
           isLoading: false,
