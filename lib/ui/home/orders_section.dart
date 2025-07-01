@@ -109,7 +109,7 @@ class _OrdersSectionState extends State<OrdersSection>
 
     ever(homeController.isScanApiError, (value) {
       if (value) {
-        numPadTextController.text = '';
+        numPadTextController.clear();
         _requestFocusOnNumpad();
         // setState(() {});
       }
