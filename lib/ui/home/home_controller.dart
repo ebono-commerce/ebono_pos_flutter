@@ -42,7 +42,6 @@ import 'package:package_info_plus/package_info_plus.dart';
 
 import '../../utils/logger.dart';
 import '../payment_summary/weighing_scale_service.dart';
-
 import 'model/add_to_cart.dart';
 
 class HomeController extends GetxController {

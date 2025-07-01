@@ -625,7 +625,6 @@ class _OrdersSectionState extends State<OrdersSection>
                 maxLines: 1, width: 100)),
         InkWell(
             onTap: () {
-              print('STEP:here2');
               homeController.selectedItemData.value = itemData;
               homeController.isQuantitySelected.value = true;
               var quantity =
@@ -635,33 +634,9 @@ class _OrdersSectionState extends State<OrdersSection>
             child: _buildTableCell(itemData.item?.skuTitle ?? '',
                 maxLines: 2, width: 180)),
         _buildQuantityCell(itemData),
-        InkWell(
-          onTap: () {
-            AuthModes enablePriceEdit = AuthModeExtension.fromString(
-                homeController.isPriceEditEnabled.value);
-            if (enablePriceEdit == AuthModes.enabled ||
-                enablePriceEdit == AuthModes.authorised) {
-              showDialog(
-                context: context,
-                builder: (BuildContext context) {
-                  return Dialog(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20.0),
-                    ),
-                    child: PriceOverrideWithAuthWidget(context, itemData,
-                        enablePriceEdit == AuthModes.enabled),
-                  );
-                },
-              );
-            } else {
-              Get.snackbar(
-                  'Action Disabled for this account', 'Please contact support');
-            }
-          },
-          child: _buildTableCell(
-              getActualPrice(itemData.mrp?.centAmount, itemData.mrp?.fraction),
-              width: 100),
-        ),
+        _buildTableCell(
+            getActualPrice(itemData.mrp?.centAmount, itemData.mrp?.fraction),
+            width: 100),
         InkWell(
           onTap: () {
             AuthModes enablePriceEdit = AuthModeExtension.fromString(
