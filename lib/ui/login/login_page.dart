@@ -16,7 +16,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 
-import '../../cubit/test_mode_cubit.dart';
+import '../../cubit/training_mode_cubit.dart';
 import '../common_widgets/version_widget.dart';
 
 class LoginPage extends StatefulWidget {
@@ -56,6 +56,7 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   void initState() {
+    context.read<TrainingModeCubit>().loadTestModeStatus();
     loginBloc.add(LoginInitialEvent());
 
     storeIdFocusNode.addListener(() {
@@ -262,150 +263,193 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Widget loginWidget(BuildContext context) {
-    return Card(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15.0),
-      ),
-      color: Colors.white,
-      elevation: 10,
-      child: Container(
-        padding: EdgeInsets.all(25),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // Login Id input
-              commonTextField(
-                label: 'Login Id',
-                focusNode: loginIdFocusNode,
-                controller: loginIdController,
-                acceptableLength: 10,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter login id';
-                  } else if (value.length < 10) {
-                    return 'login id must be at least 10 characters';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 20),
-
-              // Password input
-              commonTextField(
-                label: 'Enter Password',
-                focusNode: passwordFocusNode,
-                controller: passwordController,
-                obscureText: true,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a password';
-                  } else if (value.length < 4) {
-                    return 'Password must be at least 4 characters';
-                  }
-                  return null;
-                },
-              ),
-
-              const SizedBox(height: 30),
-
-              // Sign in button
-              SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).colorScheme.secondary,
-                    textStyle: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.w500,
-                        ),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 20, vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    elevation: 6,
-                  ),
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      loginBloc.add(
-                        LoginButtonPressed(
-                          loginIdController.text,
-                          passwordController.text,
-                        ),
-                      );
-                    } else {
-                      Get.snackbar(
-                          "Invalid Data", "Please enter all mandatory fields");
+    return BlocBuilder<TrainingModeCubit, bool>(
+        builder: (context, isTrainingModeEnabled) {
+      return Card(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15.0),
+        ),
+        color: Colors.white,
+        elevation: 10,
+        child: Container(
+          padding: EdgeInsets.all(25),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // Login Id input
+                commonTextField(
+                  label: 'Login Id',
+                  focusNode: loginIdFocusNode,
+                  controller: loginIdController,
+                  acceptableLength: 10,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter login id';
+                    } else if (value.length < 10) {
+                      return 'login id must be at least 10 characters';
                     }
+                    return null;
                   },
-                  child: const Text(
-                    'Sign In',
+                ),
+                const SizedBox(height: 20),
+
+                // Password input
+                commonTextField(
+                  label: 'Enter Password',
+                  focusNode: passwordFocusNode,
+                  controller: passwordController,
+                  obscureText: true,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter a password';
+                    } else if (value.length < 4) {
+                      return 'Password must be at least 4 characters';
+                    }
+                    return null;
+                  },
+                ),
+
+                const SizedBox(height: 30),
+
+                // Sign in button
+                SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Theme.of(context).colorScheme.secondary,
+                      textStyle:
+                          Theme.of(context).textTheme.titleLarge?.copyWith(
+                                fontWeight: FontWeight.w500,
+                              ),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      elevation: 6,
+                    ),
+                    onPressed: () {
+                      if (_formKey.currentState!.validate()) {
+                        loginBloc.add(
+                          LoginButtonPressed(
+                            loginIdController.text,
+                            passwordController.text,
+                            isTrainingModeEnabled,
+                          ),
+                        );
+                      } else {
+                        Get.snackbar("Invalid Data",
+                            "Please enter all mandatory fields");
+                      }
+                    },
+                    child: const Text(
+                      'Sign In',
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 10),
+                const SizedBox(height: 10),
 
-              const UnableToLoginWidget(),
+                const UnableToLoginWidget(),
 
-              const SizedBox(height: 10),
-              // Unable to log in text
-              Center(
-                child: Wrap(
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  children: [
-                    TextButton(
-                      onPressed: () {
-                        Logger.logButtonSimple(
-                          button: 'Clicked on Login BTN',
-                        );
-                        loginBloc.add(LoginInitialEvent());
-                      },
-                      child: const BackToPortSelection(),
-                    ),
-                  ],
+                const SizedBox(height: 10),
+                // Unable to log in text
+                Center(
+                  child: Wrap(
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      TextButton(
+                        onPressed: () {
+                          Logger.logButtonSimple(
+                            button: 'Clicked on Login BTN',
+                          );
+                          loginBloc.add(LoginInitialEvent());
+                        },
+                        child: const BackToPortSelection(),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
 
-              SizedBox(height: 20),
-              BlocBuilder<TestModeCubit, bool>(
-                builder: (context, isTrainingModeEnabled) {
-                  return SizedBox(
-                    width: double.infinity,
-                    height: 50,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        context.read<TestModeCubit>().toggle();
-                        setState(() {});
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xFFFA0E64),
-                        textStyle:
-                            Theme.of(context).textTheme.titleLarge?.copyWith(
-                                  fontWeight: FontWeight.w500,
-                                ),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 20, vertical: 12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                        elevation: 6,
+                SizedBox(height: 20),
+                // BlocBuilder<TestModeCubit, bool>(
+                //   builder: (context, isTrainingModeEnabled) {
+                //     return
+                SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: ElevatedButton(
+                    onPressed: (loginBloc.state is LoginLoading ||
+                            loginBloc.state is LoginButtonPressed)
+                        ? null
+                        : () {
+                            if (loginBloc.state is LoginLoading) {
+                              Get.snackbar(
+                                'Action Not Allowed',
+                                'cannot switch to training mode while logging in',
+                              );
+                            } else {
+                              showDialog(
+                                barrierDismissible: false,
+                                context: context,
+                                builder: (context) {
+                                  return AlertDialog(
+                                    title: Text(
+                                      'Are you sure to ${isTrainingModeEnabled ? 'exit' : 'enter'} training mode',
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                        },
+                                        child: Text('No'),
+                                      ),
+                                      TextButton(
+                                        onPressed: () {
+                                          context
+                                              .read<TrainingModeCubit>()
+                                              .toggle();
+                                          setState(() {});
+                                          Navigator.of(context).pop();
+                                        },
+                                        child: Text('Yes'),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                            }
+                          },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Color(0xFFFA0E64),
+                      textStyle:
+                          Theme.of(context).textTheme.titleLarge?.copyWith(
+                                fontWeight: FontWeight.w500,
+                              ),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
                       ),
-                      child: Text(
-                        '${isTrainingModeEnabled ? 'Exit' : 'Enter'} Test Mode',
-                        style: TextStyle(color: Colors.white),
-                      ),
+                      elevation: 6,
                     ),
-                  );
-                },
-              ),
-            ],
+                    child: Text(
+                      '${isTrainingModeEnabled ? 'Exit' : 'Enter'} Test Mode',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                  // );
+                  // },
+                ),
+              ],
+            ),
           ),
         ),
-      ),
-    );
+      );
+    });
   }
 
   Widget storeDetailsWidget(BuildContext context, LoginBloc loginBloc) {

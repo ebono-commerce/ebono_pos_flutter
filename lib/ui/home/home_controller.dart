@@ -228,7 +228,8 @@ class HomeController extends GetxController {
     isSalesAssociateLinkEnabled.value = hiveStorageHelper
         .read(SharedPreferenceConstants.isSalesAssociateLinkEnabled);
     isDigitalInvoiceEnabled = hiveStorageHelper
-        .read(SharedPreferenceConstants.isDigitalInvoiceEnabled);
+            .read(SharedPreferenceConstants.isDigitalInvoiceEnabled) ??
+        false;
     isMandateRegisterCloseOnLogoutEnabled.value = hiveStorageHelper
         .read(SharedPreferenceConstants.mandateRegisterCloseOnLogout);
     isReturnViewEnabled.value =

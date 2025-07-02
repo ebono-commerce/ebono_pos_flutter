@@ -12,7 +12,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:window_manager/window_manager.dart';
 
-import 'cubit/test_mode_cubit.dart';
+import 'cubit/training_mode_cubit.dart';
 import 'di/initial_binding.dart';
 import 'navigation/page_routes.dart';
 
@@ -46,7 +46,7 @@ void main() async {
 
     runApp(
       BlocProvider(
-        create: (_) => TestModeCubit(),
+        create: (_) => TrainingModeCubit(),
         child: const MyApp(),
       ),
     );
@@ -60,6 +60,10 @@ void main() async {
       systemNavigationBarColor: Colors.transparent,
     ));
   }, (error, stackTrace) {
+    if (String.fromEnvironment('ENV') != 'prod') {
+      Get.snackbar('Root Error', '${error.toString()} $stackTrace');
+      print("err: $error $stackTrace");
+    }
     Logger.logException(
       eventType: 'EXCEPTION: ROOT',
       error: error.toString(),
@@ -84,7 +88,7 @@ class MyApp extends StatelessWidget {
 
       // Inject your Training Mode Notch here
       builder: (context, child) {
-        return BlocBuilder<TestModeCubit, bool>(
+        return BlocBuilder<TrainingModeCubit, bool>(
           builder: (context, isTestModeEnabled) {
             return Container(
               decoration: BoxDecoration(

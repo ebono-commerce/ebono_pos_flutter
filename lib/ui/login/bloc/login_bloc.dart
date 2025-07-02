@@ -117,7 +117,13 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     emit(LoginLoading());
     try {
       /* check for health status api */
-      final status = await healthCheckAPI();
+      bool status = false;
+
+      if (!event.isTrainingModeEnabled) {
+        status = await healthCheckAPI();
+      } else {
+        status = false;
+      }
 
       await _sharedPreferenceHelper.pointTo(isCloud: status == false);
 
