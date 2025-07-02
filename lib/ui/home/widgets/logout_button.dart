@@ -113,7 +113,67 @@ class _LogoutButtonState extends State<LogoutButton> {
                   homeController.notifyDialogClosed();
                 });
               } else {
-                loginBloc.add(LogoutButtonPressed(''));
+                Get.dialog(
+                  AlertDialog(
+                    title: Text('Logout?'),
+                    content: Text('Are you sure you want to logout?'),
+                    actions: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: ElevatedButton(
+                              onPressed: () => Get.back(),
+                              style: ElevatedButton.styleFrom(
+                                elevation: 1,
+                                padding: EdgeInsets.symmetric(vertical: 20),
+                                shape: RoundedRectangleBorder(
+                                  side: BorderSide(
+                                      color: CustomColors.primaryColor,
+                                      width: 1.5),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                backgroundColor: CustomColors.keyBoardBgColor,
+                              ),
+                              child: Text(
+                                "No, Cancel",
+                                style: TextStyle(
+                                    color: CustomColors.primaryColor,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          ),
+                          SizedBox(width: 20),
+                          Expanded(
+                            child: ElevatedButton(
+                              onPressed: () {
+                                Get.back();
+                                loginBloc.add(LogoutButtonPressed(''));
+                              },
+                              style: ElevatedButton.styleFrom(
+                                elevation: 1,
+                                padding: EdgeInsets.symmetric(vertical: 20),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                backgroundColor: CustomColors.secondaryColor,
+                              ),
+                              child: Text(
+                                "Yes, Logout",
+                                style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ).then((_) {
+                  homeController.notifyDialogClosed();
+                });
               }
             });
           },

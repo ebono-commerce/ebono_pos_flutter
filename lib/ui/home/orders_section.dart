@@ -301,8 +301,8 @@ class _OrdersSectionState extends State<OrdersSection>
                             },
                           );
                         } else {
-                          Get.snackbar('Action Disabled for this account',
-                              'Please contact support');
+                          Get.snackbar('Hold Cart disabled for this account',
+                              'Please contact store manager');
                         }
                       } else {
                         AuthModes enableHoldCartMode =
@@ -331,8 +331,8 @@ class _OrdersSectionState extends State<OrdersSection>
                             },
                           );
                         } else {
-                          Get.snackbar('Action Disabled for this account',
-                              'Please contact support');
+                          Get.snackbar('Hold Cart disabled for this account',
+                              'Please contact store manager');
                         }
                       }
                     },
@@ -341,8 +341,9 @@ class _OrdersSectionState extends State<OrdersSection>
                           AuthModeExtension.fromString(
                               homeController.isSalesAssociateLinkEnabled.value);
                       if (enableSalesAssociateMode == AuthModes.disabled) {
-                        Get.snackbar('Action Disabled for this account',
-                            'Please contact support');
+                        Get.snackbar(
+                            'Sales Associate disabled for this account',
+                            'Please contact store manager');
                       } else {
                         showDialog(
                           context: context,
@@ -656,8 +657,8 @@ class _OrdersSectionState extends State<OrdersSection>
                 },
               );
             } else {
-              Get.snackbar(
-                  'Action Disabled for this account', 'Please contact support');
+              Get.snackbar('Price Edit disabled for this account',
+                  'Please contact store manager');
             }
           },
           child: _buildTableCell(
@@ -741,8 +742,8 @@ class _OrdersSectionState extends State<OrdersSection>
               ),
             );
           } else {
-            Get.snackbar(
-                'Action Disabled for this account', 'Please contact support');
+            Get.snackbar('Quantity Edit Mode disabled for this account',
+                'Please contact store manager');
           }
         }
       },
@@ -851,8 +852,8 @@ class _OrdersSectionState extends State<OrdersSection>
                   ),
                 );
               } else {
-                Get.snackbar('Action Disabled for this account',
-                    'Please contact support');
+                Get.snackbar('Line Delete Mode disabled for this account',
+                    'Please contact store manager');
               }
             }),
       ),
