@@ -1252,9 +1252,15 @@ class HomeController extends GetxController {
     late CartResponse? response;
     try {
       response = await _homeRepository.overridePrice(request);
-      cartResponse.value = response;
-      overideApproverUserId.value = '';
-      fetchCartDetails();
+      if (response.cartLines?.isNotEmpty == true) {
+        clearCart();
+        cartLines.clear();
+
+        cartResponse.value = response;
+        overideApproverUserId.value = '';
+
+        mapCartLines(cartResponse: response);
+      }
     } catch (e) {
       response = null;
       Get.snackbar('Error while overriding price', '$e');
