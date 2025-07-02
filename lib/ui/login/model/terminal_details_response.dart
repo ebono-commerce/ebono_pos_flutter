@@ -206,7 +206,7 @@ class TerminalDetails {
               ? null
               : PrinterDevice.fromJson(json["printer_device"]),
           isActive: json["is_active"],
-          returnsEnabledMode: json["returns_enabled_mode"]);
+          returnsEnabledMode: json["returns_enabled_mode"] ?? 'ENABLED');
 
   Map<String, dynamic> toJson() => {
         "terminal_id": terminalId,

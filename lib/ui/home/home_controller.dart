@@ -42,7 +42,6 @@ import 'package:package_info_plus/package_info_plus.dart';
 
 import '../../utils/logger.dart';
 import '../payment_summary/weighing_scale_service.dart';
-
 import 'model/add_to_cart.dart';
 
 class HomeController extends GetxController {
@@ -229,7 +228,8 @@ class HomeController extends GetxController {
     isSalesAssociateLinkEnabled.value = hiveStorageHelper
         .read(SharedPreferenceConstants.isSalesAssociateLinkEnabled);
     isDigitalInvoiceEnabled = hiveStorageHelper
-        .read(SharedPreferenceConstants.isDigitalInvoiceEnabled);
+            .read(SharedPreferenceConstants.isDigitalInvoiceEnabled) ??
+        false;
     isMandateRegisterCloseOnLogoutEnabled.value = hiveStorageHelper
         .read(SharedPreferenceConstants.mandateRegisterCloseOnLogout);
     isReturnViewEnabled.value =
@@ -631,8 +631,13 @@ class HomeController extends GetxController {
           cartId.value = customerResponse.value.cartId.toString();
           await hiveStorageHelper.remove(SharedPreferenceConstants.cartId);
           await hiveStorageHelper.save(
-              SharedPreferenceConstants.cartId, response.cartId);
-          fetchCartDetails();
+            SharedPreferenceConstants.cartId,
+            response.cartId,
+          );
+
+          if (!isFromResumeHoldCart) {
+            fetchCartDetails();
+          }
         }
       }
     } catch (e) {
@@ -644,51 +649,19 @@ class HomeController extends GetxController {
   }
 
   Future<void> fetchCartDetails() async {
-    cartLines.clear();
     try {
       var response =
           await _homeRepository.getCart(CartRequest(cartId: cartId.value));
-      clearCart();
-      cartResponse.value = response;
-      if (cartResponse.value.cartLines != null &&
-          cartResponse.value.cartLines?.isNotEmpty == true) {
-        for (var element in cartResponse.value.cartLines!) {
-          addCartLine(element);
-        }
 
-        isQuantityEmpty.value = cartLines.any((cart) =>
-            cart.quantity?.quantityNumber == 0 ||
-            cart.quantity?.quantityNumber == 0.0);
-
-        if (response.cartLines?.first.item?.isWeighedItem == true) {
-          if (response.cartLines?.first.quantity?.quantityNumber == 0) {
-            isQuantitySelected.value = true;
-          }
-          selectedItemData.value = CartLine(
-            cartLineId: response.cartLines?.first.cartLineId,
-            item: response.cartLines?.first.item,
-            quantity: response.cartLines?.first.quantity,
-            unitPrice: response.cartLines?.first.unitPrice,
-            mrp: response.cartLines?.first.mrp,
-            lineTotal: response.cartLines?.first.lineTotal,
-            applicableCartAdjustments:
-                response.cartLines?.first.applicableCartAdjustments,
-            audit: response.cartLines?.first.audit,
-            weightController: TextEditingController(
-                text: response.cartLines?.first.quantity?.quantityNumber
-                    .toString()),
-            weightFocusNode: FocusNode(),
-            quantityTextController: TextEditingController(
-                text: response.cartLines?.first.quantity?.quantityNumber
-                    .toString()),
-            quantityFocusNode: FocusNode(),
-            priceTextController: TextEditingController(
-                text: response.cartLines?.first.quantity?.quantityNumber
-                    .toString()),
-            priceFocusNode: FocusNode(),
-          );
-        }
+      if (response.cartLines != null &&
+          response.cartLines?.isNotEmpty == true) {
+        /* clearing the cart only when response is successful */
+        clearCart();
+        cartLines.clear();
+        cartResponse.value = response;
+        mapCartLines(cartResponse: response);
       } else {
+        /* no use of clearing cart when api error */
         selectedItemData.value = CartLine();
         isQuantitySelected.value = false;
       }
@@ -699,106 +672,70 @@ class HomeController extends GetxController {
     }
   }
 
+  Future<void> mapCartLines({
+    required CartResponse cartResponse,
+    bool isFromAddToCart = false,
+    bool isBizerbaCode = false,
+    bool isFromUpdateCartLine = false,
+  }) async {
+    try {
+      for (var element in cartResponse.cartLines!) {
+        addCartLine(element);
+      }
+
+      isQuantityEmpty.value = cartLines.any((cart) =>
+          cart.quantity?.quantityNumber == 0 ||
+          cart.quantity?.quantityNumber == 0.0);
+
+      if (cartResponse.cartLines?.first.item?.isWeighedItem == true) {
+        if (cartResponse.cartLines?.first.quantity?.quantityNumber == 0 ||
+            isFromAddToCart) {
+          isQuantitySelected.value = isBizerbaCode == false;
+        }
+        selectedItemData.value = CartLine(
+          cartLineId: cartResponse.cartLines?.first.cartLineId,
+          item: cartResponse.cartLines?.first.item,
+          quantity: cartResponse.cartLines?.first.quantity,
+          unitPrice: cartResponse.cartLines?.first.unitPrice,
+          mrp: cartResponse.cartLines?.first.mrp,
+          lineTotal: cartResponse.cartLines?.first.lineTotal,
+          applicableCartAdjustments:
+              cartResponse.cartLines?.first.applicableCartAdjustments,
+          audit: cartResponse.cartLines?.first.audit,
+          weightController: TextEditingController(
+              text: cartResponse.cartLines?.first.quantity?.quantityNumber
+                  .toString()),
+          weightFocusNode: FocusNode(),
+          quantityTextController: TextEditingController(
+              text: cartResponse.cartLines?.first.quantity?.quantityNumber
+                  .toString()),
+          quantityFocusNode: FocusNode(),
+          priceTextController: TextEditingController(
+              text: cartResponse.cartLines?.first.quantity?.quantityNumber
+                  .toString()),
+          priceFocusNode: FocusNode(),
+        );
+      }
+    } catch (e) {
+      Get.snackbar('Error while mapping cart lines', '$e');
+    }
+  }
+
   Future<void> mergeCart(String phoneNumber) async {
     cartLines.clear();
     try {
       clearCart();
       var response = await _homeRepository.mergeCart(
           CartRequest(cartId: cartId.value, phoneNumber: phoneNumber));
+      clearCart();
+      cartLines.clear();
       cartResponse.value = response;
-      if (cartResponse.value.cartLines != null) {
-        for (var element in cartResponse.value.cartLines!) {
-          addCartLine(element);
-        }
-      }
+
+      mapCartLines(cartResponse: response);
     } catch (e) {
       Get.snackbar('Error while merging cart', '$e');
     }
   }
-
-  // Future<void> addToCartApiCall(
-  //   String? skuCode,
-  //   dynamic qty,
-  //   String? mrpId,
-  //   String? qtyUom,
-  //   String? cartId, {
-  //   bool isWeightedItem = false,
-  // }) async {
-  //   try {
-  //     var response = await _homeRepository.addToCart(
-  //       AddToCartRequest(cartLines: [
-  //         AddToCartCartLine(
-  //           skuCode: skuCode,
-  //           quantity: AddToCartQuantity(
-  //             quantityNumber: qty,
-  //             quantityUom: qtyUom,
-  //             isWeighedItem: isWeightedItem,
-  //           ),
-  //           mrpId: mrpId,
-  //         )
-  //       ]),
-  //       cartId,
-  //     );
-  //
-  //     clearCart();
-  //     cartResponse.value = response;
-  //
-  //     /* checking for cart line errors */
-  //     if (response.cartAlerts.isNotEmpty &&
-  //         response.cartAlerts.first.errorCode == "SHOW_STOPPER") {
-  //       await showStopperError(
-  //         errorMessage: response.cartAlerts.first.message,
-  //         isScanApiError: false,
-  //       );
-  //
-  //       return;
-  //     } else if (response.cartLines != null &&
-  //         cartResponse.value.cartLines?.isNotEmpty == true) {
-  //       for (var element in cartResponse.value.cartLines!) {
-  //         addCartLine(element);
-  //       }
-  //
-  //       if (response.cartLines?.first.item?.isWeighedItem == true) {
-  //         if (response.cartLines?.first.quantity?.quantityUom != 'pcs') {
-  //           isQuantitySelected.value = true;
-  //         }
-  //         selectedItemData.value = CartLine(
-  //           cartLineId: response.cartLines?.first.cartLineId,
-  //           item: response.cartLines?.first.item,
-  //           quantity: response.cartLines?.first.quantity,
-  //           unitPrice: response.cartLines?.first.unitPrice,
-  //           mrp: response.cartLines?.first.mrp,
-  //           lineTotal: response.cartLines?.first.lineTotal,
-  //           applicableCartAdjustments:
-  //               response.cartLines?.first.applicableCartAdjustments,
-  //           audit: response.cartLines?.first.audit,
-  //           weightController: TextEditingController(
-  //               text: response.cartLines?.first.quantity?.quantityNumber
-  //                   .toString()),
-  //           weightFocusNode: FocusNode(),
-  //           quantityTextController: TextEditingController(
-  //               text: response.cartLines?.first.quantity?.quantityNumber
-  //                   .toString()),
-  //           quantityFocusNode: FocusNode(),
-  //           priceTextController: TextEditingController(
-  //               text: response.cartLines?.first.quantity?.quantityNumber
-  //                   .toString()),
-  //           priceFocusNode: FocusNode(),
-  //         );
-  //       }
-  //     } else {
-  //       selectedItemData.value = CartLine();
-  //       isQuantitySelected.value = false;
-  //     }
-  //
-  //     isApiCallInProgress = false;
-  //   } catch (e, stack) {
-  //     print("error: $e, stack: $stack");
-  //     Get.snackbar('Error while adding to cart', '$e');
-  //   } finally {
-  //     isApiCallInProgress = false;
-  //   }
-  // }
 
   Future<void> addToCartApiCall(
     String? skuCode,
@@ -840,57 +777,18 @@ class HomeController extends GetxController {
         return;
       }
 
-      // Clear local and observable cart states to avoid duplicates
-      cartLines.clear();
-      clearCart();
-
-      cartResponse.value = response;
-
       //  Add valid cart lines
       if (response.cartLines?.isNotEmpty == true) {
-        for (var element in response.cartLines!) {
-          addCartLine(element);
-        }
+        // Clear local and observable cart states to avoid duplicates
+        clearCart();
+        cartResponse.value = response;
+        cartLines.clear();
 
-        final firstCartLine = response.cartLines!.first;
-        final quantityNumber = firstCartLine.quantity?.quantityNumber;
-
-        //  Check if it's a weighted item and set up UI controls accordingly
-        if (firstCartLine.item?.isWeighedItem == true &&
-            quantityNumber != null &&
-            firstCartLine.quantity?.quantityUom != 'pcs') {
-          isQuantityEmpty.value = cartLines.any((cart) =>
-              cart.quantity?.quantityNumber == 0 ||
-              cart.quantity?.quantityNumber == 0.0);
-
-          isQuantitySelected.value = isBizerbaCode == false;
-
-          selectedItemData.value = CartLine(
-            cartLineId: firstCartLine.cartLineId,
-            item: firstCartLine.item,
-            quantity: firstCartLine.quantity,
-            unitPrice: firstCartLine.unitPrice,
-            mrp: firstCartLine.mrp,
-            lineTotal: firstCartLine.lineTotal,
-            applicableCartAdjustments: firstCartLine.applicableCartAdjustments,
-            audit: firstCartLine.audit,
-            weightController: TextEditingController(
-              text: quantityNumber.toString(),
-            ),
-            weightFocusNode: FocusNode(),
-            quantityTextController: TextEditingController(
-              text: quantityNumber.toString(),
-            ),
-            quantityFocusNode: FocusNode(),
-            priceTextController: TextEditingController(
-              text: quantityNumber.toString(),
-            ),
-            priceFocusNode: FocusNode(),
-          );
-        } else {
-          selectedItemData.value = CartLine();
-          isQuantitySelected.value = false;
-        }
+        mapCartLines(
+          cartResponse: response,
+          isFromAddToCart: true,
+          isBizerbaCode: isBizerbaCode,
+        );
       } else {
         //  No cart lines returned
         selectedItemData.value = CartLine();
@@ -907,12 +805,32 @@ class HomeController extends GetxController {
   Future<void> deleteCartItemApiCall(String? cartLineId) async {
     try {
       var response = await _homeRepository.deleteCartItem(
-          DeleteCartRequest(), cartId.value, cartLineId!);
+        DeleteCartRequest(),
+        cartId.value,
+        cartLineId!,
+      );
+
+      /* clearing existing data */
+      clearCart();
+      cartLines.clear();
+
+      /* assigning updated data */
       cartResponse.value = response;
-      fetchCartDetails();
       isQuantitySelected.value = false;
+
+      /* since we are deleting the cart item, assigning empty data */
       selectedItemData.value = CartLine();
       scanProductsResponse.value = ScanProductsResponse();
+
+      /* mapping data if it's not empty */
+      if (response.cartLines?.isNotEmpty == true) {
+        mapCartLines(cartResponse: response);
+      }
+
+      /* clearing weight & qty if prev item is selected */
+      /* requests focus on num pad*/
+      isScanApiError.value = true;
+      clearWeightOnSuccess.value = true;
     } catch (e) {
       Get.snackbar('Error while deleting item from cart', '$e');
     }
@@ -924,11 +842,11 @@ class HomeController extends GetxController {
       if (isApiCallInProgress) return;
       isApiCallInProgress = true;
       var response = await _homeRepository.updateCartItem(
-          UpdateCartRequest(
-              quantity: UpdateQuantity(quantityNumber: qty, quantityUom: qUom)),
-          cartId.value,
-          cartLineId!);
-      cartResponse.value = response;
+        UpdateCartRequest(
+            quantity: UpdateQuantity(quantityNumber: qty, quantityUom: qUom)),
+        cartId.value,
+        cartLineId!,
+      );
 
       /* checking for cart line errors */
       if (response.cartAlerts.isNotEmpty &&
@@ -946,7 +864,13 @@ class HomeController extends GetxController {
         return;
       }
 
-      fetchCartDetails();
+      if (response.cartLines?.isNotEmpty == true) {
+        clearCart();
+        cartLines.clear();
+        cartResponse.value = response;
+
+        mapCartLines(cartResponse: response);
+      }
     } catch (e) {
       Get.snackbar('Error while updating cart item', '$e');
     } finally {
@@ -1005,11 +929,14 @@ class HomeController extends GetxController {
   Future<void> resumeHoldCartApiCall({String? id, String? mobileNumber}) async {
     try {
       var response = await _homeRepository.resumeHoldCart(
-          id!,
-          ResumeHoldCartRequest(
-              terminalId:
-                  "${hiveStorageHelper.read(SharedPreferenceConstants.selectedTerminalId)}",
-              holdCartId: id));
+        id!,
+        ResumeHoldCartRequest(
+          terminalId:
+              "${hiveStorageHelper.read(SharedPreferenceConstants.selectedTerminalId)}",
+          holdCartId: id,
+        ),
+      );
+
       /* resetting the existing state */
       cartId.value = response.cartId ?? '';
       await hiveStorageHelper.remove(SharedPreferenceConstants.cartId);
@@ -1021,6 +948,15 @@ class HomeController extends GetxController {
       getCustomerDetails();
       fetchCustomer(isFromResumeHoldCart: true);
       clearHoldCartOrders();
+
+      /* mapping the resume hold cart data */
+      cartLines.clear();
+      clearCart();
+      cartResponse.value = response;
+
+      if (response.cartLines?.isNotEmpty == true) {
+        mapCartLines(cartResponse: response);
+      }
     } catch (e) {
       Get.snackbar('Error while resuming cart', '$e');
     }
@@ -1317,9 +1253,15 @@ class HomeController extends GetxController {
     late CartResponse? response;
     try {
       response = await _homeRepository.overridePrice(request);
-      cartResponse.value = response;
-      overideApproverUserId.value = '';
-      fetchCartDetails();
+      if (response.cartLines?.isNotEmpty == true) {
+        clearCart();
+        cartLines.clear();
+
+        cartResponse.value = response;
+        overideApproverUserId.value = '';
+
+        mapCartLines(cartResponse: response);
+      }
     } catch (e) {
       response = null;
       Get.snackbar('Error while overriding price', '$e');

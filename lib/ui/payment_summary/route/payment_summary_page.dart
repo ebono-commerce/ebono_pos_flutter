@@ -1,4 +1,5 @@
 import 'package:ebono_pos/constants/custom_colors.dart';
+import 'package:ebono_pos/cubit/training_mode_cubit.dart';
 import 'package:ebono_pos/data_store/hive_storage_helper.dart';
 import 'package:ebono_pos/data_store/shared_preference_helper.dart';
 import 'package:ebono_pos/extensions/string_extension.dart';
@@ -933,8 +934,13 @@ class _PaymentSummaryScreenState extends State<PaymentSummaryScreen> {
                                             onlinePaymentTextController
                                                 .value.text.isNotEmpty)
                                         ? () {
-                                            paymentBloc
-                                                .add(PaymentStartEvent());
+                                            paymentBloc.add(
+                                              PaymentStartEvent(
+                                                isTrainingModeEnabled: context
+                                                    .read<TrainingModeCubit>()
+                                                    .state,
+                                              ),
+                                            );
                                           }
                                         : null,
                                     child: Text(

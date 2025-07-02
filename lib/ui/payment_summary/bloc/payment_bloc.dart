@@ -199,6 +199,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
 
     try {
       final isTestMode = await sharedPreferenceHelper.isTestModeEnabled();
+      print("isTestMode: $isTestMode");
 
       var paytmInitiateChecksumRequest = PaytmInitiateChecksumRequest(
           outletId:
@@ -207,7 +208,9 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
               "${hiveStorageHelper.read(SharedPreferenceConstants.selectedTerminalId)}",
           cartId: paymentSummaryResponse.cartId,
           amount: AmountPayable(
-            centAmount: (isTestMode ? 1 : onlineAmount * 100).toInt(),
+            centAmount: event.isTrainingModeEnabled
+                ? (1 * 100)
+                : (onlineAmount * 100).toInt(),
             currency: paymentSummaryResponse.amountPayable?.currency,
             fraction: 100,
           ));
@@ -272,8 +275,10 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
         isLoading: true, initialState: false, isOnlinePaymentSuccess: true));
     final isTestMode = await sharedPreferenceHelper.isTestModeEnabled();
 
+    print("isTestMode: $isTestMode");
+
     PaymentRequest paymentRequest = PaymentRequest(
-        amount: isTestMode ? '1.0' : onlinePayment,
+        amount: event.isTrainingModeEnabled ? '1.0' : onlinePayment,
         externalRefNumber:
             paymentSummaryResponse.orderNumber ?? generateRandom8DigitNumber(),
         customerName:

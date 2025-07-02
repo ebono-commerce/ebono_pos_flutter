@@ -1,4 +1,5 @@
 import 'package:ebono_pos/constants/custom_colors.dart';
+import 'package:ebono_pos/data_store/shared_preference_helper.dart';
 import 'package:ebono_pos/models/cart_response.dart';
 import 'package:ebono_pos/ui/Common_button.dart';
 import 'package:ebono_pos/ui/common_text_field.dart';
@@ -14,8 +15,10 @@ import 'package:lottie/lottie.dart';
 class PriceOverrideWithAuthWidget extends StatefulWidget {
   final BuildContext dialogContext;
   final CartLine itemData;
+  final bool isPriceEditEnabled;
 
-  const PriceOverrideWithAuthWidget(this.dialogContext, this.itemData,
+  const PriceOverrideWithAuthWidget(
+      this.dialogContext, this.itemData, this.isPriceEditEnabled,
       {super.key});
 
   @override
@@ -36,10 +39,19 @@ class _PriceOverrideWithAuthWidgetState
   FocusNode? activeFocusNode;
   late ThemeData theme;
   late CartLine itemData;
-
+  String loginUserID = '';
   @override
   void initState() {
     super.initState();
+    SharedPreferenceHelper sharedPreferenceHelper =
+        Get.find<SharedPreferenceHelper>();
+    Future.microtask(() async {
+      if (widget.isPriceEditEnabled) {
+        loginUserID = await sharedPreferenceHelper.getUserID() ?? '';
+        homeController.overideApproverUserId.value = loginUserID;
+        setState(() {});
+      }
+    });
     itemData = widget.itemData;
     if (!loginIdFocusNode.hasFocus) {
       loginIdFocusNode.requestFocus();
@@ -117,109 +129,111 @@ class _PriceOverrideWithAuthWidgetState
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                homeController.overideApproverUserId.isEmpty
-                    ? Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Text(
-                              "Authorization is required for price update!",
-                              style: theme.textTheme.titleLarge?.copyWith(
-                                fontWeight: FontWeight.normal,
-                                color: CustomColors.black,
+                if (widget.isPriceEditEnabled == false) ...[
+                  homeController.overideApproverUserId.isEmpty
+                      ? Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text(
+                                "Authorization is required for price update!",
+                                style: theme.textTheme.titleLarge?.copyWith(
+                                  fontWeight: FontWeight.normal,
+                                  color: CustomColors.black,
+                                ),
                               ),
-                            ),
-                            const SizedBox(height: 10),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.all(10.0),
-                                  child: commonTextField(
-                                    label: "Login Id",
-                                    controller: loginIdController,
-                                    focusNode: loginIdFocusNode,
-                                    onValueChanged: (value) => value,
+                              const SizedBox(height: 10),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.all(10.0),
+                                    child: commonTextField(
+                                      label: "Login Id",
+                                      controller: loginIdController,
+                                      focusNode: loginIdFocusNode,
+                                      onValueChanged: (value) => value,
+                                    ),
                                   ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.all(10.0),
-                                  child: commonTextField(
-                                    label: "Password",
-                                    controller: passwordController,
-                                    focusNode: passwordFocusNode,
-                                    obscureText: true,
-                                    onValueChanged: (value) => value,
-                                    //readOnly: homeController.phoneNumber.isEmpty,
+                                  Padding(
+                                    padding: const EdgeInsets.all(10.0),
+                                    child: commonTextField(
+                                      label: "Password",
+                                      controller: passwordController,
+                                      focusNode: passwordFocusNode,
+                                      obscureText: true,
+                                      onValueChanged: (value) => value,
+                                      //readOnly: homeController.phoneNumber.isEmpty,
+                                    ),
                                   ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 20),
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Expanded(flex: 1, child: authoriseButton()),
-                                Expanded(flex: 1, child: cancelButton(false))
-                              ],
-                            ),
-                          ],
-                        ),
-                      )
-                    : Expanded(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Lottie.asset(
-                              'assets/lottie/success.json',
-                              width: 130,
-                              height: 130,
-                              fit: BoxFit.fill,
-                              repeat: true,
-                              reverse: false,
-                              animate: true,
-                            ),
-                            Text(
-                              'Authorization is successful!',
-                              style: theme.textTheme.titleLarge?.copyWith(
-                                fontWeight: FontWeight.normal,
-                                color: CustomColors.black,
+                                ],
                               ),
-                            ),
-                            const SizedBox(height: 10),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  'User ID:',
-                                  style: theme.textTheme.labelLarge?.copyWith(
-                                    fontWeight: FontWeight.normal,
-                                    color: CustomColors.greyFont,
-                                  ),
+                              const SizedBox(height: 20),
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Expanded(flex: 1, child: authoriseButton()),
+                                  Expanded(flex: 1, child: cancelButton(false))
+                                ],
+                              ),
+                            ],
+                          ),
+                        )
+                      : Expanded(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Lottie.asset(
+                                'assets/lottie/success.json',
+                                width: 130,
+                                height: 130,
+                                fit: BoxFit.fill,
+                                repeat: true,
+                                reverse: false,
+                                animate: true,
+                              ),
+                              Text(
+                                'Authorization is successful!',
+                                style: theme.textTheme.titleLarge?.copyWith(
+                                  fontWeight: FontWeight.normal,
+                                  color: CustomColors.black,
                                 ),
-                                Text(
-                                  homeController.overideApproverUserId.value,
-                                  style: theme.textTheme.labelLarge?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                    color: CustomColors.black,
+                              ),
+                              const SizedBox(height: 10),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    'User ID:',
+                                    style: theme.textTheme.labelLarge?.copyWith(
+                                      fontWeight: FontWeight.normal,
+                                      color: CustomColors.greyFont,
+                                    ),
                                   ),
-                                ),
-                              ],
-                            ),
-                          ],
+                                  Text(
+                                    homeController.overideApproverUserId.value,
+                                    style: theme.textTheme.labelLarge?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                      color: CustomColors.black,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                Flexible(
-                    child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 40),
-                  child: Container(
-                    color: CustomColors.borderColor,
-                    width: 1,
-                    height: 260,
-                  ),
-                )),
-                Expanded(child: itemDetails())
+                  Flexible(
+                      child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 40),
+                    child: Container(
+                      color: CustomColors.borderColor,
+                      width: 1,
+                      height: 260,
+                    ),
+                  )),
+                ],
+                Flexible(child: itemDetails())
               ],
             );
           },
@@ -300,6 +314,7 @@ class _PriceOverrideWithAuthWidgetState
 
   Widget itemDetails() {
     return Container(
+      width: 900,
       padding: const EdgeInsets.all(16.0),
       margin: const EdgeInsets.symmetric(horizontal: 16.0),
       decoration: BoxDecoration(

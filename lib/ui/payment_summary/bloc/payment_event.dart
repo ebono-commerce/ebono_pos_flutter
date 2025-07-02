@@ -10,7 +10,11 @@ class PaymentInitialEvent extends PaymentEvent {
 class FetchPaymentSummary extends PaymentEvent {}
 
 // For Payment EDC api
-class PaymentStartEvent extends PaymentEvent {}
+class PaymentStartEvent extends PaymentEvent {
+  final bool isTrainingModeEnabled;
+
+  PaymentStartEvent({required this.isTrainingModeEnabled});
+}
 
 class PaymentStatusEvent extends PaymentEvent {
   final bool isFromDialogue;

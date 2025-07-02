@@ -109,7 +109,7 @@ class _OrdersSectionState extends State<OrdersSection>
 
     ever(homeController.isScanApiError, (value) {
       if (value) {
-        numPadTextController.text = '';
+        numPadTextController.clear();
         _requestFocusOnNumpad();
         // setState(() {});
       }
@@ -244,22 +244,66 @@ class _OrdersSectionState extends State<OrdersSection>
                     onCustomerPressed: triggerCustomerDialog,
                     onHoldCartPressed: () {
                       if (homeController.isContionueWithOutCustomer.value) {
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return Dialog(
-                              insetPadding:
-                                  EdgeInsets.symmetric(vertical: 15.0),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20.0),
-                              ),
-                              child: AddCustomerWidget(
-                                context,
-                                onClose: _requestFocusOnNumpad,
-                              ),
-                            );
-                          },
-                        );
+                        AuthModes enableHoldCartMode =
+                            AuthModeExtension.fromString(
+                                homeController.isEnableHoldCartEnabled.value);
+                        if (enableHoldCartMode == AuthModes.enabled ||
+                            homeController
+                                .holdCartApproverUserId.value.isNotEmpty) {
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return Dialog(
+                                insetPadding:
+                                    EdgeInsets.symmetric(vertical: 15.0),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20.0),
+                                ),
+                                child: AddCustomerWidget(
+                                  context,
+                                  onClose: _requestFocusOnNumpad,
+                                ),
+                              );
+                            },
+                          );
+                        } else if (enableHoldCartMode == AuthModes.authorised) {
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return Dialog(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20.0),
+                                ),
+                                child: AuthorisationRequiredWidget(
+                                  context,
+                                  'HOLD_CART',
+                                  onAuthSuccess: () {
+                                    showDialog(
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return Dialog(
+                                          insetPadding: EdgeInsets.symmetric(
+                                              vertical: 15.0),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(20.0),
+                                          ),
+                                          child: AddCustomerWidget(
+                                            context,
+                                            onClose: _requestFocusOnNumpad,
+                                          ),
+                                        );
+                                      },
+                                    );
+                                  },
+                                ),
+                              );
+                            },
+                          );
+                        } else {
+                          Get.snackbar('Hold Cart disabled for this account',
+                              'Please contact store manager');
+                        }
                       } else {
                         AuthModes enableHoldCartMode =
                             AuthModeExtension.fromString(
@@ -287,8 +331,8 @@ class _OrdersSectionState extends State<OrdersSection>
                             },
                           );
                         } else {
-                          Get.snackbar('Action Disabled for this account',
-                              'Please contact support');
+                          Get.snackbar('Hold Cart disabled for this account',
+                              'Please contact store manager');
                         }
                       }
                     },
@@ -297,8 +341,9 @@ class _OrdersSectionState extends State<OrdersSection>
                           AuthModeExtension.fromString(
                               homeController.isSalesAssociateLinkEnabled.value);
                       if (enableSalesAssociateMode == AuthModes.disabled) {
-                        Get.snackbar('Action Disabled for this account',
-                            'Please contact support');
+                        Get.snackbar(
+                            'Sales Associate disabled for this account',
+                            'Please contact store manager');
                       } else {
                         showDialog(
                           context: context,
@@ -581,7 +626,6 @@ class _OrdersSectionState extends State<OrdersSection>
                 maxLines: 1, width: 100)),
         InkWell(
             onTap: () {
-              print('STEP:here2');
               homeController.selectedItemData.value = itemData;
               homeController.isQuantitySelected.value = true;
               var quantity =
@@ -591,6 +635,9 @@ class _OrdersSectionState extends State<OrdersSection>
             child: _buildTableCell(itemData.item?.skuTitle ?? '',
                 maxLines: 2, width: 180)),
         _buildQuantityCell(itemData),
+        _buildTableCell(
+            getActualPrice(itemData.mrp?.centAmount, itemData.mrp?.fraction),
+            width: 100),
         InkWell(
           onTap: () {
             AuthModes enablePriceEdit = AuthModeExtension.fromString(
@@ -604,39 +651,14 @@ class _OrdersSectionState extends State<OrdersSection>
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20.0),
                     ),
-                    child: PriceOverrideWithAuthWidget(context, itemData),
+                    child: PriceOverrideWithAuthWidget(context, itemData,
+                        enablePriceEdit == AuthModes.enabled),
                   );
                 },
               );
             } else {
-              Get.snackbar(
-                  'Action Disabled for this account', 'Please contact support');
-            }
-          },
-          child: _buildTableCell(
-              getActualPrice(itemData.mrp?.centAmount, itemData.mrp?.fraction),
-              width: 100),
-        ),
-        InkWell(
-          onTap: () {
-            AuthModes enablePriceEdit = AuthModeExtension.fromString(
-                homeController.isPriceEditEnabled.value);
-            if (enablePriceEdit == AuthModes.enabled ||
-                enablePriceEdit == AuthModes.authorised) {
-              showDialog(
-                context: context,
-                builder: (BuildContext context) {
-                  return Dialog(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20.0),
-                    ),
-                    child: PriceOverrideWithAuthWidget(context, itemData),
-                  );
-                },
-              );
-            } else {
-              Get.snackbar(
-                  'Action Disabled for this account', 'Please contact support');
+              Get.snackbar('Price Edit disabled for this account',
+                  'Please contact store manager');
             }
           },
           child: _buildTableCell(
@@ -720,8 +742,8 @@ class _OrdersSectionState extends State<OrdersSection>
               ),
             );
           } else {
-            Get.snackbar(
-                'Action Disabled for this account', 'Please contact support');
+            Get.snackbar('Quantity Edit Mode disabled for this account',
+                'Please contact store manager');
           }
         }
       },
@@ -830,8 +852,8 @@ class _OrdersSectionState extends State<OrdersSection>
                   ),
                 );
               } else {
-                Get.snackbar('Action Disabled for this account',
-                    'Please contact support');
+                Get.snackbar('Line Delete Mode disabled for this account',
+                    'Please contact store manager');
               }
             }),
       ),

@@ -130,8 +130,8 @@ class _HomePageState extends State<HomePage> {
                             },
                           );
                         } else {
-                          Get.snackbar('Action Disabled for this account',
-                              'Please contact support');
+                          Get.snackbar('Returns Disabled for this account',
+                              'Please contact store manager');
                         }
                       },
                       title: "Returns",

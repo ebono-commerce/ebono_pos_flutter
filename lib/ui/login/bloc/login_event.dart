@@ -15,8 +15,9 @@ class SelectPrinter extends LoginEvent {
 class LoginButtonPressed extends LoginEvent {
   final String loginId;
   final String password;
+  final bool isTrainingModeEnabled;
 
-  LoginButtonPressed(this.loginId, this.password);
+  LoginButtonPressed(this.loginId, this.password, this.isTrainingModeEnabled);
 }
 
 class LogoutButtonPressed extends LoginEvent {
