@@ -142,11 +142,11 @@ class HomeController extends GetxController {
   var isQuantityEmpty = false.obs;
   var isQuantitySelected = false.obs;
   var overideApproverUserId = ''.obs;
-  var deleteLineApproverUserId = ''.obs;
-  var holdCartApproverUserId = ''.obs;
-  var returnsViewApproverUserId = ''.obs;
-  var qtyEditApproverUserId = ''.obs;
-  var salesAssociateApproverUserId = ''.obs;
+  var deleteLineApproverUserId = '';
+  var holdCartApproverUserId = '';
+  var returnsViewApproverUserId = '';
+  var qtyEditApproverUserId = '';
+  var salesAssociateApproverUserId = '';
 
   var couponDetails = ''.obs;
   var pointedTo = 'LOCAL'.obs;
@@ -653,12 +653,13 @@ class HomeController extends GetxController {
       var response =
           await _homeRepository.getCart(CartRequest(cartId: cartId.value));
 
+      /* clearing the cart only when response is successful */
+      clearCart();
+      cartLines.clear();
+      cartResponse.value = response;
+
       if (response.cartLines != null &&
           response.cartLines?.isNotEmpty == true) {
-        /* clearing the cart only when response is successful */
-        clearCart();
-        cartLines.clear();
-        cartResponse.value = response;
         mapCartLines(cartResponse: response);
       } else {
         /* no use of clearing cart when api error */
@@ -894,6 +895,7 @@ class HomeController extends GetxController {
       isQuantitySelected.value = false;
       selectedItemData.value = CartLine();
       scanProductsResponse.value = ScanProductsResponse();
+      clearApproverIDs();
       Get.snackbar('Cart cleared successfully', 'All items removed');
     } catch (e) {
       Get.snackbar('Error while clearing full cart', '$e');
@@ -920,6 +922,7 @@ class HomeController extends GetxController {
       cartResponse.value = CartResponse();
       selectedItemData.value = CartLine();
       scanProductsResponse.value = ScanProductsResponse();
+      clearApproverIDs();
       Get.snackbar('Cart held successfully', 'Cart saved for later!');
     } catch (e) {
       Get.snackbar('Error while holding cart', '$e');
@@ -952,6 +955,7 @@ class HomeController extends GetxController {
       /* mapping the resume hold cart data */
       cartLines.clear();
       clearCart();
+      clearApproverIDs();
       cartResponse.value = response;
 
       if (response.cartLines?.isNotEmpty == true) {
@@ -1233,13 +1237,13 @@ class HomeController extends GetxController {
         if (authFor == 'PRICE_OVERRIDE') {
           overideApproverUserId.value = response.userId!;
         } else if (authFor == 'DELETE') {
-          deleteLineApproverUserId.value = response.userId!;
+          deleteLineApproverUserId = response.userId!;
         } else if (authFor == 'HOLD_CART') {
-          holdCartApproverUserId.value = response.userId!;
+          holdCartApproverUserId = response.userId!;
         } else if (authFor == 'RETURNS') {
-          returnsViewApproverUserId.value = response.userId!;
+          returnsViewApproverUserId = response.userId!;
         } else if (authFor == 'QTY_EDIT') {
-          qtyEditApproverUserId.value = response.userId!;
+          qtyEditApproverUserId = response.userId!;
         }
       }
       return true;
@@ -1256,10 +1260,7 @@ class HomeController extends GetxController {
       if (response.cartLines?.isNotEmpty == true) {
         clearCart();
         cartLines.clear();
-
         cartResponse.value = response;
-        overideApproverUserId.value = '';
-
         mapCartLines(cartResponse: response);
       }
     } catch (e) {
@@ -1407,6 +1408,15 @@ class HomeController extends GetxController {
 
   void closeUdpSocketConnection() async {
     await closeUdpSocket();
+  }
+
+  clearApproverIDs() {
+    overideApproverUserId.value = '';
+    deleteLineApproverUserId = '';
+    holdCartApproverUserId = '';
+    returnsViewApproverUserId = '';
+    qtyEditApproverUserId = '';
+    salesAssociateApproverUserId = '';
   }
 
   @override

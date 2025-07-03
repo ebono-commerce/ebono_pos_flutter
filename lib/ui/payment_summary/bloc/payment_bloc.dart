@@ -815,7 +815,6 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
         SharedPreferenceConstants.lastOrderAt,
         orderSummaryResponse.orderDate.toString(),
       );
-
       emit(state.copyWith(
           isLoading: false,
           isPlaceOrderLoading: false,
@@ -833,6 +832,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
           listenToOrderInvoiceSSE(orderSummaryResponse.orderNumber!);
         }
       }
+      _homeController.clearApproverIDs();
     } catch (error) {
       emit(state.copyWith(
           isLoading: false,
