@@ -248,8 +248,7 @@ class _OrdersSectionState extends State<OrdersSection>
                             AuthModeExtension.fromString(
                                 homeController.isEnableHoldCartEnabled.value);
                         if (enableHoldCartMode == AuthModes.enabled ||
-                            homeController
-                                .holdCartApproverUserId.value.isNotEmpty) {
+                            homeController.holdCartApproverUserId.isNotEmpty) {
                           showDialog(
                             context: context,
                             builder: (BuildContext context) {
@@ -309,8 +308,7 @@ class _OrdersSectionState extends State<OrdersSection>
                             AuthModeExtension.fromString(
                                 homeController.isEnableHoldCartEnabled.value);
                         if (enableHoldCartMode == AuthModes.enabled ||
-                            homeController
-                                .holdCartApproverUserId.value.isNotEmpty) {
+                            homeController.holdCartApproverUserId.isNotEmpty) {
                           homeController.holdCartApiCall();
                         } else if (enableHoldCartMode == AuthModes.authorised) {
                           showDialog(
@@ -716,7 +714,6 @@ class _OrdersSectionState extends State<OrdersSection>
   ) {
     return InkWell(
       onTap: () {
-        print('STEP: qty selected');
         print(itemData.quantity?.quantityNumber);
         if (itemData.item?.isWeighedItem == true &&
             itemData.quantity?.quantityNumber == 0.0) {
@@ -729,7 +726,7 @@ class _OrdersSectionState extends State<OrdersSection>
             homeController.isQuantityEditEnabled.value,
           );
           if (qtyMode == AuthModes.enabled ||
-              homeController.qtyEditApproverUserId.value.isNotEmpty) {
+              homeController.qtyEditApproverUserId.isNotEmpty) {
             onQuantityEdit(itemData);
           } else if (qtyMode == AuthModes.authorised) {
             showDialog(
@@ -839,7 +836,7 @@ class _OrdersSectionState extends State<OrdersSection>
               );
 
               if (deleteMode == AuthModes.enabled ||
-                  homeController.deleteLineApproverUserId.value.isNotEmpty) {
+                  homeController.deleteLineApproverUserId.isNotEmpty) {
                 _showRemoveDialog(itemData);
               } else if (deleteMode == AuthModes.authorised) {
                 showDialog(

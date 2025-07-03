@@ -95,9 +95,7 @@ class _HomePageState extends State<HomePage> {
                         AuthModes returnsEnabledMode =
                             AuthModeExtension.fromString(
                                 homeController.isReturnViewEnabled.value);
-                        if (returnsEnabledMode == AuthModes.enabled ||
-                            homeController
-                                .returnsViewApproverUserId.value.isNotEmpty) {
+                        if (returnsEnabledMode == AuthModes.enabled) {
                           if (homeController.selectedTabButton.value == 4) {
                             homeController.isReturnViewReset.value = true;
                           } else {
