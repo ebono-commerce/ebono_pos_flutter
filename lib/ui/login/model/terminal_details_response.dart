@@ -82,13 +82,14 @@ class OutletDetails {
             : AllowedPosIps.fromJson(json["allowed_pos_ips"]),
         outletCustomerProxyPhoneNumber:
             json["outlet_customer_proxy_phone_number"],
-        quantityEditMode: json["quantity_edit_mode"],
-        lineDeleteMode: json["line_delete_mode"],
-        enableHoldCartMode: json["enable_hold_cart_mode"],
-        priceEditMode: json["price_edit_mode"],
-        salesAssociateLink: json["sales_associate_link"],
-        isDigitalInvoiceEnabled: json["is_digital_invoice_enabled"],
-        mandateRegisterCloseOnLogout: json["mandate_register_close_on_logout"],
+        quantityEditMode: json["quantity_edit_mode"] ?? '',
+        lineDeleteMode: json["line_delete_mode"] ?? '',
+        enableHoldCartMode: json["enable_hold_cart_mode"] ?? '',
+        priceEditMode: json["price_edit_mode"] ?? '',
+        salesAssociateLink: json["sales_associate_link"] ?? '',
+        isDigitalInvoiceEnabled: json["is_digital_invoice_enabled"] ?? false,
+        mandateRegisterCloseOnLogout:
+            json["mandate_register_close_on_logout"] ?? '',
         isActive: json["is_active"],
         allowedPaymentModes: json["allowed_payment_modes"] == null
             ? []
@@ -206,7 +207,7 @@ class TerminalDetails {
               ? null
               : PrinterDevice.fromJson(json["printer_device"]),
           isActive: json["is_active"],
-          returnsEnabledMode: json["returns_enabled_mode"] ?? 'ENABLED');
+          returnsEnabledMode: json["returns_enabled_mode"] ?? '');
 
   Map<String, dynamic> toJson() => {
         "terminal_id": terminalId,
