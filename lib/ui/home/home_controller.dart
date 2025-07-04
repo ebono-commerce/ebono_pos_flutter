@@ -231,7 +231,8 @@ class HomeController extends GetxController {
             .read(SharedPreferenceConstants.isDigitalInvoiceEnabled) ??
         false;
     isMandateRegisterCloseOnLogoutEnabled.value = hiveStorageHelper
-        .read(SharedPreferenceConstants.mandateRegisterCloseOnLogout);
+            .read(SharedPreferenceConstants.mandateRegisterCloseOnLogout) ??
+        '';
     isReturnViewEnabled.value =
         hiveStorageHelper.read(SharedPreferenceConstants.isReturnsEnabled);
     pointingTo.value = await sharedPreferenceHelper.pointingTo();
@@ -653,12 +654,13 @@ class HomeController extends GetxController {
       var response =
           await _homeRepository.getCart(CartRequest(cartId: cartId.value));
 
+      /* clearing the cart only when response is successful */
+      clearCart();
+      cartLines.clear();
+      cartResponse.value = response;
+
       if (response.cartLines != null &&
           response.cartLines?.isNotEmpty == true) {
-        /* clearing the cart only when response is successful */
-        clearCart();
-        cartLines.clear();
-        cartResponse.value = response;
         mapCartLines(cartResponse: response);
       } else {
         /* no use of clearing cart when api error */

@@ -255,8 +255,8 @@ class _ReturnSummaryWidgetState extends State<ReturnSummaryWidget> {
                               child: CustomTableWidget(
                                 headers: widget.returnsConfirmationTableData
                                     .buildReturnOrderItemsTableHeader(
-                                  returnReasons:
-                                      state.orderItemsData.refundModes,
+                                  returnReasons: state.orderItemsData
+                                      .getListOfRefundModes(),
                                   selectedReason:
                                       state.commonSelectedReason ?? '',
                                   onReasonSelected: (reason) {
