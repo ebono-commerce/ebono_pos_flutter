@@ -32,17 +32,14 @@ class AppRequestInterceptor extends Interceptor {
       options.headers['Accept'] = 'application/json, text/plain, */*';
     } else if (options.uri.path.contains('/ecr')) {
       options.baseUrl = EnvironmentConfig.paytmBaseUrl;
-    }
-    else if (options.uri.path.contains('/health')) {
+    } else if (options.uri.path.contains('/health')) {
       /* made duration to 5 sec, in order to reduce time out in login when switching*/
       options.connectTimeout = Duration(seconds: 5);
     } else if (options.uri.path.contains(ApiConstants.generateSmsInvoice)) {
       options.baseUrl = EnvironmentConfig.bffUrl;
-    }
-    else if (options.uri.path.contains('metrics-collector')) {
+    } else if (options.uri.path.contains('metrics-collector')) {
       options.baseUrl = EnvironmentConfig.metricsBaseUrl;
-    }
-    else {
+    } else {
       if (token != null && !options.uri.path.contains('/login')) {
         options.headers['Authorization'] = 'Bearer $token';
       }
