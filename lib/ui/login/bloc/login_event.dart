@@ -15,8 +15,9 @@ class SelectPrinter extends LoginEvent {
 class LoginButtonPressed extends LoginEvent {
   final String loginId;
   final String password;
+  final bool isTrainingModeEnabled;
 
-  LoginButtonPressed(this.loginId, this.password);
+  LoginButtonPressed(this.loginId, this.password, this.isTrainingModeEnabled);
 }
 
 class LogoutButtonPressed extends LoginEvent {
@@ -27,8 +28,9 @@ class LogoutButtonPressed extends LoginEvent {
 
 class GetOutletDetails extends LoginEvent {
   final String outletName;
+  final Function()? onOutletSelected;
 
-  GetOutletDetails(this.outletName);
+  GetOutletDetails(this.outletName, this.onOutletSelected);
 }
 
 class SelectTerminal extends LoginEvent {
@@ -39,7 +41,7 @@ class SelectTerminal extends LoginEvent {
 
 class SubmitTerminalDetails extends LoginEvent {}
 
-class SelectPosMode extends LoginEvent{
+class SelectPosMode extends LoginEvent {
   final String posMode;
 
   SelectPosMode(this.posMode);

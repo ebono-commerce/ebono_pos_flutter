@@ -27,9 +27,18 @@ class ApiConstants {
   static final clearFullCart = 'checkout/api/v1/pos/cart/';
   static final resumeHoldCart = 'checkout/api/v1/pos/cart/resume';
   static final healthCheck = 'health';
-  static final paymentApiInitiate = '/api/3.0/p2p/start';
-  static final paymentApiStatus = '/api/3.0/p2p/status';
-  static final paymentApiCancel = '/api/3.0/p2p/cancel';
+  static final ezetapInitiateApi = '/api/3.0/p2p/start';
+  static final ezetapStatusApi = '/api/3.0/p2p/status';
+  static final ezetapCancelApi = '/api/3.0/p2p/cancel';
+  static final fetchPaytmInitiateChecksum =
+      'checkout/api/v1/pos/payment/paytm/request';
+  static final fetchPaytmStatusChecksum =
+      'checkout/api/v1/pos/payment/paytm/status';
+  static final fetchPaytmCancelChecksum =
+      'checkout/api/v1/pos/payment/paytm/abort';
+  static final paytmInitiateApi = 'ecr/payment/request';
+  static final paytmStatusApi = 'ecr/V2/payment/status';
+  static final paytmCancelApi = 'ecr/abort/txn';
   static final openRegister = 'account/api/v1/pos/register-open';
   static final closeRegister = 'account/api/v1/pos/register-close';
   static final getTerminalTransactions =
@@ -59,6 +68,7 @@ class ApiConstants {
 
   static String searchItems(String searchText) =>
       'catalog/api/v1/pos/products/fetch/$searchText';
+  static String generateSmsInvoice = '/account/api/v1/pos/trigger_sms';
 
   static final sendPosMetrics =
       'metrics-collector/v1/metrics-collector/capture';

@@ -35,6 +35,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
   List<String> availablePorts = [];
   List<Printer> availablePrintersDetails = [];
   List<String> availablePrinters = [];
+  bool isTestModeEnabled = false;
 
   Map<String, Map<String, String>> allowedPosData = {
     'POS': {
@@ -73,8 +74,13 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     on<SelectPosMode>(_selectPosMode);
   }
 
+  Future<void> fetchTestMode() async {
+    isTestModeEnabled = await _sharedPreferenceHelper.isTestModeEnabled();
+  }
+
   Future<void> _onLoginInitial(
       LoginInitialEvent event, Emitter<LoginState> emit) async {
+    await fetchTestMode();
     availablePorts = SerialPort.availablePorts;
     //Printer? selectedPrinter = await Printing.pickPrinter(context: context);
     availablePrintersDetails = await Printing.listPrinters();
@@ -111,7 +117,13 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     emit(LoginLoading());
     try {
       /* check for health status api */
-      final status = await healthCheckAPI();
+      bool status = false;
+
+      if (!event.isTrainingModeEnabled) {
+        status = await healthCheckAPI();
+      } else {
+        status = false;
+      }
 
       await _sharedPreferenceHelper.pointTo(isCloud: status == false);
 
@@ -178,9 +190,11 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
               outletId: selectedOutlet,
               terminalId: selectedTerminal,
               posMode: selectedPosMode));
-
+      final trainingModeStatus =
+          await _sharedPreferenceHelper.isTestModeEnabled();
       _sharedPreferenceHelper.clearAll();
       hiveStorageHelper.clear();
+      await _sharedPreferenceHelper.saveTestModeStatus(trainingModeStatus);
       emit(LogoutSuccess());
     } catch (error) {
       emit(LogoutFailure(error.toString()));
@@ -227,6 +241,9 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
             SharedPreferenceConstants.selectedPosMode, allowedPosModes.first);
       }
       emit(GetOutletDetailsSuccess());
+      if (event.onOutletSelected != null) {
+        event.onOutletSelected!();
+      }
     } catch (error) {
       emit(GetOutletDetailsFailure(error.toString()));
     }
@@ -282,6 +299,13 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       hiveStorageHelper.save(
           SharedPreferenceConstants.isSalesAssociateLinkEnabled,
           response.outletDetails?.salesAssociateLink);
+      hiveStorageHelper.save(SharedPreferenceConstants.isDigitalInvoiceEnabled,
+          response.outletDetails?.isDigitalInvoiceEnabled);
+      hiveStorageHelper.save(
+          SharedPreferenceConstants.mandateRegisterCloseOnLogout,
+          response.outletDetails?.mandateRegisterCloseOnLogout);
+      hiveStorageHelper.save(SharedPreferenceConstants.isReturnsEnabled,
+          response.terminalDetails?.returnsEnabledMode);
 
       final provider = response.terminalDetails?.edcDevices?.isNotEmpty == true
           ? response.terminalDetails!.edcDevices!.first.provider

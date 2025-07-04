@@ -70,10 +70,16 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
         isReturningOrders: true,
       ));
 
+      final selectedOrderLines = state.orderItemsData.orderLines
+          ?.where((order) => order.isSelected == true)
+          .map((item) {
+        final returnReason = state.orderItemsData
+            .fetchTypeFromLabel(item.returnReason.toString());
+        return item.copyWith(returnReason: returnReason);
+      }).toList();
+
       final payloadData = state.orderItemsData.copyWith(
-        orderLines: state.orderItemsData.orderLines
-            ?.where((order) => order.isSelected == true)
-            .toList(),
+        orderLines: selectedOrderLines,
       );
 
       final response = await returnsRepository.proceedToReturnItems(

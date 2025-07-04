@@ -49,6 +49,8 @@ class OutletDetails {
   String? enableHoldCartMode;
   String? priceEditMode;
   String? salesAssociateLink;
+  String? mandateRegisterCloseOnLogout;
+  bool? isDigitalInvoiceEnabled;
   bool? isActive;
   List<AllowedPaymentMode>? allowedPaymentModes;
 
@@ -64,6 +66,8 @@ class OutletDetails {
     this.enableHoldCartMode,
     this.priceEditMode,
     this.salesAssociateLink,
+    this.mandateRegisterCloseOnLogout,
+    this.isDigitalInvoiceEnabled,
     this.isActive,
     this.allowedPaymentModes,
   });
@@ -83,6 +87,8 @@ class OutletDetails {
         enableHoldCartMode: json["enable_hold_cart_mode"],
         priceEditMode: json["price_edit_mode"],
         salesAssociateLink: json["sales_associate_link"],
+        isDigitalInvoiceEnabled: json["is_digital_invoice_enabled"],
+        mandateRegisterCloseOnLogout: json["mandate_register_close_on_logout"],
         isActive: json["is_active"],
         allowedPaymentModes: json["allowed_payment_modes"] == null
             ? []
@@ -171,6 +177,7 @@ class TerminalDetails {
   List<EdcDevice>? edcDevices;
   PrinterDevice? printerDevice;
   bool? isActive;
+  String? returnsEnabledMode;
 
   TerminalDetails({
     this.terminalId,
@@ -181,24 +188,25 @@ class TerminalDetails {
     this.edcDevices,
     this.printerDevice,
     this.isActive,
+    this.returnsEnabledMode,
   });
 
   factory TerminalDetails.fromJson(Map<String, dynamic> json) =>
       TerminalDetails(
-        terminalId: json["terminal_id"],
-        terminalName: json["terminal_name"],
-        status: json["status"],
-        isEdcIntegrated: json["is_edc_integrated"],
-        isWeighingScaleIntegrated: json["is_weighing_scale_integrated"],
-        edcDevices: json["edc_device"] == null
-            ? []
-            : List<EdcDevice>.from(
-                json["edc_device"]!.map((x) => EdcDevice.fromJson(x))),
-        printerDevice: json["printer_device"] == null
-            ? null
-            : PrinterDevice.fromJson(json["printer_device"]),
-        isActive: json["is_active"],
-      );
+          terminalId: json["terminal_id"],
+          terminalName: json["terminal_name"],
+          status: json["status"],
+          isEdcIntegrated: json["is_edc_integrated"],
+          isWeighingScaleIntegrated: json["is_weighing_scale_integrated"],
+          edcDevices: json["edc_device"] == null
+              ? []
+              : List<EdcDevice>.from(
+                  json["edc_device"]!.map((x) => EdcDevice.fromJson(x))),
+          printerDevice: json["printer_device"] == null
+              ? null
+              : PrinterDevice.fromJson(json["printer_device"]),
+          isActive: json["is_active"],
+          returnsEnabledMode: json["returns_enabled_mode"] ?? 'ENABLED');
 
   Map<String, dynamic> toJson() => {
         "terminal_id": terminalId,

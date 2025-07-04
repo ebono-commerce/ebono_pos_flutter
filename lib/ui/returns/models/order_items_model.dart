@@ -1,4 +1,3 @@
-import 'package:ebono_pos/extensions/string_extension.dart';
 import 'package:ebono_pos/ui/returns/models/customer_order_model.dart';
 
 class OrderItemsModel {
@@ -6,7 +5,7 @@ class OrderItemsModel {
   final String? deliveryGroupId;
   final Customer? customer;
   final List<OrderLine>? orderLines;
-  final List<String> refundModes;
+  final List<RefundMode> refundModes;
   final bool isAllOrdersSelected;
   final bool? isCustomerVerificationRequired;
 
@@ -15,7 +14,7 @@ class OrderItemsModel {
     this.orderLines,
     this.customer,
     this.deliveryGroupId,
-    this.refundModes = const <String>[],
+    this.refundModes = const <RefundMode>[],
     this.isAllOrdersSelected = false,
     this.isCustomerVerificationRequired,
   });
@@ -54,10 +53,13 @@ class OrderItemsModel {
           ? []
           : List<OrderLine>.from(
               map["order_lines"].map((x) => OrderLine.fromJSON(x))),
-      refundModes: map['return_modes'] != null
-          ? List<String>.from(map['return_modes']!
-              .map((x) => x.toString().replaceAll('_', ' ').toTitleCase()))
-          : [],
+      refundModes: map['return_modes'] != null && map['return_modes'].isNotEmpty
+          ? List<RefundMode>.from(
+              map['return_modes'].map(
+                (x) => RefundMode.fromJSON(x as Map<String, dynamic>),
+              ),
+            )
+          : const <RefundMode>[],
       isCustomerVerificationRequired:
           map['is_customer_verification_required'] ?? true,
     );
@@ -69,7 +71,7 @@ class OrderItemsModel {
     String? deliveryGroupId,
     List<OrderLine>? orderLines,
     bool? isAllOrdersSelected,
-    List<String>? refundModes,
+    List<RefundMode>? refundModes,
     bool? isCustomerVerificationRequired,
   }) {
     return OrderItemsModel(
@@ -82,6 +84,26 @@ class OrderItemsModel {
       isCustomerVerificationRequired:
           isCustomerVerificationRequired ?? this.isCustomerVerificationRequired,
     );
+  }
+
+  String fetchTypeFromLabel(String label) {
+    final match = refundModes.firstWhere(
+      (element) => element.label == label,
+      orElse: () => const RefundMode(),
+    );
+    return match.key;
+  }
+
+  String fetchLabelFromType(String key) {
+    final match = refundModes.firstWhere(
+      (element) => element.key == key,
+      orElse: () => const RefundMode(),
+    );
+    return match.label;
+  }
+
+  List<String> getListOfRefundModes() {
+    return refundModes.map((e) => e.label).toList();
   }
 }
 
@@ -237,5 +259,29 @@ class Quantity {
       quantityNumber: map['quantity_number'],
       quantityUom: map['quantity_uom'],
     );
+  }
+}
+
+class RefundMode {
+  final String key;
+  final String label;
+
+  const RefundMode({
+    this.key = '',
+    this.label = '',
+  });
+
+  factory RefundMode.fromJSON(Map<String, dynamic> map) {
+    return RefundMode(
+      key: map['key'] ?? '',
+      label: map['label'] ?? '',
+    );
+  }
+
+  Map<String, dynamic> toJSON() {
+    return {
+      'key': key,
+      'label': label,
+    };
   }
 }

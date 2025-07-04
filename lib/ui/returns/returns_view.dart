@@ -1,4 +1,5 @@
 import 'package:ebono_pos/constants/custom_colors.dart';
+import 'package:ebono_pos/extensions/string_extension.dart';
 import 'package:ebono_pos/ui/common_text_field.dart';
 import 'package:ebono_pos/ui/custom_keyboard/custom_num_pad.dart';
 import 'package:ebono_pos/ui/home/home_controller.dart';
@@ -112,6 +113,8 @@ class _ReturnsViewState extends State<ReturnsView> {
     });
 
     numPadTextController.addListener(() {
+      numPadTextController.text =
+          numPadTextController.text.limitDecimalDigits(decimalRange: 3);
       setState(() {
         if (activeFocusNode == customerNumberFocusNode) {
           if (numPadTextController.text.length <= 10) {
@@ -1017,6 +1020,9 @@ class _ReturnsViewState extends State<ReturnsView> {
                         );
                         // Clearing Dropdown values on dialog close
                         returnsBloc.add(ResetValuesOnDialogCloseEvent());
+                        if (returnsBloc.state.isOrderReturnedSuccessfully) {
+                          homeController.isReturnViewReset.value = true;
+                        }
                       }
                     : null,
                 style: ElevatedButton.styleFrom(
