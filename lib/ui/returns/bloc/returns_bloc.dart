@@ -72,11 +72,11 @@ class ReturnsBloc extends Bloc<ReturnsEvent, ReturnsState> {
 
       final selectedOrderLines = state.orderItemsData.orderLines
           ?.where((order) => order.isSelected == true)
-          .map((item) => item.copyWith(
-                returnReason: state.orderItemsData
-                    .fetchTypeFromLabel(item.returnReason.toString()),
-              ))
-          .toList();
+          .map((item) {
+        final returnReason = state.orderItemsData
+            .fetchTypeFromLabel(item.returnReason.toString());
+        return item.copyWith(returnReason: returnReason);
+      }).toList();
 
       final payloadData = state.orderItemsData.copyWith(
         orderLines: selectedOrderLines,

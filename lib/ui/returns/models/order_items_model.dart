@@ -91,7 +91,15 @@ class OrderItemsModel {
       (element) => element.label == label,
       orElse: () => const RefundMode(),
     );
-    return match.type;
+    return match.key;
+  }
+
+  String fetchLabelFromType(String key) {
+    final match = refundModes.firstWhere(
+      (element) => element.key == key,
+      orElse: () => const RefundMode(),
+    );
+    return match.label;
   }
 
   List<String> getListOfRefundModes() {
@@ -255,24 +263,24 @@ class Quantity {
 }
 
 class RefundMode {
-  final String type;
+  final String key;
   final String label;
 
   const RefundMode({
-    this.type = '',
+    this.key = '',
     this.label = '',
   });
 
   factory RefundMode.fromJSON(Map<String, dynamic> map) {
     return RefundMode(
-      type: map['type'] ?? '',
+      key: map['key'] ?? '',
       label: map['label'] ?? '',
     );
   }
 
   Map<String, dynamic> toJSON() {
     return {
-      'type': type,
+      'key': key,
       'label': label,
     };
   }
