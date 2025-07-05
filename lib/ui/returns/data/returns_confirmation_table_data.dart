@@ -62,7 +62,7 @@ class ReturnsConfirmationTableData {
           reason,
           orderItemsData.orderLines![index].orderLineId!,
         ),
-        returnReasons: orderItemsData.refundModes,
+        returnReasons: orderItemsData.getListOfRefundModes(),
         orderLine: orderItemsData.orderLines![index],
         onTap: () => onTapSelectedButton?.call(index),
       ),
