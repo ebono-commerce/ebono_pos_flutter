@@ -68,6 +68,24 @@ class _OrdersSectionState extends State<OrdersSection>
       }
     });
 
+    ever(homeController.isQuantityExceedShowStopper, (value) {
+      if (value) {
+        if (!numPadFocusNode.hasFocus) {
+          _requestFocusOnNumpad();
+        }
+        homeController.isQuantityExceedShowStopper.value = false;
+      }
+    });
+
+    ever(homeController.isInvalidSKUShowStopper, (value) {
+      if (value) {
+        if (!numPadFocusNode.hasFocus) {
+          _requestFocusOnNumpad();
+        }
+        homeController.isInvalidSKUShowStopper.value = false;
+      }
+    });
+
     ever(weighingScaleService.weight, (value) {
       homeController.isAutoWeighDetection.value = true;
       if (!numPadFocusNode.hasFocus) {
@@ -1111,9 +1129,10 @@ class _OrdersSectionState extends State<OrdersSection>
                                 false) {
                               if (homeController.cartId.value.isNotEmpty &&
                                   homeController.registerId.isNotEmpty) {
-                                if (isValidOfferId(text) ||
-                                    (text.trim().isNotEmpty &&
-                                        text.length <= 3)) {
+                                if ((isValidOfferId(text) ||
+                                        (text.trim().isNotEmpty &&
+                                            text.length <= 3)) ||
+                                    (text.trim().toUpperCase().contains("W"))) {
                                   homeController
                                       .scanApiCall(numPadTextController.text);
                                 }
